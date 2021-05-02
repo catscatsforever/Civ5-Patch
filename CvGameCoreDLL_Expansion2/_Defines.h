@@ -237,13 +237,13 @@
 ///
 #define GREAT_SCIENTISTS_NERF
 ///
-// #define FAITH_FOR_THE_FIRST_SCIENTIST
+#define FAITH_FOR_THE_FIRST_SCIENTIST
 /// Can't declare war for 20 turns before renaissance and for 10 turns else
 #define NEW_DEFENSIVE_PACT
 ///
-// #define DEF_PACT_COUNT
+#define DEF_PACT_COUNT
 ///
-// #define RES_AGR_COUNT
+#define RES_AGR_COUNT
 /// Can't liberate cities for non-human players, can liberete city-states if only league leader
 #define NEW_CITIES_LIBERATION
 /// Gifted units can't attack if they already attacked this turn
@@ -261,7 +261,7 @@
 ///
 // #define BASE_TOURISM_PER_GREAT_WORK_4
 ///
-// #define SPACESHIP_ENGINEERING
+#define SPACESHIP_ENGINEERING
 ///
 #define NO_BOTS_PROJECTS
 ///
@@ -285,7 +285,7 @@
 /// Free courthouses are no longer removed when puppeting a city
 #define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
 /// Fixes the fact that in simultaneous turns multiplayer, barbarians can spawn and then move units in the same turn.
-// #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
+#define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 /// Fixes a possible null pointer dereferences in FoundPantheon()
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
 /// Turn timers are paused when a player is reconnecting
@@ -310,34 +310,34 @@
 #define AI_CANT_DECLARE_WAR
 #ifndef SEPARATE_GREAT_PEOPLE
 ///
-// #define SEPARATE_MERCHANTS
+#define SEPARATE_MERCHANTS
 #endif
 ///
-// #define NO_PUPPET_TECH_COST_MOD
+#define NO_PUPPET_TECH_COST_MOD
 /// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
-// #define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
+#define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
 ///
-// #define INDIA_HAPPINESS_BONUS
+#define INDIA_HAPPINESS_BONUS
 ///
-// #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
+#define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 ///
-// #define NO_EMBARKED_CIVILIAN_DEFENSE
+#define NO_EMBARKED_CIVILIAN_DEFENSE
 ///
-// #define NEW_OTTOMAN_UA
+#define NEW_OTTOMAN_UA
 ///
-// #define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
+#define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
-// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+#define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
-// #define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
+#define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
-// #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
+#define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
 /// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
-// #define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
+#define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
 ///
 #define AI_CANT_ADOPT_IDEOLOGY
 ///
-// #define NO_FAITH_FROM_MEETING_CS
+#define NO_FAITH_FROM_MEETING_CS
 ///
 #define AQUEDUCT_FIX
 /// AI players will no longer spread their religion to other human players' cities
