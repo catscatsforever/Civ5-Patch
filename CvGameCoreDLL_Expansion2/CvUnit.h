@@ -411,6 +411,10 @@ public:
 	const char* getVisualCivAdjective(TeamTypes eForTeam) const;
 	SpecialUnitTypes getSpecialUnitType() const;
 	bool IsGreatPerson() const;
+#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+	bool IsIgnoreExpended() const;
+	void SetIgnoreExpended(bool bNewValue);
+#endif
 	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;
 	UnitCombatTypes getUnitCombatType() const;
 	DomainTypes getDomainType() const;
@@ -1501,6 +1505,9 @@ protected:
 
 #if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
 	bool m_bCanInstahealThisTurn;
+#endif
+#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+	FAutoVariable<bool, CvUnit> m_bIsIgnoreExpended;
 #endif
 
 	mutable CvPathNodeArray m_kLastPath;

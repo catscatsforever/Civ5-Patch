@@ -235,7 +235,7 @@
 /// Can't sell buildings before entering Info Era 
 #define CANT_SELL_BEFORE_INFO_ERA
 ///
-#define GREAT_SCIENTISTS_NERF
+// #define GREAT_SCIENTISTS_NERF
 ///
 #define FAITH_FOR_THE_FIRST_SCIENTIST
 /// Can't declare war for 20 turns before renaissance and for 10 turns else
@@ -244,11 +244,11 @@
 #define DEF_PACT_COUNT
 ///
 #define RES_AGR_COUNT
-/// Can't liberate cities for non-human players, can liberete city-states if only league leader
+/// Can't liberate cities for non-human players, can liberate city-states if only league leader
 #define NEW_CITIES_LIBERATION
 /// Gifted units can't attack if they already attacked this turn
 #define GIFTED_UNITS_ATTACK
-/// Can nuke if only Mobile Tactics researched
+/// Can nuke only if Mobile Tactics researched
 #define MOBILE_TACTICS_NUKING
 ///
 #define LIMITATION_COMBAT_EXPERIENCE
@@ -259,9 +259,7 @@
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
 ///
-// #define BASE_TOURISM_PER_GREAT_WORK_4
-///
-#define SPACESHIP_ENGINEERING
+// #define SPACESHIP_ENGINEERING
 ///
 #define NO_BOTS_PROJECTS
 ///
@@ -285,7 +283,7 @@
 /// Free courthouses are no longer removed when puppeting a city
 #define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
 /// Fixes the fact that in simultaneous turns multiplayer, barbarians can spawn and then move units in the same turn.
-#define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
+// #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 /// Fixes a possible null pointer dereferences in FoundPantheon()
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
 /// Turn timers are paused when a player is reconnecting
@@ -310,36 +308,38 @@
 #define AI_CANT_DECLARE_WAR
 #ifndef SEPARATE_GREAT_PEOPLE
 ///
-#define SEPARATE_MERCHANTS
+// #define SEPARATE_MERCHANTS
 #endif
 ///
-#define NO_PUPPET_TECH_COST_MOD
+// #define NO_PUPPET_TECH_COST_MOD
 /// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
 #define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
 ///
-#define INDIA_HAPPINESS_BONUS
+// #define INDIA_HAPPINESS_BONUS
 ///
 #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 ///
 #define NO_EMBARKED_CIVILIAN_DEFENSE
 ///
-#define NEW_OTTOMAN_UA
+// #define NEW_OTTOMAN_UA
 ///
 #define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
 #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
-#define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
+// #define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
-#define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
+// #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
 /// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
-#define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
+// #define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
 ///
 #define AI_CANT_ADOPT_IDEOLOGY
 ///
-#define NO_FAITH_FROM_MEETING_CS
+// #define NO_FAITH_FROM_MEETING_CS
 ///
 #define AQUEDUCT_FIX
+///
+#define NO_BOTS_ALLYING_CS
 /// AI players will no longer spread their religion to other human players' cities
 #define NQM_AI_GIMP_NO_RELIGION_SPREAD
 /// AI players will no longer attempt to build any world wonders or world projects
@@ -348,6 +348,22 @@
 #define NQM_AI_GIMP_ALWAYS_WHITE_PEACE
 /// AI players will not build units that can settle. Also disables "expansion" economic strategies
 #define NQM_AI_GIMP_NO_BUILDING_SETTLERS
+///
+#define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
+///
+#define BELIEF_WORLD_CHURCH_PER_FOLLOWERS
+///
+#define BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+///
+#define BELIEF_PILGRIMAGE_PER_CITY
+///
+#define NO_OXFORD_AFTER_ATOM
+// extra trade routes from beliefs
+#define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+// city states will no longer declare peace if influence is less than -50
+#define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
+/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
+#define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly
@@ -414,8 +430,6 @@
 #define NQM_UNIT_NO_AA_INTERCEPT_AFTER_MOVE_BEFORE_TURN_END
 /// Fighters set to intercept duty can only perform interceptions after the player ends their turn. This should only affect simultaneous mode and stops players from turning on intercepts mid-turn to make air sweeps unreliable.
 #define NQM_UNIT_FIGHTER_NO_INTERCEPT_UNTIL_AFTER_TURN_END
-/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
-// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 // New hybrid mode
 /// When in hybrid mode, players who are not at war with each other have their turns happen simultaneously, thus speeding games up significantly
 #define AUI_GAME_BETTER_HYBRID_MODE
@@ -797,8 +811,6 @@
 #define NQ_FIX_MISSIONARY_COST_MODIFIER_BELIEF
 // faith costs now rounded to 5 instead of 10
 #define NQ_FAITH_COST_ROUNDS_TO_NEAREST_5
-// extra trade routes from beliefs
-#define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 // faith per foreign trade route
 #define NQ_FAITH_PER_FOREIGN_TRADE_ROUTE
 // religious pressure modifier to your cities vs cities that aren't yours

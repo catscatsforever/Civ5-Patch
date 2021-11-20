@@ -9710,7 +9710,11 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_CULTURE);
 			if (iTemp > 0)
 			{
+#ifdef BELIEF_WORLD_CHURCH_PER_FOLLOWERS
+				int iFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+#else
 				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
+#endif
 				if (iFollowers > 0)
 				{
 					iReligionCulturePerTurn += (iFollowers / iTemp);
@@ -10362,7 +10366,11 @@ int CvPlayer::GetFaithPerTurnFromReligion() const
 			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_FAITH);
 			if (iTemp > 0)
 			{
+#ifdef BELIEF_PILGRIMAGE_PER_CITY
+				iFaithPerTurn += (iTemp * pReligions->GetNumCitiesFollowing(eFoundedReligion));
+#else
 				iFaithPerTurn += (iTemp * GetReligions()->GetNumForeignCitiesFollowing());
+#endif
 			}
 
 			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_FAITH);
@@ -11242,7 +11250,11 @@ int CvPlayer::GetHappinessFromReligion()
 			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers();
 			if (iHappinessPerXPeacefulForeignFollowers > 0)
 			{
+#ifdef BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
+				iHappinessFromReligion += pReligions->GetNumFollowers(eFoundedReligion) / iHappinessPerXPeacefulForeignFollowers;
+#else
 				iHappinessFromReligion += GetReligions()->GetNumForeignFollowers(true /*bAtPeace */) / iHappinessPerXPeacefulForeignFollowers;
+#endif
 			}
 		}
 	}
@@ -17037,10 +17049,53 @@ int CvPlayer::GetScienceTimes100() const
 	// If we have a negative Treasury + GPT then it gets removed from Science
 	iValue += GetScienceFromBudgetDeficitTimes100();
 
+#ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+	iValue += GetSciencePerTurnFromReligionTimes100();
+#endif
+
 	return max(iValue, 0);
 }
 
 
+#ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetSciencePerTurnFromReligionTimes100() const 
+{
+	int iReligionSciencePerTurn = 0;
+
+	// Founder beliefs
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+	if(eFoundedReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+		if(pReligion)
+		{
+			iReligionSciencePerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(YIELD_SCIENCE);
+
+			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_SCIENCE);
+			if (iTemp > 0)
+			{
+				iReligionSciencePerTurn += (iTemp * GetReligions()->GetNumForeignCitiesFollowing());
+			}
+
+			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_SCIENCE);
+			if (iTemp > 0)
+			{
+				int iFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+				if (iFollowers > 0)
+				{
+					iReligionSciencePerTurn += (iFollowers / iTemp);
+				}
+			}
+			iReligionSciencePerTurn *= 100;
+			return iReligionSciencePerTurn;
+		}
+	}
+
+	return 0;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Where is our Science coming from?
 int CvPlayer::GetScienceFromCitiesTimes100(bool bIgnoreTrade) const
@@ -17163,7 +17218,11 @@ int CvPlayer::GetScienceYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 		{
 			iSum += iTurnScience;
 		}
+#ifdef NEW_SCIENTISTS_BULB
+		else if (iTurnScience < 0) // No data for this turn (ex. late era start)
+#else
 		else if (iTurnScience == -1) // No data for this turn (ex. late era start)
+#endif
 		{
 #ifdef NEW_SCIENTISTS_BULB
 			iSum += (GetScience());

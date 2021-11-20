@@ -2261,7 +2261,13 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 #ifdef CANT_SELL_BEFORE_INFO_ERA
 	if(GC.getGame().isOption("GAMEOPTION_CANT_SELL_BEFORE_INFO_ERA") && GET_PLAYER(m_pCity->getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_FUTURE", true))
 	{
-		return false;
+		BuildingTypes eWritersGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
+		BuildingTypes eArtistsGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
+		BuildingTypes eMusiciansGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
+		if ((BuildingTypes)kBuilding.GetID() != eWritersGuild && (BuildingTypes)kBuilding.GetID() != eArtistsGuild && (BuildingTypes)kBuilding.GetID() != eMusiciansGuild)
+		{
+			return false;
+		}
 	}
 #endif
 

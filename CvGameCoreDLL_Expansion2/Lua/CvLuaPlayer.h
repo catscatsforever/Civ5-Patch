@@ -577,6 +577,9 @@ protected:
 	static int lGetCurrentSpawnEstimate(lua_State* L);
 	static int lGetCurrentScienceFriendshipBonusTimes100(lua_State* L);
 	static int lIsPeaceBlocked(lua_State* L);
+#ifdef NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
+	static int lIsInfluenceTooLowForPeace(lua_State* L);
+#endif
 	static int lIsMinorPermanentWar(lua_State* L);
 	static int lGetNumMinorCivsMet(lua_State* L);
 	static int lDoMinorLiberationByMajor(lua_State* L);
@@ -631,7 +634,9 @@ protected:
 
 	static int lGetScience(lua_State* L);
 	static int lGetScienceTimes100(lua_State* L);
-
+#ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+	static int lGetSciencePerTurnFromReligionTimes100(lua_State* L);
+#endif
 	static int lGetScienceFromCitiesTimes100(lua_State* L);
 	static int lGetScienceFromOtherPlayersTimes100(lua_State* L);
 	static int lGetScienceFromHappinessTimes100(lua_State* L);

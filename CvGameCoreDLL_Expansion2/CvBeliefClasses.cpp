@@ -48,6 +48,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iProphetStrengthModifier(0),
 	m_iProphetCostModifier(0),
 	m_iMissionaryStrengthModifier(0),
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	m_iExtraTradeRoutes(0),
+#endif
 	m_iMissionaryCostModifier(0),
 	m_iFriendlyCityStateSpreadModifier(0),
 	m_iGreatPersonExpendedFaith(0),
@@ -278,6 +281,14 @@ int CvBeliefEntry::GetMissionaryStrengthModifier() const
 {
 	return m_iMissionaryStrengthModifier;
 }
+
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+/// Accessor:: extra trade routes
+int CvBeliefEntry::GetExtraTradeRoutes() const
+{
+	return m_iExtraTradeRoutes;
+}
+#endif
 
 /// Accessor:: missionary cost discount
 int CvBeliefEntry::GetMissionaryCostModifier() const
@@ -619,6 +630,9 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iProphetStrengthModifier        = kResults.GetInt("ProphetStrengthModifier");
 	m_iProphetCostModifier            = kResults.GetInt("ProphetCostModifier");
 	m_iMissionaryStrengthModifier     = kResults.GetInt("MissionaryStrengthModifier");
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	m_iExtraTradeRoutes				  = kResults.GetInt("ExtraTradeRoutes");
+#endif
 	m_iMissionaryCostModifier         = kResults.GetInt("MissionaryCostModifier");
 	m_iFriendlyCityStateSpreadModifier= kResults.GetInt("FriendlyCityStateSpreadModifier");
 	m_iGreatPersonExpendedFaith       = kResults.GetInt("GreatPersonExpendedFaith");
@@ -861,6 +875,9 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_iProphetStrengthModifier = source.m_iProphetStrengthModifier;
 	m_iProphetCostModifier = source.m_iProphetCostModifier;
 	m_iMissionaryStrengthModifier = source.m_iMissionaryStrengthModifier;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	m_iExtraTradeRoutes	= source.m_iExtraTradeRoutes;
+#endif
 	m_iMissionaryCostModifier = source.m_iMissionaryCostModifier;
 	m_iFriendlyCityStateSpreadModifier = source.m_iFriendlyCityStateSpreadModifier;
 	m_iGreatPersonExpendedFaith = source.m_iGreatPersonExpendedFaith;
@@ -913,6 +930,9 @@ void CvReligionBeliefs::Reset()
 	m_iProphetStrengthModifier = 0;
 	m_iProphetCostModifier = 0;
 	m_iMissionaryStrengthModifier = 0;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	m_iExtraTradeRoutes	= 0;
+#endif
 	m_iMissionaryCostModifier = 0;
 	m_iFriendlyCityStateSpreadModifier = 0;
 	m_iGreatPersonExpendedFaith = 0;
@@ -968,6 +988,9 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iProphetStrengthModifier += belief->GetProphetStrengthModifier();
 	m_iProphetCostModifier += belief->GetProphetCostModifier();
 	m_iMissionaryStrengthModifier += belief->GetMissionaryStrengthModifier();
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	m_iExtraTradeRoutes	+= belief->GetExtraTradeRoutes();
+#endif
 	m_iMissionaryCostModifier += belief->GetMissionaryCostModifier();
 	m_iFriendlyCityStateSpreadModifier += belief->GetFriendlyCityStateSpreadModifier();
 	m_iGreatPersonExpendedFaith += belief->GetGreatPersonExpendedFaith();
@@ -1654,6 +1677,9 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_iProphetStrengthModifier;
 	kStream >> m_iProphetCostModifier;
 	kStream >> m_iMissionaryStrengthModifier;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	kStream >> m_iExtraTradeRoutes;
+#endif
 	kStream >> m_iMissionaryCostModifier;
 	kStream >> m_iFriendlyCityStateSpreadModifier;
 	kStream >> m_iGreatPersonExpendedFaith;
@@ -1708,6 +1734,9 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	kStream << m_iProphetStrengthModifier;
 	kStream << m_iProphetCostModifier;
 	kStream << m_iMissionaryStrengthModifier;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	kStream << m_iExtraTradeRoutes;
+#endif
 	kStream << m_iMissionaryCostModifier;
 	kStream << m_iFriendlyCityStateSpreadModifier;
 	kStream << m_iGreatPersonExpendedFaith;

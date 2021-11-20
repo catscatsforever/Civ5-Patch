@@ -2500,6 +2500,16 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied())
 		return false;
 
+#ifdef NO_OXFORD_AFTER_ATOM
+	const char* szWonderTypeChar = pkBuildingInfo->GetType();
+	CvString szWonderType = szWonderTypeChar;
+
+	if(szWonderType == "BUILDING_OXFORD_UNIVERSITY" && GET_PLAYER(getOwner()).GetCurrentEra() > GC.getInfoTypeForString("ERA_MODERN", true))
+	{
+		return false;
+	}
+#endif
+
 	// Does this city have prereq buildings?
 	for(iI = 0; iI < iNumBuildingClassInfos; iI++)
 	{

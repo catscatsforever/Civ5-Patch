@@ -520,6 +520,9 @@ public:
 	void DoNowPeaceWithTeam(TeamTypes eTeam);
 
 	bool IsPeaceBlocked(TeamTypes eTeam) const;
+#ifdef NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
+	bool IsInfluenceTooLowForPeace(PlayerTypes ePlayer);
+#endif
 
 	void DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam);
 	bool IsPermanentWar(TeamTypes eTeam) const;

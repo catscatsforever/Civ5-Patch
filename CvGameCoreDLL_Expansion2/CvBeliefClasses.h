@@ -58,6 +58,9 @@ public:
 	int GetProphetStrengthModifier() const;
 	int GetProphetCostModifier() const;
 	int GetMissionaryStrengthModifier() const;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	int GetExtraTradeRoutes() const;
+#endif
 	int GetMissionaryCostModifier() const;
 	int GetFriendlyCityStateSpreadModifier() const;
 	int GetGreatPersonExpendedFaith() const;
@@ -141,6 +144,9 @@ protected:
 	int m_iProphetStrengthModifier;
 	int m_iProphetCostModifier;
 	int m_iMissionaryStrengthModifier;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	int m_iExtraTradeRoutes;
+#endif
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;
 	int m_iGreatPersonExpendedFaith;
@@ -302,6 +308,12 @@ public:
 	{
 		return m_iMissionaryStrengthModifier;
 	};
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	int GetExtraTradeRoutes() const
+	{
+		return m_iExtraTradeRoutes;
+	};
+#endif
 	int GetMissionaryCostModifier() const
 	{
 		return m_iMissionaryCostModifier;
@@ -410,6 +422,9 @@ private:
 	int m_iProphetStrengthModifier;
 	int m_iProphetCostModifier;
 	int m_iMissionaryStrengthModifier;
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	int m_iExtraTradeRoutes;
+#endif
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;
 	int m_iGreatPersonExpendedFaith;

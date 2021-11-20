@@ -1063,6 +1063,10 @@ public:
 	int GetScience() const;
 	int GetScienceTimes100() const;
 
+#ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+	int GetSciencePerTurnFromReligionTimes100() const;
+#endif
+
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
 	int GetScienceFromOtherPlayersTimes100() const;
 	int GetScienceFromHappinessTimes100() const;

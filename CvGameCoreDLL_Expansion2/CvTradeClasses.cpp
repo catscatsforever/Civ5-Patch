@@ -3336,6 +3336,15 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		}
 	}
 
+#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if (eFoundedReligion && eFoundedReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER);
+		iNumRoutes += pReligion->m_Beliefs.GetExtraTradeRoutes();
+	}
+#endif
+
 	CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
 	int iLoop = 0;
 	CvCity* pLoopCity;

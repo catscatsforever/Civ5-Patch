@@ -7676,6 +7676,11 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+#ifdef NO_BOTS_ALLYING_CS
+	if (!GET_PLAYER(eMajor).isHuman())
+		return false;
+#endif
+
 	// Is alive?
 	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive())
 		return false;
@@ -8835,6 +8840,12 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 /// How many friendship points gained from a gift of Gold
 int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 {
+#ifdef NO_BOTS_ALLYING_CS
+	if (!GET_PLAYER(eMajor).isHuman())
+	{
+		return 0;
+	}
+#endif
 	// The more Gold you spend the more Friendship you get!
 	iGold = (int) pow((double) iGold, (double) /*1.01*/ GC.getGOLD_GIFT_FRIENDSHIP_EXPONENT());
 	// The higher this divisor the less Friendship is gained
@@ -9129,6 +9140,15 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 
 	return false;
 }
+
+#ifdef NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
+bool CvMinorCivAI::IsInfluenceTooLowForPeace(PlayerTypes ePlayer)
+{
+	return GetBaseFriendshipWithMajor(ePlayer) < -50;
+}
+#endif
+
+
 
 /// eTeam declared war on us
 void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
