@@ -364,6 +364,8 @@
 #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 /// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
 #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+/// Prevent timer mid-turn fluctuations - update it once per turn
+#define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly
