@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1015,6 +1015,9 @@ void CvGame::uninit()
 	m_iMapScoreMod = 0;
 
 	m_uiInitialTime = 0;
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+	m_fPreviousTurnLen = 0.0f;
+#endif
 
 	m_bScoreDirty = false;
 	m_bCircumnavigated = false;
@@ -1894,9 +1897,13 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 					return false;
 				}
 				CvPlayer& curPlayer = GET_PLAYER(playerID);
-
+				
 				// Has the turn expired?
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+				float gameTurnEnd = getPreviousTurnLen();
+#else
 				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
+#endif
 
 				//NOTE:  These times exclude the time used for AI processing.
 				//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
@@ -5020,6 +5027,21 @@ void CvGame::setInitialTime(unsigned int uiNewValue)
 }
 
 
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+//	--------------------------------------------------------------------------------
+float CvGame::getPreviousTurnLen()
+{
+	return m_fPreviousTurnLen;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setPreviousTurnLen(float fNewValue)
+{
+	m_fPreviousTurnLen = fNewValue;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvGame::isScoreDirty() const
 {
@@ -7562,6 +7584,9 @@ void CvGame::doTurn()
 
 	// END OF TURN
 
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+	setPreviousTurnLen(static_cast<float>(getMaxTurnLen()));
+#endif
 	//We reset the turn timer now so that we know that the turn timer has been reset at least once for
 	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
 	resetTurnTimer(true);
@@ -9364,6 +9389,9 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iMapScoreMod;
 
 	// m_uiInitialTime not saved
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+	kStream >> m_fPreviousTurnLen;
+#endif
 
 	kStream >> m_bScoreDirty;
 	kStream >> m_bCircumnavigated;
@@ -9599,6 +9627,9 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iMapScoreMod;
 
 	// m_uiInitialTime not saved
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+	kStream << m_fPreviousTurnLen;
+#endif
 
 	kStream << m_bScoreDirty;
 	kStream << m_bCircumnavigated;
