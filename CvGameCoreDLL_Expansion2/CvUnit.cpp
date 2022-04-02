@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4426,7 +4426,11 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
 		kGame.getPitbossTurnTime() == 0)
 #endif
 	{
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+		float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
 		float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
 
 		//NOTE:  These times exclude the time used for AI processing.
 		//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
@@ -6016,7 +6020,11 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
 		kGame.getPitbossTurnTime() == 0)
 #endif
 	{
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+		float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
 		float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
 
 		//NOTE:  These times exclude the time used for AI processing.
 		//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
