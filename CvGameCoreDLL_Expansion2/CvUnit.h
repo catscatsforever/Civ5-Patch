@@ -1244,7 +1244,11 @@ public:
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
 	bool IsHigherTechThan(UnitTypes otherUnit) const;
+#ifdef ETHIOPIA_UA_REWORK
+	int IsLargerCivThan(const CvUnit* pOtherUnit) const;
+#else
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
+#endif
 
 	int GetNumGoodyHutsPopped() const;
 	void ChangeNumGoodyHutsPopped(int iValue);

@@ -2169,7 +2169,11 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 	m_aaPlayerStealableTechList[ePlayer].clear();
 
+#ifdef NO_STEALABLE_TECH_LIST_FROM_AI
+	if(!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isHuman())
+#else
 	if(!GET_PLAYER(ePlayer).isAlive())
+#endif
 	{
 		return;
 	}
@@ -2193,6 +2197,17 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+
+#ifdef CANT_STEAL_CLASSICAL_ERA_TECHS
+		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+		if(pEntry)
+		{
+			if((pEntry->GetEra() < GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/)))
+			{
+				continue;
+			}
+		}
+#endif
 
 		// add to list!
 		m_aaPlayerStealableTechList[ePlayer].push_back(eTech);

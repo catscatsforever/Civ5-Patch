@@ -186,6 +186,9 @@ CvPlayer::CvPlayer() :
 	, m_iGreatWritersCreated(0)
 	, m_iGreatArtistsCreated(0)
 	, m_iGreatMusiciansCreated(0)
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	, m_bHasUsedDharma(false)
+#endif
 #ifdef FREE_GREAT_PERSON
 	, m_iGreatProphetsCreated(0)
 #endif
@@ -805,6 +808,9 @@ void CvPlayer::uninit()
 	m_iGreatWritersCreated = 0;
 	m_iGreatArtistsCreated = 0;
 	m_iGreatMusiciansCreated = 0;
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	m_bHasUsedDharma = false;
+#endif
 #ifdef FREE_GREAT_PERSON
 	m_iGreatProphetsCreated = 0;
 #endif
@@ -1545,7 +1551,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-#ifndef NEW_VENICE
 	// slewis
 	// If we're Venice
 	if (GetPlayerTraits()->IsNoAnnexing())
@@ -1581,7 +1586,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
-#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -2662,6 +2666,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
 			int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
+#ifdef REDUCES_RESISTANCE_TIME
+			iResistanceTurns /= 2;
+#endif
 
 			if (iResistanceTurns > 0)
 			{
@@ -2703,15 +2710,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				// Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
 				pNewCity->SetIgnoreCityForHappiness(true);
-#ifndef NEW_VENICE
 				if (GetPlayerTraits()->IsNoAnnexing() && bIsMinorCivBuyout)
 				{
 					pNewCity->DoCreatePuppet();
 				}
 				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
-#else
-				if(pNewCity->getOriginalOwner() != GetID() || bIsMinorCivBuyout)
-#endif
 				{
 					if(GC.getGame().getActivePlayer() == GetID())
 					{
@@ -3317,7 +3320,8 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 					}
 				}
 
-				if (pLeague->CalculateStartingVotesForMember(GetID()) == iMaxStartingVotesForMember)
+				PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/);
+				if (pLeague->CalculateStartingVotesForMember(GetID()) == iMaxStartingVotesForMember || GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
 				{
 					return CanLiberatePlayer(ePlayer);
 				}
@@ -5573,9 +5577,6 @@ void CvPlayer::raze(CvCity* pCity)
 //	--------------------------------------------------------------------------------
 void CvPlayer::unraze(CvCity* pCity)
 {
-#ifdef NEW_VENICE
-	pCity->DoAnnex();
-#else
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoCreatePuppet();
@@ -5584,7 +5585,6 @@ void CvPlayer::unraze(CvCity* pCity)
 	{
 		pCity->DoAnnex();
 	}
-#endif
 
 	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
@@ -5988,11 +5988,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		}
 
 		// OCC games - no Settlers
-#ifdef NEW_VENICE
-		if((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()))
-#else
 		if(GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()))
-#endif
 		{
 			if(pUnitInfo->IsFound() || pUnitInfo->IsFoundAbroad())
 			{
@@ -6798,13 +6794,11 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
 		if(pPlot->IsNoSettling(GetID()))
 			return false;
 	}
-#ifndef NEW_VENICE
 	// Haxor for Venice to prevent secondary founding
 	if (GetPlayerTraits()->IsNoAnnexing() && getCapitalCity())
 	{
 		return false;
 	}
-#endif
 
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bTestVisible)
@@ -8561,7 +8555,17 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+			const char* szWonderTypeChar = pBuildingInfo->GetType();
+			CvString szWonderType = szWonderTypeChar;
+
+			if(szWonderType != "BUILDING_PORCELAIN_TOWER")
+			{
+				changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChange(iI, iJ) * iChange));
+			}
+#else
 			changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChange(iI, iJ) * iChange));
+#endif
 		}
 	}
 
@@ -9079,7 +9083,17 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 	}
 	if(iPossibleKnownCount > 0)
 	{
+#ifdef TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+		if (GC.getGame().isOption("GAMEOPTION_LESS_TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"))
+		{
+			iModifier += (10 * iKnownCount) / iPossibleKnownCount;
+		} else
+		{
+			iModifier += (GC.getTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER() * iKnownCount) / iPossibleKnownCount;
+		}
+#else
 		iModifier += (GC.getTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER() * iKnownCount) / iPossibleKnownCount;
+#endif
 	}
 #ifdef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 	}
@@ -9611,7 +9625,11 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 /// Trait bonus which adds Culture for trade partners? 
 int CvPlayer::GetJONSCulturePerTurnFromTraits() const
 {
+#ifdef MOROCCO_UA_REWORK
+	return GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_CULTURE) * GetTrade()->GetNumDifferentTradingPartners() * (GetCurrentEra() + 1);
+#else
 	return GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_CULTURE) * GetTrade()->GetNumDifferentTradingPartners();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -10230,6 +10248,175 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 		}
 	}
 }
+
+#ifdef NQ_ALLOW_RELIGION_ONE_SHOTS 
+void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
+{
+	bool setUnitReligion = false;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+
+#ifdef NQ_FREE_SETTLERS_FROM_BELIEF
+	if (!m_bHasUsedReligiousSettlements && pReligion->m_Beliefs.GetNumFreeSettlers() > 0)
+	{
+		m_bHasUsedReligiousSettlements = true;
+
+		// add free settlers from Religious Settlements belief - I know this is super ugly, sorry :(
+		// real solution is to make a Belief_FreeUnitClasses table and figure out how to check for each belief being triggered only once... :(
+		// also should be regular settlers, not uniques (like American Pioneer for example)
+		for (int iFreeSettlerLoop = 0; iFreeSettlerLoop < pReligion->m_Beliefs.GetNumFreeSettlers(); iFreeSettlerLoop++)
+		{
+			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER"));
+		}
+	}
+#endif
+
+#ifdef NQ_DEUS_VULT
+	if (!m_bHasUsedDeusVult && pReligion->m_Beliefs.IsDeusVult())
+	{
+		m_bHasUsedDeusVult = true;
+		setUnitReligion = true;
+
+		// minimum mounted is chariot archer
+		UnitTypes eBestMountedUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_CHARIOT_ARCHER"));
+		int iBestMountedScore = GC.getUnitInfo(eBestMountedUnit)->GetProductionCost();
+		
+		// minimum ranged is archer
+		UnitTypes eBestRangedUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHER"));
+		int iBestRangedScore = GC.getUnitInfo(eBestRangedUnit)->GetProductionCost();
+
+		// minimum siege is catapult
+		UnitTypes eBestSiegeUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_CATAPULT"));
+		int iBestSiegeScore = GC.getUnitInfo(eBestSiegeUnit)->GetProductionCost();
+
+		// minimum melee is warrior
+		UnitTypes eBestMeleeUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WARRIOR"));
+		int iBestMeleeScore = GC.getUnitInfo(eBestMeleeUnit)->GetProductionCost();
+
+		for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
+		{
+			bool bValid = false;
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iUnitClassLoop);
+			if(pkUnitClassInfo == NULL)
+				continue;
+
+			const UnitTypes eLoopUnit = ((UnitTypes)(getCivilizationInfo().getCivilizationUnits(iUnitClassLoop)));
+			if(eLoopUnit != NO_UNIT)
+			{
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+				if(pkUnitInfo == NULL)
+					continue;
+
+				CvUnitEntry& kUnit = *pkUnitInfo;
+
+				// must be a combat unit and cannot be able to found cities
+				if (kUnit.GetCombat() <= 0 || kUnit.IsFound() || kUnit.IsFoundAbroad())
+					continue;
+				
+				// if we don't have the tech for this unit, ignore it
+				if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(kUnit.GetPrereqAndTech()))))
+					continue;
+
+				if ((UnitCombatTypes)pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED") ||
+					(UnitCombatTypes)pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED"))
+				{
+					if (pkUnitInfo->GetProductionCost() > iBestMountedScore)
+					{
+						iBestMountedScore = pkUnitInfo->GetProductionCost();
+						eBestMountedUnit = eLoopUnit;
+					}
+				}
+				if ((UnitCombatTypes)pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER"))
+				{
+					if (pkUnitInfo->GetProductionCost() > iBestRangedScore)
+					{
+						iBestRangedScore = pkUnitInfo->GetProductionCost();
+						eBestRangedUnit = eLoopUnit;
+					}
+				}
+				if ((UnitCombatTypes)pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE"))
+				{
+					if (pkUnitInfo->GetProductionCost() > iBestSiegeScore)
+					{
+						iBestSiegeScore = pkUnitInfo->GetProductionCost();
+						eBestSiegeUnit = eLoopUnit;
+					}
+				}
+				if ((UnitCombatTypes)pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MELEE"))
+				{
+					if (pkUnitInfo->GetProductionCost() > iBestMeleeScore)
+					{
+						iBestMeleeScore = pkUnitInfo->GetProductionCost();
+						eBestMeleeUnit = eLoopUnit;
+					}
+				}
+			}
+		}
+
+		// 2 inquisitors
+		addFreeUnit((UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_INQUISITOR")));
+		addFreeUnit((UnitTypes)getCivilizationInfo().getCivilizationUnits((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_INQUISITOR")));
+
+		// 2 mounted
+		if (eBestMountedUnit)
+		{
+			addFreeUnit(eBestMountedUnit);
+			addFreeUnit(eBestMountedUnit);
+		}
+
+		// 2 ranged
+		if (eBestRangedUnit)
+		{
+			addFreeUnit(eBestRangedUnit);
+			addFreeUnit(eBestRangedUnit);
+		}
+
+		// 2 siege
+		if (eBestSiegeUnit)
+		{
+			addFreeUnit(eBestSiegeUnit);
+			addFreeUnit(eBestSiegeUnit);
+		}
+	}
+#endif
+
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	if (!m_bHasUsedDharma)
+	{
+		int iGoldenAgeTurns = pReligion->m_Beliefs.GetGoldenAgeTurns();
+		if (iGoldenAgeTurns > 0)
+		{
+			m_bHasUsedDharma = true;
+			int iLengthModifier = getGoldenAgeModifier() + GetPlayerTraits()->GetGoldenAgeDurationModifier(); // Player modifier & Trait modifier
+			if (iLengthModifier > 0)
+			{
+				iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
+			}
+			iGoldenAgeTurns = iGoldenAgeTurns * GC.getGame().getGameSpeedInfo().getGoldenAgePercent() / 100; // Game Speed mod
+			changeGoldenAgeTurns(iGoldenAgeTurns);
+		}
+	}
+#endif
+
+	if (setUnitReligion)
+	{
+		// make sure free religious units are of this religion (if they haven't had one assigned already)
+		int iLoopUnit;
+		CvUnit* pLoopUnit;
+		for(pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit))
+		{
+			if (pLoopUnit->getUnitInfo().IsSpreadReligion() || pLoopUnit->getUnitInfo().IsRemoveHeresy())
+			{
+				if (pLoopUnit->GetReligionData()->GetReligion() == NO_RELIGION)
+				{
+					pLoopUnit->GetReligionData()->SetReligion(eReligion);
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+					pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
+				}
+			}
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Each a technology from conquering a city
@@ -13172,7 +13359,11 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 {
 	// Gold gained
+#ifdef HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
+	int iExpendGold =  GetGreatPersonExpendGold() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+#else
 	int iExpendGold = GetGreatPersonExpendGold();
+#endif
 	if(iExpendGold > 0)
 	{
 		GetTreasury()->ChangeGold(iExpendGold);
@@ -13534,7 +13725,6 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 		if (pNewGreatPeople)
 		{
-#ifndef FREE_GREAT_PERSON
 			// Bump up the count
 			if(pNewGreatPeople->IsGreatGeneral())
 			{
@@ -13544,6 +13734,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				incrementGreatAdmiralsCreated();
 			}
+#ifndef FREE_GREAT_PERSON
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 			{
 				incrementGreatWritersCreated();
@@ -21720,6 +21911,24 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeGoldenAgeTurns(iGoldenAgeTurns);
 	}
 
+#ifdef CS_INFLUENCE_BOOST
+	// City-State Influence Boost
+	//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
+	// PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/);
+	// GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
+	if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
+			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+			{
+				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), 45 /*pRewardInfo->GetCityStateInfluenceBoost()*/);
+			}
+		}
+	}
+#endif
+
 	// Free Techs
 	int iNumFreeTechs = pPolicy->GetNumFreeTechs() * iChange;
 	if(iNumFreeTechs > 0)
@@ -21784,10 +21993,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								CvUnit* pNewUnit = NULL;
 
-#ifndef NEW_VENICE
 								// slewis
 								// for venice
+#ifdef NEW_VENICE_UA
+								TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
+								if (pUnitEntry->IsFound() && GET_PLAYER(GetID()).GetPlayerTraits()->HasTrait(eTrait))
+#else
 								if (pUnitEntry->IsFound() && GetPlayerTraits()->IsNoAnnexing())
+#endif
 								{
 									// drop a merchant of venice instead
 									// find the eUnit replacement that's the merchant of venice
@@ -21814,9 +22027,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
 								}
-#else
-								pNewUnit = initUnit(eUnit, iX, iY);
-#endif
 
 								CvAssert(pNewUnit);
 
@@ -22292,6 +22502,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGreatWritersCreated;
 	kStream >> m_iGreatArtistsCreated;
 	kStream >> m_iGreatMusiciansCreated;
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	kStream >> m_bHasUsedDharma;
+#endif
 #ifdef FREE_GREAT_PERSON
 	kStream >> m_iGreatProphetsCreated;
 #endif
@@ -22842,6 +23055,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGreatWritersCreated;
 	kStream << m_iGreatArtistsCreated;
 	kStream << m_iGreatMusiciansCreated;
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	kStream << m_bHasUsedDharma;
+#endif
 #ifdef FREE_GREAT_PERSON
 	kStream << m_iGreatProphetsCreated;
 #endif

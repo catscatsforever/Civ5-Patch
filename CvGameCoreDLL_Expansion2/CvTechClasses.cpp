@@ -32,9 +32,6 @@ CvTechEntry::CvTechEntry(void):
 	m_iFirstFreeTechs(0),
 	m_iEmbarkedMoveChange(0),
 	m_iInternationalTradeRoutesChange(0),
-#ifdef NEW_VENICE
-	m_iVeniceTradeRoutesChange(0),
-#endif
 	m_iInfluenceSpreadModifier(0),
 	m_iExtraVotesPerDiplomat(0),
 	m_iGridX(0),
@@ -101,9 +98,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iFirstFreeTechs = kResults.GetInt("FirstFreeTechs");
 	m_iEmbarkedMoveChange = kResults.GetInt("EmbarkedMoveChange");
 	m_iInternationalTradeRoutesChange = kResults.GetInt("InternationalTradeRoutesChange");
-#ifdef NEW_VENICE
-	m_iVeniceTradeRoutesChange = kResults.GetInt("VeniceTradeRoutesChange");
-#endif
 	m_iInfluenceSpreadModifier = kResults.GetInt("InfluenceSpreadModifier");
 	m_iExtraVotesPerDiplomat = kResults.GetInt("ExtraVotesPerDiplomat");
 	m_bEndsGame = kResults.GetBool("EndsGame");
@@ -288,13 +282,6 @@ int CvTechEntry::GetNumInternationalTradeRoutesChange (void) const
 	return m_iInternationalTradeRoutesChange;
 }
 
-#ifdef NEW_VENICE
-/// Number of additional land trade routes provided for Venice
-int CvTechEntry::GetNumVeniceTradeRoutesChange (void) const
-{
-	return m_iVeniceTradeRoutesChange;
-}
-#endif
 /// Boost to cultural influence output
 int CvTechEntry::GetInfluenceSpreadModifier() const
 {

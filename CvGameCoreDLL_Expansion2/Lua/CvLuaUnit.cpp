@@ -4488,9 +4488,15 @@ int CvLuaUnit::lIsLargerCivThan(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+#ifdef ETHIOPIA_UA_REWORK
+	const int bResult = pkUnit->IsLargerCivThan(pkOtherUnit);
+	
+	lua_pushinteger(L, bResult);
+#else
 	const bool bResult = pkUnit->IsLargerCivThan(pkOtherUnit);
-
+	
 	lua_pushboolean(L, bResult);
+#endif	
 	return 1;
 }//------------------------------------------------------------------------------
 //bool IsRangedSupportFire();

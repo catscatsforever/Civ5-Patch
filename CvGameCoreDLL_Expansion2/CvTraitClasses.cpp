@@ -112,6 +112,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_paiYieldChangePerTradePartner(NULL),
 	m_paiYieldChangeIncomingTradeRoute(NULL),
 	m_paiYieldModifier(NULL),
+#ifdef NEW_FRANCE_UA
+	m_paiBuildingClassHappiness(NULL),
+#endif
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
@@ -126,6 +129,10 @@ CvTraitEntry::CvTraitEntry() :
 /// Destructor
 CvTraitEntry::~CvTraitEntry()
 {
+#ifdef NEW_FRANCE_UA
+	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
+#endif
+
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChanges);
 #ifdef NEW_OTTOMAN_UA
@@ -706,6 +713,15 @@ int CvTraitEntry::GetYieldModifier(int i) const
 	return m_paiYieldModifier ? m_paiYieldModifier[i] : -1;
 }
 
+#ifdef NEW_FRANCE_UA
+int CvTraitEntry::GetBuildingClassHappiness(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
+}
+
+#endif
 /// Accessor:: Additional quantity of strategic resources
 int CvTraitEntry::GetStrategicResourceQuantityModifier(int i) const
 {
@@ -1009,6 +1025,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiYieldChangePerTradePartner, "Trait_YieldChangesPerTradePartner", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeIncomingTradeRoute, "Trait_YieldChangesIncomingTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
+#ifdef NEW_FRANCE_UA
+	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Trait_BuildingClassHappiness", "BuildingClassType", "TraitType", szTraitType, "Happiness");
+#endif
 
 	const int iNumTerrains = GC.getNumTerrainInfos();
 

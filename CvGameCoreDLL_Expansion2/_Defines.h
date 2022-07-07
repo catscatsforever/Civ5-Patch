@@ -135,13 +135,6 @@
 /// Promotions that grant air combat bonuses are now allowed for units with no ability for air combat if the promotion also grants the ability for air combat
 #define AUI_UNIT_FIX_ALLOW_COMBO_AIR_COMBAT_PROMOTIONS*/
 
-/// Fixes radar (Delnar: first bit was covered by GJS, remaining bits are now also covered) 
-#define AUI_ASTAR_FIX_RADAR
-/// Fixes rarer cases of radar
-#define AUI_UNIT_FIX_RADAR
-/// Fixes cases of indirect radaring via ZOC.
-#define AUI_UNIT_MOVEMENT_FIX_RADAR_ZOC
-
 /*/// Fixes the influence cost calculator function to only enable the reuse pathfinder flag when it wouldn't result in incorrect data
 #define AUI_MAP_FIX_CALCULATE_INFLUENCE_DISTANCE_REUSE_PATHFINDER*/
 
@@ -259,9 +252,7 @@
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
 ///
-// #define SPACESHIP_ENGINEERING
-///
-#define NO_BOTS_PROJECTS
+#define SPACESHIP_ENGINEERING
 ///
 #define CAN_PARADROP_HALF_TIMER
 ///
@@ -275,7 +266,7 @@
 /// Fixes the bug where building a new improvement on a tile with a pillaged improvement keeps the tile marked as pillaged
 #define AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
 /// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
-#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
+// #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
 ///
 #if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
 #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
@@ -299,13 +290,10 @@
 /// New option that allows custom turn timer settings to multiply/divide the default turn times by a certain amount instead of forcing turn times to be the custom amount
 #define AUI_GAME_RELATIVE_TURN_TIMERS
 ///
-// #define NEW_VENICE
-///
 #define CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
 ///
 #define DIPLO_VICTORY_VOTING
 ///
-#define AI_CANT_DECLARE_WAR
 #ifndef SEPARATE_GREAT_PEOPLE
 ///
 // #define SEPARATE_MERCHANTS
@@ -315,31 +303,42 @@
 /// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
 #define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
 ///
-// #define INDIA_HAPPINESS_BONUS
+#define NO_EMBARKED_CIVILIAN_DEFENSE
 ///
 #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 ///
-#define NO_EMBARKED_CIVILIAN_DEFENSE
+#define INDIA_HAPPINESS_BONUS
 ///
-// #define NEW_OTTOMAN_UA
+#define NEW_OTTOMAN_UA
+///
+#define NEW_FRANCE_UA
+///
+#define NEW_VENICE_UA
+///
+#define MOROCCO_UA_REWORK
+///
+#define ETHIOPIA_UA_REWORK
+///
+#define MONGOL_CS_BULLY
 ///
 #define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
-#define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+#ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+// #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+#endif
 ///
 // #define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
 // #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
 /// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
-// #define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
-///
-#define AI_CANT_ADOPT_IDEOLOGY
+#define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
 ///
 // #define NO_FAITH_FROM_MEETING_CS
 ///
 #define AQUEDUCT_FIX
-///
-#define NO_BOTS_ALLYING_CS
 /// AI players will no longer spread their religion to other human players' cities
 #define NQM_AI_GIMP_NO_RELIGION_SPREAD
 /// AI players will no longer attempt to build any world wonders or world projects
@@ -349,6 +348,22 @@
 /// AI players will not build units that can settle. Also disables "expansion" economic strategies
 #define NQM_AI_GIMP_NO_BUILDING_SETTLERS
 ///
+#define NO_AI_ALLYING_CS
+///
+#define AI_CANT_ADOPT_IDEOLOGY
+///
+#define AI_CANT_DECLARE_WAR
+///
+#define NO_AI_PROJECTS
+///
+#define NO_STEALABLE_TECH_LIST_FROM_AI
+///
+#define NO_AI_TRADE_ROUTES
+///
+#define NO_TRADE_ITEMS_WITH_AI
+///
+#define AI_PEACE_TURNS
+///
 #define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
 ///
 #define BELIEF_WORLD_CHURCH_PER_FOLLOWERS
@@ -356,6 +371,14 @@
 #define BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 ///
 #define BELIEF_PILGRIMAGE_PER_CITY
+/// allow religion one-shots (like deus vult, religious settlements, dharma)
+#define NQ_ALLOW_RELIGION_ONE_SHOTS
+/// allow golden ages from beliefs
+#define NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+///
+#define PROPHET_CAN_FOUND_EXTRA_RELIGION
+///
+// #define HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
 ///
 #define NO_OXFORD_AFTER_ATOM
 // extra trade routes from beliefs
@@ -363,9 +386,39 @@
 // city states will no longer declare peace if influence is less than -50
 #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 /// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
-#define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 /// Prevent timer mid-turn fluctuations - update it once per turn
 #define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+/// Units can no longer insta-heal twice in the same turn. This should only affect simultaneous mode and stops a few cheesey strategies
+// #define NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
+/// Units can no longer insta-heal the turn they are created
+// #define NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN
+///
+#define SPACESHIP_GRAPHICS
+///
+#define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
+///
+#define REDUCES_RESISTANCE_TIME
+///
+#define CANT_STEAL_CLASSICAL_ERA_TECHS
+///
+#define SS_PART_PURCHASE_RESTRICTION
+///
+#define SHARED_IDEOLOGY_TRADE_CHANGE
+///
+// #define PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+///
+#define AUTOCRACY_EXTRA_VOTES
+///
+#define CS_INFLUENCE_BOOST
+///
+#define ASTAR_AI_CONTROL_FIX_RADAR
+/// Fixes radar (Delnar: first bit was covered by GJS, remaining bits are now also covered) 
+#define AUI_ASTAR_FIX_RADAR
+/// Fixes rarer cases of radar
+#define AUI_UNIT_FIX_RADAR
+/// Fixes cases of indirect radaring via ZOC.
+#define AUI_UNIT_MOVEMENT_FIX_RADAR_ZOC
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly
@@ -419,8 +472,6 @@
 // Fixes specific to simultaneous mode
 /// Units can no longer insta-heal twice in the same turn. This should only affect simultaneous mode and stops a few cheesey strategies
 #define NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN*/
-/// Units can no longer insta-heal the turn they are created
-/////#define NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN
 /*/// Paradroping a unit disqualifies it from insta-healing in the same turn. This should only affect simultaneous mode and stops a few cheesey strategies
 #define NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP
 /// Fortifying a unit will only give it a strength boost at the end of the turn. This should only affect simultaneous mode and stops players from fortifying units at the start of the turn for the defensive bonus, then using those units as normal.
@@ -475,8 +526,6 @@
 #endif
 /// If the pathfinder does not ignore danger, use the unit's combat strength times this value as the danger limit instead of 0 (important for combat units)
 #define AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH (6)
-/// AI-controlled units no longer ignore all paths with peaks; since the peak plots are checked anyway for whether or not a unit can enter them, this check is pointless
-#define AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
 /// Mountain tiles are no longer automatically marked as invalid steps
 #define AUI_ASTAR_FIX_STEP_VALID_CONSIDERS_MOUNTAINS
 #ifdef AUI_PLOT_GET_VISIBLE_ENEMY_DEFENDER_TO_UNIT
@@ -798,16 +847,12 @@
 // extra missionary spreads from religious belief
 #define NQ_BELIEF_EXTRA_MISSIONARY_SPREADS
 
-// allow religion one-shots (like deus vult, religious settlements, dharma)
-#define NQ_ALLOW_RELIGION_ONE_SHOTS
 // allow free settlers from beliefs
 #define NQ_FREE_SETTLERS_FROM_BELIEF
 // plot culture cost modifier from beliefs now only impacts religioun founder's cities
 #define NQ_PLOT_COST_FROM_BELIEF_IS_UNIQUE
 // free units from belief of Deus Vult
 #define NQ_DEUS_VULT
-// allow golden ages from beliefs
-#define NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 
 // missionary cost reduction now only affects founder of religion and no longer applies to inquisitors
 #define NQ_FIX_MISSIONARY_COST_MODIFIER_BELIEF
@@ -948,4 +993,5 @@
 // Adjacent Mod (PROMOTION_ADJACENT_BONUS) now requires same combat type
 #define NQ_ADJACENT_MOD_REQUIRES_SAME_COMBAT_TYPE
 */
+
 #endif

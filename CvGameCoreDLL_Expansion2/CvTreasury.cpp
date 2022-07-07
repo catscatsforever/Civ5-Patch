@@ -410,7 +410,11 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
+#ifdef MOROCCO_UA_REWORK
+	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners() * (m_pPlayer->GetCurrentEra() + 1);
+#else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
+#endif
 }
 
 /// Gold Per Turn from Religion

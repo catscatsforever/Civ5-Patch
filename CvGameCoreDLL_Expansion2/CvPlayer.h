@@ -390,6 +390,9 @@ public:
 	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
+#ifdef NQ_ALLOW_RELIGION_ONE_SHOTS 
+	void DoReligionOneShots(ReligionTypes eReligion);
+#endif
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 
 	// Faith
@@ -1650,6 +1653,9 @@ protected:
 	int m_iGreatWritersCreated;
 	int m_iGreatArtistsCreated;
 	int m_iGreatMusiciansCreated;
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	bool m_bHasUsedDharma;
+#endif
 #ifdef FREE_GREAT_PERSON
 	int m_iGreatProphetsCreated;
 #endif

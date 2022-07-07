@@ -61,6 +61,9 @@ public:
 #ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 	int GetExtraTradeRoutes() const;
 #endif
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	int GetGoldenAgeTurns() const;
+#endif
 	int GetMissionaryCostModifier() const;
 	int GetFriendlyCityStateSpreadModifier() const;
 	int GetGreatPersonExpendedFaith() const;
@@ -146,6 +149,9 @@ protected:
 	int m_iMissionaryStrengthModifier;
 #ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 	int m_iExtraTradeRoutes;
+#endif
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	int m_iGoldenAgeTurns;
 #endif
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;
@@ -314,6 +320,12 @@ public:
 		return m_iExtraTradeRoutes;
 	};
 #endif
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	int GetGoldenAgeTurns() const
+	{
+		return m_iGoldenAgeTurns;
+	};
+#endif
 	int GetMissionaryCostModifier() const
 	{
 		return m_iMissionaryCostModifier;
@@ -424,6 +436,9 @@ private:
 	int m_iMissionaryStrengthModifier;
 #ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 	int m_iExtraTradeRoutes;
+#endif
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	int m_iGoldenAgeTurns;
 #endif
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;

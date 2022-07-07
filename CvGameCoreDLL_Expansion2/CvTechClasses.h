@@ -47,9 +47,6 @@ public:
 	int GetFirstFreeTechs() const;
 	int GetEmbarkedMoveChange() const;
 	int GetNumInternationalTradeRoutesChange() const;
-#ifdef NEW_VENICE
-	int GetNumVeniceTradeRoutesChange() const;
-#endif
 	int GetInfluenceSpreadModifier() const;
 	int GetExtraVotesPerDiplomat() const;
 
@@ -115,9 +112,6 @@ private:
 	int m_iFirstFreeTechs;
 	int m_iEmbarkedMoveChange;
 	int m_iInternationalTradeRoutesChange;
-#ifdef NEW_VENICE
-	int m_iVeniceTradeRoutesChange;
-#endif
 	int m_iInfluenceSpreadModifier;
 	int m_iExtraVotesPerDiplomat;
 

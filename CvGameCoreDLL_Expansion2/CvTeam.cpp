@@ -1175,10 +1175,27 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			if(iPeaceTreatyTurn != -1)
 			{
 				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+#ifdef AI_PEACE_TURNS
+				if (GET_TEAM(eTeam).isHuman() && GET_TEAM(GetID()).isHuman())
+				{
+					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+					{
+						SetHasBrokenPeaceTreaty(true);
+					}
+				}
+				else
+				{
+					if (iTurnsSincePeace < 5 /*GC.getPEACE_TREATY_LENGTH()*/)
+					{
+						SetHasBrokenPeaceTreaty(true);
+					}
+				}
+#else
 				if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
 				{
 					SetHasBrokenPeaceTreaty(true);
 				}
+#endif
 			}
 		}
 	}
@@ -4469,21 +4486,47 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 					{
 						if(isHasMet(kPlayer.getTeam()))
 						{
+#ifdef SPACESHIP_GRAPHICS
+							ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+							if (eApolloProgram != eIndex)
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
+							}
+#else
 							if(ePlayer == GC.getGame().getActivePlayer())
 							{
 								DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
 							}
 							CvNotifications* pNotifications = kPlayer.GetNotifications();
 							pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
+#endif
 						}
 						else
 						{
+#ifdef SPACESHIP_GRAPHICS
+							ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+							if (eApolloProgram != eIndex)
+							{
+								if(ePlayer == GC.getGame().getActivePlayer())
+								{
+									DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+								}
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
+							}
+#else
 							if(ePlayer == GC.getGame().getActivePlayer())
 							{
 								DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
 							}
 							CvNotifications* pNotifications = kPlayer.GetNotifications();
 							pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
+#endif
 						}
 					}
 				}

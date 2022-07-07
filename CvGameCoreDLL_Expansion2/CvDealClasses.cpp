@@ -334,6 +334,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Gold
 	if(eItem == TRADE_ITEM_GOLD)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// DoF has not been made with this player
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 		{
@@ -349,6 +353,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Gold per Turn
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// Can't trade more GPT than you're making
 		int iGoldPerTurn = iData1;
 		if(iGoldPerTurn != -1 && pFromPlayer->calculateGoldRate() < iGoldPerTurn)
@@ -366,6 +374,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Resource
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		ResourceTypes eResource = (ResourceTypes) iData1;
 		if(eResource != NO_RESOURCE)
 		{
@@ -441,6 +453,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		CvCity* pCity = NULL;
 		CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
 		if(pPlot != NULL)
@@ -476,6 +492,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Embassy
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// too few cities
 		if (pToPlayer->getNumCities() < 1)
 			return false;
@@ -492,6 +512,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Open Borders
 	else if(eItem == TRADE_ITEM_OPEN_BORDERS)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// Neither of us yet has the Tech for OP
 		if(!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
 			return false;
@@ -529,15 +553,21 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Defensive Pact
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// Neither of us yet has the Tech for DP
 		if(!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			return false;
+#ifndef NEW_DEFENSIVE_PACT
 		// Embassy has not been established
-		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
+#endif
 #ifdef DEF_PACT_COUNT
 		CvGame& kGame = GC.getGame();
-		if(kGame.isOption("GAMEOPTION_LIMITATION_NON_AGGRESSION_PACTS") && (pFromTeam->getDevensivePactCount() > 1 || pToTeam->getDevensivePactCount() > 1))
+		if(kGame.isOption("GAMEOPTION_LIMITATION_NON_AGGRESSION_PACTS") && (pFromTeam->getDevensivePactCount() > 2 || pToTeam->getDevensivePactCount() > 2))
 			return false;
 #endif
 		// Already has DP
@@ -557,6 +587,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Research Agreement
 	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
 
@@ -765,6 +799,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Declaration of friendship
 	else if(eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
+#ifdef NO_TRADE_ITEMS_WITH_AI
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+			return false;
+#endif
 		// If we are at war, then we can't until we make peace
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;

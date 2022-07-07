@@ -87,6 +87,13 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		return false;
 	}
 
+#ifdef NO_AI_TRADE_ROUTES
+	if (!GET_PLAYER(pOriginCity->getOwner()).isHuman() || !(GET_PLAYER(pDestCity->getOwner()).isHuman() || GET_PLAYER(pDestCity->getOwner()).isMinorCiv()))
+	{
+		return false;
+	}
+#endif
+
 	// A city may not trade with itself
 	if (pOriginCity == pDestCity)
 	{
@@ -2142,7 +2149,12 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			bBothFreedom = pOwnerPlayerPolicies->IsPolicyBranchUnlocked(eFreedom) && pDestPlayerPolicies->IsPolicyBranchUnlocked(eFreedom);
 		}
 	
+#ifdef SHARED_IDEOLOGY_TRADE_CHANGE
+		if ((pOwnerPlayerPolicies->IsPolicyBranchUnlocked(eAutocracy) || pOwnerPlayerPolicies->IsPolicyBranchUnlocked(eOrder) || pOwnerPlayerPolicies->IsPolicyBranchUnlocked(eFreedom)) &&
+			(pDestPlayerPolicies->IsPolicyBranchUnlocked(eAutocracy) || pDestPlayerPolicies->IsPolicyBranchUnlocked(eOrder) || pDestPlayerPolicies->IsPolicyBranchUnlocked(eFreedom)))
+#else
 		if (bBothAutocracy || bBothOrder || bBothFreedom)
+#endif
 		{
 			iValue += GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE) * 100;
 		}
@@ -3327,12 +3339,6 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		if (pTechInfo)
 		{
 			iNumRoutes += pTechInfo->GetNumInternationalTradeRoutesChange();
-#ifdef NEW_VENICE
-			if (m_pPlayer->getCivilizationType() == (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_VENICE", true))
-			{
-				iNumRoutes += pTechInfo->GetNumVeniceTradeRoutesChange();
-			}
-#endif
 		}
 	}
 
@@ -3380,6 +3386,11 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 	iNumRoutes *= iModifier;
 	iNumRoutes /= 100;
 
+#ifdef NEW_VENICE_UA
+	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
+	if (m_pPlayer->GetPlayerTraits()->HasTrait(eTrait))
+		iNumRoutes += 2;
+#endif
 	return iNumRoutes;
 }
 

@@ -236,6 +236,9 @@ CvCity::CvCity() :
 	, m_aaiBuildingSpecialistUpgradeProgresses(0)
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+	, m_ppaiSpecialistYieldChange(0)
+#endif
 	, m_ppaiTerrainYieldChange(0)
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
@@ -615,6 +618,17 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange);
 
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+	if(m_ppaiSpecialistYieldChange)
+	{
+		for(int i=0; i < GC.getNumSpecialistInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiSpecialistYieldChange[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaiSpecialistYieldChange);
+#endif
+
 	if(m_ppaiTerrainYieldChange)
 	{
 		for(int i=0; i < GC.getNumTerrainInfos(); i++)
@@ -946,6 +960,20 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			}
 		}
 
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+		iNumSpecialistInfos = GC.getNumSpecialistInfos();
+		CvAssertMsg(m_ppaiSpecialistYieldChange==NULL, "about to leak memory, CvCity::m_ppaiSpecialistYieldChange");
+		m_ppaiSpecialistYieldChange = FNEW(int*[iNumSpecialistInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumSpecialistInfos; iI++)
+		{
+			m_ppaiSpecialistYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiSpecialistYieldChange[iI][iJ] = 0;
+			}
+		}
+#endif
+
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
 		CvAssertMsg(m_ppaiTerrainYieldChange==NULL, "about to leak memory, CvCity::m_ppaiTerrainYieldChange");
 		m_ppaiTerrainYieldChange = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
@@ -1150,8 +1178,10 @@ void CvCity::setupSpaceshipGraphics()
 		};
 
 		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifndef SPACESHIP_GRAPHICS
 		gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 		gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
+#endif
 
 		spaceshipState = eFrame;
 
@@ -1185,7 +1215,9 @@ void CvCity::setupSpaceshipGraphics()
 			spaceshipState += eBooster3;
 		}
 
+#ifndef SPACESHIP_GRAPHICS
 		gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
+#endif
 	}
 }
 
@@ -2337,6 +2369,14 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return false;
 	}
 
+#ifdef NEW_VENICE_UA
+	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
+	if (!bWillPurchase && GET_PLAYER(getOwner()).GetPlayerTraits()->HasTrait(eTrait) && eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER", true /*bHideAssert*/))
+	{
+		return false;
+	}
+#endif
+
 	if(!bTestVisible)
 	{
 		CvUnitEntry& thisUnitInfo = *pkUnitEntry;
@@ -2870,6 +2910,34 @@ void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, i
 	}
 }
 
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+
+//	--------------------------------------------------------------------------------
+/// Extra yield for a Specialist this city is working?
+int CvCity::GetSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eSpecialist > -1 && eSpecialist < GC.getNumSpecialistInfos(), "Invalid Specialist index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return m_ppaiSpecialistYieldChange[eSpecialist][eYield];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eSpecialist > -1 && eSpecialist < GC.getNumSpecialistInfos(), "Invalid Specialist index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(iChange != 0)
+	{
+		m_ppaiSpecialistYieldChange[eSpecialist][eYield] += iChange;
+
+		updateYield();
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
 int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
@@ -4551,7 +4619,11 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 
 	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
 
+#ifdef SS_PART_PURCHASE_RESTRICTION
+	if (iModifier == -1 && (!bIsSpaceshipPart || !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase() || getPopulation() < 5))
+#else
 	if (iModifier == -1 && (!bIsSpaceshipPart || !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase()))
+#endif
 	{
 		return -1;
 	}
@@ -4563,6 +4635,15 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	// Cost of purchasing units modified?
 	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
+
+#ifdef NEW_VENICE_UA
+	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
+	if(eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER") && GET_PLAYER(getOwner()).GetPlayerTraits()->HasTrait(eTrait))
+	{
+		iCost *= 73;
+		iCost /= 100;
+	}
+#endif
 
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
@@ -6216,6 +6297,19 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeFeatureExtraYield(((FeatureTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetFeatureYieldChange(iJ, eYield) * iChange));
 			}
+
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+			for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
+			{
+				const char* szWonderTypeChar = GC.getBuildingInfo(eBuilding)->GetType();
+				CvString szWonderType = szWonderTypeChar;
+
+				if(szWonderType == "BUILDING_PORCELAIN_TOWER")
+				{
+					ChangeSpecialistExtraYield(((SpecialistTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetSpecialistYieldChange(iJ, eYield) * iChange));
+				}
+			}
+#endif
 
 			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 			{
@@ -8766,10 +8860,51 @@ int CvCity::GetLocalHappiness() const
 		iLocalHappiness += iHappinessFromReligion;
 	}
 
-	// Policy Building Mods
-	int iSpecialPolicyBuildingHappiness = 0;
+#ifdef NEW_FRANCE_UA
+	// Trait Building Mods
+	int iSpecialTraitBuildingHappiness = 0;
 	int iBuildingClassLoop;
 	BuildingClassTypes eBuildingClass;
+	for(int iTraitLoop = 0; iTraitLoop < GC.getNumTraitInfos(); iTraitLoop++)
+	{
+		TraitTypes eTrait = (TraitTypes)iTraitLoop;
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(kPlayer.GetPlayerTraits()->HasTrait(eTrait)/* && !kPlayer.GetPlayerTraits()->IsPolicyBlocked(eTrait)*/)
+			{
+				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+				{
+					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+
+					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+					if(!pkBuildingClassInfo)
+					{
+						continue;
+					}
+
+					BuildingTypes eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+					if(eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // slewis - added the NO_BUILDING check for the ConquestDLX scenario which has civ specific wonders
+					{
+						if(pkTraitInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
+						{
+							iSpecialTraitBuildingHappiness += pkTraitInfo->GetBuildingClassHappiness(eBuildingClass);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	iLocalHappiness += iSpecialTraitBuildingHappiness;
+#endif
+
+	// Policy Building Mods
+	int iSpecialPolicyBuildingHappiness = 0;
+#ifndef NEW_FRANCE_UA
+	int iBuildingClassLoop;
+	BuildingClassTypes eBuildingClass;
+#endif
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
@@ -9832,6 +9967,9 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
 	                       GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
 	                       GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+	iYieldMultiplier += GetSpecialistExtraYield(eSpecialist, eIndex);
+#endif
 	int iExtraYield = GetCityCitizens()->GetSpecialistCount(eSpecialist) * iYieldMultiplier;
 
 	return iExtraYield;
@@ -12311,8 +12449,10 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		if(theCapital)
 		{
 			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
+#ifndef SPACESHIP_GRAPHICS
 			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 			gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
+#endif
 		}
 	}
 	else if(GC.getProjectInfo(eProjectType)->IsSpaceship())
@@ -12322,8 +12462,10 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		if(NO_VICTORY != eVictory && GET_TEAM(getTeam()).canLaunch(eVictory))
 		{
 			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifndef SPACESHIP_GRAPHICS
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), eConstructed);
 			gDLL->sendLaunch(getOwner(), eVictory);
+#endif
 		}
 		else
 		{
@@ -12363,7 +12505,9 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			}
 
 			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifndef SPACESHIP_GRAPHICS
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
+#endif
 		}
 	}
 
@@ -12432,12 +12576,6 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 	// slewis - The Venetian Exception
 	bool bIsPuppet = IsPuppet();
 	bool bVenetianException = false;
-#ifndef NEW_VENICE
-	if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && bIsPuppet)
-	{
-		bVenetianException = true;
-	}
-#endif
 
 	if (bIsPuppet && !bVenetianException)
 	{
@@ -13851,6 +13989,10 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiSpecialistYieldChange, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
+#endif
+
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
 	kStream >> m_iPopulationRank;
@@ -14102,6 +14244,10 @@ void CvCity::write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
+
+#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes>(kStream, m_ppaiSpecialistYieldChange, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
+#endif
 
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 

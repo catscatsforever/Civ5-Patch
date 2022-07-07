@@ -155,6 +155,9 @@ public:
 	int GetYieldChangePerTradePartner(int i) const;
 	int GetYieldChangeIncomingTradeRoute(int i) const;
 	int GetYieldModifier(int i) const;
+#ifdef NEW_FRANCE_UA
+	int GetBuildingClassHappiness(int i) const;
+#endif
 	int GetStrategicResourceQuantityModifier(int i) const;
 	int GetObsoleteTech() const;
 	int GetPrereqTech() const;
@@ -281,6 +284,9 @@ protected:
 	int* m_paiYieldChangePerTradePartner;
 	int* m_paiYieldChangeIncomingTradeRoute;
 	int* m_paiYieldModifier;
+#ifdef NEW_FRANCE_UA
+	int* m_paiBuildingClassHappiness;
+#endif
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
 	int* m_piMovesChangeUnitCombats;

@@ -5905,6 +5905,10 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 	PlayerTypes eOldAlly = GetAlly();
 
+#ifdef NO_AI_ALLYING_CS
+	if (GET_PLAYER(ePlayer).isHuman())
+	{
+#endif
 	// No old ally and our friendship is now above the threshold, OR our friendship is now higher than a previous ally
 	if((eOldAlly == NO_PLAYER && bNowAboveAlliesThreshold)
 	        || (eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)))
@@ -5947,6 +5951,31 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		}
 
 	}
+#ifdef NO_AI_ALLYING_CS
+	}
+	else
+	{
+	if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
+	{
+		bAdd = false;
+		bAllies = true;
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(false);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+		}
+	}
+	}
+#endif
 
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
 	if(bFriends || bAllies)
@@ -7676,11 +7705,6 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
-#ifdef NO_BOTS_ALLYING_CS
-	if (!GET_PLAYER(eMajor).isHuman())
-		return false;
-#endif
-
 	// Is alive?
 	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive())
 		return false;
@@ -8050,6 +8074,30 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		sFactors += strPositiveFactor.toUTF8();
 	}
 	iScore += iPoliciesScore;
+
+#ifdef MONGOL_CS_BULLY
+	int iTraitsScore = 0;
+	int iTraitsMod = 0;
+	if(strcmp(GET_PLAYER(eBullyPlayer).getCivilizationTypeKey(), "CIVILIZATION_MONGOL") == 0)
+		iTraitsMod = 25;
+	if (iTraitsMod != 0)
+	{
+		iTraitsScore += iGlobalMilitaryScore;
+		iTraitsScore += iLocalPowerScore;
+
+		iTraitsScore *= iTraitsMod;
+		iTraitsScore /= 100;
+	}
+	if (sTooltipSink && iTraitsScore != 0)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iTraitsScore;
+		strPositiveFactor << "TXT_KEY_TRAIT_TERROR_SHORT";
+		sFactors += strPositiveFactor.toUTF8();
+	}
+	iScore += iTraitsScore;
+
+#endif
 
 	// **************************
 	// Base Reluctance
@@ -8840,12 +8888,6 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 /// How many friendship points gained from a gift of Gold
 int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 {
-#ifdef NO_BOTS_ALLYING_CS
-	if (!GET_PLAYER(eMajor).isHuman())
-	{
-		return 0;
-	}
-#endif
 	// The more Gold you spend the more Friendship you get!
 	iGold = (int) pow((double) iGold, (double) /*1.01*/ GC.getGOLD_GIFT_FRIENDSHIP_EXPONENT());
 	// The higher this divisor the less Friendship is gained

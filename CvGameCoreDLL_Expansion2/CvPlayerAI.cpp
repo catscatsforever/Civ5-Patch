@@ -339,11 +339,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 
 	// Puppet the city
-#ifdef NEW_VENICE
-	if(pCity->getOriginalOwner() != GetID())
-#else
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
-#endif
 	{
 		pCity->DoCreatePuppet();
 	}
@@ -561,13 +557,11 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
-#ifndef NEW_VENICE
 	// for Venice
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
 		return;
 	}
-#endif
 
 	// if their capital city is puppeted, annex it
 	CvCity* pCity = getCapitalCity();

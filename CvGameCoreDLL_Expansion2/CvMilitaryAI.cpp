@@ -847,14 +847,10 @@ CvAIOperation* CvMilitaryAI::GetPureNavalAttackOperation(PlayerTypes eEnemy)
 /// Spend money to quickly add a unit to a city
 CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 {
-#ifdef NEW_VENICE
-	if(pCity->IsPuppet())
-#else
 	bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
 
 	// No units in puppet cities except for Venice!
 	if(pCity->IsPuppet() && !bIsVenice)
-#endif
 	{
 		return NULL;
 	}

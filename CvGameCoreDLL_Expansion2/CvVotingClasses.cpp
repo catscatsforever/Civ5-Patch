@@ -3294,15 +3294,27 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 		// City-State allies
 		int iCityStateVotes = 0;
+#ifdef AUTOCRACY_EXTRA_VOTES
+		CvPlayerAI& kPlayer(GET_PLAYER(ePlayer));
+		PolicyTypes ePolicy = (PolicyTypes) GC.getInfoTypeForString("POLICY_GUNBOAT_DIPLOMACY", true /*bHideAssert*/);
+		int iExtraAutoVotes = 0;
+#endif
 		for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
 		{
 			PlayerTypes eMinor = (PlayerTypes) i;
 			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 			{
 				iCityStateVotes += pInfo->GetCityStateDelegates();
+#ifdef AUTOCRACY_EXTRA_VOTES
+				if (kPlayer.GetPlayerPolicies()->HasPolicy(ePolicy))
+					iExtraAutoVotes++;
+#endif
 			}
 		}
 		iVotes += iCityStateVotes;
+#ifdef AUTOCRACY_EXTRA_VOTES
+		iVotes += std::min(6, iExtraAutoVotes);
+#endif
 
 		// Diplomats after Globalization tech
 		int iDiplomatVotes = 0;

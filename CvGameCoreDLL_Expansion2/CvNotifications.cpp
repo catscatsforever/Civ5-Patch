@@ -1693,12 +1693,14 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
+#ifndef PROPHET_CAN_FOUND_EXTRA_RELIGION
 #ifdef BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !(strcmp(GET_PLAYER(m_ePlayer).getCivilizationTypeKey(), "CIVILIZATION_BYZANTIUM") == 0))
 #else
 		if (pkReligions->GetNumReligionsStillToFound() <= 0)
 #endif
 			return true;	// None left, dismiss the notification
+#endif
 
 		return pkReligions->HasCreatedReligion(m_ePlayer);
 	}

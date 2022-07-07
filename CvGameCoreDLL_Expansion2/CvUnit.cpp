@@ -266,6 +266,9 @@ CvUnit::CvUnit() :
 #ifdef NEW_SCIENTISTS_BULB
 	, m_iResearchBulbAmount(0)
 #endif
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+	, m_bCanInstahealThisTurn(true)
+#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	, m_bIsIgnoreExpended("CvUnit::m_bIsIgnoreExpended", m_syncArchive)
 #endif
@@ -934,6 +937,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bAITurnProcessed = false;
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+	m_bCanInstahealThisTurn = true;
+#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	m_bIsIgnoreExpended = false;
 #endif
@@ -1207,6 +1213,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	GetReligionData()->SetReligion(pUnit->GetReligionData()->GetReligion());
 	GetReligionData()->SetSpreadsLeft(pUnit->GetReligionData()->GetSpreadsLeft());
 	GetReligionData()->SetReligiousStrength(pUnit->GetReligionData()->GetReligiousStrength());
+#endif
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+	setCanInstahealThisTurn(pUnit->canInstahealThisTurn());
 #endif
 
 #ifdef GIFTED_UNITS_ATTACK
@@ -1698,7 +1707,6 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 						}
-#ifndef NEW_VENICE
 						// if Venice
 						else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 						{
@@ -1706,7 +1714,6 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 								kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 						}
-#endif
 					}
 					else
 					{
@@ -6063,6 +6070,9 @@ bool CvUnit::paradrop(int iX, int iY)
 
 	changeMoves(-(GC.getMOVE_DENOMINATOR() / 2));
 	setMadeAttack(true);
+#ifdef NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP
+	setCanInstahealThisTurn(false);
+#endif
 
 	CvPlot* fromPlot = plot();
 	//JON: CHECK FOR INTERCEPTION HERE
@@ -7395,7 +7405,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	{
 		return false;
 	}
-
+#ifndef PROPHET_CAN_FOUND_EXTRA_RELIGION
 #ifdef BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 	if(pReligions->GetNumReligionsStillToFound() <= 0 && !(strcmp(GET_PLAYER(getOwner()).getCivilizationTypeKey(), "CIVILIZATION_BYZANTIUM") == 0))
 #else
@@ -7404,6 +7414,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	{
 		return false;
 	}
+#endif
 
 	if(pReligions->HasCreatedReligion(getOwner()))
 	{
@@ -8212,7 +8223,7 @@ int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 		{
 			if (pkUnit->GetSpaceshipProject() != NO_PROJECT)
 			{
-				iProduction = pCity->productionLeft();
+				iProduction = iProduction * 3 / 2;
 			}
 		}
 	}
@@ -8648,7 +8659,7 @@ bool CvUnit::CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const
 {
 	VALIDATE_OBJECT
 
-#ifdef NO_BOTS_PROJECTS
+#ifdef NO_AI_PROJECTS
 	if(!GET_PLAYER(getOwner()).isHuman())
 		return false;
 #endif
@@ -9628,6 +9639,9 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	if(pkPromotionInfo->IsInstaHeal())
 	{
 		changeDamage(-GC.getINSTA_HEAL_RATE());
+#ifdef NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
+		setCanInstahealThisTurn(false);
+#endif
 	}
 	// Set that we have this Promotion
 	else
@@ -10866,9 +10880,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	if(IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 		iModifier += GetAdjacentModifier();
 
+#ifndef GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
+#endif
 
 	////////////////////////
 	// KNOWN BATTLE PLOT
@@ -10967,10 +10983,17 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
 		if(iTempModifier > 0)
 		{
+#ifdef ETHIOPIA_UA_REWORK
+			if(pOtherUnit)
+			{
+				iModifier += pOtherUnit->IsLargerCivThan(this)*iTempModifier;
+			}
+#else
 			if(pOtherUnit && pOtherUnit->IsLargerCivThan(this))
 			{
 				iModifier += iTempModifier;
 			}
+#endif
 		}
 	}
 
@@ -11089,6 +11112,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iTempModifier = /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
 		iModifier += iTempModifier;
 	}
+
+#ifdef GOLDEN_AGE_ATTACK_BONUS_MODIFIER
+	// Our empire fights well in Golden Ages?
+	if(GET_PLAYER(getOwner()).isGoldenAge())
+		iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeCombatModifier();
+#endif
 
 	////////////////////////
 	// KNOWN DESTINATION PLOT
@@ -11477,6 +11506,15 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+
+#ifndef CLAUZEWITZS_LEGACY
+	// Temporary attack bonus (Policies, etc.)
+	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
+	{
+		iTempModifier = /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
+		iModifier += iTempModifier;
+	}
+#endif
 
 	////////////////////////
 	// OTHER UNIT IS KNOWN
@@ -14805,6 +14843,19 @@ void CvUnit::finishMoves()
 	setMoves(0);
 }
 
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+//	--------------------------------------------------------------------------------
+bool CvUnit::canInstahealThisTurn() const
+{
+	return m_bCanInstahealThisTurn;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setCanInstahealThisTurn(bool bNewValue)
+{
+	m_bCanInstahealThisTurn = bNewValue;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Is this unit capable of moving on its own?
 bool CvUnit::IsImmobile() const
@@ -18023,6 +18074,10 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Insta-heal - must be damaged
 	if(promotionInfo->IsInstaHeal())
 	{
+#ifdef NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
+		if (!canInstahealThisTurn())
+			return false;
+#endif
 		if(getDamage() == 0)
 			return false;
 	}
@@ -18588,6 +18643,9 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iResearchBulbAmount;
 #endif
 
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+	kStream >> m_bCanInstahealThisTurn;
+#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	kStream >> m_bIsIgnoreExpended;
 #endif
@@ -18708,7 +18766,10 @@ void CvUnit::write(FDataStream& kStream) const
 #ifdef NEW_SCIENTISTS_BULB
 	kStream << m_iResearchBulbAmount;
 #endif
-	
+
+#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
+	kStream << m_bCanInstahealThisTurn;
+#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	kStream << m_bIsIgnoreExpended;
 #endif
@@ -21888,7 +21949,11 @@ bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const
 }
 
 //	--------------------------------------------------------------------------------
+#ifdef ETHIOPIA_UA_REWORK
+int CvUnit::IsLargerCivThan(const CvUnit* pOtherUnit) const
+#else
 bool CvUnit::IsLargerCivThan(const CvUnit* pOtherUnit) const
+#endif
 {
 	int iMyCities = 0;
 	int iOtherCities = 0;
@@ -21899,7 +21964,11 @@ bool CvUnit::IsLargerCivThan(const CvUnit* pOtherUnit) const
 	CvPlayer& kOtherPlayer = GET_PLAYER(pOtherUnit->getOwner());
 	iOtherCities = kOtherPlayer.getNumCities();
 
+#ifdef ETHIOPIA_UA_REWORK
+	return std::min (4, std::max(0, iMyCities - iOtherCities));
+#else
 	return iMyCities > iOtherCities;
+#endif
 }
 
 //	--------------------------------------------------------------------------------

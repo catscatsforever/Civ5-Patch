@@ -892,6 +892,10 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
+#ifdef NQ_ALLOW_RELIGION_ONE_SHOTS
+	kPlayer.DoReligionOneShots(eReligion);
+#endif
+
 	// In case we have another prophet sitting around, make sure he's set to this religion
 	int iLoopUnit;
 	CvUnit* pLoopUnit;
@@ -991,12 +995,14 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 /// Can the supplied religion be created?
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity)
 {
+#ifndef PROPHET_CAN_FOUND_EXTRA_RELIGION
 	if(GetNumReligionsStillToFound() <= 0)
 #ifdef BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 		if (!(strcmp(GET_PLAYER(ePlayer).getCivilizationTypeKey(), "CIVILIZATION_BYZANTIUM") == 0))
 			return FOUNDING_NO_RELIGIONS_AVAILABLE;
 #else
 		return FOUNDING_NO_RELIGIONS_AVAILABLE;
+#endif
 #endif
 
 	if(ePlayer == NO_PLAYER)
@@ -1099,6 +1105,10 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
 	}
+
+#ifdef NQ_ALLOW_RELIGION_ONE_SHOTS
+	kPlayer.DoReligionOneShots(eReligion);
+#endif
 
 	//Notify the masses
 	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
@@ -3781,7 +3791,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		if(!m_bHasPaidAdoptionBonus)
 		{
 			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldBonus /= 100;
 
 			if(iGoldBonus > 0)
@@ -5641,6 +5651,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	iRtnValue += iFlavorDiplomacy * pEntry->GetFriendlyCityStateSpreadModifier() / 20;
 	iRtnValue += iFlavorDefense * pEntry->GetCombatModifierFriendlyCities() / 4;
 	iRtnValue += iFlavorOffense * pEntry->GetCombatModifierEnemyCities() / 4;
+#ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+	iRtnValue += pEntry->GetGoldenAgeTurns() * (iFlavorGold + iFlavorCulture) / 5;
+#endif
 
 	// Chosen EARLY?
 	if (iReligionsEnhancedPercent < 33)

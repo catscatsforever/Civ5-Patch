@@ -1008,12 +1008,8 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	}
 
 	// Normally, a puppeted city cannot run processes, but as Venice they are allowed to.
-#ifdef NEW_VENICE
-	if (!GetCity()->IsPuppet())
-#else
 	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 	if (!GetCity()->IsPuppet() || bIsVenice)
-#endif
 	{	
 		// Loop through adding available processes
 		if (!GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
