@@ -88,7 +88,7 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 	}
 
 #ifdef NO_AI_TRADE_ROUTES
-	if (!GET_PLAYER(pOriginCity->getOwner()).isHuman() || !(GET_PLAYER(pDestCity->getOwner()).isHuman() || GET_PLAYER(pDestCity->getOwner()).isMinorCiv()))
+	if ((!GET_PLAYER(pOriginCity->getOwner()).isHuman() || !(GET_PLAYER(pDestCity->getOwner()).isHuman() || GET_PLAYER(pDestCity->getOwner()).isMinorCiv())) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return false;
 	}

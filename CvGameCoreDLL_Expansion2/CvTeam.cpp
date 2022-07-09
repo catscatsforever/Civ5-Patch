@@ -981,7 +981,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	}
 
 #ifdef AI_CANT_DECLARE_WAR
-	if(GC.getGame().isNetworkMultiPlayer())
+	if(GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		if(!isHuman())
 		{

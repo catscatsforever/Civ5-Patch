@@ -2170,7 +2170,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 	m_aaPlayerStealableTechList[ePlayer].clear();
 
 #ifdef NO_STEALABLE_TECH_LIST_FROM_AI
-	if(!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isHuman())
+	if(!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 #else
 	if(!GET_PLAYER(ePlayer).isAlive())
 #endif

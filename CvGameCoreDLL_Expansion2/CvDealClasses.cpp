@@ -335,7 +335,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if(eItem == TRADE_ITEM_GOLD)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// DoF has not been made with this player
@@ -354,7 +354,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// Can't trade more GPT than you're making
@@ -375,7 +375,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		ResourceTypes eResource = (ResourceTypes) iData1;
@@ -454,7 +454,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		CvCity* pCity = NULL;
@@ -493,7 +493,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// too few cities
@@ -513,7 +513,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_OPEN_BORDERS)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// Neither of us yet has the Tech for OP
@@ -554,7 +554,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// Neither of us yet has the Tech for DP
@@ -588,7 +588,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
@@ -800,7 +800,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
-		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()))
+		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
 		// If we are at war, then we can't until we make peace

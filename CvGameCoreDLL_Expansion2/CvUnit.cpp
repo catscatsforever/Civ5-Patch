@@ -8660,7 +8660,7 @@ bool CvUnit::CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const
 	VALIDATE_OBJECT
 
 #ifdef NO_AI_PROJECTS
-	if(!GET_PLAYER(getOwner()).isHuman())
+	if(!GET_PLAYER(getOwner()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 		return false;
 #endif
 

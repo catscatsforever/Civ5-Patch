@@ -362,6 +362,8 @@
 ///
 #define NO_TRADE_ITEMS_WITH_AI
 ///
+#define NO_AI_VOTES
+///
 #define AI_PEACE_TURNS
 ///
 #define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS

@@ -3248,8 +3248,8 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 
 int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources)
 {
-#ifdef DIPLO_VICTORY_VOTING
-	if (!GET_PLAYER(ePlayer).isHuman())
+#ifdef NO_AI_VOTES
+	if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return 0;
 	}
