@@ -5693,13 +5693,13 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// No XP in first 10 turns
-	if(kGoodyInfo.getExperience() > 0)
+	/*if(kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
 			return false;
 		}
-	}
+	}*/
 
 	// Unit Healing
 	if(kGoodyInfo.getDamagePrereq() > 0)
@@ -5709,6 +5709,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 	}
+
+#ifdef REMOVE_EARLY_CULTURE_RUINS
+	if (kGoodyInfo.getCulture() > 0)
+	{
+		if (GC.getGame().getElapsedGameTurns() < 10)
+		{
+			return false;
+		}
+	}
+#endif
 
 	// Early pantheon
 	if(kGoodyInfo.isPantheonFaith())
@@ -6866,6 +6876,27 @@ void CvPlayer::found(int iX, int iY)
 	}
 
 	AwardFreeBuildings(pCity);
+
+#ifdef DENMARK_UA_REWORK
+	if (pCity->isCoastal())
+	{
+		TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("TRAIT_VIKING_FURY", true /*bHideAssert*/);
+		const UnitTypes eUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_GALLEY", true  /*bHideAssert*/);
+
+		if (GET_PLAYER(GetID()).GetPlayerTraits()->HasTrait(eTrait))
+		{
+			CvUnit* pNewUnit = NULL;
+			pNewUnit = initUnit(eUnit, iX, iY);
+
+			CvAssert(pNewUnit);
+
+			if (pNewUnit)
+			{
+				pNewUnit->jumpToNearestValidPlot();
+			}
+		}
+	}
+#endif
 
 	DoUpdateNextPolicyCost();
 

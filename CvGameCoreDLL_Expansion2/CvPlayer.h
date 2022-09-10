@@ -1845,6 +1845,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCoastalCityYieldChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldChange;
+#ifdef RUSSIA_REWORK_UA
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiRiverCityYieldChange;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldPerPopChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSeaPlotYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;

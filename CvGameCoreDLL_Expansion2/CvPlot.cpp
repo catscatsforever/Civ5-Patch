@@ -2349,6 +2349,12 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							return false;
 						}
 					}
+#ifdef FEITORIA_FIX
+					else if (GC.getImprovementInfo(getImprovementType())->IsOnlyCityStateTerritory() && GET_PLAYER(ePlayer).isMinorCiv())
+					{
+						return false;
+					}
+#endif
 					else if(getTeam() != eTeam) 
 					{//only buildable in own culture
 						return false;
@@ -5912,7 +5918,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	int iI;
 	ImprovementTypes eOldImprovement = getImprovementType();
 	bool bGiftFromMajor = false;
-#ifndef AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
+//#ifndef AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
 	if (eBuilder != NO_PLAYER)
 	{
 		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
@@ -5920,7 +5926,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			bGiftFromMajor = true;
 		}
 	}
-#endif
+//#endif
 	bool bIgnoreResourceTechPrereq = bGiftFromMajor; // If it is a gift from a major civ, our tech limitations do not apply
 
 	if(eOldImprovement != eNewValue)
@@ -6967,10 +6973,53 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 		if(pReligion)
 		{
-			int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+#ifdef BELIEF_DANCE_AURORA_NERF
+			BeliefTypes pBelief = NO_BELIEF;
+			for(int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+			{
+				const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+				CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+				if(pEntry && pEntry->IsPantheonBelief())
+				{
+					pBelief = eBelief;
+					break;
+				}
+			}
+			int iReligionChange = 0;
+			// if (GC.getGame().GetGameReligions()->GetBeliefInPantheon(pWorkingCity->getOwner()) == (BeliefTypes)GC.getInfoTypeForString("BELIEF_EARTH_MOTHER", true))
+			if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_DANCE_AURORA", true))
+			{
+				if(!isHills() || eYield == YIELD_FAITH)
+				{
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+			else
+			{
+				iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+			}
+#else
+				int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+#endif
+			//int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
+#ifdef BELIEF_DANCE_AURORA_NERF
+				if (eSecondaryPantheon == (BeliefTypes)GC.getInfoTypeForString("BELIEF_DANCE_AURORA", true))
+				{
+					if(!isHills() || eYield == YIELD_FAITH)
+					{
+						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+				}
+				else
+				{
+					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+#else
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+#endif
+				//iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 			}
 			iYield += iReligionChange;
 		}
@@ -7505,6 +7554,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					{
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
 					}
+#ifdef PORTUGAL_UA_REWORK
+					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					{
+						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
+					}
+#endif
 				}
 			}
 		}
@@ -7542,6 +7597,14 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iPerPopYield /= 100;
 			iYield += iPerPopYield;
 		}
+
+#ifdef RUSSIA_UA_REWORK
+		// River Cities Mod
+		if (isRiver())
+		{
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetRiverCityYieldChange(eYield) * GET_PLAYER(getOwner()).GetCurrentEra();
+		}
+#endif
 
 		iYield += (iTemp / 100);
 	}
@@ -10247,6 +10310,12 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 					// Extra yield from Resources with Trait
 					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
+#ifdef PORTUGAL_UA_REWORK
+					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					{
+						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
+					}
+#endif
 				}
 			}
 		}

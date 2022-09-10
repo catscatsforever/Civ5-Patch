@@ -259,6 +259,8 @@
 #define CAN_SET_INTERCEPT_HALF_TIMER
 /// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
 #define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
+///
+#define REMOVE_EARLY_CULTURE_RUINS
 /// Goody hut messages now properly appear for all yields, even if there's no popup
 #define AUI_PLAYER_FIX_RECEIVE_GOODY_MESSAGE
 /// If the player receives a yield from a goody hut, floating text appears above the plot indicating the number and type of yields received
@@ -319,6 +321,12 @@
 ///
 #define ETHIOPIA_UA_REWORK
 ///
+#define RUSSIA_UA_REWORK
+///
+#define PORTUGAL_UA_REWORK
+///
+#define DENMARK_UA_REWORK
+///
 #define MONGOL_CS_BULLY
 ///
 #define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
@@ -373,6 +381,8 @@
 #define BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 ///
 #define BELIEF_PILGRIMAGE_PER_CITY
+///
+#define BELIEF_DANCE_AURORA_NERF
 /// allow religion one-shots (like deus vult, religious settlements, dharma)
 #define NQ_ALLOW_RELIGION_ONE_SHOTS
 /// allow golden ages from beliefs
@@ -413,6 +423,8 @@
 #define AUTOCRACY_EXTRA_VOTES
 ///
 #define CS_INFLUENCE_BOOST
+///
+// #define FEITORIA_FIX
 ///
 #define ASTAR_AI_CONTROL_FIX_RADAR
 /// Fixes radar (Delnar: first bit was covered by GJS, remaining bits are now also covered) 

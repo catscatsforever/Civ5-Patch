@@ -108,12 +108,18 @@ CvTraitEntry::CvTraitEntry() :
 	m_paiExtraYieldThreshold(NULL),
 	m_paiYieldChange(NULL),
 	m_paiYieldChangeStrategicResources(NULL),
+#ifdef PORTUGAL_UA_REWORK
+	m_paiYieldChangeLuxuryResources(NULL),
+#endif
 	m_paiYieldChangeNaturalWonder(NULL),
 	m_paiYieldChangePerTradePartner(NULL),
 	m_paiYieldChangeIncomingTradeRoute(NULL),
 	m_paiYieldModifier(NULL),
 #ifdef NEW_FRANCE_UA
 	m_paiBuildingClassHappiness(NULL),
+#endif
+#ifdef RUSSIA_UA_REWORK
+	m_paiRiverCityYieldChange(NULL),
 #endif
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
@@ -131,6 +137,9 @@ CvTraitEntry::~CvTraitEntry()
 {
 #ifdef NEW_FRANCE_UA
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
+#endif
+#ifdef RUSSIA_UA_REWORK
+	SAFE_DELETE_ARRAY(m_paiRiverCityYieldChange);
 #endif
 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
@@ -689,6 +698,13 @@ int CvTraitEntry::GetYieldChangeStrategicResources(int i) const
 	return m_paiYieldChangeStrategicResources ? m_paiYieldChangeStrategicResources[i] : -1;
 }
 
+#ifdef PORTUGAL_UA_REWORK
+/// Accessor:: Extra yield from luxury resources
+int CvTraitEntry::GetYieldChangeLuxuryResources(int i) const
+{
+	return m_paiYieldChangeLuxuryResources ? m_paiYieldChangeLuxuryResources[i] : -1;
+}
+#endif
 /// Accessor:: Extra yield from natural wonders
 int CvTraitEntry::GetYieldChangeNaturalWonder(int i) const
 {
@@ -721,6 +737,14 @@ int CvTraitEntry::GetBuildingClassHappiness(int i) const
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
 
+#endif
+#ifdef RUSSIA_UA_REWORK
+int CvTraitEntry::GetRiverCityYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiRiverCityYieldChange ? m_paiRiverCityYieldChange[i] : -1;
+}
 #endif
 /// Accessor:: Additional quantity of strategic resources
 int CvTraitEntry::GetStrategicResourceQuantityModifier(int i) const
@@ -1021,12 +1045,18 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 	kUtility.SetYields(m_paiYieldChange, "Trait_YieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeStrategicResources, "Trait_YieldChangesStrategicResources", "TraitType", szTraitType);
+#ifdef PORTUGAL_UA_REWORK
+	kUtility.SetYields(m_paiYieldChangeLuxuryResources, "Trait_YieldChangesLuxuryResources", "TraitType", szTraitType);
+#endif
 	kUtility.SetYields(m_paiYieldChangeNaturalWonder, "Trait_YieldChangesNaturalWonder", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangePerTradePartner, "Trait_YieldChangesPerTradePartner", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeIncomingTradeRoute, "Trait_YieldChangesIncomingTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
 #ifdef NEW_FRANCE_UA
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Trait_BuildingClassHappiness", "BuildingClassType", "TraitType", szTraitType, "Happiness");
+#endif
+#ifdef RUSSIA_UA_REWORK
+	kUtility.SetYields(m_paiRiverCityYieldChange, "Trait_RiverCityYieldChange", "TraitType", szTraitType);
 #endif
 
 	const int iNumTerrains = GC.getNumTerrainInfos();
@@ -1531,10 +1561,16 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 				m_iFreeCityYield[iYield] = trait->GetYieldChange(iYield);
 				m_iYieldChangeStrategicResources[iYield] = trait->GetYieldChangeStrategicResources(iYield);
+#ifdef PORTUGAL_UA_REWORK
+				m_iYieldChangeLuxuryResources[iYield] = trait->GetYieldChangeLuxuryResources(iYield);
+#endif
 				m_iYieldChangeNaturalWonder[iYield] = trait->GetYieldChangeNaturalWonder(iYield);
 				m_iYieldChangePerTradePartner[iYield] = trait->GetYieldChangePerTradePartner(iYield);
 				m_iYieldChangeIncomingTradeRoute[iYield] = trait->GetYieldChangeIncomingTradeRoute(iYield);
 				m_iYieldRateModifier[iYield] = trait->GetYieldModifier(iYield);
+#ifdef RUSSIA_UA_REWORK
+				m_iRiverCityYieldChange[iYield] = trait->GetRiverCityYieldChange(iYield);
+#endif
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -1738,10 +1774,16 @@ void CvPlayerTraits::Reset()
 		m_iExtraYieldThreshold[iYield] = 0;
 		m_iFreeCityYield[iYield] = 0;
 		m_iYieldChangeStrategicResources[iYield] = 0;
+#ifdef PORTUGAL_UA_REWORK
+		m_iYieldChangeLuxuryResources[iYield] = 0;
+#endif
 		m_iYieldChangeNaturalWonder[iYield] = 0;
 		m_iYieldChangePerTradePartner[iYield] = 0;
 		m_iYieldChangeIncomingTradeRoute[iYield] = 0;
 		m_iYieldRateModifier[iYield] = 0;
+#ifdef RUSSIA_UA_REWORK
+		m_iRiverCityYieldChange[iYield] = 0;
+#endif
 
 		for(int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
 		{
@@ -2816,8 +2858,18 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	ArrayWrapper<int> kYieldChangeResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
 	kStream >> kYieldChangeResourcesWrapper;
 
+#ifdef PORTUGAL_UA_REWORK
+	ArrayWrapper<int> kYieldChangeLuxuryResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeLuxuryResources);
+	kStream >> kYieldChangeLuxuryResourcesWrapper;
+#endif
+
 	ArrayWrapper<int> kYieldRateModifierWrapper(NUM_YIELD_TYPES, m_iYieldRateModifier);
 	kStream >> kYieldRateModifierWrapper;
+
+#ifdef RUSSIA_UA_REWORK
+	ArrayWrapper<int> kRiverCityYieldChangeWrapper(NUM_YIELD_TYPES, m_iRiverCityYieldChange);
+	kStream >> kRiverCityYieldChangeWrapper;
+#endif
 
 	ArrayWrapper<int> kYieldChangeNaturalWonderWrapper(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
 	kStream >> kYieldChangeNaturalWonderWrapper;
@@ -3020,7 +3072,13 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iExtraYieldThreshold);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iFreeCityYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeStrategicResources);
+#ifdef PORTUGAL_UA_REWORK
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeLuxuryResources);
+#endif
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldRateModifier);
+#ifdef RUSSIA_UA_REWORK
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iRiverCityYieldChange);
+#endif
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangePerTradePartner);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeIncomingTradeRoute);

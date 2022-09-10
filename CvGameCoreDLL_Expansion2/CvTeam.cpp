@@ -6806,6 +6806,9 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
 		}
 	}
+#ifdef RUSSIA_UA_REWORK
+	updateYield();
+#endif
 }
 
 //	--------------------------------------------------------------------------------

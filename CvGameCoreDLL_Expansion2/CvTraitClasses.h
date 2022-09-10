@@ -151,12 +151,18 @@ public:
 	int GetExtraYieldThreshold(int i) const;
 	int GetYieldChange(int i) const;
 	int GetYieldChangeStrategicResources(int i) const;
+#ifdef PORTUGAL_UA_REWORK
+	int GetYieldChangeLuxuryResources(int i) const;
+#endif
 	int GetYieldChangeNaturalWonder(int i) const;
 	int GetYieldChangePerTradePartner(int i) const;
 	int GetYieldChangeIncomingTradeRoute(int i) const;
 	int GetYieldModifier(int i) const;
 #ifdef NEW_FRANCE_UA
 	int GetBuildingClassHappiness(int i) const;
+#endif
+#ifdef RUSSIA_UA_REWORK
+	int GetRiverCityYieldChange(int i) const;
 #endif
 	int GetStrategicResourceQuantityModifier(int i) const;
 	int GetObsoleteTech() const;
@@ -280,12 +286,18 @@ protected:
 	int* m_paiExtraYieldThreshold;
 	int* m_paiYieldChange;
 	int* m_paiYieldChangeStrategicResources;
+#ifdef PORTUGAL_UA_REWORK
+	int* m_paiYieldChangeLuxuryResources;
+#endif
 	int* m_paiYieldChangeNaturalWonder;
 	int* m_paiYieldChangePerTradePartner;
 	int* m_paiYieldChangeIncomingTradeRoute;
 	int* m_paiYieldModifier;
 #ifdef NEW_FRANCE_UA
 	int* m_paiBuildingClassHappiness;
+#endif
+#ifdef RUSSIA_UA_REWORK
+	int* m_paiRiverCityYieldChange;
 #endif
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
@@ -710,6 +722,12 @@ public:
 	{
 		return m_iYieldChangeStrategicResources[(int)eYield];
 	};
+#ifdef PORTUGAL_UA_REWORK
+	int GetYieldChangeLuxuryResources(YieldTypes eYield) const
+	{
+		return m_iYieldChangeLuxuryResources[(int)eYield];
+	};
+#endif
 	int GetYieldChangeNaturalWonder(YieldTypes eYield) const
 	{
 		return m_iYieldChangeNaturalWonder[(int)eYield];
@@ -726,6 +744,12 @@ public:
 	{
 		return m_iYieldRateModifier[(int)eYield];
 	};
+#ifdef RUSSIA_UA_REWORK
+	int GetRiverCityYieldChange(YieldTypes eYield) const
+	{
+		return m_iRiverCityYieldChange[(int)eYield];
+	};
+#endif
 	int GetStrategicResourceQuantityModifier(TerrainTypes eTerrain) const
 	{
 		return m_iStrategicResourceQuantityModifier[(int)eTerrain];
@@ -889,10 +913,16 @@ private:
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
 	int m_iYieldChangeStrategicResources[NUM_YIELD_TYPES];
+#ifdef PORTUGAL_UA_REWORK
+	int m_iYieldChangeLuxuryResources[NUM_YIELD_TYPES];
+#endif
 	int m_iYieldChangeNaturalWonder[NUM_YIELD_TYPES];
 	int m_iYieldChangePerTradePartner[NUM_YIELD_TYPES];
 	int m_iYieldChangeIncomingTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldRateModifier[NUM_YIELD_TYPES];
+#ifdef RUSSIA_UA_REWORK
+	int m_iRiverCityYieldChange[NUM_YIELD_TYPES];
+#endif
 	int m_iStrategicResourceQuantityModifier[NUM_TERRAIN_TYPES];
 	std::vector<int> m_aiResourceQuantityModifier;
 	std::vector<bool> m_abNoTrain;
