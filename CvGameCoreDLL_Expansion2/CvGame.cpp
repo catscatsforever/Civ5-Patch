@@ -3501,8 +3501,13 @@ void CvGame::doControl(ControlTypes eControl)
 		GC.GetEngineUserInterface()->toggleResourceVisibleMode();
 		break;
 
-	case CONTROL_UNIT_ICONS:
-		break;
+	case CONTROL_UNIT_ICONS: 
+#ifdef TURN_TIMER_RESET_BUTTON
+	{
+		resetTurnTimer(true);
+	}
+	break;	
+#endif
 
 	case CONTROL_SCORES:
 		break;

@@ -255,6 +255,9 @@ CvCity::CvCity() :
 	, m_aiYieldRank("CvCity::m_aiYieldRank", m_syncArchive)
 	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
 	, m_bOwedCultureBuilding(false)
+#ifdef OWED_FOOD_BUILDING
+	, m_bOwedFoodBuilding(false)
+#endif
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
@@ -741,6 +744,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bIndustrialRouteToCapital = false;
 	m_bFeatureSurrounded = false;
 	m_bOwedCultureBuilding = false;
+#ifdef OWED_FOOD_BUILDING
+	m_bOwedFoodBuilding = false;
+#endif
 
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
@@ -1550,8 +1556,10 @@ void CvCity::doTurn()
 			}
 		}
 
+#ifndef NEW_WLTKD
 		// Following function also looks at WLTKD stuff
 		DoTestResourceDemanded();
+#endif
 
 		// Culture accumulation
 		if(getJONSCulturePerTurn() > 0)
@@ -3320,7 +3328,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			// after doing so, reset the timer so that this demand expires and a new one
 			// will replace it if it isn't fulfilled. The duration is 2x the length of the WTLKD
 			int iNumTurns = GC.getCITY_RESOURCE_WLTKD_TURNS();
-			iNumTurns = iNumTurns * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+			// iNumTurns = iNumTurns * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
 			ChangeResourceDemandedCountdown(iNumTurns);
 #endif
 
@@ -6856,6 +6864,9 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 		}
 
+#ifdef NEW_WLTKD
+		ResourceTypes eResource = GetResourceDemanded();
+#endif
 		// Cities stop growing when empire is very unhappy
 		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
@@ -6871,12 +6882,30 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
 		// WLTKD Growth Bonus
+#ifdef NEW_WLTKD
+		else if(eResource != NO_RESOURCE)
+		{
+			// Do we have the right Resource?
+			if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
+			{
+				int iMod = /*25*/ GC.getWLTKD_GROWTH_MULTIPLIER();
+				iTotalMod += iMod;
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
+#ifdef NQ_WLTKD_SCALES_BY_GAME_SPEED
+				int iNumTurns = GC.getCITY_RESOURCE_WLTKD_TURNS();
+				iNumTurns = iNumTurns * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+				SetWeLoveTheKingDayCounter(iNumTurns); // 12/18/27/54
+#endif
+			}
+		}
+#else
 		else if(GetWeLoveTheKingDayCounter() > 0)
 		{
 			int iMod = /*25*/ GC.getWLTKD_GROWTH_MULTIPLIER();
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 		}
+#endif
 
 		iDifference *= iTotalMod;
 		iDifference /= 100;
@@ -9064,6 +9093,20 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 			{
 				int iFood = pkBuildingInfo->GetFoodKept();
 				int iCost = pkBuildingInfo->GetProductionCost();
+#ifdef OWED_FOOD_BUILDING
+				if(/*getFirstBuildingOrder(eBuilding) != -1 ||*/ canConstruct(eBuilding))
+				{
+					if(iFood > 0 && iCost > 0)
+					{
+						int iWeight = iFood * 10000 / iCost;
+
+						if(iWeight > 0)
+						{
+							buildingChoices.push_back(iI, iWeight);
+						}
+					}
+				}
+#else
 				if(iFood > 0 && iCost > 0)
 				{
 					int iWeight = iFood * 10000 / iCost;
@@ -9073,6 +9116,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 						buildingChoices.push_back(iI, iWeight);
 					}
 				}
+#endif
 			}
 		}
 	}
@@ -9150,6 +9194,20 @@ void CvCity::SetOwedCultureBuilding(bool bNewValue)
 	m_bOwedCultureBuilding = bNewValue;
 }
 
+#ifdef OWED_FOOD_BUILDING
+//	--------------------------------------------------------------------------------
+bool CvCity::IsOwedFoodBuilding() const
+{
+	return m_bOwedFoodBuilding;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetOwedFoodBuilding(bool bNewValue)
+{
+	m_bOwedFoodBuilding = bNewValue;
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBlockaded() const
 {
@@ -13000,10 +13058,14 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 
 #ifdef NEW_SCIENTISTS_BULB
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
+			pUnit->SetScientistBirthTurn(GC.getGame().getGameTurn());
+#else
 			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 			{
 				pUnit->SetResearchBulbAmount(kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), pUnit->getUnitInfo().GetBaseBeakersTurnsToCount()));
 			}
+#endif
 #endif
 
 			kPlayer.ChangeFaith(-iFaithCost);

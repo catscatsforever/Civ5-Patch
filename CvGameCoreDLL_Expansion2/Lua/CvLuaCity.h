@@ -72,6 +72,9 @@ protected:
 	static int lGetResourceDemanded(lua_State* L);
 	static int lSetResourceDemanded(lua_State* L);
 	static int lDoPickResourceDemanded(lua_State* L);
+#ifdef NEW_WLTKD
+	static int lGetResourceDemandedCountdown(lua_State* L);
+#endif
 
 	static int lGetFoodTurnsLeft(lua_State* L);
 	static int lIsProduction(lua_State* L);

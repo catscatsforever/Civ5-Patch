@@ -559,7 +559,11 @@ bool CvMinorCivQuest::IsComplete()
 /// Is this quest now revoked (ie. because the player bullied us)?
 bool CvMinorCivQuest::IsRevoked()
 {
+#ifdef pledge_influecnce_if_bully
+	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer) || GET_PLAYER(m_eMinor).GetMinorCivAI()->IsBulliedByAnyMajorThisTurn() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
+#else
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
+#endif
 	{
 		if(m_eType == MINOR_CIV_QUEST_ROUTE)
 			return true;
@@ -8490,6 +8494,8 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
+#ifdef pledge_influecnce_if_bully
+#endif
 
 	// In case we have quests that bullying makes obsolete, check now
 	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
@@ -8571,6 +8577,16 @@ bool CvMinorCivAI::IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const
 	return (m_aiTurnLastBullied[ePlayer] >= 0 && m_aiTurnLastBullied[ePlayer] >= (GC.getGame().getGameTurn() - iRecentlyBulliedTurnInterval)); // -1 means never bullied
 }
 
+#ifdef pledge_influecnce_if_bully
+bool CvMinorCivAI::IsBulliedByAnyMajorThisTurn() const
+{
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if(m_aiTurnLastBullied[(PlayerTypes)iPlayerLoop] >= 0 && m_aiTurnLastBullied[(PlayerTypes)iPlayerLoop] == GC.getGame().getGameTurn())
+			return true;
+	return false;
+}
+
+#endif
 int CvMinorCivAI::GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");

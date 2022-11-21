@@ -6786,6 +6786,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 #endif
 			pCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 		}
+#ifdef OWED_FOOD_BUILDING
+		else
+		{
+			pCity->SetOwedFoodBuilding(true);
+		}
+#endif
 
 		ChangeNumCitiesFreeFoodBuilding(-1);
 	}
@@ -21827,6 +21833,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					pLoopCity->chooseProduction();		// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 				}
 			}
+#ifdef OWED_FOOD_BUILDING
+			else
+			{
+				pLoopCity->SetOwedFoodBuilding(true);
+			}
+#endif
 
 			// Decrement cities left to get free food building (at end of loop we'll set the remainder)
 			iNumCitiesFreeFoodBuilding--;
@@ -22101,10 +22113,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										}
 
 #ifdef NEW_SCIENTISTS_BULB
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
+										pNewUnit->SetScientistBirthTurn(GC.getGame().getGameTurn());
+#else
 										if (pNewUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 										{
-											pNewUnit->SetResearchBulbAmount(GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), pNewUnit->getUnitInfo().GetBaseBeakersTurnsToCount()));
+											pNewUnit->SetResearchBulbAmount(kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), pNewUnit->getUnitInfo().GetBaseBeakersTurnsToCount()));
 										}
+#endif
 #endif
 
 										pNewUnit->jumpToNearestValidPlot();

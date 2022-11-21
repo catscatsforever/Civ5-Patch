@@ -484,6 +484,9 @@ public:
 	bool IsEverBulliedByMajor(PlayerTypes ePlayer) const;
 	bool IsRecentlyBulliedByAnyMajor() const; //antonjs: consider: replace with a new fn, GetTurnLastBulliedByAnyMajor
 	bool IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const; //antonjs: consider: replace with GetTurnLastBulliedByMajor
+#ifdef pledge_influecnce_if_bully
+	bool IsBulliedByAnyMajorThisTurn() const;
+#endif
 	int GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const;
 	void SetTurnLastBulliedByMajor(PlayerTypes ePlayer, int iTurn);
 

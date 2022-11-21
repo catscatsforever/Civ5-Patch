@@ -2561,10 +2561,14 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	}
 
 #ifdef NEW_SCIENTISTS_BULB
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
+	newUnit->SetScientistBirthTurn(GC.getGame().getGameTurn());
+#else
 	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 	{
 		newUnit->SetResearchBulbAmount(kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), newUnit->getUnitInfo().GetBaseBeakersTurnsToCount()));
 	}
+#endif
 #endif
 
 	// Notification

@@ -1044,8 +1044,12 @@ public:
 	void SetGreatWork(GreatWorkType eGreatWork);
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
+#ifdef NEW_SCIENTISTS_BULB
 	int GetResearchBulbAmount() const;
 	void SetResearchBulbAmount(int iValue);
+	int GetScientistBirthTurn() const;
+	void SetScientistBirthTurn(int iValue);
+#endif
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -1505,6 +1509,7 @@ protected:
 	int m_iTourismBlastStrength;
 #ifdef NEW_SCIENTISTS_BULB
 	int m_iResearchBulbAmount;
+	int m_iScientistBirthTurn;
 #endif
 
 #if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)

@@ -249,7 +249,11 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 	if(pToPlot->isWater() != pFromPlot->isWater() && pUnit->CanEverEmbark())
 	{
 		// Is the unit from a civ that can disembark for just 1 MP?
+#ifdef MARINE_DISEMARK_FOR_1_MP
+		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->getUnitType() == GC.getInfoTypeForString("UNIT_MARINE", true)))
+#else
 		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+#endif
 		{
 			return false;	// Then no, it does not.
 		}

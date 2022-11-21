@@ -265,6 +265,7 @@ CvUnit::CvUnit() :
 	, m_iTourismBlastStrength(0)
 #ifdef NEW_SCIENTISTS_BULB
 	, m_iResearchBulbAmount(0)
+	, m_iScientistBirthTurn(0)
 #endif
 #if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
 	, m_bCanInstahealThisTurn(true)
@@ -651,10 +652,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 #ifdef NEW_SCIENTISTS_BULB
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
+	SetScientistBirthTurn(GC.getGame().getGameTurn());
+#else
 	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 	{
 		SetResearchBulbAmount(kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), getUnitInfo().GetBaseBeakersTurnsToCount()));
 	}
+#endif
 #endif
 
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
@@ -972,6 +977,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iTourismBlastStrength = 0;
 #ifdef NEW_SCIENTISTS_BULB
 	m_iResearchBulbAmount = 0;
+	m_iScientistBirthTurn = 0;
 #endif
 	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
 	m_strScriptData ="";
@@ -3667,6 +3673,13 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 	{
 		return false;
 	}
+
+#ifdef DISABLE_AUTOMOVES
+	if (isHuman())
+	{
+		return false;
+	}
+#endif
 
 	switch(eAutomate)
 	{
@@ -8033,7 +8046,12 @@ int CvUnit::getDiscoverAmount()
 		if (pPlayer)
 		{
 #ifdef NEW_SCIENTISTS_BULB
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
+			int iPreviousTurnsToCount = std::max(m_pUnitInfo->GetBaseBeakersTurnsToCount() - std::max(GC.getGame().getGameTurn() - GetScientistBirthTurn() - 1, 0), 0);
+			iValue = pPlayer->GetScienceYieldFromPreviousTurns(GetScientistBirthTurn(), iPreviousTurnsToCount);
+#else
 			iValue = GetResearchBulbAmount();
+#endif
 #else
 			// Beakers boost based on previous turns
 			int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
@@ -17594,6 +17612,17 @@ void CvUnit::SetResearchBulbAmount(int iValue)
 {
 	m_iResearchBulbAmount = iValue;
 }
+//	--------------------------------------------------------------------------------
+int CvUnit::GetScientistBirthTurn() const
+{
+	return m_iScientistBirthTurn;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetScientistBirthTurn(int iValue)
+{
+	m_iScientistBirthTurn = iValue;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -18641,6 +18670,7 @@ void CvUnit::read(FDataStream& kStream)
 
 #ifdef NEW_SCIENTISTS_BULB
 	kStream >> m_iResearchBulbAmount;
+	kStream >> m_iScientistBirthTurn;
 #endif
 
 #if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
@@ -18765,6 +18795,7 @@ void CvUnit::write(FDataStream& kStream) const
 	
 #ifdef NEW_SCIENTISTS_BULB
 	kStream << m_iResearchBulbAmount;
+	kStream << m_iScientistBirthTurn;
 #endif
 
 #if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)

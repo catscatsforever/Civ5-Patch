@@ -252,6 +252,8 @@
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
 ///
+#define DECREASE_BULB_AMOUNT_OVER_TIME
+///
 #define SPACESHIP_ENGINEERING
 ///
 #define CAN_PARADROP_HALF_TIMER
@@ -340,13 +342,17 @@
 ///
 // #define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
-// #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
+#define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
+///
+#define NEW_WLTKD
 /// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
 #define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
 ///
 // #define NO_FAITH_FROM_MEETING_CS
 ///
 #define AQUEDUCT_FIX
+///
+#define OWED_FOOD_BUILDING
 /// AI players will no longer spread their religion to other human players' cities
 #define NQM_AI_GIMP_NO_RELIGION_SPREAD
 /// AI players will no longer attempt to build any world wonders or world projects
@@ -424,15 +430,21 @@
 ///
 #define CS_INFLUENCE_BOOST
 ///
-// #define FEITORIA_FIX
-///
-#define ASTAR_AI_CONTROL_FIX_RADAR
+// #define ASTAR_AI_CONTROL_FIX_RADAR
 /// Fixes radar (Delnar: first bit was covered by GJS, remaining bits are now also covered) 
 #define AUI_ASTAR_FIX_RADAR
 /// Fixes rarer cases of radar
 #define AUI_UNIT_FIX_RADAR
 /// Fixes cases of indirect radaring via ZOC.
 #define AUI_UNIT_MOVEMENT_FIX_RADAR_ZOC
+///
+#define DISABLE_AUTOMOVES
+///
+#define TURN_TIMER_RESET_BUTTON
+///
+#define pledge_influecnce_if_bully
+///
+#define MARINE_DISEMARK_FOR_1_MP
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly

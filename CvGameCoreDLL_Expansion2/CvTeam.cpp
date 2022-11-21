@@ -5737,6 +5737,17 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								pLoopCity->SetOwedCultureBuilding(false);
 							}
 						}
+#ifdef OWED_FOOD_BUILDING
+						if (pLoopCity->IsOwedFoodBuilding())
+						{
+							BuildingTypes eFreeFoodBuilding = pLoopCity->ChooseFreeFoodBuilding();
+							if (eFreeFoodBuilding != NO_BUILDING)
+							{
+								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeFoodBuilding, 1);
+								pLoopCity->SetOwedFoodBuilding(false);
+							}
+						}
+#endif
 					}
 				}
 			}
