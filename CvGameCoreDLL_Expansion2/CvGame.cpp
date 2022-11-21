@@ -8225,8 +8225,27 @@ void CvGame::updateMoves()
 					processPlayerAutoMoves = true;
 			}
 
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
+#ifdef GAME_RANDOMIZE_AUTOMOVES_ORDER_IN_SIMULTANEOUS
+			int aiShuffle[MAX_PLAYERS];
+			if (GC.getGame().isOption("GAMEOPTION_SIMULTANEOUS_PLAYER_TURN_ACTIVATION_ORDER_RANDOMIZED"))
 			{
+				shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
+			}
+			else
+			{
+				for (iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					aiShuffle[iI] = iI;
+				}
+			}
+
+			for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+			{
+				iI = aiShuffle[iJ];
+#else
+			for (iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+#endif
 				CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
 
 				player.checkInitialTurnAIProcessed();
