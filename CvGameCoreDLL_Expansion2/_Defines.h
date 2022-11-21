@@ -259,11 +259,6 @@
 #define CAN_SET_INTERCEPT_HALF_TIMER
 /// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
 #define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
-/// Makes all auto-missions for human players ordered at random as well. (auto-exploration of ancient ruins fix)
-/// Utilizes the same lobby option "GAMEOPTION_SIMULTANEOUS_PLAYER_TURN_ACTIVATION_ORDER_RANDOMIZED"
-#if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS)
-#define GAME_RANDOMIZE_AUTOMOVES_ORDER_IN_SIMULTANEOUS
-#endif
 ///
 #define REMOVE_EARLY_CULTURE_RUINS
 /// Goody hut messages now properly appear for all yields, even if there's no popup
