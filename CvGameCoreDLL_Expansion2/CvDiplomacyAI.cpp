@@ -9644,11 +9644,7 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 		{
 			// Did they bully a Minor we're protecting?
 			if(GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
-			{				
-#ifdef pledge_influecnce_if_bully
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(GetPlayer()->GetID(), -1500 /*iInfluenceChangeTimes100*/);
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
-#endif
+			{
 				ChangeOtherPlayerNumProtectedMinorsBullied(ePlayer, 1);
 			}
 		}

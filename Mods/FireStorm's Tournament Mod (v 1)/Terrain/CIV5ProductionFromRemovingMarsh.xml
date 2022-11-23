@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10.08.2020 16:42:47 -->
+<GameData>
+	<BuildFeatures>
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_FARM"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_MINE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_PASTURE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_PLANTATION"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_QUARRY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_REMOVE_MARSH"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_LANDMARK"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_ACADEMY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_CUSTOMS_HOUSE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_MANUFACTORY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_CITADEL"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_MARSH" BuildType="BUILD_WELL"/>
+		</Update>
+	</BuildFeatures>
+</GameData>

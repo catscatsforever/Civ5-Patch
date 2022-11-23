@@ -10,8 +10,11 @@
 #define CVGOODYHUTS_H
 
 #pragma once
-
+// #ifndef INCREASE_NUM_GOODIES_REMEMBERED
+// #define NUM_GOODIES_REMEMBERED (4)
+// #else
 #define NUM_GOODIES_REMEMBERED (3)
+// #endif
 
 class CvGoodyHuts
 {

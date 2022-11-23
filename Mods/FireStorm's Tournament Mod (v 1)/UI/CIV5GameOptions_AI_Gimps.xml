@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Table data -->
+	<GameOptions>
+		<Row>
+			<Type>GAMEOPTION_AI_GIMP_NO_RELIGION_SPREAD</Type>
+			<Description>TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD</Description>
+			<Help>TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_AI_GIMP_NO_WORLD_WONDER</Type>
+			<Description>TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER</Description>
+			<Help>TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_AI_GIMP_ALWAYS_WHITE_PEACE</Type>
+			<Description>TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE</Description>
+			<Help>TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS</Type>
+			<Description>TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS</Description>
+			<Help>TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_CANT_SELL_BEFORE_INFO_ERA</Type>
+			<Description>TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA</Description>
+			<Help>TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE</Type>
+			<Description>TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE</Description>
+			<Help>TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE_HELP</Help>
+		</Row>
+	</GameOptions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD">
+			<Text>AI Cannot Spread Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD_HELP">
+			<Text>AI players cannot use missionaries and great prophets to spread their religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER">
+			<Text>AI Cannot Build World Wonders</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER_HELP">
+			<Text>AI players cannot build world projects or wonders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE">
+			<Text>AI Always Accepts White Peace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE_HELP">
+			<Text>AI players will always accept White Peace offers by humans.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS">
+			<Text>AI Cannot Build Settlers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS_HELP">
+			<Text>AI players will never build units that can settle.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA">
+			<Text>Disable Selling Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA_HELP">
+			<Text>Players can't sell buildings in cities before entering Information Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE">
+			<Text>Limit Unit Experience</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE_HELP">
+			<Text>In a war with the CS or computer players, units will not receive more than 60 XP.</Text>
+		</Row>
+	</Language_en_US>
+	<Language_RU_RU>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD">
+			<Text>ИИ не может распространять религию</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_RELIGION_SPREAD_HELP">
+			<Text>ИИ не может использовать мессионеров и пророков, чтобы распространять свою религию.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER">
+			<Text>ИИ не может строить чудеса света</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_WORLD_WONDER_HELP">
+			<Text>ИИ не может строить мировые проекты и чудеса света.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE">
+			<Text>ИИ всегда принимает белый мир</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_ALWAYS_WHITE_PEACE_HELP">
+			<Text>ИИ всегда примет белый мир, предложенный игроком.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS">
+			<Text>ИИ не может строить поселенцев</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_AI_GIMP_NO_BUILDING_SETTLERS_HELP">
+			<Text>ИИ не будет строить юниты, которые могут поставить город.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA">
+			<Text>Запретить продажу зданий</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_CANT_SELL_BEFORE_INFO_ERA_HELP">
+			<Text>Игроки не смогут продавать здания до тех пор, пока не выйдт в информационную эру.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE">
+			<Text>Ограничить опыт юнитам</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_LIMITATION_COMBAT_EXPERIENCE_HELP">
+			<Text>При войне с ГГ или компьютерными игроками юниты не будут получать свыше 60 ОО.</Text>
+		</Row>
+	</Language_RU_RU>
+</GameData>

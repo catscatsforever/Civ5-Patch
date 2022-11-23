@@ -5743,6 +5743,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							BuildingTypes eFreeFoodBuilding = pLoopCity->ChooseFreeFoodBuilding();
 							if (eFreeFoodBuilding != NO_BUILDING)
 							{
+#ifdef AQUEDUCT_FIX
+								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eFreeFoodBuilding, 0);
+#endif
 								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeFoodBuilding, 1);
 								pLoopCity->SetOwedFoodBuilding(false);
 							}

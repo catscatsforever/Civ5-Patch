@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 06.07.2020 12:27:39 -->
+<GameData>
+	<Natural_Wonder_Placement>
+		<Update>
+			<Where NaturalWonderType="FEATURE_VOLCANO"/>
+			<Set AdjacentTilesCareAboutTerrainTypes="true"
+			RequiredNumberOfAdjacentShallowWater ="4"
+			CoreTileCanBeAnyTerrainType="false"
+			CoreTileCanBeShallowWater="true"/>
+		</Update>
+
+		<Update>
+			<Set AvoidBiggestLandmass="false"/>
+			<Where NaturalWonderType="FEATURE_SRI_PADA"/>
+		</Update>
+
+		<Update>
+			<Where NaturalWonderType="FEATURE_EL_DORADO"/>
+			<Set OccurrenceFrequency="4/>
+		</Update>
+	</Natural_Wonder_Placement>
+</GameData>

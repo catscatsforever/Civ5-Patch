@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 06.07.2020 13:18:12 -->
+<GameData>
+	<BuildFeatures>
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_FARM"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_MINE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_PASTURE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_PLANTATION"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_QUARRY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_REMOVE_JUNGLE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_LANDMARK"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_ACADEMY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_CUSTOMS_HOUSE"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_MANUFACTORY"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_CITADEL"/>
+		</Update>
+
+		<Update>
+			<Set Production="20"/>
+			<Where FeatureType="FEATURE_JUNGLE" BuildType="BUILD_WELL"/>
+		</Update>
+	</BuildFeatures>
+</GameData>

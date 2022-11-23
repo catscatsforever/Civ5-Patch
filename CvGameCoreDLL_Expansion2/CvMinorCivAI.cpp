@@ -559,8 +559,8 @@ bool CvMinorCivQuest::IsComplete()
 /// Is this quest now revoked (ie. because the player bullied us)?
 bool CvMinorCivQuest::IsRevoked()
 {
-#ifdef pledge_influecnce_if_bully
-	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer) || GET_PLAYER(m_eMinor).GetMinorCivAI()->IsBulliedByAnyMajorThisTurn() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer) || GET_PLAYER(m_eMinor).GetMinorCivAI()->IsPledgeRevokedByAnyMajor() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
 #else
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 #endif
@@ -1667,6 +1667,9 @@ void CvMinorCivAI::Reset()
 		m_abUnitSpawningDisabled[iI] = false;
 		m_abMajorIntruding[iI] = false;
 		m_abEverFriends[iI] = false;
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+		m_bPledgeRevoked[iI] = false;
+#endif
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
 	}
@@ -1762,6 +1765,10 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	kStream >> m_bPledgeRevoked;
+#endif
+
 	kStream >> m_abPledgeToProtect;
 
 	kStream >> m_abPermanentWar;
@@ -1836,6 +1843,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abUnitSpawningDisabled;
 	kStream << m_abMajorIntruding;
 	kStream << m_abEverFriends;
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	kStream << m_bPledgeRevoked;
+#endif
 	kStream << m_abPledgeToProtect;
 	kStream << m_abPermanentWar;
 	kStream << m_abWaryOfTeam; // Version 12
@@ -3139,6 +3149,30 @@ void CvMinorCivAI::DoTestQuestsOnFirstContact(PlayerTypes eMajor)
 	}
 }
 
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+bool CvMinorCivAI::IsPledgeRevokedByMajor(PlayerTypes eMajor) const
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+
+	return m_bPledgeRevoked[eMajor];
+}
+
+bool CvMinorCivAI::IsPledgeRevokedByAnyMajor() const
+{
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if(IsPledgeRevokedByMajor((PlayerTypes)iPlayerLoop))
+			return true;
+	return false;
+}
+
+void CvMinorCivAI::SetPledgeRevokedByMajor(PlayerTypes eMajor, bool bValue)
+{
+	m_bPledgeRevoked[eMajor] = bValue;
+}
+
+#endif
 // Check all active quests for all players, processing and deleting ones that are complete or obsolete.
 void CvMinorCivAI::DoTestActiveQuests(bool bTestComplete, bool bTestObsolete)
 {
@@ -3280,9 +3314,23 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	}
 
 	// If quest(s) were revoked because of bullying, send out a notification
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	if(bQuestRevokedFromBullying && !IsPledgeRevokedByMajor(ePlayer))
+#else
 	if(bQuestRevokedFromBullying)
+#endif
 	{
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED");
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED");
+		strMessage << GetPlayer()->getNameKey();
+		strSummary << GetPlayer()->getNameKey();
+		AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
+	}
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	if(bQuestRevokedFromBullying && IsPledgeRevokedByMajor(ePlayer))
+#endif
+	{
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_PLEDGE_REVOKED");
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED");
 		strMessage << GetPlayer()->getNameKey();
 		strSummary << GetPlayer()->getNameKey();
@@ -7984,6 +8032,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	IDInfo* pUnitNode;
 	CvUnit* pLoopUnit;
 
+// #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	// IsProtectedByMajor
+// #endif
 	// Include the minor's city power
 	iMinorLocalPower += pMinorCapital->GetPower();
 
@@ -8494,11 +8545,33 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
-#ifdef pledge_influecnce_if_bully
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
+		if (!pMajorLoop) continue;
+
+		if(eBully != eMajorLoop)
+		{
+			if(IsProtectedByMajor(eMajorLoop))
+			{
+				ChangeFriendshipWithMajorTimes100(eMajorLoop, -1500 /*iInfluenceChangeTimes100*/);
+				SetPledgeRevokedByMajor(eMajorLoop, true);
+			}
+		}
+	}
 #endif
 
 	// In case we have quests that bullying makes obsolete, check now
 	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+		SetPledgeRevokedByMajor(eMajorLoop, false);
+	}
+#endif
 
 	// Inform alive majors who have met the bully
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -8577,16 +8650,6 @@ bool CvMinorCivAI::IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const
 	return (m_aiTurnLastBullied[ePlayer] >= 0 && m_aiTurnLastBullied[ePlayer] >= (GC.getGame().getGameTurn() - iRecentlyBulliedTurnInterval)); // -1 means never bullied
 }
 
-#ifdef pledge_influecnce_if_bully
-bool CvMinorCivAI::IsBulliedByAnyMajorThisTurn() const
-{
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		if(m_aiTurnLastBullied[(PlayerTypes)iPlayerLoop] >= 0 && m_aiTurnLastBullied[(PlayerTypes)iPlayerLoop] == GC.getGame().getGameTurn())
-			return true;
-	return false;
-}
-
-#endif
 int CvMinorCivAI::GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 06.09.2020 23:01:44 -->
+<GameData>
+	<Controls>
+		<Delete Type="CONTROL_NEXTUNIT"/>
+		<Delete Type="CONTROL_PREVUNIT"/>
+	</Controls>
+</GameData>

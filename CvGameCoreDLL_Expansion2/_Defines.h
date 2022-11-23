@@ -442,9 +442,11 @@
 ///
 #define TURN_TIMER_RESET_BUTTON
 ///
-#define pledge_influecnce_if_bully
+#define DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 ///
 #define MARINE_DISEMARK_FOR_1_MP
+///
+#define INCREASE_NUM_GOODIES_REMEMBERED
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly

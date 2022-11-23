@@ -22,7 +22,11 @@ void CvGoodyHuts::DoPlayerReceivedGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 	//	FAssert(eGoody < DB.count("GoodyHuts"));
 
 	// Push elements up in the array so that we free up element 0
+#ifdef INCREASE_NUM_GOODIES_REMEMBERED
 	for (int iGoodySlotLoop = NUM_GOODIES_REMEMBERED-2; iGoodySlotLoop >= 0; iGoodySlotLoop--)
+#else
+	for (int iGoodySlotLoop = 0; iGoodySlotLoop < NUM_GOODIES_REMEMBERED-1; iGoodySlotLoop++)
+#endif
 	{
 		m_aaiPlayerGoodyHutResults[ePlayer][iGoodySlotLoop+1] = m_aaiPlayerGoodyHutResults[ePlayer][iGoodySlotLoop];
 	}

@@ -254,6 +254,11 @@ public:
 	void AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	bool IsPledgeRevokedByMajor(PlayerTypes eMajor) const;
+	bool IsPledgeRevokedByAnyMajor() const;
+	void SetPledgeRevokedByMajor(PlayerTypes eMajor, bool bValue);
+#endif
 	void DoTestActiveQuests(bool bTestComplete, bool bTestObsolete);
 	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoCompletedQuests();
@@ -484,9 +489,6 @@ public:
 	bool IsEverBulliedByMajor(PlayerTypes ePlayer) const;
 	bool IsRecentlyBulliedByAnyMajor() const; //antonjs: consider: replace with a new fn, GetTurnLastBulliedByAnyMajor
 	bool IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const; //antonjs: consider: replace with GetTurnLastBulliedByMajor
-#ifdef pledge_influecnce_if_bully
-	bool IsBulliedByAnyMajorThisTurn() const;
-#endif
 	int GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const;
 	void SetTurnLastBulliedByMajor(PlayerTypes ePlayer, int iTurn);
 
@@ -591,6 +593,9 @@ private:
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
 	bool m_abMajorIntruding[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	bool m_bPledgeRevoked[MAX_MAJOR_CIVS];
+#endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];
 	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
