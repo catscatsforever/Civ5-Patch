@@ -700,11 +700,6 @@ public:
 	void changeMoves(int iChange);
 	void finishMoves();
 
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	bool canInstahealThisTurn() const;
-	void setCanInstahealThisTurn(bool bNewValue);
-#endif
-
 	bool IsImmobile() const;
 	void SetImmobile(bool bValue);
 
@@ -1510,10 +1505,6 @@ protected:
 #ifdef NEW_SCIENTISTS_BULB
 	int m_iResearchBulbAmount;
 	int m_iScientistBirthTurn;
-#endif
-
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	bool m_bCanInstahealThisTurn;
 #endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	FAutoVariable<bool, CvUnit> m_bIsIgnoreExpended;

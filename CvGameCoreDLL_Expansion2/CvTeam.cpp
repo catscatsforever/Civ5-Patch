@@ -5774,7 +5774,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 			}
 
-#ifndef END_TURN_SPY_TECH_CASHE
 			// espionage logic. Whenever someone gains a tech, reset the stealable techs for all other leaders
 			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
@@ -5793,7 +5792,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 				}
 			}
-#endif
 		}
 
 		// Update Happiness for all players

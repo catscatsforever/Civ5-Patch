@@ -311,9 +311,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-#ifndef END_TURN_SPY_TECH_CASHE
 				BuildStealableTechList(eCityOwner);
-#endif
 				// moved rate out here to set the potential
 				int iBasePotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
 				pCityEspionage->SetLastBasePotential(ePlayer, iBasePotentialRate);
@@ -369,9 +367,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			return;
 		}
-#ifndef END_TURN_SPY_TECH_CASHE
 		BuildStealableTechList(eCityOwner);
-#endif
 		pCityEspionage->Process(ePlayer);
 		// if the rate is too low, reassign the spy
 		if (pCityEspionage->m_aiRate[m_pPlayer->GetID()] < 100)
@@ -4499,9 +4495,7 @@ void CvEspionageAI::StealTechnology()
 			iHeistLocationCounter++;
 
 			// recalculate the num techs to steal list
-#ifndef END_TURN_SPY_TECH_CASHE
 			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
-#endif
 			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
@@ -4534,9 +4528,7 @@ void CvEspionageAI::UpdateCivOutOfTechTurn()
 			continue;
 		}
 
-#ifndef END_TURN_SPY_TECH_CASHE
 		pEspionage->BuildStealableTechList(eOtherPlayer);
-#endif
 		if(pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].size() > 0)
 		{
 			continue;

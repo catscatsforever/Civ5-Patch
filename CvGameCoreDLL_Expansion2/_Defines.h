@@ -225,26 +225,12 @@
 #define TOURNAMENT_TWEAKS
 
 #ifdef TOURNAMENT_TWEAKS
-/// Can't sell buildings before entering Info Era 
-#define CANT_SELL_BEFORE_INFO_ERA
+
+/*GP CHANGES START*/
 ///
 // #define GREAT_SCIENTISTS_NERF
 ///
 #define FAITH_FOR_THE_FIRST_SCIENTIST
-/// Can't declare war for 20 turns before renaissance and for 10 turns else
-#define NEW_DEFENSIVE_PACT
-///
-#define DEF_PACT_COUNT
-///
-#define RES_AGR_COUNT
-/// Can't liberate cities for non-human players, can liberate city-states if only league leader
-#define NEW_CITIES_LIBERATION
-/// Gifted units can't attack if they already attacked this turn
-#define GIFTED_UNITS_ATTACK
-/// Can nuke only if Mobile Tactics researched
-#define MOBILE_TACTICS_NUKING
-///
-#define LIMITATION_COMBAT_EXPERIENCE
 /// Separating great scientists, engineers, merchants and prophets
 // #define SEPARATE_GREAT_PEOPLE
 /// Free Great person is now actually free
@@ -256,58 +242,57 @@
 ///
 #define SPACESHIP_ENGINEERING
 ///
-#define CAN_PARADROP_HALF_TIMER
-///
-#define CAN_SET_INTERCEPT_HALF_TIMER
-/// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
-#define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
-///
-#define REMOVE_EARLY_CULTURE_RUINS
-/// Goody hut messages now properly appear for all yields, even if there's no popup
-#define AUI_PLAYER_FIX_RECEIVE_GOODY_MESSAGE
-/// If the player receives a yield from a goody hut, floating text appears above the plot indicating the number and type of yields received
-// #define AUI_PLAYER_RECEIVE_GOODY_PLOT_MESSAGE_FOR_YIELD
-/// Fixes the bug where building a new improvement on a tile with a pillaged improvement keeps the tile marked as pillaged
-#define AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
-/// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
-// #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
-///
-#if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
-#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
-#endif
-/// Free courthouses are no longer removed when puppeting a city
-#define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
-/// Fixes the fact that in simultaneous turns multiplayer, barbarians can spawn and then move units in the same turn.
-// #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
-/// Fixes a possible null pointer dereferences in FoundPantheon()
-#define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
-/// Turn timers are paused when a player is reconnecting
-// #define AUI_GAME_SET_PAUSED_TURN_TIMERS_PAUSE_ON_RECONNECT
-/// New option that pauses the game when an active player disconnects and the game is not sequential
-// #define AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
-///
-// #define END_TURN_SPY_TECH_CASHE
-///
-#define TEMPLE_ARTEMIS_NO_YIELD_MOD_BUT_GROWTH
-/// Fixes Iroquois' UA so friendly forest tiles will now connect with road tiles!
-#define AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
-/// New option that allows custom turn timer settings to multiply/divide the default turn times by a certain amount instead of forcing turn times to be the custom amount
-#define AUI_GAME_RELATIVE_TURN_TIMERS
-///
-#define CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
-///
-#define DIPLO_VICTORY_VOTING
-///
 #ifndef SEPARATE_GREAT_PEOPLE
 ///
 // #define SEPARATE_MERCHANTS
 #endif
+/*GP CHAGES END*/
+
+
+
+/*UNITS CHANGES START*/
+/// Gifted units can't attack if they already attacked this turn
+#define GIFTED_UNITS_ATTACK
+/// Can nuke only if Mobile Tactics researched
+#define MOBILE_TACTICS_NUKING
 ///
-// #define NO_PUPPET_TECH_COST_MOD
-/// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
-#define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
+#define LIMITATION_COMBAT_EXPERIENCE
+///
+#define CAN_PARADROP_HALF_TIMER
+///
+#define CAN_SET_INTERCEPT_HALF_TIMER
+///
+#define MARINE_DISEMARK_FOR_1_MP
 ///
 #define NO_EMBARKED_CIVILIAN_DEFENSE
+/*UNITS CHANGES END*/
+
+
+
+/*POLICIES CHANGES START*/
+/// Free courthouses are no longer removed when puppeting a city
+#define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
+///
+#define AQUEDUCT_FIX
+///
+#define OWED_FOOD_BUILDING
+///
+#define SPACESHIP_GRAPHICS
+///
+#define SS_PART_PURCHASE_RESTRICTION
+///
+#define SHARED_IDEOLOGY_TRADE_CHANGE
+///
+#define AUTOCRACY_EXTRA_VOTES
+///
+#define CS_INFLUENCE_BOOST
+/*POLICIES CHANGES END*/
+
+
+
+/*UA CHANGES START*/
+/// Fixes Iroquois' UA so friendly forest tiles will now connect with road tiles!
+#define AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
 ///
 #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 ///
@@ -331,28 +316,23 @@
 ///
 #define MONGOL_CS_BULLY
 ///
-#define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
-/// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
-// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
-///
-#ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
-///
-// #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
-#endif
+#define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
+/*UA CHANGES END*/
+
+
+
+/*WLTKD CHANGES START*/
 ///
 // #define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
 #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
 ///
 #define NEW_WLTKD
-/// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
-#define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
-///
-// #define NO_FAITH_FROM_MEETING_CS
-///
-#define AQUEDUCT_FIX
-///
-#define OWED_FOOD_BUILDING
+/*WLTKD CHANGES END*/
+
+
+
+/*AI CHANGES START*/
 /// AI players will no longer spread their religion to other human players' cities
 #define NQM_AI_GIMP_NO_RELIGION_SPREAD
 /// AI players will no longer attempt to build any world wonders or world projects
@@ -361,6 +341,8 @@
 #define NQM_AI_GIMP_ALWAYS_WHITE_PEACE
 /// AI players will not build units that can settle. Also disables "expansion" economic strategies
 #define NQM_AI_GIMP_NO_BUILDING_SETTLERS
+///
+#define CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
 ///
 #define NO_AI_ALLYING_CS
 ///
@@ -379,6 +361,11 @@
 #define NO_AI_VOTES
 ///
 #define AI_PEACE_TURNS
+/*AI CHANGES END*/
+
+
+
+/*RELIGION CHANGES START*/
 ///
 #define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
 ///
@@ -393,42 +380,15 @@
 #define NQ_ALLOW_RELIGION_ONE_SHOTS
 /// allow golden ages from beliefs
 #define NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
-///
-#define PROPHET_CAN_FOUND_EXTRA_RELIGION
-///
-// #define HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
-///
-#define NO_OXFORD_AFTER_ATOM
 // extra trade routes from beliefs
 #define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
-// city states will no longer declare peace if influence is less than -50
-#define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
-/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
-// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-/// Prevent timer mid-turn fluctuations - update it once per turn
-#define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
-/// Units can no longer insta-heal twice in the same turn. This should only affect simultaneous mode and stops a few cheesey strategies
-// #define NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
-/// Units can no longer insta-heal the turn they are created
-// #define NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN
 ///
-#define SPACESHIP_GRAPHICS
-///
-#define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
-///
-#define REDUCES_RESISTANCE_TIME
-///
-#define CANT_STEAL_CLASSICAL_ERA_TECHS
-///
-#define SS_PART_PURCHASE_RESTRICTION
-///
-#define SHARED_IDEOLOGY_TRADE_CHANGE
-///
-// #define PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-///
-#define AUTOCRACY_EXTRA_VOTES
-///
-#define CS_INFLUENCE_BOOST
+#define PROPHET_CAN_FOUND_EXTRA_RELIGION
+/*RELIGION CHANGES END*/
+
+
+
+/*RADARING CHANGES START*/
 ///
 // #define ASTAR_AI_CONTROL_FIX_RADAR
 /// Fixes radar (Delnar: first bit was covered by GJS, remaining bits are now also covered) 
@@ -439,14 +399,120 @@
 #define AUI_UNIT_MOVEMENT_FIX_RADAR_ZOC
 ///
 #define DISABLE_AUTOMOVES
+/*RADARING CHANGES END*/
+
+
+
+/*CITY-STATES CHANGES START*/
 ///
-#define TURN_TIMER_RESET_BUTTON
+#define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
+// city states will no longer declare peace if influence is less than -50
+#define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 ///
 #define DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 ///
-#define MARINE_DISEMARK_FOR_1_MP
+// #define NO_FAITH_FROM_MEETING_CS
+/*CITY-STATES CHANGES END*/
+
+
+
+/*GOODIES CHANGES START*/
+///
+#define REMOVE_EARLY_CULTURE_RUINS
+/// Goody hut messages now properly appear for all yields, even if there's no popup
+#define AUI_PLAYER_FIX_RECEIVE_GOODY_MESSAGE
+/// If the player receives a yield from a goody hut, floating text appears above the plot indicating the number and type of yields received
+// #define AUI_PLAYER_RECEIVE_GOODY_PLOT_MESSAGE_FOR_YIELD
 ///
 #define INCREASE_NUM_GOODIES_REMEMBERED
+/*GOODIES CHANGES END*/
+
+
+
+/*CITIES CHANGES START*/
+/// Can't sell buildings before entering Info Era 
+#define CANT_SELL_BEFORE_INFO_ERA
+/// Can't liberate cities for non-human players, can liberate city-states if only league leader
+#define NEW_CITIES_LIBERATION
+/// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
+#define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
+/// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
+#define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
+///
+#define REDUCE_RESISTANCE_TIME
+///
+#define NO_OXFORD_AFTER_ATOM
+/*CITIES CHANGES END*/
+
+
+
+/*BUGS FIXES START*/
+/// Fixes the bug where building a new improvement on a tile with a pillaged improvement keeps the tile marked as pillaged
+#define AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
+/// Fixes the fact that in simultaneous turns multiplayer, barbarians can spawn and then move units in the same turn.
+// #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
+/// Fixes a possible null pointer dereferences in FoundPantheon()
+#define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
+/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
+// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+/*BUGS FIXES END*/
+
+
+
+/*TURN AND TIMER CHANGES START*/
+/// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
+#define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
+/// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
+// #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
+///
+#if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
+#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
+#endif
+/// Turn timers are paused when a player is reconnecting
+// #define AUI_GAME_SET_PAUSED_TURN_TIMERS_PAUSE_ON_RECONNECT
+/// New option that pauses the game when an active player disconnects and the game is not sequential
+// #define AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
+/// New option that allows custom turn timer settings to multiply/divide the default turn times by a certain amount instead of forcing turn times to be the custom amount
+#define AUI_GAME_RELATIVE_TURN_TIMERS
+///
+#define TURN_TIMER_RESET_BUTTON
+/// Prevent timer mid-turn fluctuations - update it once per turn
+#define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+/*TURN AND TIMER CHANGES END*/
+
+
+/*WONDERS CHANGES START*/
+///
+#define TEMPLE_ARTEMIS_NO_YIELD_MOD_BUT_GROWTH
+///
+// #define HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
+///
+// #define PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
+/*WONDERS CHANGES END*/
+
+
+/*OTHER CHANGES START*/
+/// Can't declare war for 20 turns before renaissance and for 10 turns else
+#define NEW_DEFENSIVE_PACT
+///
+#define DEF_PACT_COUNT
+///
+#define RES_AGR_COUNT
+///
+#define CANT_STEAL_CLASSICAL_ERA_TECHS
+///
+#define DIPLO_VICTORY_VOTING
+///
+// #define NO_PUPPET_TECH_COST_MOD
+/// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
+// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+#ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+// #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+#endif
+/*OTHER CHANGES END*/
+
 #endif
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly

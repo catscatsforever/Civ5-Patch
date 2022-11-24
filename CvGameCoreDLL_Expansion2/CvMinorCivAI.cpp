@@ -6546,6 +6546,17 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 	if(GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
 		return false;
 
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	int iLastBullyTurn = GetTurnLastBulliedByMajor(eMajor);
+	if(iLastBullyTurn >= 0)
+	{
+		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
+		{
+			return false;
+		}
+	}
+#endif
+
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
@@ -8032,9 +8043,6 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	IDInfo* pUnitNode;
 	CvUnit* pLoopUnit;
 
-// #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
-	// IsProtectedByMajor
-// #endif
 	// Include the minor's city power
 	iMinorLocalPower += pMinorCapital->GetPower();
 
@@ -8546,6 +8554,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
 #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+	DoChangeProtectionFromMajor(eBully, false);
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;

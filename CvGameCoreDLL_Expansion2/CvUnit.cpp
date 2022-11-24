@@ -267,9 +267,6 @@ CvUnit::CvUnit() :
 	, m_iResearchBulbAmount(0)
 	, m_iScientistBirthTurn(0)
 #endif
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	, m_bCanInstahealThisTurn(true)
-#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	, m_bIsIgnoreExpended("CvUnit::m_bIsIgnoreExpended", m_syncArchive)
 #endif
@@ -753,10 +750,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-#ifdef NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN
-	setCanInstahealThisTurn(false);
-#endif
-
 	if(bSetupGraphical)
 		setupGraphical();
 
@@ -942,9 +935,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bAITurnProcessed = false;
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	m_bCanInstahealThisTurn = true;
-#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	m_bIsIgnoreExpended = false;
 #endif
@@ -1219,9 +1209,6 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	GetReligionData()->SetReligion(pUnit->GetReligionData()->GetReligion());
 	GetReligionData()->SetSpreadsLeft(pUnit->GetReligionData()->GetSpreadsLeft());
 	GetReligionData()->SetReligiousStrength(pUnit->GetReligionData()->GetReligiousStrength());
-#endif
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	setCanInstahealThisTurn(pUnit->canInstahealThisTurn());
 #endif
 
 #ifdef GIFTED_UNITS_ATTACK
@@ -9657,9 +9644,6 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	if(pkPromotionInfo->IsInstaHeal())
 	{
 		changeDamage(-GC.getINSTA_HEAL_RATE());
-#ifdef NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
-		setCanInstahealThisTurn(false);
-#endif
 	}
 	// Set that we have this Promotion
 	else
@@ -14861,19 +14845,6 @@ void CvUnit::finishMoves()
 	setMoves(0);
 }
 
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-//	--------------------------------------------------------------------------------
-bool CvUnit::canInstahealThisTurn() const
-{
-	return m_bCanInstahealThisTurn;
-}
-//	--------------------------------------------------------------------------------
-void CvUnit::setCanInstahealThisTurn(bool bNewValue)
-{
-	m_bCanInstahealThisTurn = bNewValue;
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 /// Is this unit capable of moving on its own?
 bool CvUnit::IsImmobile() const
@@ -18103,10 +18074,6 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Insta-heal - must be damaged
 	if(promotionInfo->IsInstaHeal())
 	{
-#ifdef NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN
-		if (!canInstahealThisTurn())
-			return false;
-#endif
 		if(getDamage() == 0)
 			return false;
 	}
@@ -18672,10 +18639,6 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iResearchBulbAmount;
 	kStream >> m_iScientistBirthTurn;
 #endif
-
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	kStream >> m_bCanInstahealThisTurn;
-#endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	kStream >> m_bIsIgnoreExpended;
 #endif
@@ -18796,10 +18759,6 @@ void CvUnit::write(FDataStream& kStream) const
 #ifdef NEW_SCIENTISTS_BULB
 	kStream << m_iResearchBulbAmount;
 	kStream << m_iScientistBirthTurn;
-#endif
-
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-	kStream << m_bCanInstahealThisTurn;
 #endif
 #ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 	kStream << m_bIsIgnoreExpended;

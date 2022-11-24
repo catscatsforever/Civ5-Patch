@@ -2666,7 +2666,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
 			int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
-#ifdef REDUCES_RESISTANCE_TIME
+#ifdef REDUCE_RESISTANCE_TIME
 			iResistanceTurns /= 2;
 #endif
 
@@ -4412,9 +4412,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Science
 	doResearch();
 
-//#ifndef END_TURN_SPY_TECH_CASHE
 	GetEspionage()->DoTurn();
-//#endif
 
 	// Faith
 	CvGameReligions* pGameReligions = kGame.GetGameReligions();
@@ -4641,9 +4639,6 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
 		pLoopUnit->setMadeInterception(false);
-#if defined(NQM_UNIT_FIX_NO_DOUBLE_INSTAHEAL_ON_SAME_TURN) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP) || defined(NQM_UNIT_FIX_NO_INSTAHEAL_ON_CREATION_TURN)
-		pLoopUnit->setCanInstahealThisTurn(true);
-#endif
 
 		if(!isHuman())
 		{
@@ -16197,6 +16192,16 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		}
 		else
 		{
+#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iMinorLoop);
+				if(kPlayer.isAlive())
+					GET_PLAYER(eMinorLoop).GetMinorCivAI()->DoChangeProtectionFromMajor(GetID(), false);
+					// CvAssertMsg(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad. If you didn't do this on purpose, please send Jon this along with your last 5 autosaves and a changelist #.");
+			}
+#endif
 			clearResearchQueue();
 			killUnits();
 			killCities();
@@ -16509,27 +16514,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			{
 				GetDiplomacyRequests()->EndTurn();
 			}
-
-#ifdef END_TURN_SPY_TECH_CASHE
-			// espionage logic. Whenever someone gains a tech, reset the stealable techs for all other leaders
-			if(!GET_PLAYER(GetID()).isMinorCiv() && !GET_PLAYER(GetID()).isBarbarian())
-			{
-				CvPlayerEspionage* pEspionage = GET_PLAYER(GetID()).GetEspionage();
-				if(pEspionage)
-				{
-					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-					{
-						pEspionage->BuildStealableTechList((PlayerTypes)ui);
-
-						// if the player is out of techs to steal, set their number of stealable techs to zero
-						if(pEspionage->m_aaPlayerStealableTechList[ui].size() == 0)
-						{
-							pEspionage->m_aiNumTechsToStealList[ui] = 0;
-						}
-					}
-				}
-			}
-#endif
 
 			if(GetID() == kGame.getActivePlayer())
 			{

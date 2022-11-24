@@ -110,13 +110,6 @@ g_YourCultureSortOptions = {
 		SortType = "numeric",
 	},
 	{
-		Button = Controls.CathedralButton,
-		Column = "CathedralSort",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
 		Button = Controls.PalaceButton,
 		Column = "PalaceSort",
 		DefaultDirection = "desc",
