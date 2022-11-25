@@ -3506,21 +3506,16 @@ void CvGame::doControl(ControlTypes eControl)
 	{
 		if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
 		{
-			ICvUserInterface2* iface = GC.GetEngineUserInterface();
 			if(getElapsedGameTurns() > 0)
 			{
-				resetTurnTimer(true);
-
-				//hold the turn timer at 0 seconds with 0% completion
-				CvPreGame::setEndTurnTimerLength(0.0f);
-				iface->updateEndTurnTimer(0.0f);
-
-				DLLUI->AddMessage(0, getActivePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", GET_PLAYER(getActivePlayer()).getName()).GetCString());
+				// as there is no netcode for timer reset,
+				// this function will act as one, if called with special agreed upon arguments
+				gDLL->sendGiftUnit(NO_PLAYER, -1);
 			}
-		}		
+		}
 	}
-	break;	
 #endif
+		break;
 
 	case CONTROL_SCORES:
 		break;

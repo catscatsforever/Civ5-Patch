@@ -1548,8 +1548,13 @@ function OnCityViewUpdate()
 		local szResourceDemanded = "??? (Research Required)";
 		
 		if (pCity:GetResourceDemanded(true) ~= -1) then
+			local iNumTotal = pPlayer:GetNumResourceTotal(pCity:GetResourceDemanded(true), true);
 			local pResourceInfo = GameInfo.Resources[pCity:GetResourceDemanded()];
-			szResourceDemanded = Locale.ConvertTextKey(pResourceInfo.IconString) .. " " .. Locale.ConvertTextKey(pResourceInfo.Description);
+			if (iNumTotal > 0) then
+				szResourceDemanded = Locale.ConvertTextKey(pResourceInfo.IconString) .. " " .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(pResourceInfo.Description) .. "[ENDCOLOR]";
+			else
+				szResourceDemanded = Locale.ConvertTextKey(pResourceInfo.IconString) .. " " .. "[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(pResourceInfo.Description) .. "[ENDCOLOR]";
+			end
 			Controls.ResourceDemandedBox:SetHide(false);
 			
 		else

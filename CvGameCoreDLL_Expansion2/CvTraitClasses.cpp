@@ -1864,16 +1864,25 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 	// Still have more of these cities to award?
 	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
 	{
+#ifdef INDONESIA_UA_REWORK
+		if (m_pPlayer->GetNumCitiesFounded() == 0)
+		{
+			return false;
+		}
+#endif
+
 		int iArea = pArea->GetID();
 
 		// If we have to be in a new area, check to see if this area is okay
 		if (m_bUniqueLuxuryRequiresNewArea)
 		{
+#ifndef INDONESIA_UA_REWORK
 			// Can't be the capital itself
 			if (m_pPlayer->GetNumCitiesFounded() == 0)
 			{
 				return false;
 			}
+#endif
 
 			CvPlot *pOriginalCapitalPlot = GC.getMap().plot(m_pPlayer->GetOriginalCapitalX(), m_pPlayer->GetOriginalCapitalY());
 			if (pOriginalCapitalPlot)
@@ -2054,16 +2063,32 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 	// Still have more of these cities to award?
 	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
 	{
+#ifdef INDONESIA_UA_REWORK
+		if (m_pPlayer->GetNumCitiesFounded() == 1)
+		{
+			return;
+		}
+#endif
+
+#ifdef INDONESIA_UA_REWORK
+		if (!pCity->isCoastal())
+		{
+			return;
+		}
+#endif
+
 		int iArea = pCity->getArea();
 
 		// If we have to be in a new area, check to see if this area is okay
 		if (m_bUniqueLuxuryRequiresNewArea)
 		{
+#ifndef INDONESIA_UA_REWORK
 			// Can't be the capital itself of the area where the capital was founded
 			if (m_pPlayer->GetNumCitiesFounded() == 1)
 			{
 				return;
 			}
+#endif
 
 			CvPlot *pOriginalCapitalPlot = GC.getMap().plot(m_pPlayer->GetOriginalCapitalX(), m_pPlayer->GetOriginalCapitalY());
 			if (pOriginalCapitalPlot)

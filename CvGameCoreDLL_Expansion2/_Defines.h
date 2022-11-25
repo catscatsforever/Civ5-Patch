@@ -265,6 +265,8 @@
 #define MARINE_DISEMARK_FOR_1_MP
 ///
 #define NO_EMBARKED_CIVILIAN_DEFENSE
+///
+#define DISABLE_AUTOMOVES
 /*UNITS CHANGES END*/
 
 
@@ -313,6 +315,8 @@
 #define PORTUGAL_UA_REWORK
 ///
 #define DENMARK_UA_REWORK
+///
+#define INDONESIA_UA_REWORK
 ///
 #define MONGOL_CS_BULLY
 ///
@@ -397,8 +401,6 @@
 #define AUI_UNIT_FIX_RADAR
 /// Fixes cases of indirect radaring via ZOC.
 #define AUI_UNIT_MOVEMENT_FIX_RADAR_ZOC
-///
-#define DISABLE_AUTOMOVES
 /*RADARING CHANGES END*/
 
 
@@ -514,6 +516,8 @@
 /*OTHER CHANGES END*/
 
 #endif
+
+
 
 /// Fixed the free experience recomputation function so now wonders that give free experience globally (as opposed to just units built in one city) work properly
 // #define AUI_PLAYER_FIX_RECOMPUTE_FREE_EXPERIENCE_GLOBAL_FREE_EXPERIENCE

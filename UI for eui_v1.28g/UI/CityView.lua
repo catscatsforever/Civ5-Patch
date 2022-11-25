@@ -1,2734 +1,2414 @@
--------------------------------------------------
--- Game View 
--------------------------------------------------
-include( "IconSupport" );
-include( "InstanceManager" );
-include( "SupportFunctions"  );
-include( "TutorialPopupScreen" );
-include( "InfoTooltipInclude" );
+------------------------------------------------------
+-- City View
+-- coded by bc1 from 1.0.3.276 brave new world code
+-- code is common using gk_mode and bnw_mode switches
+-- compatible with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v21
+-- compatible with JFD's Piety & Prestige for Brave New World
+-- compatible with GameInfo.Yields() iterator broken by Communitas
+-- todo: sell building button
+------------------------------------------------------
+include( "EUI_tooltips" )
+
+Events.SequenceGameInitComplete.Add(function()
+print("Loading EUI city view",ContextPtr,os.clock(),[[ 
+  ____ _ _       __     ___
+ / ___(_) |_ _   \ \   / (_) _____      __
+| |   | | __| | | \ \ / /| |/ _ \ \ /\ / /
+| |___| | |_| |_| |\ V / | |  __/\ V  V /
+ \____|_|\__|\__, | \_/  |_|\___| \_/\_/
+             |___/
+]])
+
+--todo: upper left corner
+--todo: add meters
+--todo: add meter cues
+--todo: selection list with all buildable items
+--todo: mod case where several buildings are allowed
+
+-------------------------------
+-- minor lua optimizations
+-------------------------------
+local ipairs = ipairs
+local math_abs = math.abs
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local pairs = pairs
+local tonumber = tonumber
+local tostring = tostring
+local unpack = unpack
+
+local civ5_mode = InStrategicView ~= nil
+local civBE_mode = not civ5_mode
+local gk_mode = civBE_mode or Game.GetReligionName ~= nil
+local bnw_mode = civBE_mode or Game.GetActiveLeague ~= nil
+local civ5bnw_mode = civ5_mode and bnw_mode
+local g_currencyIcon = civ5_mode and "[ICON_GOLD]" or "[ICON_ENERGY]"
+local g_maintenanceCurrency = civ5_mode and "GoldMaintenance" or "EnergyMaintenance"
+local g_yieldCurrency = civ5_mode and YieldTypes.YIELD_GOLD or YieldTypes.YIELD_ENERGY
+local g_focusCurrency = CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or CityAIFocusTypes.CITY_AI_FOCUS_TYPE_ENERGY
+
+--EUI_utilities
+local IconHookup = EUI.IconHookup
+local CivIconHookup = EUI.CivIconHookup
+local RadiusHexArea = EUI.RadiusHexArea
+local table = EUI.table
+local YieldIcons = EUI.YieldIcons
+local GreatPeopleIcon = EUI.GreatPeopleIcon
+local StackInstanceManager = StackInstanceManager
+local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
+
+--EUI_tooltips
+local GetHelpTextForUnit = EUI.GetHelpTextForUnit
+local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
+local GetHelpTextForProject = EUI.GetHelpTextForProject
+local GetHelpTextForProcess = EUI.GetHelpTextForProcess
+local GetFoodTooltip = EUI.GetFoodTooltip
+local GetGoldTooltip = civ5_mode and EUI.GetGoldTooltip or EUI.GetEnergyTooltip
+local GetScienceTooltip = EUI.GetScienceTooltip
+local GetProductionTooltip = EUI.GetProductionTooltip
+local GetCultureTooltip = EUI.GetCultureTooltip
+local GetFaithTooltip = EUI.GetFaithTooltip
+local GetTourismTooltip = EUI.GetTourismTooltip
+
+include( "SupportFunctions" )
+local TruncateString = TruncateString
+if not civ5_mode then
+	include( "IntrigueHelper" )
+end
+
+local ButtonPopupTypes = ButtonPopupTypes
+local CityAIFocusTypes = CityAIFocusTypes
+local CityUpdateTypes = CityUpdateTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
+local Events = Events
+local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
+local Events_RequestYieldDisplay = Events.RequestYieldDisplay
+local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
+local Game = Game
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameMessageTypes = GameMessageTypes
+local GameOptionTypes = GameOptionTypes
+local HexToWorld = HexToWorld
+local InStrategicView = InStrategicView or function() return false end
+local KeyEvents = KeyEvents
+local Keys = Keys
+local L = Locale.ConvertTextKey
+local Locale = Locale
+local Modding = Modding
+local Mouse = Mouse
+local Network = Network
+local NotificationTypes = NotificationTypes
+local OptionsManager = OptionsManager
+local OrderTypes = OrderTypes
+local Path = Path
+local Players = Players
+local TaskTypes = TaskTypes
+local ToHexFromGrid = ToHexFromGrid
+local UI = UI
+local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
+local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
+local YieldDisplayTypes_AREA = YieldDisplayTypes.AREA
+local YieldTypes = YieldTypes
 
 
-local g_BuildingIM   = InstanceManager:new( "BuildingInstance", "BuildingButton", Controls.BuildingStack );
-local g_GPIM   = InstanceManager:new( "GPInstance", "GPBox", Controls.GPStack );
-local g_SlackerIM   = InstanceManager:new( "SlackerInstance", "SlackerButton", Controls.BoxOSlackers );
-local g_PlotButtonIM   = InstanceManager:new( "PlotButtonInstance", "PlotButtonAnchor", Controls.PlotButtonContainer );
-local g_BuyPlotButtonIM   = InstanceManager:new( "BuyPlotButtonInstance", "BuyPlotButtonAnchor", Controls.PlotButtonContainer );
+-------------------------------
+-- Globals
+-------------------------------
 
-local WorldPositionOffset = { x = 0, y = 0, z = 30 };
+local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
+local g_isAdvisor = true
 
-local WorldPositionOffset2 = { x = 0, y = 35, z = 0 };
+local g_activePlayerID = Game.GetActivePlayer()
+local g_activePlayer = Players[ g_activePlayerID ]
+local g_finishedItems = {}
 
-local g_iPortraitSize = Controls.ProductionPortrait:GetSize().x;
+local g_workerHeadingOpen = OptionsManager.IsNoCitizenWarning()
 
-local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal();
+local g_rightTipControls = {}
+local g_leftTipControls = {}
+TTManager:GetTypeControlTable( "EUI_CityViewRightTooltip", g_rightTipControls )
+TTManager:GetTypeControlTable( "EUI_CityViewLeftTooltip", g_leftTipControls )
 
-local pediaSearchStrings = {};
+local g_worldPositionOffset = { x = 0, y = 0, z = 30 }
+local g_worldPositionOffset2 = { x = 0, y = 35, z = 0 }
+local g_portraitSize = Controls.PQportrait:GetSizeX()
+local g_screenHeight = select(2, UIManager:GetScreenSizeVal() )
+local g_leftStackHeigth = g_screenHeight - 40 - Controls.CityInfoBG:GetOffsetY() - Controls.CityInfoBG:GetSizeY()
 
-local gPreviousCity = nil;
-local specialistTable = {};
+local g_PlotButtonIM	= StackInstanceManager( "PlotButtonInstance", "PlotButtonAnchor", Controls.PlotButtonContainer )
+local g_BuyPlotButtonIM	= StackInstanceManager( "BuyPlotButtonInstance", "BuyPlotButtonAnchor", Controls.PlotButtonContainer )
+local g_ProdQueueIM, g_SpecialBuildingsIM, g_GreatWorkIM, g_WondersIM, g_BuildingsIM, g_GreatPeopleIM, g_SlackerIM, g_UnitSelectIM, g_BuildingSelectIM, g_WonderSelectIM, g_ProcessSelectIM, g_FocusSelectIM
+local g_slots = table()
+local g_works = table()
+local g_heap = Controls.Scrap
 
-local g_iBuildingToSell = -1;
+local g_citySpecialists = {}
 
-local g_bRazeButtonDisabled = false;
+local g_queuedItemNumber = false
+local g_isViewingMode = true
+local g_isDebugMode = false
+local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchase" ) == 0 )
+local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
 
--- Add any interface modes that need special processing to this table
-local InterfaceModeMessageHandler = 
-{
-	[InterfaceModeTypes.INTERFACEMODE_SELECTION] = {},
-	--[InterfaceModeTypes.INTERFACEMODE_CITY_PLOT_SELECTION] = {},
-	[InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT] = {}
+local g_isButtonPopupChooseProduction = false
+local g_isAutoClose
+
+local g_slotTexture = {
+	SPECIALIST_CITIZEN = "CitizenUnemployed.dds",
+	SPECIALIST_SCIENTIST = "CitizenScientist.dds",
+	SPECIALIST_MERCHANT = "CitizenMerchant.dds",
+	SPECIALIST_ARTIST = "CitizenArtist.dds",
+	SPECIALIST_MUSICIAN = "CitizenArtist.dds",
+	SPECIALIST_WRITER = "CitizenArtist.dds",
+	SPECIALIST_ENGINEER = "CitizenEngineer.dds",
+	SPECIALIST_CIVIL_SERVANT = "CitizenCivilServant.dds",	-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
+	SPECIALIST_JFD_MONK = "CitizenMonk.dds", -- Compatibility with JFD's Piety & Prestige for Brave New World
+	SPECIALIST_PMMM_ENTERTAINER = "PMMMEntertainmentSpecialist.dds", --Compatibility with Vicevirtuoso's Madoka Magica: Wish for the World for Brave New World
 }
+for specialist in GameInfo.Specialists() do
+	if specialist.SlotTexture then
+		g_slotTexture[ specialist.Type ] = specialist.SlotTexture
+	end
+end
+
+local g_slackerTexture = civBE_mode and "UnemployedIndicator.dds" or g_slotTexture[ (GameInfo.Specialists[GameDefines.DEFAULT_SPECIALIST or -1] or {}).Type ] or "Blank.dds"
+
+--local g_colorWhite = {x=1, y=1, z=1, w=1}
+--local g_colorGreen = {x=0, y=1, z=0, w=1}
+--local g_colorYellow = {x=1, y=1, z=0, w=1}
+--local g_colorRed = {x=1, y=0, z=0, w=1}
+local g_colorCulture = EUI.Color( 1, 0, 1, 1 )
+
+local g_gameInfo = {
+[OrderTypes.ORDER_TRAIN] = GameInfo.Units,
+[OrderTypes.ORDER_CONSTRUCT] = GameInfo.Buildings,
+[OrderTypes.ORDER_CREATE] = GameInfo.Projects,
+[OrderTypes.ORDER_MAINTAIN] = GameInfo.Processes,
+}
+local g_avisorRecommended = {
+[OrderTypes.ORDER_TRAIN] = Game.IsUnitRecommended,
+[OrderTypes.ORDER_CONSTRUCT] = Game.IsBuildingRecommended,
+[OrderTypes.ORDER_CREATE] = Game.IsProjectRecommended,
+}
+local g_advisors = {
+[AdvisorTypes.ADVISOR_ECONOMIC] = "EconomicRecommendation",
+[AdvisorTypes.ADVISOR_MILITARY] = "MilitaryRecommendation",
+[AdvisorTypes.ADVISOR_SCIENCE] = "ScienceRecommendation",
+[AdvisorTypes.ADVISOR_FOREIGN] = "ForeignRecommendation",
+}
+
+local function SetupCallbacks( controls, toolTips, tootTipType, callBacks )
+	local control
+	-- Setup Tootips
+	for name, callback in pairs( toolTips ) do
+		control = controls[name]
+		if control then
+			control:SetToolTipCallback( callback )
+			control:SetToolTipType( tootTipType )
+		end
+	end
+	-- Setup Callbacks
+	for name, eventCallbacks in pairs( callBacks ) do
+		control = controls[name]
+		if control then
+			for event, callback in pairs( eventCallbacks ) do
+				control:RegisterCallback( event, callback )
+			end
+		end
+	end
+end
+
+local function ResizeProdQueue()
+	local selectionPanelHeight = 0
+	local queuePanelHeight = math_min( 190, Controls.QueueStack:IsHidden() and 0 or Controls.QueueStack:GetSizeY() )	-- 190 = 5 x 38=instance height
+	if not Controls.SelectionScrollPanel:IsHidden() then
+		Controls.SelectionStacks:CalculateSize()
+		selectionPanelHeight = math_max( math_min( g_leftStackHeigth - queuePanelHeight, Controls.SelectionStacks:GetSizeY() ), 64 )
+--		Controls.SelectionBackground:SetSizeY( selectionPanelHeight + 85 )
+		Controls.SelectionScrollPanel:SetSizeY( selectionPanelHeight )
+		Controls.SelectionScrollPanel:CalculateInternalSize()
+		Controls.SelectionScrollPanel:ReprocessAnchoring()
+	end
+	Controls.QueueSlider:SetSizeY( queuePanelHeight + 38 )				-- 38 = Controls.PQbox:GetSizeY()
+	Controls.QueueScrollPanel:SetSizeY( queuePanelHeight )
+	Controls.QueueScrollPanel:CalculateInternalSize()
+	Controls.QueueBackground:SetSizeY( queuePanelHeight + selectionPanelHeight + 152 )	-- 125 = 38=Controls.PQbox:GetSizeY() + 87 + 27
+	return Controls.QueueBackground:ReprocessAnchoring()
+end
+
+local function ResizeRightStack()
+	Controls.BoxOSlackers:SetHide( Controls.SlackerStack:IsHidden() )
+	Controls.BoxOSlackers:SetSizeY( Controls.SlackerStack:GetSizeY() )
+	Controls.WorkerManagementBox:CalculateSize()
+	Controls.WorkerManagementBox:ReprocessAnchoring()
+	Controls.RightStack:CalculateSize()
+	local rightStackHeight = Controls.RightStack:GetSizeY() + 85
+	Controls.BuildingListBackground:SetSizeY( math_max( math_min( g_screenHeight + 48, rightStackHeight ), 160 ) )
+	Controls.RightScrollPanel:SetSizeY( math_min( g_screenHeight - 38, rightStackHeight ) )
+	Controls.RightScrollPanel:CalculateInternalSize()
+	return Controls.RightScrollPanel:ReprocessAnchoring()
+end
+
+local function GetSelectedCity()
+	return ( not Game.IsNetworkMultiPlayer() or g_activePlayer:IsTurnActive() ) and UI_GetHeadSelectedCity()
+end
+
+local function GetSelectedModifiableCity()
+	return not g_isViewingMode and GetSelectedCity()
+end
+
+local cityIsCanPurchase
+if gk_mode then
+	function cityIsCanPurchase( city, ... )
+		return city:IsCanPurchase( ... )
+	end
+else
+	function cityIsCanPurchase( city, bTestPurchaseCost, bTestTrainable, unitID, buildingID, projectID, yieldID )
+		if yieldID == g_yieldCurrency then
+			return city:IsCanPurchase( not bTestPurchaseCost, unitID, buildingID, projectID )
+							-- bOnlyTestVisible
+		else
+			return false
+		end
+	end
+end
+
 -------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
 -- values for a frame
 -------------------------------------------------
-function ClearCityUIInfo()
-
-	Controls.b1number:SetHide( true );
-	Controls.b1down:SetHide( true );
-	Controls.b1remove:SetHide( true );
-	Controls.b2box:SetHide( true );
-	Controls.b3box:SetHide( true );
-	Controls.b4box:SetHide( true );
-	Controls.b5box:SetHide( true );
-	Controls.b6box:SetHide( true );
-
-	Controls.ProductionItemName:SetText("");	
-	Controls.ProductionPortraitButton:SetHide(true);		
-	Controls.ProductionHelp:SetHide(true);
-
+local function ClearCityUIInfo()
+	g_ProdQueueIM.ResetInstances()
+	g_ProdQueueIM.Commit()
+	Controls.PQremove:SetHide( true )
+	Controls.PQrank:SetText()
+	Controls.PQname:SetText()
+	Controls.PQturns:SetText()
+	return Controls.ProductionPortraitButton:SetHide(true)
 end
 
------------------------------------------------------------------
--- CITY SCREEN CLOSED
------------------------------------------------------------------
-function CityScreenClosed()
-	
-	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-	OnCityViewUpdate();
-	-- We may get here after a player change, clear the UI if this is not the active player's city
-	local pCity = UI.GetHeadSelectedCity();
-	if pCity ~= nil then
-		if pCity:GetOwner() ~= Game.GetActivePlayer() then
-			ClearCityUIInfo();
-		end
+--------------------
+-- Selling Buildings
+--------------------
+local function SellBuilding( buildingID )
+
+	local city = GetSelectedModifiableCity()
+
+	-- Can this building be sold?
+	if city and city:IsBuildingSellable( buildingID ) then
+		-- Build info string
+		local building = GameInfo.Buildings[ buildingID ]
+
+		Controls.SellBuildingPopupText:SetText( L(building.Description) .. ": "
+			.. L( "TXT_KEY_SELL_BUILDING_INFO", city:GetSellBuildingRefund(buildingID), building[g_maintenanceCurrency] or 0 ) )
+--todo energy
+
+
+		Controls.YesButton:SetVoids( city:GetID(), buildingID )
+
+		return Controls.SellBuildingConfirm:SetHide( false )
 	end
-	UI.ClearSelectedCities();
-	
-	LuaEvents.TryDismissTutorial("CITY_SCREEN");
-	
-	g_iCurrentSpecialist = -1;
-	if (not Controls.SellBuildingConfirm:IsHidden()) then 
-		Controls.SellBuildingConfirm:SetHide(true);
-	end
-	g_iBuildingToSell = -1;
-		
-	-- Try and re-select the last unit selected		
-	if (UI.GetHeadSelectedUnit() == nil and UI.GetLastSelectedUnit() ~= nil) then
-		UI.SelectUnit(UI.GetLastSelectedUnit());
-		UI.LookAtSelectionPlot();		
-	end
-	
-	UI.SetCityScreenViewingMode(false);
 end
-Events.SerialEventExitCityScreen.Add(CityScreenClosed);
 
-local DefaultMessageHandler = {};
+local function CancelBuildingSale()
+	Controls.SellBuildingConfirm:SetHide(true)
+	return Controls.YesButton:SetVoids( -1, -1 )
+end
 
-DefaultMessageHandler[KeyEvents.KeyDown] =
-function( wParam, lParam )
-	
-	local interfaceMode = UI.GetInterfaceMode();
-	if (--	interfaceMode == InterfaceModeTypes.INTERFACEMODE_CITY_PLOT_SELECTION or
-		interfaceMode == InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT) then
-		if ( wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN ) then
-			UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-			return true;
-		end	
-	else
-		if ( wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN ) then
-			if(Controls.SellBuildingConfirm:IsHidden())then
-				--CloseScreen();
-				Events.SerialEventExitCityScreen();
-				return true;
+local function ExitCityButNotScreen()
+	-- clear any rogue leftover tooltip
+	g_leftTipControls.Box:SetHide( true )
+	g_rightTipControls.Box:SetHide( true )
+	g_isButtonPopupChooseProduction = false
+	Controls.RightScrollPanel:SetScrollValue(0)
+	return CancelBuildingSale()
+end
+
+local function GotoNextCity()
+	ExitCityButNotScreen()
+	return Game.DoControl( GameInfoTypes.CONTROL_NEXTCITY )
+end
+
+local function GotoPrevCity()
+	ExitCityButNotScreen()
+	return Game.DoControl( GameInfoTypes.CONTROL_PREVCITY )
+end
+
+local function ExitCityScreen()
+	ExitCityButNotScreen()
+	return Events.SerialEventExitCityScreen()
+end
+
+----------------------------------------------------------------
+-- Input handling
+----------------------------------------------------------------
+ContextPtr:SetInputHandler(
+function( uiMsg, wParam )--, lParam )
+	if uiMsg == KeyEvents.KeyDown then
+		if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
+			if Controls.SellBuildingConfirm:IsHidden() then
+				ExitCityScreen()
 			else
-				Controls.SellBuildingConfirm:SetHide(true);
-				g_iBuildingToSell = -1;
-				return true;
+				CancelBuildingSale()
 			end
+			return true
 		elseif wParam == Keys.VK_LEFT then
-			Game.DoControl(GameInfoTypes.CONTROL_PREVCITY);
-			return true;
+			GotoPrevCity()
+			return true
 		elseif wParam == Keys.VK_RIGHT then
-			Game.DoControl(GameInfoTypes.CONTROL_NEXTCITY);
-			return true;
+			GotoNextCity()
+			return true
 		end
 	end
-	
-    return false;
+	return false
+end)
+
+-------------------------------
+-- Pedia
+-------------------------------
+local function UnitClassPedia( unitClassID )
+	return Events.SearchForPediaEntry( GameInfo.UnitClasses[ unitClassID ].Description )
 end
 
-
-InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.LButtonDown] = 
-function( wParam, lParam )	
-	if GameDefines.CITY_SCREEN_CLICK_WILL_EXIT == 1 then
-		UI.ClearSelectedCities();
-		return true;
-	end
-
-	return false;
+local function BuildingPedia( buildingID )
+	return Events.SearchForPediaEntry( GameInfo.Buildings[ buildingID ].Description )
 end
 
-
---InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT][MouseEvents.LButtonDown] = 
---function( wParam, lParam )
-	--local hexX, hexY = UI.GetMouseOverHex();
-	--local plot = Map.GetPlot( hexX, hexY );
-	--local plotX = plot:GetX();
-	--local plotY = plot:GetY();
-	--local bShift = UIManager:GetShift();
-	--local bAlt = UIManager:GetAlt();
-	--local bCtrl = UIManager:GetControl();
-	--local activePlayerID = Game.GetActivePlayer();
-	--local pHeadSelectedCity = UI.GetHeadSelectedCity();
-	--if pHeadSelectedCity then
-		--if (plot:GetOwner() ~= activePlayerID) then
-			--Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE");		
-		--end
-		--Network.SendCityBuyPlot(pHeadSelectedCity:GetID(), plotX, plotY);
-	--end
-	--return true;
---end
---
-----------------------------------------------------------------        
-----------------------------------------------------------------        
-InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT][MouseEvents.RButtonUp] = 
-function( wParam, lParam )
-	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
+local function SpecialistPedia( buildingID )
+	local building = buildingID and GameInfo.Buildings[ buildingID ]
+	local specialistType = building and building.SpecialistType
+	local specialistID = specialistType and GameInfoTypes[specialistType] or GameDefines.DEFAULT_SPECIALIST
+	local specialist = specialistID and GameInfo.Specialists[ specialistID ]
+	return Events.SearchForPediaEntry( specialist and tostring(specialist.Description) )
 end
 
-
-----------------------------------------------------------------        
--- Input handling 
--- (this may be overkill for now because there is currently only 
--- one InterfaceMode on this display, but if we add some, which we did...)
-----------------------------------------------------------------        
-function InputHandler( uiMsg, wParam, lParam )
-	local interfaceMode = UI.GetInterfaceMode();
-	local currentInterfaceModeHandler = InterfaceModeMessageHandler[interfaceMode];
-	if currentInterfaceModeHandler and currentInterfaceModeHandler[uiMsg] then
-		return currentInterfaceModeHandler[uiMsg]( wParam, lParam );
-	elseif DefaultMessageHandler[uiMsg] then
-		return DefaultMessageHandler[uiMsg]( wParam, lParam );
-	end
-	return false;
-end
-ContextPtr:SetInputHandler( InputHandler );
-
-
-local defaultErrorTextureSheet = "ProductionAtlas.dds";
-local nullOffset = Vector2( 0, 0 );
-
-local artistTexture = "citizenArtist.dds";
-local engineerTexture = "citizenEngineer.dds";
-local merchantTexture = "citizenMerchant.dds";
-local scientistTexture = "citizenScientist.dds";
-local unemployedTexture = "citizenUnemployed.dds";
-local workerTexture = "citizenWorker.dds";
-local emptySlotString = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_EMPTY_SLOT");
-
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
-
-local otherSortedList = {};
-local sortOrder = 0;
-
-function CVSortFunction( a, b )
-
-    local aVal = otherSortedList[ tostring( a ) ];
-    local bVal = otherSortedList[ tostring( b ) ];
-    
-    if (aVal == nil) or (bVal == nil) then 
-		if aVal and (bVal == nil) then
-			return false;
-		elseif (aVal == nil) and bVal then
-			return true;
-		else
-			return tostring(a) < tostring(b); -- gotta do something deterministic
-        end;
-    else
-        return aVal < bVal;
-    end
-end
-
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
-
-local workerHeadingOpen = OptionsManager.IsNoCitizenWarning();
-local slackerHeadingOpen = true;
-local GPHeadingOpen = true;
-local wonderHeadingOpen = true;
-local greatWorkHeadingOpen = true;
-local specialistBuildingHeadingOpen = true;
-local buildingHeadingOpen = true;
-local productionQueueOpen = false;
-
-function OnSlackersSelected()
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		if pCity ~= nil then
-			Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_REMOVE_SLACKER, 0, -1, false, bAlt, bShift, bCtrl);
-		end
+local function SelectionPedia( orderID, itemID )
+	local item = g_gameInfo[ orderID ]
+	item = item and item[ itemID ]
+	if item then
+		return Events.SearchForPediaEntry( item.Description )
 	end
 end
 
-function OnWorkerHeaderSelected()
-	workerHeadingOpen = not workerHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnSlackerHeaderSelected()
-	slackerHeadingOpen = not slackerHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnGPHeaderSelected()
-	GPHeadingOpen = not GPHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnGreatWorkHeaderSelected()
-	greatWorkHeadingOpen = not greatWorkHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnWondersHeaderSelected()
-	wonderHeadingOpen = not wonderHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnSpecialistBuildingsHeaderSelected()
-	specialistBuildingHeadingOpen = not specialistBuildingHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function OnBuildingsHeaderSelected()
-	buildingHeadingOpen = not buildingHeadingOpen;
-	OnCityViewUpdate();
-end
-
-function GetPedia( void1, void2, button )
-	local searchString = pediaSearchStrings[tostring(button)];
-	if (searchString ~= nil) then
-		Events.SearchForPediaEntry( searchString );
+local function ProductionPedia( queuedItemNumber )
+	local city = UI_GetHeadSelectedCity()
+	if city and queuedItemNumber then
+		return SelectionPedia( city:GetOrderFromQueue( queuedItemNumber ) )
 	end
 end
 
--------------------------------------------------
--------------------------------------------------
-function OnEditNameClick()
-	if UI.GetHeadSelectedCity() then
-		local popupInfo = {
-				Type = ButtonPopupTypes.BUTTONPOPUP_RENAME_CITY,
-				Data1 = UI.GetHeadSelectedCity():GetID(),
-				Data2 = -1,
-				Data3 = -1,
-				Option1 = false,
-				Option2 = false;
-			}
-		Events.SerialEventGameMessagePopup(popupInfo);
-	end
-end
-Controls.EditButton:RegisterCallback( Mouse.eLClick, OnEditNameClick );
+-------------------------------
+-- Tooltips
+-------------------------------
 
-
-function AddBuildingButton( pCity, building )
-	local buildingID= building.ID;
-	if (pCity:IsHasBuilding(buildingID)) then
-		
-		local controlTable = g_BuildingIM:GetInstance();
-		
-		sortOrder = sortOrder + 1;
-		otherSortedList[tostring( controlTable.BuildingButton )] = sortOrder;
-		
-		--controlTable.BuildingButton:RegisterCallback( Mouse.eLClick, OnBuildingClick );
-		--controlTable.BuildingButton:SetVoid1( buildingID );
-
-		if (pCity:GetNumFreeBuilding(buildingID) > 0) then
-			bIsBuildingFree = true;
-		else
-			bIsBuildingFree = false;
-		end
-		
-		-- Name
-		local strBuildingName;
-		
-		-- Religious Buildings have special names
-		if (building.IsReligious) then
-			strBuildingName = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_BUILDING", building.Description, pPlayer:GetStateReligionKey());
-		else
-			strBuildingName = Locale.ConvertTextKey(building.Description);
-		end
-
-		-- Building is free, add an asterisk to the name
-		if (bIsBuildingFree) then
-			strBuildingName = strBuildingName .. " (" .. Locale.ConvertTextKey("TXT_KEY_FREE") .. ")";
-		end
-		
-		controlTable.BuildingName:SetText(strBuildingName);
-
-		pediaSearchStrings[tostring(controlTable.BuildingButton)] = Locale.ConvertTextKey(building.Description);
-		controlTable.BuildingButton:RegisterCallback( Mouse.eRClick, GetPedia );
-				
-		-- Portrait
-		if IconHookup( building.PortraitIndex, 64, building.IconAtlas, controlTable.BuildingImage ) then
-			controlTable.BuildingImage:SetHide( false );
-		else
-			controlTable.BuildingImage:SetHide( true );
-		end
-		
-		-- Great Work Slots		
-		-- Hide all slots.
-		local iMaxGreatWorkSlots = 4;
-		for i = 1, iMaxGreatWorkSlots, 1 do
-			local filledGreatWorkSlot = controlTable["BuildingFilledGreatWorkSlot" .. i];
-			filledGreatWorkSlot:SetHide(true);
-		end
-		
-		controlTable.ThemeBonus:SetHide(true);
-		
-		if(building.GreatWorkSlotType ~= nil and building.GreatWorkCount > 0) then
-			local buildingGreatWorkSlotType = building.GreatWorkSlotType;
-			local buildingGreatWorkSlot = GameInfo.GreatWorkSlots[buildingGreatWorkSlotType];
-			local filledTexture = buildingGreatWorkSlot.FilledIcon;
-			local emptyTexture = buildingGreatWorkSlot.EmptyIcon;
-								
-			local iBuildingClass = GameInfo.BuildingClasses[building.BuildingClass].ID;
-			local iNumGreatWorks = building.GreatWorkCount;
-			
-			local themeBonus = pCity:GetThemingBonus(iBuildingClass);
-			if(themeBonus > 0) then
-				local themeBonusToolTip = pCity:GetThemingTooltip(iBuildingClass)
-				controlTable.ThemeBonus:SetText("+" .. themeBonus);
-				controlTable.ThemeBonus:SetToolTipString(themeBonusToolTip);
-				controlTable.ThemeBonus:SetHide(false);
+local function GetSpecialistYields( city, specialist )
+	local yieldTips = table()
+	if city and specialist then
+		local specialistID = specialist.ID
+		local cityOwner = Players[ city:GetOwner() ]
+		-- Culture
+		local cultureFromSpecialist, specialistYield = city:GetCultureFromSpecialist( specialistID )
+		local specialistCultureModifier, specialistYieldModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 ) or 0 ) )
+		-- Yield
+		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
+			specialistYield = city:GetSpecialistYield( specialistID, yieldID )
+			specialistYieldModifier = city:GetBaseYieldRateModifier( yieldID )
+			if yieldID == YieldTypes.YIELD_CULTURE then
+				specialistYield = specialistYield + cultureFromSpecialist
+				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
+				cultureFromSpecialist = 0
 			end
-			
-			for i = 0, iNumGreatWorks - 1, 1 do
-				local filledGreatWorkSlot = controlTable["BuildingFilledGreatWorkSlot" .. i + 1];
-				
-				local iGreatWorkIndex = pCity:GetBuildingGreatWork(iBuildingClass, i);
-				if (iGreatWorkIndex >= 0) then
-					filledGreatWorkSlot:SetHide(false);
-					filledGreatWorkSlot:SetTexture(filledTexture);
-					filledGreatWorkSlot:SetToolTipString(Game.GetGreatWorkTooltip(iGreatWorkIndex, pCity:GetOwner()));
-					
-					local greatWorkType = Game.GetGreatWorkType(iGreatWorkIndex);
-					local greatWork = GameInfo.GreatWorks[greatWorkType];
-					
-					filledGreatWorkSlot:ClearCallback(Mouse.eLClick);
-					
-					if(greatWork.GreatWorkClassType ~= "GREAT_WORK_ARTIFACT") then
-						filledGreatWorkSlot:RegisterCallback(Mouse.eLClick, function() 
-							local popupInfo = {
-								Type = ButtonPopupTypes.BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER,
-								Data1 = iGreatWorkIndex,
-								Priority = PopupPriority.Current
-							}
-							Events.SerialEventGameMessagePopup(popupInfo);
-						end);
-					end	
+			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
+		end
+		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
+		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
+	end
+	return yieldTips:concat(" ")
+end
+
+local function SpecialistTooltip( control )
+	local buildingID = control:GetVoid1()
+	local building = buildingID and GameInfo.Buildings[ buildingID ]
+	local specialistType = building and building.SpecialistType
+	local specialistID = specialistType and GameInfoTypes[specialistType] or GameDefines.DEFAULT_SPECIALIST
+	local specialist = GameInfo.Specialists[ specialistID ]
+	local strToolTip = L(specialist.Description) .. " " .. GetSpecialistYields( UI_GetHeadSelectedCity(), specialist )
+	local slotTable = building and g_citySpecialists[buildingID]
+	if slotTable and not slotTable[control:GetVoid2()] then
+		strToolTip = L"TXT_KEY_CITYVIEW_EMPTY_SLOT".."[NEWLINE]("..strToolTip..")"
+	end
+	g_rightTipControls.Text:SetText( strToolTip )
+	IconHookup( specialist.PortraitIndex, g_rightTipControls.Portrait:GetSizeY(), specialist.IconAtlas, g_rightTipControls.Portrait )
+	g_rightTipControls.Box:SetHide( false )
+	return g_rightTipControls.Box:DoAutoSize()
+end
+
+local function BuildingToolTip( control )
+	local buildingID = control:GetVoid1()
+	local building = GameInfo.Buildings[ buildingID ]
+	local city = UI_GetHeadSelectedCity()
+	if city and building then
+
+		g_rightTipControls.Text:SetText( GetHelpTextForBuilding( buildingID, false, false, city:GetNumFreeBuilding(buildingID) > 0, city ) )
+		IconHookup( building.PortraitIndex, g_rightTipControls.Portrait:GetSizeY(), building.IconAtlas, g_rightTipControls.Portrait )
+		g_rightTipControls.Box:SetHide( false )
+		return g_rightTipControls.Box:DoAutoSize()
+	end
+end
+
+local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID, _, isRepeat )
+	local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas, isRealRepeat
+	if city then
+		local cityOwnerID = city:GetOwner()
+		if orderID == OrderTypes.ORDER_TRAIN then
+			itemInfo = GameInfo.Units
+			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
+			strToolTip = GetHelpTextForUnit( itemID, true )
+			isRealRepeat = isRepeat
+
+			if isDisabled then
+				if purchaseYieldID == g_yieldCurrency then
+					strDisabledInfo = city:GetPurchaseUnitTooltip(itemID)
+				elseif purchaseYieldID == YieldTypes.YIELD_FAITH then
+					strDisabledInfo = city:GetFaithPurchaseUnitTooltip(itemID)
 				else
-					filledGreatWorkSlot:SetHide(false);
-					filledGreatWorkSlot:SetTexture(emptyTexture);
-					filledGreatWorkSlot:LocalizeAndSetToolTip(buildingGreatWorkSlot.EmptyToolTipText);
-					filledGreatWorkSlot:ClearCallback(Mouse.eLClick);
+					strDisabledInfo = city:CanTrainTooltip(itemID)
 				end
-			end	
-		end		
-		
-		-- Empty Specialist Slots
-		iNumSpecialists = pCity:GetNumSpecialistsAllowedByBuilding(buildingID)
-		
-		controlTable.BuildingEmptySpecialistSlot1:SetHide(true);
-		controlTable.BuildingEmptySpecialistSlot2:SetHide(true);
-		controlTable.BuildingEmptySpecialistSlot3:SetHide(true);
-		
-		if (iNumSpecialists >= 1) then
-			controlTable.BuildingEmptySpecialistSlot1:SetHide(false);
-		end
-		if (iNumSpecialists >= 2) then
-			controlTable.BuildingEmptySpecialistSlot2:SetHide(false);
-		end
-		if (iNumSpecialists >= 3) then
-			controlTable.BuildingEmptySpecialistSlot3:SetHide(false);
-		end
-		
-		-- Filled Specialist Slots
-		iNumAssignedSpecialists = pCity:GetNumSpecialistsInBuilding(buildingID)
+			end
 
-		if specialistTable[buildingID] == nil then
-			specialistTable[buildingID] = { false, false, false };
-			if (iNumAssignedSpecialists >= 1) then
-				specialistTable[buildingID][1] = true;
+		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
+			itemInfo = GameInfo.Buildings
+			strToolTip = GetHelpTextForBuilding( itemID, false, false, city:GetNumFreeBuilding(itemID) > 0, city )
+			if isDisabled then
+				if purchaseYieldID == g_yieldCurrency then
+--					cash = cityOwner:GetGold() - city:GetBuildingPurchaseCost(itemID)
+--					icon = g_currencyIcon
+					strDisabledInfo = city:GetPurchaseBuildingTooltip(itemID)
+				elseif purchaseYieldID == YieldTypes.YIELD_FAITH then
+--					cash = cityOwner:GetFaith() - city:GetBuildingFaithPurchaseCost(itemID)
+--					icon = "[ICON_PEACE]"
+					strDisabledInfo = city:GetFaithPurchaseBuildingTooltip(itemID)
+				else
+					strDisabledInfo = city:CanConstructTooltip(itemID)
+				end
 			end
-			if (iNumAssignedSpecialists >= 2) then
-				specialistTable[buildingID][2] = true;
-			end
-			if (iNumAssignedSpecialists >= 3) then
-				specialistTable[buildingID][3] = true;
-			end
+
+		elseif orderID == OrderTypes.ORDER_CREATE then
+			itemInfo = GameInfo.Projects
+			strToolTip = GetHelpTextForProject( itemID, true )
+		elseif orderID == OrderTypes.ORDER_MAINTAIN then
+			itemInfo = GameInfo.Processes
+			strToolTip = GetHelpTextForProcess( itemID, true )
+			isRealRepeat = true
 		else
-			local numSlotsIThinkAreFilled = 0;
-			for i = 1, 3 do
-				if specialistTable[buildingID][i] then
-					numSlotsIThinkAreFilled = numSlotsIThinkAreFilled + 1;
-				end
+			strToolTip = L"TXT_KEY_PRODUCTION_NO_PRODUCTION"
+		end
+		if strToolTip then
+			if isRealRepeat then
+				strToolTip = "[ICON_TURNS_REMAINING]" .. strToolTip
 			end
-			if numSlotsIThinkAreFilled ~= iNumAssignedSpecialists then
-				specialistTable[buildingID] = { false, false, false };
-				if (iNumAssignedSpecialists >= 1) then
-					specialistTable[buildingID][1] = true;
+			if strDisabledInfo and #strDisabledInfo > 0 then
+				strDisabledInfo = (strDisabledInfo:gsub("^%[NEWLINE%]","")):gsub("^%[NEWLINE%]","")
+--				if cash and cash < 0 then
+--					strDisabledInfo = ("%s (%+i%s)"):format( strDisabledInfo, cash, icon )
+--				end
+				strToolTip = "[COLOR_WARNING_TEXT]" .. strDisabledInfo .. "[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
+			elseif purchaseYieldID then
+				if not isDisabled then
+					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
 				end
-				if (iNumAssignedSpecialists >= 2) then
-					specialistTable[buildingID][2] = true;
-				end
-				if (iNumAssignedSpecialists >= 3) then
-					specialistTable[buildingID][3] = true;
-				end
+			elseif isDisabled then
+				strToolTip = "[COLOR_YIELD_FOOD]"..L"TXT_KEY_CITYVIEW_QUEUE_PROD_TT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
 			end
 		end
-		
-		controlTable.BuildingFilledSpecialistSlot1:SetHide(true);
-		controlTable.BuildingFilledSpecialistSlot2:SetHide(true);
-		controlTable.BuildingFilledSpecialistSlot3:SetHide(true);
-		
-		if (specialistTable[buildingID][1]) then
-			controlTable.BuildingEmptySpecialistSlot1:SetHide(true);
-			controlTable.BuildingFilledSpecialistSlot1:SetHide(false);
-		end
-		if (specialistTable[buildingID][2]) then
-			controlTable.BuildingEmptySpecialistSlot2:SetHide(true);
-			controlTable.BuildingFilledSpecialistSlot2:SetHide(false);
-		end
-		if (specialistTable[buildingID][3]) then
-			controlTable.BuildingEmptySpecialistSlot3:SetHide(true);
-			controlTable.BuildingFilledSpecialistSlot3:SetHide(false);
-		end
-		
-		local specialistName = nil;
-		if building.SpecialistType then
-			local iSpecialistID = GameInfoTypes[building.SpecialistType];
-			local pSpecialistInfo = GameInfo.Specialists[iSpecialistID];
-			specialistName = Locale.ConvertTextKey(pSpecialistInfo.Description);
-			local ToolTipString = specialistName .. " ";						
-			-- Culture
-			local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-			if (iCultureFromSpecialist > 0) then
-				ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
-			end
-			-- Yield
-			for pYieldInfo in GameInfo.Yields() do
-				local iYieldID = pYieldInfo.ID;
-				local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
-				
-				--Specialist Yield included in pCity:GetSpecialistYield();
-				--iYieldAmount = iYieldAmount + Players[pCity:GetOwner()]:GetSpecialistExtraYield(iSpecialistID, iYieldID);
-				
-				if (iYieldAmount > 0) then
-					ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
-				end
-			end
-			if pSpecialistInfo.GreatPeopleRateChange > 0 then
-				ToolTipString = ToolTipString .. " +" .. pSpecialistInfo.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]";					
-			end
-			controlTable.BuildingFilledSpecialistSlot1:SetToolTipString(ToolTipString);
-			controlTable.BuildingFilledSpecialistSlot2:SetToolTipString(ToolTipString);
-			controlTable.BuildingFilledSpecialistSlot3:SetToolTipString(ToolTipString);
-			ToolTipString = emptySlotString.."[NEWLINE]("..ToolTipString..")";
-			controlTable.BuildingEmptySpecialistSlot1:SetToolTipString(ToolTipString);
-			controlTable.BuildingEmptySpecialistSlot2:SetToolTipString(ToolTipString);
-			controlTable.BuildingEmptySpecialistSlot3:SetToolTipString(ToolTipString);
+		local item = itemInfo and itemInfo[itemID]
+		item = item and IconHookup( portraitOffset or item.PortraitIndex, g_leftTipControls.Portrait:GetSizeY(), portraitAtlas or item.IconAtlas, g_leftTipControls.Portrait )
+		g_leftTipControls.Text:SetText( strToolTip )
+		g_leftTipControls.PortraitFrame:SetHide( not item )
+		g_leftTipControls.Box:DoAutoSize()
+	end
+	return g_leftTipControls.Box:SetHide( not strToolTip )
+end
 
-			if building.SpecialistType == "SPECIALIST_SCIENTIST" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(scientistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(scientistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(scientistTexture);
-			elseif building.SpecialistType == "SPECIALIST_MERCHANT" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(merchantTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(merchantTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(merchantTexture);
-			elseif building.SpecialistType == "SPECIALIST_ARTIST" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
-			elseif building.SpecialistType == "SPECIALIST_MUSICIAN" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
-			elseif building.SpecialistType == "SPECIALIST_WRITER" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
-			elseif building.SpecialistType == "SPECIALIST_ENGINEER" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(engineerTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(engineerTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(engineerTexture);
-			else
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(workerTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(workerTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(workerTexture);
+local function ProductionToolTip( control )
+	local city = UI_GetHeadSelectedCity()
+	local queuedItemNumber = control:GetVoid1()
+	if city and queuedItemNumber and not Controls.QueueSlider:IsTrackingLeftMouseButton() then
+		return OrderItemTooltip( city, false, false, city:GetOrderFromQueue( queuedItemNumber ) )
+	end
+end
+
+local function SelectionToolTip( control )
+	return OrderItemTooltip( UI_GetHeadSelectedCity(), true, false, control:GetVoid1(), control:GetVoid2() )
+end
+
+-------------------------------
+-- Specialist Managemeent
+-------------------------------
+local function OnSlackersSelected( buildingID, slotID )
+	local city = GetSelectedModifiableCity()
+	if city then
+		for i=1, slotID<=0 and city:GetSpecialistCount( GameDefines.DEFAULT_SPECIALIST ) or 1 do
+			Network.SendDoTask( city:GetID(), TaskTypes.TASK_REMOVE_SLACKER, 0, -1, false )
+		end
+	end
+end
+
+local function ToggleSpecialist( buildingID, slotID )
+	local city = buildingID and slotID and GetSelectedModifiableCity()
+	if city then
+
+		-- If Specialists are automated then you can't change things with them
+		if civ5_mode and not city:IsNoAutoAssignSpecialists() then
+			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true)
+			Controls.NoAutoSpecialistCheckbox:SetCheck(true)
+			if bnw_mode then
+				Controls.NoAutoSpecialistCheckbox2:SetCheck(true)
 			end
 		end
 
-		if (UI.IsCityScreenViewingMode()) then
-			controlTable.BuildingFilledSpecialistSlot1:RegisterCallback( Mouse.eLClick, DisableSpecialist );
-			controlTable.BuildingFilledSpecialistSlot2:RegisterCallback( Mouse.eLClick, DisableSpecialist );
-			controlTable.BuildingFilledSpecialistSlot3:RegisterCallback( Mouse.eLClick, DisableSpecialist );
+		local specialistID = GameInfoTypes[(GameInfo.Buildings[ buildingID ] or {}).SpecialistType] or -1
+		local specialistTable = g_citySpecialists[buildingID]
+		if specialistTable[slotID] then
+			if city:GetNumSpecialistsInBuilding(buildingID) > 0 then
+				specialistTable[slotID] = false
+				specialistTable.n = specialistTable.n - 1
+				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, specialistID, buildingID )
+			end
+		elseif city:IsCanAddSpecialistToBuilding(buildingID) then
+			specialistTable[slotID] = true
+			specialistTable.n = specialistTable.n + 1
+			return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, specialistID, buildingID )
+		end
+	end
+end
+
+-------------------------------
+-- Great Work Managemeent
+-------------------------------
+local function GreatWorkPopup( greatWorkID )
+	local greatWork = GameInfo.GreatWorks[ Game.GetGreatWorkType( greatWorkID or -1 ) or -1 ]
+
+	if greatWork and greatWork.GreatWorkClassType ~= "GREAT_WORK_ARTIFACT" then
+		return Events.SerialEventGameMessagePopup{
+			Type = ButtonPopupTypes.BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER,
+			Data1 = greatWorkID,
+			Priority = PopupPriority.Current
+			}
+	end
+end
+
+local function YourCulturePopup( greatWorkID )
+	return Events.SerialEventGameMessagePopup{
+		Type = ButtonPopupTypes.BUTTONPOPUP_CULTURE_OVERVIEW,
+		Data1 = 1,
+		Data2 = 1,
+		}
+end
+
+local function ThemingTooltip( buildingClassID, _, control )
+	control:SetToolTipString( UI_GetHeadSelectedCity():GetThemingTooltip( buildingClassID ) )
+end
+
+local function GreatWorkTooltip( greatWorkID, greatWorkSlotID, slot )
+	if greatWorkID >= 0 then
+		return slot:SetToolTipString( Game.GetGreatWorkTooltip( greatWorkID, UI_GetHeadSelectedCity():GetOwner() ) )
+	else
+		return slot:LocalizeAndSetToolTip( tostring(( GameInfo.GreatWorkSlots[ greatWorkSlotID ] or {}).EmptyToolTipText) )
+	end
+end
+
+-------------------------------------------------
+-- City Buildings List
+-------------------------------------------------
+
+local function sortBuildings(a,b)
+	if a and b then
+		if a[4] ~= b[4] then
+			return a[4] < b[4]
+		elseif a[3] ~= b[3] then
+			return a[3] > b[3]
+		end
+		return a[2] < b[2]
+	end
+end
+
+local function SetupBuildingList( city, buildings, buildingIM )
+	buildingIM.ResetInstances()
+	buildings:sort( sortBuildings )
+	local cityOwnerID = city:GetOwner()
+	local cityOwner = Players[ cityOwnerID ]
+	local isNotResistance = not city:IsResistance()
+	-- Get the active perk types for civ BE
+	local cityOwnerPerks = civBE_mode and cityOwner:GetAllActivePlayerPerkTypes()
+	for i = 1, #buildings do
+
+		local building, buildingName, greatWorkCount = unpack(buildings[i])
+		local buildingID = building.ID
+		local controls, isNewInstance = buildingIM.GetInstance()
+		local buildingButton = controls.Button
+		local sellButton = controls.SellButton
+		local textButton = controls.TextButton
+		textButton:SetHide( true )
+		if isNewInstance then
+			buildingButton:RegisterCallback( Mouse.eRClick, BuildingPedia )
+			buildingButton:SetToolTipCallback( BuildingToolTip )
+			sellButton:RegisterCallback( Mouse.eLClick, SellBuilding )
+			textButton:RegisterCallback( Mouse.eLClick, YourCulturePopup )
+			textButton:RegisterCallback( Mouse.eMouseEnter, ThemingTooltip )
 		else
-			controlTable.BuildingFilledSpecialistSlot1:RegisterCallback( Mouse.eLClick, RemoveSpecialist );
-			controlTable.BuildingFilledSpecialistSlot2:RegisterCallback( Mouse.eLClick, RemoveSpecialist );
-			controlTable.BuildingFilledSpecialistSlot3:RegisterCallback( Mouse.eLClick, RemoveSpecialist );
+			for _, slot in pairs( controls[1] ) do
+				g_slots:insert( slot )
+				slot:ChangeParent( g_heap )
+			end
+			for _, slot in pairs( controls[2] ) do
+				g_works:insert( slot )
+				slot:ChangeParent( g_heap )
+			end
 		end
-
-		if (specialistName ~= nil) then
-			pediaSearchStrings[tostring(controlTable.BuildingFilledSpecialistSlot1)] = specialistName;
-			controlTable.BuildingFilledSpecialistSlot1:RegisterCallback( Mouse.eRClick, GetPedia );
-			pediaSearchStrings[tostring(controlTable.BuildingFilledSpecialistSlot2)] = specialistName;
-			controlTable.BuildingFilledSpecialistSlot2:RegisterCallback( Mouse.eRClick, GetPedia );
-			pediaSearchStrings[tostring(controlTable.BuildingFilledSpecialistSlot3)] = specialistName;
-			controlTable.BuildingFilledSpecialistSlot3:RegisterCallback( Mouse.eRClick, GetPedia );
-		end
-		
-		controlTable.BuildingFilledSpecialistSlot1:SetVoids( buildingID, 1 );
-		controlTable.BuildingFilledSpecialistSlot2:SetVoids( buildingID, 2 );
-		controlTable.BuildingFilledSpecialistSlot3:SetVoids( buildingID, 3 );
-
-		if (UI.IsCityScreenViewingMode()) then
-			controlTable.BuildingEmptySpecialistSlot1:RegisterCallback( Mouse.eLClick, DisableSpecialist );
-			controlTable.BuildingEmptySpecialistSlot2:RegisterCallback( Mouse.eLClick, DisableSpecialist );
-			controlTable.BuildingEmptySpecialistSlot3:RegisterCallback( Mouse.eLClick, DisableSpecialist );
+		controls[1] = table()
+		controls[2] = table()
+		buildingButton:SetVoid1( buildingID )
+		-- Can we sell this building?
+		if not g_isViewingMode and city:IsBuildingSellable( buildingID ) then
+			sellButton:SetText( city:GetSellBuildingRefund( buildingID ) .. g_currencyIcon )
+			sellButton:SetHide( false )
+			sellButton:SetVoid1( buildingID )
 		else
-			controlTable.BuildingEmptySpecialistSlot1:RegisterCallback( Mouse.eLClick, AddSpecialist );
-			controlTable.BuildingEmptySpecialistSlot2:RegisterCallback( Mouse.eLClick, AddSpecialist );
-			controlTable.BuildingEmptySpecialistSlot3:RegisterCallback( Mouse.eLClick, AddSpecialist );
+			sellButton:SetHide( true )
 		end
 
-		controlTable.BuildingEmptySpecialistSlot1:SetVoids( buildingID, 1 );
-		controlTable.BuildingEmptySpecialistSlot2:SetVoids( buildingID, 2 );
-		controlTable.BuildingEmptySpecialistSlot3:SetVoids( buildingID, 3 );
+		local slotStack = controls.SlotStack
+		local instance = {}
 
+--!!!BE portrait size is bigger
 
-		-- Tool Tip
-		local bExcludeHeader = false;
-		local bExcludeName = false;
-		local bNoMaintenance = bIsBuildingFree;
-		local strToolTip = GetHelpTextForBuilding(buildingID, bExcludeName, bExcludeHeader, bNoMaintenance, pCity);
-		--strToolTip = strToolTip .. Locale.ConvertTextKey(building.Help);
-		
-		--if (not bIsBuildingFree) then
-			--local iMaintenance = building.GoldMaintenance;
-			--if (iMaintenance ~= 0) then
-				--strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. tostring(iMaintenance) .. "[ICON_GOLD]" .. Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_MAINTENANCE" );
-			--end
-		--end
-		
-		if (iNumAssignedSpecialists > 0) then
-			if(building.SpecialistType) then
-				local pSpecialistInfo = GameInfo.Specialists[building.SpecialistType];
-				local iSpecialistID = pSpecialistInfo.ID;
-				
-				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
-					
-				local yields = {};
-				
-				-- Culture
-				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-				if (iCultureFromSpecialist > 0) then
-					table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
+		controls.Portrait:SetHide( not IconHookup( building.PortraitIndex, 64, building.IconAtlas, controls.Portrait ) )
+
+		-------------------
+		-- Great Work Slots
+		if greatWorkCount > 0 then
+			local buildingGreatWorkSlotType = building.GreatWorkSlotType
+			if buildingGreatWorkSlotType then
+				local buildingGreatWorkSlot = GameInfo.GreatWorkSlots[ buildingGreatWorkSlotType ]
+				local buildingClassID = GameInfoTypes[ building.BuildingClass ]
+
+				if city:IsThemingBonusPossible( buildingClassID ) then
+					textButton:SetText( " +" .. city:GetThemingBonus( buildingClassID ) )
+					textButton:SetVoid1( buildingClassID )
+					textButton:SetHide( false )
 				end
-				
-				-- Yield
-				for pYieldInfo in GameInfo.Yields() do
-					local iYieldID = pYieldInfo.ID;
-					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
-					
-					if (iYieldAmount > 0) then
-						table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
+
+				for i = 0, greatWorkCount - 1 do
+					local slot = g_works:remove()
+					if slot then
+						slot:ChangeParent( slotStack )
+					else
+						ContextPtr:BuildInstanceForControl( "Work", instance, slotStack )
+						slot = instance.Button
+						slot:RegisterCallback( Mouse.eLClick, YourCulturePopup )
+						slot:RegisterCallback( Mouse.eMouseEnter, GreatWorkTooltip )
+					end
+					controls[2]:insert( slot )
+					local greatWorkID = city:GetBuildingGreatWork( buildingClassID, i )
+					slot:SetVoids( greatWorkID, buildingGreatWorkSlot.ID )
+					if greatWorkID >= 0 then
+						slot:SetTexture( buildingGreatWorkSlot.FilledIcon )
+						slot:RegisterCallback( Mouse.eRClick, GreatWorkPopup )
+					else
+						slot:SetTexture( buildingGreatWorkSlot.EmptyIcon )
+						slot:ClearCallback( Mouse.eRClick )
 					end
 				end
-				
-				local strYield = table.concat(yields, " ");
-				
-				local str = Locale.Lookup("TXT_KEY_CITYVIEW_BUILDING_SPECIALIST_YIELD", iNumAssignedSpecialists, pSpecialistInfo.Description, strYield);
-				
-				strToolTip = strToolTip .. str;
-			end				
+			end
 		end
-		
-		-- Can we sell this thing?
-		if (pCity:IsBuildingSellable(buildingID) and not pCity:IsPuppet()) then
-			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_CLICK_TO_SELL" );
-			controlTable.BuildingButton:RegisterCallback( Mouse.eLClick, OnBuildingClicked );
-			controlTable.BuildingButton:SetVoid1( buildingID );
-		-- We have to clear the data out here or else the instance manager will recycle it in other cities!
-		else
-			controlTable.BuildingButton:ClearCallback(Mouse.eLClick);
-			controlTable.BuildingButton:SetVoid1( -1 );
-		end
-		
-		controlTable.BuildingButton:SetToolTipString(strToolTip);
-		
-		controlTable.BuildingFilledSpecialistSlot1:SetDisabled( false );
-		controlTable.BuildingFilledSpecialistSlot2:SetDisabled( false );
-		controlTable.BuildingFilledSpecialistSlot3:SetDisabled( false );
-		controlTable.BuildingEmptySpecialistSlot1:SetDisabled( false );
-		controlTable.BuildingEmptySpecialistSlot2:SetDisabled( false );
-		controlTable.BuildingEmptySpecialistSlot3:SetDisabled( false );
 
-		-- Viewing Mode only
-		if (UI.IsCityScreenViewingMode()) then
-			controlTable.BuildingButton:SetDisabled( true );
+		-------------------
+		-- Specialist Slots
+		local numSpecialistsInBuilding = city:GetNumSpecialistsInBuilding( buildingID )
+		local specialistTable = g_citySpecialists[buildingID] or {}
+		if specialistTable.n ~= numSpecialistsInBuilding then
+			specialistTable = { n = numSpecialistsInBuilding }
+			for i = 1, numSpecialistsInBuilding do
+				specialistTable[i] = true
+			end
+			g_citySpecialists[buildingID] = specialistTable
+		end
+		local specialistType = building.SpecialistType
+		local specialist = GameInfo.Specialists[specialistType]
+		if specialist then
+			for slotID = 1, city:GetNumSpecialistsAllowedByBuilding( buildingID ) do
+				local slot = g_slots:remove()
+				if slot then
+					slot:ChangeParent( slotStack )
+				else
+					ContextPtr:BuildInstanceForControl( "Slot", instance, slotStack )
+					slot = instance.Button
+					slot:RegisterCallback( Mouse.eRClick, SpecialistPedia )
+					slot:SetToolTipCallback( SpecialistTooltip )
+				end
+				controls[1]:insert( slot )
+				if civ5_mode then
+					slot:SetTexture( specialistTable[ slotID ] and g_slotTexture[ specialistType ] or "CitizenEmpty.dds" )
+				else
+					IconHookup( specialist.PortraitIndex, 45, specialist.IconAtlas, instance.Portrait )
+					instance.Portrait:SetHide( not specialistTable[ slotID ] )
+				end
+				slot:SetVoids( buildingID, slotID )
+				if g_isViewingMode then
+					slot:ClearCallback( Mouse.eLClick )
+				else
+					slot:RegisterCallback( Mouse.eLClick, ToggleSpecialist )
+				end
+			end -- Specialist Slots
+		end
+
+		-- Building stats/bonuses
+		local buildingClassID = GameInfoTypes[ building.BuildingClass ] or -1
+		local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
+		local defenseChange = tonumber(building.Defense) or 0
+		local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
+		local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and city:GetCultureFromSpecialist( specialist.ID ) or 0) * numSpecialistsInBuilding
+		local buildingCultureModifier = tonumber(building.CultureRateModifier) or 0
+		local cityCultureRateModifier = cityOwner:GetCultureCityModifier() + city:GetCultureRateModifier() + (city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0)
+		local cityCultureRate
+		local population = city:GetPopulation()
+		local tips = table()
+		local thisBuildingAndYieldTypes = { BuildingType = building.Type }
+		if civ5_mode then
+			cityCultureRate = city:GetBaseJONSCulturePerTurn()
+			-- Happiness
+			local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
+						+ cityOwner:GetExtraBuildingHappinessFromPolicies( buildingID )
+						+ (cityOwner:IsHalfSpecialistUnhappiness() and GameDefines.UNHAPPINESS_PER_POPULATION * numSpecialistsInBuilding * ((city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() or 0)+100) * (cityOwner:GetUnhappinessMod() + 100) * (cityOwner:GetTraitPopUnhappinessMod() + 100) / 2e6 or 0) -- missing getHandicapInfo().getPopulationUnhappinessMod()
+			tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
+
+		else -- civBE_mode
+			cityCultureRate = city:GetBaseCulturePerTurn()
+			-- Health
+			local healthChange = (tonumber(building.Health) or 0) + (tonumber(building.UnmoddedHealth) or 0) + cityOwner:GetExtraBuildingHealthFromPolicies( buildingID )
+			local healthModifier = tonumber(building.HealthModifier) or 0
+			-- Effect of player perks
+			for i, perkID in ipairs(cityOwnerPerks) do
+				healthChange = healthChange + Game.GetPlayerPerkBuildingClassPercentHealthChange( perkID, buildingClassID )
+				healthModifier = healthModifier + Game.GetPlayerPerkBuildingClassPercentHealthChange( perkID, buildingClassID )
+				defenseChange = defenseChange + Game.GetPlayerPerkBuildingClassCityStrengthChange( perkID, buildingClassID )
+				hitPointChange = hitPointChange + Game.GetPlayerPerkBuildingClassCityHPChange( perkID, buildingClassID )
+				maintenanceCost = maintenanceCost + Game.GetPlayerPerkBuildingClassEnergyMaintenanceChange( perkID, buildingClassID )
+			end
+			tips:insertIf( healthChange ~=0 and healthChange .. "[ICON_HEALTH_1]" )
+--			tips:insertLocalizedIfNonZero( "TXT_KEY_STAT_POSITIVE_YIELD_MOD", "[ICON_HEALTH_1]", healthModifier )
+		end
+		local buildingYieldRate, buildingYieldPerPop, buildingYieldModifier, cityYieldRate, cityYieldRateModifier, isProducing
+		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
+			isProducing = isNotResistance
+			thisBuildingAndYieldTypes.YieldType = (GameInfo.Yields[yieldID] or {}).Type or -1
+			-- Yield changes from the building
+			buildingYieldRate = Game.GetBuildingYieldChange( buildingID, yieldID )
+						+ (gk_mode and cityOwner:GetPlayerBuildingClassYieldChange( buildingClassID, yieldID )
+						+ city:GetReligionBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
+						+ (bnw_mode and city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
+			-- Yield modifiers from the building
+			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
+						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
+			-- Effect of player perks
+			if civBE_mode then
+				for i, perkID in ipairs(cityOwnerPerks) do
+					buildingYieldRate = buildingYieldRate + Game.GetPlayerPerkBuildingClassFlatYieldChange( perkID, buildingClassID, yieldID )
+					buildingYieldModifier = buildingYieldModifier + Game.GetPlayerPerkBuildingClassPercentYieldChange( perkID, buildingClassID, yieldID )
+				end
+			end
+			-- Specialists yield
+			if specialist then
+				buildingYieldRate = buildingYieldRate + numSpecialistsInBuilding * city:GetSpecialistYield( specialist.ID, yieldID )
+			end
+			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
+			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID )
+			-- Special culture case
+			if yieldID == YieldTypes.YIELD_CULTURE then
+				buildingYieldRate = buildingYieldRate + buildingCultureRate
+				buildingYieldModifier = buildingYieldModifier + buildingCultureModifier
+				cityYieldRateModifier = cityYieldRateModifier + cityCultureRateModifier
+				cityYieldRate = cityYieldRate + cityCultureRate
+				buildingCultureRate = 0
+				buildingCultureModifier = 0
+			elseif yieldID == YieldTypes.YIELD_FOOD then
+				local foodPerPop = GameDefines.FOOD_CONSUMPTION_PER_POPULATION
+				local foodConsumed = city:FoodConsumption()
+				buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
+				buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0)
+				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed 
+				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
+				isProducing = true
+			end
+			-- Population yield
+			buildingYieldPerPop = 0
+			for row in GameInfo.Building_YieldChangesPerPop( thisBuildingAndYieldTypes ) do
+				buildingYieldPerPop = buildingYieldPerPop + (row.Yield or 0)
+			end
+			buildingYieldRate = buildingYieldRate + buildingYieldPerPop * population / 100
+
+			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
+			tips:insertIf( isProducing and buildingYieldRate ~= 0 and buildingYieldRate / 100 .. tostring(YieldIcons[ yieldID ]) )
+		end
+
+		-- Culture leftovers
+		buildingCultureRate = buildingCultureRate * (100+cityCultureRateModifier) + ( cityCultureRate - buildingCultureRate ) * buildingCultureModifier
+		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and buildingCultureRate / 100 .. "[ICON_CULTURE]" )
+
+-- TODO TOURISM
+		if civ5bnw_mode then
+			local tourism = ( ( (building.FaithCost or 0) > 0
+					and building.UnlockedByBelief
+					and building.Cost == -1
+					and city and city:GetFaithBuildingTourism()
+					) or 0 )
+--			local enhancedYieldTechID = GameInfoTypes[ building.EnhancedYieldTech ]
+			tourism = tourism + (tonumber(building.TechEnhancedTourism) or 0)
+			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
+		end
+
+		if civ5_mode and building.IsReligious then
+			buildingName = L( "TXT_KEY_RELIGIOUS_BUILDING", buildingName, Players[city:GetOwner()]:GetStateReligionKey() )
+		end
+		if city:GetNumFreeBuilding( buildingID ) > 0 then
+			buildingName = buildingName .. " (" .. L"TXT_KEY_FREE" .. ")"
 		else
-			controlTable.BuildingButton:SetDisabled( false );
+			tips:insertIf( maintenanceCost ~=0 and -maintenanceCost .. g_currencyIcon )
+		end
+		controls.Name:SetText( buildingName )
+
+		tips:insertIf( defenseChange ~=0 and defenseChange / 100 .. "[ICON_STRENGTH]" )
+		tips:insertLocalizedIfNonZero( "TXT_KEY_PEDIA_DEFENSE_HITPOINTS", hitPointChange )
+
+		controls.Label:ChangeParent( controls.Stack )
+		controls.Label:SetText( tips:concat(" ") )
+		slotStack:CalculateSize()
+		if slotStack:GetSizeX() + controls.Label:GetSizeX() < 254 then
+			controls.Label:ChangeParent( slotStack )
+		end
+		controls.Stack:CalculateSize()
+--		slotStack:ReprocessAnchoring()
+--		controls.Stack:ReprocessAnchoring()
+		buildingButton:SetSizeY( math_max(64, controls.Stack:GetSizeY() + 16) )
+	end
+	return buildingIM.Commit()
+end
+
+-------------------------------------------
+-- Production Selection List Management
+-------------------------------------------
+
+local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
+	local city = UI_GetHeadSelectedCity()
+	if city then
+		local cityOwnerID = city:GetOwner()
+		if cityOwnerID == g_activePlayerID
+			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) )
+							----------- Venice exception -----------
+		then
+			local cityID = city:GetID()
+			local isPurchase
+			if orderID == OrderTypes.ORDER_TRAIN then
+				if cityIsCanPurchase( city, true, true, itemID, -1, -1, yieldID ) then
+					Game.CityPurchaseUnit( city, itemID, yieldID )
+					isPurchase = true
+				end
+			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
+				if cityIsCanPurchase( city, true, true, -1, itemID, -1, yieldID ) then
+					Game.CityPurchaseBuilding( city, itemID, yieldID )
+					Network.SendUpdateCityCitizens( cityID )
+					isPurchase = true
+				end
+			elseif orderID == OrderTypes.ORDER_CREATE then
+				if cityIsCanPurchase( city, true, true, -1, -1, itemID, yieldID ) then
+					Game.CityPurchaseProject( city, itemID, yieldID )
+					isPurchase = true
+				end
+			end
+			if isPurchase then
+				Events.SpecificCityInfoDirty( cityOwnerID, cityID, CityUpdateTypes.CITY_UPDATE_TYPE_BANNER )
+				Events.SpecificCityInfoDirty( cityOwnerID, cityID, CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
+				if soundKey then
+					Events.AudioPlay2DSound( soundKey )
+				end
+			end
 		end
 	end
 end
 
-function UpdateThisQueuedItem(city, queuedItemNumber, queueLength)
-	local buttonPrefix = "b"..tostring(queuedItemNumber);
-	local queuedOrderType;
-	local queuedData1;
-	local queuedData2;
-	local queuedSave;
-	local queuedRush;
-	local controlBox = buttonPrefix.."box";
-	local controlImage = buttonPrefix.."image";
-	local controlName = buttonPrefix.."name";
-	local controlTurns = buttonPrefix.."turns";
-	local isMaint = false;
-	
-	local strToolTip = "";
-	
-	local bGeneratingProduction = false;
-	if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
-		bGeneratingProduction = true;
+local function AddSelectionItem( city, item,
+				selectionList,
+				orderID,
+				cityCanProduce,
+				unitID, buildingID, projectID,
+				cityGetProductionTurnsLeft,
+				cityGetGoldCost,
+				cityGetFaithCost )
+
+	local itemID = item.ID
+	local name = item.Description
+	local turnsLeft = not g_isViewingMode and cityCanProduce( city, itemID, 0, 1 )	-- 0 = /continue, 1 = testvisible, nil = /ignore cost
+	local canProduce = not g_isViewingMode and cityCanProduce( city, itemID )	-- nil = /continue, nil = /testvisible, nil = /ignore cost
+	local canBuyWithGold, goldCost, canBuyWithFaith, faithCost
+	if unitID then
+		if civBE_mode then
+			local bestUpgradeInfo = GameInfo.UnitUpgrades[ g_activePlayer:GetBestUnitUpgrade(unitID) ]
+			name = bestUpgradeInfo and bestUpgradeInfo.Description or name
+		end
+		if cityGetGoldCost then
+			canBuyWithGold = cityIsCanPurchase( city, true, true, unitID, buildingID, projectID, g_yieldCurrency )
+			goldCost = cityIsCanPurchase( city, false, false, unitID, buildingID, projectID, g_yieldCurrency )
+					and cityGetGoldCost( city, itemID )
+		end
+		if cityGetFaithCost then
+			canBuyWithFaith = cityIsCanPurchase( city, true, true, unitID, buildingID, projectID, YieldTypes.YIELD_FAITH )
+			faithCost = cityIsCanPurchase( city, false, false, unitID, buildingID, projectID, YieldTypes.YIELD_FAITH )
+					and cityGetFaithCost( city, itemID, true )
+		end
 	end
-	
-	Controls[controlTurns]:SetHide( false );
-	queuedOrderType, queuedData1, queuedData2, queuedSave, queuedRush = city:GetOrderFromQueue( queuedItemNumber-1 );
-    if (queuedOrderType == OrderTypes.ORDER_TRAIN) then
-		local thisUnitInfo = GameInfo.Units[queuedData1];
-		local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon(queuedData1, city:GetOwner());
-		IconHookup( portraitOffset, 45, portraitAtlas, Controls[controlImage] );
-		Controls[controlName]:SetText( Locale.ConvertTextKey( thisUnitInfo.Description ) );
-		if (bGeneratingProduction) then
-			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", city:GetUnitProductionTurnsLeft(queuedData1, queuedItemNumber-1) ) );
+	if turnsLeft or goldCost or faithCost or (g_isDebugMode and not city:IsHasBuilding(buildingID)) then
+		turnsLeft = turnsLeft and ( cityGetProductionTurnsLeft and cityGetProductionTurnsLeft( city, itemID ) or -1 )
+		return selectionList:insert{ item, orderID, L(name), turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith }
+	end
+end
+
+local function SortSelectionList(a,b)
+	return a[3]<b[3]
+end
+
+local g_SelectionListCallBacks = {
+	Button = {
+		[Mouse.eLClick] = function( orderID, itemID )
+			local city = GetSelectedModifiableCity()
+			if city then
+				local cityOwnerID = city:GetOwner()
+				if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
+					-- cityPushOrder( city, orderID, itemID, bAlt, bShift, bCtrl )
+					-- cityPushOrder( city, orderID, itemID, repeatBuild, replaceQueue, bottomOfQueue )
+					Game.CityPushOrder( city, orderID, itemID, UI.AltKeyDown(), UI.ShiftKeyDown(), not UI.CtrlKeyDown() )
+					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_BANNER )
+					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
+					if g_isButtonPopupChooseProduction then
+						-- is there another city without production order ?
+						for cityX in g_activePlayer:Cities() do
+							if cityX ~= city and not cityX:IsPuppet() and cityX:GetOrderQueueLength() < 1 then
+								UI.SelectCity( cityX )
+								return UI.LookAtSelectionPlot()
+							end
+						end
+						-- all cities are producing...
+						return ExitCityScreen()
+					end
+				end
+			end
+		end,
+		[Mouse.eRClick] = SelectionPedia,
+	},
+	GoldButton = {
+		[Mouse.eLClick] = function( orderID, itemID )
+			return SelectionPurchase( orderID, itemID, g_yieldCurrency, "AS2D_INTERFACE_CITY_SCREEN_PURCHASE" )
+		end,
+	},
+	FaithButton = {
+		[Mouse.eLClick] = function( orderID, itemID )
+			return SelectionPurchase( orderID, itemID, YieldTypes.YIELD_FAITH, "AS2D_INTERFACE_FAITH_PURCHASE" )
+		end,
+	},
+}
+local g_SelectionListTooltips = {
+	Button = SelectionToolTip,
+	GoldButton = function( control )
+		return OrderItemTooltip( UI_GetHeadSelectedCity(), control:IsDisabled(), g_yieldCurrency, control:GetVoid1(), control:GetVoid2() )
+	end,
+	FaithButton = function( control )
+		return OrderItemTooltip( UI_GetHeadSelectedCity(), control:IsDisabled(), YieldTypes.YIELD_FAITH, control:GetVoid1(), control:GetVoid2() )
+	end,
+}
+
+local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPortraitIcon )
+	itemList:sort( SortSelectionList )
+	selectionIM.ResetInstances()
+	local cash = g_activePlayer:GetGold()
+	local faith = gk_mode and g_activePlayer:GetFaith() or 0
+	for i = 1, #itemList do
+		local item, orderID, itemDescription, turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = unpack( itemList[i] )
+		local itemID = item.ID
+		local avisorRecommended = g_isAdvisor and g_avisorRecommended[ orderID ]
+		if g_isDebugMode then
+			avisorRecommended, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = nil
+		end
+		local instance, isNewInstance = selectionIM.GetInstance()
+		if isNewInstance then
+			SetupCallbacks( instance, g_SelectionListTooltips, "EUI_CityViewLeftTooltip", g_SelectionListCallBacks )
+		end
+		instance.DisabledProduction:SetHide( canProduce or not(canBuyWithGold or canBuyWithFaith) )
+		instance.Disabled:SetHide( canProduce or canBuyWithGold or canBuyWithFaith )
+		if getUnitPortraitIcon then
+			local iconIndex, iconAtlas = getUnitPortraitIcon( itemID, cityOwnerID )
+			IconHookup( iconIndex, 45, iconAtlas, instance.Portrait )
 		else
-			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS"));
+			IconHookup( item.PortraitIndex, 45, item.IconAtlas, instance.Portrait )
 		end
-		
-		if (thisUnitInfo.Help ~= nil) then
-			strToolTip = thisUnitInfo.Help;
-		end
-    elseif (queuedOrderType == OrderTypes.ORDER_CONSTRUCT) then
-		local thisBuildingInfo = GameInfo.Buildings[queuedData1];
-		IconHookup( thisBuildingInfo.PortraitIndex, 45, thisBuildingInfo.IconAtlas, Controls[controlImage] );
-		Controls[controlName]:SetText( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
-		if (bGeneratingProduction) then
-			Controls[controlTurns]:SetText(  Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", city:GetBuildingProductionTurnsLeft(queuedData1, queuedItemNumber-1)) );
+		instance.Name:SetText( itemDescription )
+		if not turnsLeft then
+		elseif turnsLeft > -1 and turnsLeft <= 999 then
+			instance.Turns:LocalizeAndSetText( "TXT_KEY_STR_TURNS", turnsLeft )
 		else
-			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS"));
+			instance.Turns:LocalizeAndSetText( "TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS" )
 		end
-		
-		if (thisBuildingInfo.Help ~= nil) then
-			strToolTip = thisBuildingInfo.Help;
+		instance.Turns:SetHide( not turnsLeft )
+		instance.Button:SetVoids( orderID, itemID )
+
+		instance.GoldButton:SetHide( not goldCost )
+		if goldCost then
+			instance.GoldButton:SetDisabled( not canBuyWithGold )
+			instance.GoldButton:SetAlpha( canBuyWithGold and 1 or 0.5 )
+			instance.GoldButton:SetVoids( orderID, itemID )
+			instance.GoldButton:SetText( (cash>=goldCost and goldCost or "[COLOR_WARNING_TEXT]"..(goldCost-cash).."[ENDCOLOR]") .. g_currencyIcon )
 		end
-    elseif (queuedOrderType == OrderTypes.ORDER_CREATE) then
-		local thisProjectInfo = GameInfo.Projects[queuedData1];
-		IconHookup( thisProjectInfo.PortraitIndex, 45, thisProjectInfo.IconAtlas, Controls[controlImage] );
-		Controls[controlName]:SetText( Locale.ConvertTextKey( thisProjectInfo.Description ) );
-		if (bGeneratingProduction) then
-			Controls[controlTurns]:SetText(  Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NUM_TURNS",city:GetProjectProductionTurnsLeft(queuedData1, queuedItemNumber-1)) );
+		instance.FaithButton:SetHide( not faithCost )
+		if faithCost then
+			instance.FaithButton:SetDisabled( not canBuyWithFaith )
+			instance.FaithButton:SetAlpha( canBuyWithFaith and 1 or 0.5 )
+			instance.FaithButton:SetVoids( orderID, itemID )
+			instance.FaithButton:SetText( (faith>=faithCost and faithCost or "[COLOR_WARNING_TEXT]"..(faithCost-faith).."[ENDCOLOR]") .. "[ICON_PEACE]" )
+		end
+
+		for advisorID, advisorName in pairs(g_advisors) do
+			local advisorControl = instance[ advisorName ]
+			if advisorControl then
+				advisorControl:SetHide( not (avisorRecommended and avisorRecommended( itemID, advisorID )) )
+			end
+		end
+	end
+	return selectionIM.Commit()
+end
+
+-------------------------------
+-- Production Queue Managemeent
+-------------------------------
+local function RemoveQueueItem( queuedItemNumber )
+	local city = GetSelectedModifiableCity()
+	if city then
+		local queueLength = city:GetOrderQueueLength()
+		if city:GetOwner() == g_activePlayerID and queueLength > queuedItemNumber then
+			Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_POP_ORDER, queuedItemNumber )
+			if queueLength < 2 then
+				local strTooltip = L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetNameKey() )
+				g_activePlayer:AddNotification( NotificationTypes.NOTIFICATION_PRODUCTION, strTooltip, strTooltip, city:GetX(), city:GetY(), -1, -1 )
+			end
+		end
+	end
+end
+
+local function SwapQueueItem( queuedItemNumber )
+	if g_queuedItemNumber and Controls.QueueSlider:IsTrackingLeftMouseButton() then
+		local a, b = g_queuedItemNumber, queuedItemNumber
+		if a>b then a, b = b, a end
+		for i=a, b-1 do
+			Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_SWAP_ORDER, i )
+		end
+		for i=b-2, a, -1 do
+			Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_SWAP_ORDER, i )
+		end
+	end
+	g_queuedItemNumber = queuedItemNumber or g_queuedItemNumber
+end
+
+local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVeniceException )
+	-------------------------------------------
+	-- Update Production Queue
+	-------------------------------------------
+	local queueLength = city:GetOrderQueueLength()
+	local currentProductionPerTurnTimes100 = city:GetCurrentProductionDifferenceTimes100(false, false)
+	local isGeneratingProduction = not bnw_mode or ( currentProductionPerTurnTimes100 > 0)
+	local isMaintain = false
+	local isQueueEmpty = queueLength < 1
+	Controls.ProductionFinished:SetHide( true )
+
+	-- Production stored and needed
+	local storedProduction = city:GetProduction() + city:GetOverflowProduction() + city:GetFeatureProduction()
+	local productionNeeded = 1E-99
+	if isGeneratingProduction and not isQueueEmpty and not city:IsProductionProcess() then
+		productionNeeded = city:GetProductionNeeded()
+	end
+
+	-- Progress info for meter
+	local storedProductionPlusThisTurn = storedProduction + currentProductionPerTurnTimes100 / 100
+
+	Controls.PQmeter:SetPercents( storedProduction / productionNeeded, storedProductionPlusThisTurn / productionNeeded )
+
+	Controls.ProdPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", currentProductionPerTurnTimes100 / 100 )
+
+	Controls.ProductionPortraitButton:SetHide( false )
+
+	g_ProdQueueIM.ResetInstances()
+	local queueItems = {}
+
+	for queuedItemNumber = 0, math_max( queueLength-1, 0 ) do
+
+		local orderID, itemID, _, isRepeat, isReallyRepeat
+		if isQueueEmpty then
+			local item = g_finishedItems[ cityID ]
+			if item then
+				orderID, itemID = unpack( item )
+				Controls.ProductionFinished:SetHide( false )
+			end
 		else
-			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS"));
+			orderID, itemID, _, isRepeat = city:GetOrderFromQueue( queuedItemNumber )
+			queueItems[ orderID / 64 + itemID ] = true
 		end
-		
-		if (thisProjectInfo.Help ~= nil) then
-			strToolTip = thisProjectInfo.Help;
+		local instance, portraitSize
+		if queuedItemNumber == 0 then
+			instance = Controls
+			portraitSize = g_portraitSize
+		else
+			portraitSize = 45
+			instance = g_ProdQueueIM.GetInstance()
+			instance.PQdisabled:SetHide( not isMaintain )
 		end
-    elseif (queuedOrderType == OrderTypes.ORDER_MAINTAIN) then
-		isMaint = true;
- 		local thisProcessInfo = GameInfo.Processes[queuedData1];
-		IconHookup( thisProcessInfo.PortraitIndex, 45, thisProcessInfo.IconAtlas, Controls[controlImage] );
-		Controls[controlName]:SetText( Locale.ConvertTextKey( thisProcessInfo.Description ) );
-		Controls[controlTurns]:SetHide( true );
-		
-		if (thisProcessInfo.Help ~= nil) then
-			strToolTip = thisProcessInfo.Help;
+		instance.PQbox:SetVoid1( queuedItemNumber )
+		instance.PQbox:RegisterCallback( Mouse.eMouseEnter, SwapQueueItem )
+		instance.PQbox:RegisterCallback( Mouse.eRClick, ProductionPedia )
+		instance.PQbox:SetToolTipCallback( ProductionToolTip )
+
+		instance.PQremove:SetHide( isQueueEmpty or g_isViewingMode )
+		instance.PQremove:SetVoid1( queuedItemNumber )
+		instance.PQremove:RegisterCallback( Mouse.eLClick, RemoveQueueItem )
+
+		local itemInfo, turnsRemaining, portraitOffset, portraitAtlas
+
+		if orderID == OrderTypes.ORDER_TRAIN then
+			itemInfo = GameInfo.Units
+			turnsRemaining = city:GetUnitProductionTurnsLeft( itemID, queuedItemNumber )
+			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
+			isReallyRepeat = isRepeat
+		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
+			itemInfo = GameInfo.Buildings
+			turnsRemaining = city:GetBuildingProductionTurnsLeft( itemID, queuedItemNumber )
+		elseif orderID == OrderTypes.ORDER_CREATE then
+			itemInfo = GameInfo.Projects
+			turnsRemaining = city:GetProjectProductionTurnsLeft( itemID, queuedItemNumber )
+		elseif orderID == OrderTypes.ORDER_MAINTAIN then
+			itemInfo = GameInfo.Processes
+			isMaintain = true
+			isReallyRepeat = true
 		end
-   end
-   
-	Controls[controlBox]:SetToolTipString(Locale.ConvertTextKey(strToolTip));
-	return isMaint;
+		if itemInfo then
+			local item = itemInfo[itemID]
+			itemInfo = IconHookup( portraitOffset or item.PortraitIndex, portraitSize, portraitAtlas or item.IconAtlas, instance.PQportrait )
+			instance.PQname:LocalizeAndSetText( item.Description )
+			if isMaintain or isQueueEmpty then
+			elseif isGeneratingProduction then
+				instance.PQturns:LocalizeAndSetText( "TXT_KEY_PRODUCTION_HELP_NUM_TURNS", turnsRemaining )
+			else
+				instance.PQturns:LocalizeAndSetText( "TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS" )
+			end
+		else
+			instance.PQname:LocalizeAndSetText( "TXT_KEY_PRODUCTION_NO_PRODUCTION" )
+		end
+		instance.PQturns:SetHide( isMaintain or isQueueEmpty or not itemInfo )
+		instance.PQportrait:SetHide( not itemInfo )
+		if isReallyRepeat then
+			isMaintain = true
+			instance.PQrank:SetText( "[ICON_TURNS_REMAINING]" )
+		else
+			instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+		end
+	end
+
+	g_ProdQueueIM.Commit()
+
+	-------------------------------------------
+	-- Update Selection List
+	-------------------------------------------
+	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode
+	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
+	if isSelectionList then
+		local unitSelectList = table()
+		local buildingSelectList = table()
+		local wonderSelectList = table()
+		local processSelectList = table()
+
+		if g_isAdvisor then
+			Game.SetAdvisorRecommenderCity( city )
+		end
+		-- Buildings & Wonders
+		local orderID = OrderTypes.ORDER_CONSTRUCT
+		local code = orderID / 64
+		for item in GameInfo.Buildings() do
+			local buildingClass = GameInfo.BuildingClasses[item.BuildingClass]
+			local isWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxPlayerInstances == 1 or buildingClass.MaxTeamInstances > 0)
+			if not queueItems[ code + item.ID ] then
+				AddSelectionItem( city, item,
+						isWonder and wonderSelectList or buildingSelectList,
+						orderID,
+						city.CanConstruct,
+						-1, item.ID, -1,
+						city.GetBuildingProductionTurnsLeft,
+						city.GetBuildingPurchaseCost,
+						city.GetBuildingFaithPurchaseCost )
+			end
+		end
+		if not g_isDebugMode then
+			-- Units
+			orderID = OrderTypes.ORDER_TRAIN
+			for item in GameInfo.Units() do
+				AddSelectionItem( city, item,
+							unitSelectList,
+							orderID,
+							city.CanTrain,
+							item.ID, -1, -1,
+							city.GetUnitProductionTurnsLeft,
+							city.GetUnitPurchaseCost,
+							city.GetUnitFaithPurchaseCost )
+			end
+			-- Projects
+			orderID = OrderTypes.ORDER_CREATE
+			code = orderID / 64
+			for item in GameInfo.Projects() do
+				if not queueItems[ code + item.ID ] then
+					AddSelectionItem( city, item,
+							wonderSelectList,
+							orderID,
+							city.CanCreate,
+							-1, -1, item.ID,
+							city.GetProjectProductionTurnsLeft,
+							city.GetProjectPurchaseCost,
+							city.GetProjectFaithPurchaseCost )	-- nil
+				end
+			end
+			-- Processes
+			orderID = OrderTypes.ORDER_MAINTAIN
+			code = orderID / 64
+			for item in GameInfo.Processes() do
+				if not queueItems[ code + item.ID ] then
+					AddSelectionItem( city, item,
+							processSelectList,
+							orderID,
+							city.CanMaintain )
+				end
+			end
+		end
+
+		SetupSelectionList( unitSelectList, g_UnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( buildingSelectList, g_BuildingSelectIM )
+		SetupSelectionList( wonderSelectList, g_WonderSelectIM )
+		SetupSelectionList( processSelectList, g_ProcessSelectIM )
+
+	end
+	return ResizeProdQueue()
+end
+
+-------------------------------------------------
+-- City Hex Clicking & Mousing
+-------------------------------------------------
+local function PlotButtonClicked( plotIndex )
+	local city = GetSelectedModifiableCity()
+	local plot = city and city:GetCityIndexPlot( plotIndex )
+	if plot then
+		local outside = city ~= plot:GetWorkingCity()
+		-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
+		Network.SendDoTask( city:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, plotIndex, -1, false )
+		if outside then
+			return Network.SendUpdateCityCitizens( city:GetID() )
+		end
+	end
+end
+
+local function BuyPlotAnchorButtonClicked( plotIndex )
+	local city = GetSelectedModifiableCity()
+	if city then
+		local plot = city:GetCityIndexPlot( plotIndex )
+		local plotX = plot:GetX()
+		local plotY = plot:GetY()
+		Network.SendCityBuyPlot(city:GetID(), plotX, plotY)
+		Network.SendUpdateCityCitizens( city:GetID() )
+		UI.UpdateCityScreen()
+		Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
+	end
+	return true
+end
+
+-------------------------------------------------
+-- City Hexes Update
+-------------------------------------------------
+local function UpdateWorkingHexesNow()
+
+	g_isCityHexesDirty = false
+	local city = UI_GetHeadSelectedCity()
+	if city and UI.IsCityScreenUp() then
+
+		Events_ClearHexHighlightStyle( "Culture" )
+		Events_ClearHexHighlightStyle( "WorkedFill" )
+		Events_ClearHexHighlightStyle( "WorkedOutline" )
+		Events_ClearHexHighlightStyle( "OverlapFill" )
+		Events_ClearHexHighlightStyle( "OverlapOutline" )
+		Events_ClearHexHighlightStyle( "VacantFill" )
+		Events_ClearHexHighlightStyle( "VacantOutline" )
+		Events_ClearHexHighlightStyle( "EnemyFill" )
+		Events_ClearHexHighlightStyle( "EnemyOutline" )
+		Events_ClearHexHighlightStyle( "BuyFill" )
+		Events_ClearHexHighlightStyle( "BuyOutline" )
+
+		g_PlotButtonIM.ResetInstances()
+		g_BuyPlotButtonIM.ResetInstances()
+
+		-- Show plots that will be acquired by culture
+		local purchasablePlots = {city:GetBuyablePlotList()}
+		for i = 1, #purchasablePlots do
+			local plot = purchasablePlots[i]
+			Events_SerialEventHexHighlight( ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }, true, g_colorCulture, "Culture" )
+			purchasablePlots[ plot ] = true
+		end
+
+
+		local cityArea = city:GetNumCityPlots() - 1
+		Events_RequestYieldDisplay( YieldDisplayTypes_AREA, RadiusHexArea( cityArea ), city:GetX(), city:GetY() )
+
+		-- display worked plots buttons
+		local cityOwnerID = city:GetOwner()
+		local notInStrategicView = not InStrategicView()
+		local showButtons = g_workerHeadingOpen and not g_isViewingMode
+
+		for cityPlotIndex = 0, cityArea do
+			local plot = city:GetCityIndexPlot( cityPlotIndex )
+
+			if plot and plot:GetOwner() == cityOwnerID then
+
+				local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+				local worldPos = HexToWorld( hexPos )
+				local iconID, tipKey
+				if city:IsWorkingPlot( plot ) then
+
+					-- The city itself
+					if cityPlotIndex == 0 then
+						iconID = 11
+						tipKey = "TXT_KEY_CITYVIEW_CITY_CENTER"
+
+					-- FORCED worked plot
+					elseif city:IsForcedWorkingPlot( plot ) then
+						iconID = 10
+						tipKey = "TXT_KEY_CITYVIEW_FORCED_WORK_TILE"
+
+					-- AI-picked worked plot
+					else
+						iconID = 0
+						tipKey = "TXT_KEY_CITYVIEW_GUVNA_WORK_TILE"
+					end
+					if notInStrategicView then
+						Events_SerialEventHexHighlight( hexPos , true, nil, "WorkedFill" )
+						Events_SerialEventHexHighlight( hexPos , true, nil, "WorkedOutline" )
+					end
+				else
+					local workingCity = plot:GetWorkingCity()
+					-- worked by another one of our Cities
+					if workingCity:IsWorkingPlot( plot ) then
+						iconID = 12
+						tipKey = "TXT_KEY_CITYVIEW_NUTHA_CITY_TILE"
+
+					-- Workable plot
+					elseif workingCity:CanWork( plot ) then
+						iconID = 9
+						tipKey = "TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE"
+
+					-- Blockaded water plot
+					elseif plot:IsWater() and city:IsPlotBlockaded( plot ) then
+						iconID = 13
+						tipKey = "TXT_KEY_CITYVIEW_BLOCKADED_CITY_TILE"
+						cityPlotIndex = nil
+
+					-- Enemy Unit standing here
+					elseif plot:IsVisibleEnemyUnit( cityOwnerID ) then
+						iconID = 13
+						tipKey = "TXT_KEY_CITYVIEW_ENEMY_UNIT_CITY_TILE"
+						cityPlotIndex = nil
+					end
+					if notInStrategicView then
+						if workingCity ~= city then
+							Events_SerialEventHexHighlight( hexPos , true, nil, "OverlapFill" )
+							Events_SerialEventHexHighlight( hexPos , true, nil, "OverlapOutline" )
+						elseif cityPlotIndex then
+							Events_SerialEventHexHighlight( hexPos , true, nil, "VacantFill" )
+							Events_SerialEventHexHighlight( hexPos , true, nil, "VacantOutline" )
+						else
+							Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyFill" )
+							Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyOutline" )
+						end
+					end
+				end
+				if iconID and showButtons then
+					local instance = g_PlotButtonIM.GetInstance()
+					instance.PlotButtonAnchor:SetWorldPositionVal( worldPos.x + g_worldPositionOffset.x, worldPos.y + g_worldPositionOffset.y, worldPos.z + g_worldPositionOffset.z ) --todo: improve code
+					instance.PlotButtonImage:LocalizeAndSetToolTip( tipKey )
+					IconHookup( iconID, 45, "CITIZEN_ATLAS", instance.PlotButtonImage )
+					local button = instance.PlotButtonImage
+					if not cityPlotIndex or g_isViewingMode then
+						button:ClearCallback( Mouse.eLCLick )
+					else
+						button:SetVoid1( cityPlotIndex )
+						button:RegisterCallback( Mouse.eLCLick, PlotButtonClicked )
+					end
+				end
+			end
+		end --loop
+
+		-- display buy plot buttons
+		if g_BuyPlotMode and not g_isViewingMode then
+			local cash = g_activePlayer:GetGold()
+			for cityPlotIndex = 0, cityArea do
+				local plot = city:GetCityIndexPlot( cityPlotIndex )
+				if plot then
+					local x, y = plot:GetX(), plot:GetY()
+					local hexPos = ToHexFromGrid{ x=x, y=y }
+					local worldPos = HexToWorld( hexPos )
+					if city:CanBuyPlotAt( x, y, true ) then
+						local instance = g_BuyPlotButtonIM.GetInstance()
+						local button = instance.BuyPlotAnchoredButton
+						instance.BuyPlotButtonAnchor:SetWorldPositionVal( worldPos.x + g_worldPositionOffset2.x, worldPos.y + g_worldPositionOffset2.y, worldPos.z + g_worldPositionOffset2.z ) --todo: improve code
+						local plotCost = city:GetBuyPlotCost( x, y )
+						local tip, txt, alpha
+						local canBuy = city:CanBuyPlotAt( x, y, false )
+						if canBuy then
+							tip = L( "TXT_KEY_CITYVIEW_CLAIM_NEW_LAND", plotCost )
+							txt = plotCost
+							alpha = 1
+							button:SetVoid1( cityPlotIndex )
+							button:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked )
+							if notInStrategicView then
+								Events_SerialEventHexHighlight( hexPos , true, nil, "BuyFill" )
+								if not purchasablePlots[ plot ] then
+									Events_SerialEventHexHighlight( hexPos , true, nil, "BuyOutline" )
+								end
+							end
+						else
+							tip = L( "TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE", plotCost )
+							txt = "[COLOR_WARNING_TEXT]"..(plotCost-cash).."[ENDCOLOR]"
+							alpha = 0.5
+						end
+						button:SetDisabled( not canBuy )
+						instance.BuyPlotButtonAnchor:SetAlpha( alpha )
+--todo
+						button:SetToolTipString( tip )
+						instance.BuyPlotAnchoredButtonLabel:SetText( txt )
+					end
+				end
+			end --loop
+		end
+		g_PlotButtonIM.Commit()
+		g_BuyPlotButtonIM.Commit()
+
+	end -- city
 end
 
 -------------------------------------------------
 -- City View Update
 -------------------------------------------------
-function OnCityViewUpdate()
-    if( ContextPtr:IsHidden() ) then
-        return;
-    end
-        
-	local pCity = UI.GetHeadSelectedCity();
-	
-	if gPreviousCity ~= pCity then
-		gPreviousCity = pCity;
-		specialistTable = {};
-	end
-	
-	if (pCity ~= nil) then
-	
-		pediaSearchStrings = {};
-		
-		-- Auto Specialist checkbox
-		local isNoAutoAssignSpecialists = pCity:IsNoAutoAssignSpecialists();
-		Controls.NoAutoSpecialistCheckbox:SetCheck(isNoAutoAssignSpecialists);
-		Controls.NoAutoSpecialistCheckbox2:SetCheck(isNoAutoAssignSpecialists);
-	
-		-- slewis - I'm showing this because when we're in espionage mode we hide this button
-		Controls.EditButton:SetHide(false);
-		Controls.PurchaseButton:SetDisabled(false);
-		Controls.EndTurnText:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RETURN_TO_MAP"));
-		
+local function UpdateCityViewNow()
+
+	g_isCityViewDirty = false
+	local city = UI_GetHeadSelectedCity()
+
+	if city then
+
+		if g_citySpecialists.city ~= city then
+			g_citySpecialists = { city = city }
+		end
+		if g_previousCity ~= city then
+			g_previousCity = city
+--[[
+			Events_ClearHexHighlightStyle("CityLimits")
+			if not InStrategicView() then
+				for cityPlotIndex = 0, city:GetNumCityPlots() - 1 do
+					local plot = city:GetCityIndexPlot( cityPlotIndex )
+					if plot then
+						local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
+						Events_SerialEventHexHighlight( hexPos , true, nil, "CityLimits" )
+					end
+				end
+			end
+--]]
+		end
+		local cityID = city:GetID()
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[cityOwnerID]
+		local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+		local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+		g_isDebugMode = Game.IsDebugMode()
+		g_isViewingMode = city:IsPuppet() or not isActivePlayerCity or isCityCaptureViewingMode
+
+		if civ5_mode then
+			-- Auto Specialist checkbox
+			local isNoAutoAssignSpecialists = city:IsNoAutoAssignSpecialists()
+			Controls.NoAutoSpecialistCheckbox:SetCheck( isNoAutoAssignSpecialists )
+			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
+			if bnw_mode then
+				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() )
+				Controls.NoAutoSpecialistCheckbox2:SetCheck( isNoAutoAssignSpecialists )
+				Controls.NoAutoSpecialistCheckbox2:SetDisabled( g_isViewingMode )
+			end
+		end
+
 		-------------------------------------------
 		-- City Banner
 		-------------------------------------------
-		local pPlayer = Players[pCity:GetOwner()];
-		local isActiveTeamCity = true;
-		
+
 		-- Update capital icon
-		local isCapital = pCity:IsCapital();
-		Controls.CityCapitalIcon:SetHide(not isCapital);
-		
+		local isCapital = city:IsCapital()
+		Controls.CityCapitalIcon:SetHide( not isCapital )
+
 		-- Connected to capital?
-		if (isActiveTeamCity) then
-			if (not isCapital and pPlayer:IsCapitalConnectedToCity(pCity) and not pCity:IsBlockaded()) then
-				Controls.ConnectedIcon:SetHide(false);
-				Controls.ConnectedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_CONNECTED");
-			else
-				Controls.ConnectedIcon:SetHide(true);
-			end
-		end
-			
+		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+
 		-- Blockaded
-		if (pCity:IsBlockaded()) then
-			Controls.BlockadedIcon:SetHide(false);
-			Controls.BlockadedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_BLOCKADED");
-		else
-			Controls.BlockadedIcon:SetHide(true);
-		end
-		
+		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )
+
 		-- Being Razed
-		if (pCity:IsRazing()) then
-			Controls.RazingIcon:SetHide(false);
-			Controls.RazingIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_BURNING", pCity:GetRazingTurns());
+		if city:IsRazing() then
+			Controls.CityIsRazing:SetHide(false)
+			Controls.CityIsRazing:LocalizeAndSetToolTip("TXT_KEY_CITY_BURNING", city:GetRazingTurns())
 		else
-			Controls.RazingIcon:SetHide(true);
-		end
-		
-		-- In Resistance
-		if (pCity:IsResistance()) then
-			Controls.ResistanceIcon:SetHide(false);
-			Controls.ResistanceIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_RESISTANCE", pCity:GetResistanceTurns());
-		else
-			Controls.ResistanceIcon:SetHide(true);
+			Controls.CityIsRazing:SetHide(true)
 		end
 
 		-- Puppet Status
-		if (pCity:IsPuppet()) then
-			Controls.PuppetIcon:SetHide(false);
-			Controls.PuppetIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_PUPPET");
+		Controls.CityIsPuppet:SetHide( not city:IsPuppet() )
+
+		-- In Resistance
+		if city:IsResistance() then
+			Controls.CityIsResistance:SetHide(false)
+			Controls.CityIsResistance:LocalizeAndSetToolTip("TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns())
 		else
-			Controls.PuppetIcon:SetHide(true);
+			Controls.CityIsResistance:SetHide(true)
 		end
-		
+
 		-- Occupation Status
-		if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			Controls.OccupiedIcon:SetHide(false);
-			Controls.OccupiedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_OCCUPIED");
+--todo BE
+		Controls.CityIsOccupied:SetHide( not( civ5_mode and city:IsOccupied() and not city:IsNoOccupiedUnhappiness() ) )
+
+		local cityName = Locale.ToUpper( city:GetName() )
+
+		if city:IsRazing() then
+			cityName = cityName .. " (" .. L"TXT_KEY_BURNING" .. ")"
+		end
+
+		local size = isCapital and Controls.CityCapitalIcon:GetSizeX() or 0
+		Controls.CityNameTitleBarLabel:SetOffsetX( size / 2 )
+		TruncateString( Controls.CityNameTitleBarLabel, math_abs(Controls.NextCityButton:GetOffsetX()) * 2 - Controls.NextCityButton:GetSizeX() - size, cityName )
+
+		Controls.Defense:SetText( math_floor( city:GetStrengthValue() / 100 ) )
+
+ 		CivIconHookup( cityOwnerID, 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true )
+
+		-------------------------------------------
+		-- City Damage
+		-------------------------------------------
+		local cityDamage = city:GetDamage()
+		if cityDamage > 0 then
+			local cityHealthPercent = 1 - cityDamage / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
+
+			Controls.HealthMeter:SetPercent( cityHealthPercent )
+			if cityHealthPercent > 0.66 then
+				Controls.HealthMeter:SetTexture("CityNamePanelHealthBarGreen.dds")
+			elseif cityHealthPercent > 0.33 then
+				Controls.HealthMeter:SetTexture("CityNamePanelHealthBarYellow.dds")
+			else
+				Controls.HealthMeter:SetTexture("CityNamePanelHealthBarRed.dds")
+			end
+			Controls.HealthFrame:SetHide( false )
 		else
-			Controls.OccupiedIcon:SetHide(true);
-		end	
-		
-		local cityName = pCity:GetNameKey();
-		local convertedKey = Locale.ConvertTextKey(cityName);
-		
-		if (pCity:IsRazing()) then
-			convertedKey = convertedKey .. " (" .. Locale.ConvertTextKey("TXT_KEY_BURNING") .. ")";
+			Controls.HealthFrame:SetHide( true )
 		end
-		
-		if (pPlayer:GetNumCities() <= 1) then
-			Controls.PrevCityButton:SetDisabled( true );
-			Controls.NextCityButton:SetDisabled( true );
-		else
-			Controls.PrevCityButton:SetDisabled( false );
-			Controls.NextCityButton:SetDisabled( false );
-		end
-		
-		OnCitySetDamage(pCity:GetDamage(), pCity:GetMaxHitPoints());
-		
-		convertedKey = Locale.ToUpper(convertedKey);
 
-		local cityNameSize = (math.abs(Controls.NextCityButton:GetOffsetX()) * 2) - (Controls.PrevCityButton:GetSizeX()); 
-			         
-		if(isCapital)then
-			cityNameSize = cityNameSize - Controls.CityCapitalIcon:GetSizeX();
-		end
-		TruncateString(Controls.CityNameTitleBarLabel, cityNameSize, convertedKey); 
-		
-		Controls.TitleStack:CalculateSize();
-		Controls.TitleStack:ReprocessAnchoring();
-
-	    Controls.Defense:SetText(  math.floor( pCity:GetStrengthValue() / 100 ) );
-
- 		CivIconHookup( pPlayer:GetID(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
-		
 		-------------------------------------------
 		-- Growth Meter
 		-------------------------------------------
-		local iCurrentFood = pCity:GetFood();
-		local iFoodNeeded = pCity:GrowthThreshold();
-		local iFoodPerTurn = pCity:FoodDifference();
-		local iCurrentFoodPlusThisTurn = iCurrentFood + iFoodPerTurn;
-		
-		local fGrowthProgressPercent = iCurrentFood / iFoodNeeded;
-		local fGrowthProgressPlusThisTurnPercent = iCurrentFoodPlusThisTurn / iFoodNeeded;
-		if (fGrowthProgressPlusThisTurnPercent > 1) then
-			fGrowthProgressPlusThisTurnPercent = 1
-		end
-		
-		local iTurnsToGrowth = pCity:GetFoodTurnsLeft();
-		
-		local cityPopulation = math.floor(pCity:GetPopulation());
-		Controls.CityPopulationLabel:SetText(tostring(cityPopulation));
-		Controls.PeopleMeter:SetPercent( pCity:GetFood() / pCity:GrowthThreshold() );
-		
+		local cityPopulation = math_floor(city:GetPopulation())
+		Controls.CityPopulationLabel:SetText(tostring(cityPopulation))
+		Controls.PeopleMeter:SetPercent( city:GetFood() / city:GrowthThreshold() )
+
 		--Update suffix to use correct plurality.
-		Controls.CityPopulationLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation);
+		Controls.CityPopulationLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation )
+
 
 		-------------------------------------------
-		-- Deal with the production queue buttons
+		-- Citizen Focus & Slackers
 		-------------------------------------------
-		local qLength = pCity:GetOrderQueueLength();
-		if qLength > 0 then
-			Controls.HideQueueButton:SetHide( false );
+
+		Controls.AvoidGrowthButton:SetCheck( city:IsForcedAvoidGrowth() )
+
+		local slackerCount = city:GetSpecialistCount( GameDefines.DEFAULT_SPECIALIST )
+
+		local focusType = city:GetFocusType()
+		if focusType == CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE then
+			Controls.BalancedFocusButton:SetCheck( true )
+		elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD then
+			Controls.FoodFocusButton:SetCheck( true )
+		elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION then
+			Controls.ProductionFocusButton:SetCheck( true )
+		elseif focusType == g_focusCurrency then
+			Controls.GoldFocusButton:SetCheck( true )
+		elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE then
+			Controls.ResearchFocusButton:SetCheck( true )
+		elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE then
+			Controls.CultureFocusButton:SetCheck( true )
+		elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE then
+			Controls.GPFocusButton:SetCheck( true )
+		elseif gk_mode and focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH then
+			Controls.FaithFocusButton:SetCheck( true )
 		else
-			Controls.HideQueueButton:SetHide( true );
+			Controls.BalancedFocusButton:SetCheck( true )
 		end
-		
-		-- hide the queue buttons
-		Controls.b1number:SetHide( true );
-		Controls.b1down:SetHide( true );
-		Controls.b1remove:SetHide( true );
-		Controls.b2box:SetHide( true );
-		Controls.b3box:SetHide( true );
-		Controls.b4box:SetHide( true );
-		Controls.b5box:SetHide( true );
-		Controls.b6box:SetHide( true );
-		
-		local anyMaint = false;
-		
-		Controls.ProductionPortraitButton:SetHide( false );
-		
-		local panelSize = Controls.ProdQueueBackground:GetSize();
-		if productionQueueOpen and qLength > 0 then
-			panelSize.y = 470;
-			Controls.ProductionButtonLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_QUEUE_PROD") );
-			Controls.ProductionButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_QUEUE_PROD_TT") );
-			
-			-- show the queue buttons
-			Controls.b1number:SetHide( false );
-			Controls.b1remove:SetHide( false );
-			if qLength > 1 then
-				Controls.b1down:SetHide( false );
-			end
-			for i = 2, qLength, 1 do
-				local isMaint = UpdateThisQueuedItem(pCity, i, qLength);
-				local buttonName = "b"..tostring(i).."box";
-				Controls[buttonName]:SetHide( false );
-				--update the down buttons
-				local buttonDown = "b"..tostring(i).."down";
-				if qLength == i then
-					Controls[buttonDown]:SetHide( true );
-				else
-					Controls[buttonDown]:SetHide( false );
-				end
-				local buttonUp = "b"..tostring(i).."up";
-				if isMaint then
-					anyMaint = true;
-					Controls[buttonUp]:SetHide( true );
-					buttonDown = "b"..tostring(i-1).."down";
-					Controls[buttonDown]:SetHide( true );
-				else
-					Controls[buttonUp]:SetHide( false );
-				end				
-			end
+		if city:GetNumForcedWorkingPlots() > 0 or slackerCount > 0 then
+			Controls.ResetButton:SetHide( false )
+			Controls.ResetFooter:SetHide( false )
 		else
-			if qLength == 0 then
-				Controls.ProductionButtonLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CHOOSE_PROD") );
-				Controls.ProductionButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CHOOSE_PROD_TT") );
-			else
-				Controls.ProductionButtonLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CHANGE_PROD") );
-				Controls.ProductionButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CHANGE_PROD_TT") );
-			end
-			panelSize.y = 280;
-		end
-		Controls.ProdQueueBackground:SetSize(panelSize);
-		if productionQueueOpen and (qLength >= 6 or anyMaint == true) then
-			Controls.ProductionButton:SetDisabled( true );
-		else
-			Controls.ProductionButton:SetDisabled( false );
-		end
-		if qLength == 1 then
-			Controls.b1remove:SetHide( true );
+			Controls.ResetButton:SetHide( true )
+			Controls.ResetFooter:SetHide( true )
 		end
 
-		
-		-------------------------------------------
-		-- Item under Production
-		-------------------------------------------
-		local szItemName = Locale.ConvertTextKey(pCity:GetProductionNameKey());
-		szItemName = Locale.ToUpper(szItemName);
-		Controls.ProductionItemName:SetText(szItemName);
-		
-		-------------------------------------------
-		-- Description and picture of Item under Production
-		-------------------------------------------
-		local szHelpText = "";
-		local unitProduction = pCity:GetProductionUnit();
-		local buildingProduction = pCity:GetProductionBuilding();
-		local projectProduction = pCity:GetProductionProject();
-		local processProduction = pCity:GetProductionProcess();
-		local noProduction = false;
-
-		if unitProduction ~= -1 then
-			local thisUnitInfo = GameInfo.Units[unitProduction];
-			local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon(unitProduction, pCity:GetOwner());			
-			szHelpText = Locale.ConvertTextKey(thisUnitInfo.Help);
-			if IconHookup( portraitOffset, g_iPortraitSize, portraitAtlas, Controls.ProductionPortrait ) then
-				Controls.ProductionPortrait:SetHide( false );
+		g_SlackerIM.ResetInstances()
+		for i = 1, slackerCount do
+			local instance = g_SlackerIM.GetInstance()
+			local slot = instance.Button
+			slot:SetVoids( -1, i )
+			slot:SetToolTipCallback( SpecialistTooltip )
+			slot:SetTexture( g_slackerTexture )
+			if g_isViewingMode then
+				slot:ClearCallback( Mouse.eLClick )
 			else
-				Controls.ProductionPortrait:SetHide( true );
+				slot:RegisterCallback( Mouse.eLClick, OnSlackersSelected )
 			end
-		elseif buildingProduction ~= -1 then
-			local thisBuildingInfo = GameInfo.Buildings[buildingProduction];
-			
-			local bExcludeName = true;
-			local bExcludeHeader = false;
-			szHelpText = GetHelpTextForBuilding(buildingProduction, bExcludeName, bExcludeHeader, false, pCity);
-			--szHelpText = thisBuildingInfo.Help;
-			
-			if IconHookup( thisBuildingInfo.PortraitIndex, g_iPortraitSize, thisBuildingInfo.IconAtlas, Controls.ProductionPortrait ) then
-				Controls.ProductionPortrait:SetHide( false );
-			else
-				Controls.ProductionPortrait:SetHide( true );
-			end
-		elseif projectProduction ~= -1 then
-			local thisProjectInfo = GameInfo.Projects[projectProduction];
-			szHelpText = thisProjectInfo.Help;
-			if IconHookup( thisProjectInfo.PortraitIndex, g_iPortraitSize, thisProjectInfo.IconAtlas, Controls.ProductionPortrait ) then
-				Controls.ProductionPortrait:SetHide( false );
-			else
-				Controls.ProductionPortrait:SetHide( true );
-			end
-		elseif processProduction ~= -1 then
-			local thisProcessInfo = GameInfo.Processes[processProduction];
-			szHelpText = thisProcessInfo.Help;
-			if IconHookup( thisProcessInfo.PortraitIndex, g_iPortraitSize, thisProcessInfo.IconAtlas, Controls.ProductionPortrait ) then
-				Controls.ProductionPortrait:SetHide( false );
-			else
-				Controls.ProductionPortrait:SetHide( true );
-			end
-		else
-			Controls.ProductionPortrait:SetHide(true);
-			noProduction = true;
+			slot:RegisterCallback( Mouse.eRClick, SpecialistPedia )
 		end
-		
-		if szHelpText ~= nil and szHelpText ~= "" then
-			Controls.ProductionHelp:SetText(Locale.ConvertTextKey(szHelpText));
-			Controls.ProductionHelp:SetHide(false);
-			Controls.ProductionHelpScroll:CalculateInternalSize();
-		else
-			Controls.ProductionHelp:SetHide(true);
-		end
+		g_SlackerIM.Commit()
 
 		-------------------------------------------
-		-- Production
+		-- Great Person Meters
 		-------------------------------------------
-		
-		DoUpdateProductionInfo( noProduction );
-		
-		-------------------------------------------
-		-- Buildings (etc.) List
-		-------------------------------------------
-		
-		g_BuildingIM:ResetInstances();
-		g_GPIM:ResetInstances();
-		g_SlackerIM:ResetInstances();
-		g_PlotButtonIM:ResetInstances();
-		g_BuyPlotButtonIM:ResetInstances();
-		
-		local controlTable;
-		local bIsFreeBuilding;		
-		local iNumSpecialists;
+		if civ5_mode then
+			g_GreatPeopleIM.ResetInstances()
+			for specialist in GameInfo.Specialists() do
 
-		local slackerType = GameDefines.DEFAULT_SPECIALIST;
-		local numSlackersInThisCity = pCity:GetSpecialistCount( slackerType );
-		
-		-- header
-		if workerHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" );
-			Controls.WorkerHeaderLabel:SetText(localizedLabel);
-			local focusType = pCity:GetFocusType();
-			if focusType == CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE then
-				Controls.BalancedFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD then
-				Controls.FoodFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION then
-				Controls.ProductionFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD then
-				Controls.GoldFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE then
-				Controls.ResearchFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE then
-				Controls.CultureFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE then
-				Controls.GPFocusButton:SetCheck( true );
-			elseif focusType == CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH then
-				Controls.FaithFocusButton:SetCheck( true );
-			else
-				Controls.BalancedFocusButton:SetCheck( true );
-			end
-			Controls.AvoidGrowthButton:SetCheck( pCity:IsForcedAvoidGrowth() );
-			if pCity:GetNumForcedWorkingPlots() > 0 or numSlackersInThisCity > 0 then
-				Controls.ResetButton:SetHide( false );
-				Controls.ResetFooter:SetHide( false );
-			else
-				Controls.ResetButton:SetHide( true );
-				Controls.ResetFooter:SetHide( true );
-			end
-			Events.RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, pCity:GetX(), pCity:GetY() );
-			Controls.WorkerManagementBox:SetHide( false );
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" );
-			Controls.WorkerHeaderLabel:SetText(localizedLabel);
-			Events.RequestYieldDisplay( YieldDisplayTypes.CITY_WORKED, pCity:GetX(), pCity:GetY() );
-			Controls.WorkerManagementBox:SetHide( true );
-		end
-		Controls.WorkerHeader:RegisterCallback( Mouse.eLClick, OnWorkerHeaderSelected );
-		
-		-- add in the Great Person Meters
-		local numGPs = 0;		
-		for pSpecialistInfo in GameInfo.Specialists() do
-			local iSpecialistIndex = pSpecialistInfo.ID;			
-			local iProgress = pCity:GetSpecialistGreatPersonProgress(iSpecialistIndex);
-			if (iProgress > 0) then		
-				numGPs = numGPs + 1;		
-			
-				local unitClass = GameInfo.UnitClasses[pSpecialistInfo.GreatPeopleUnitClass];
-				if(unitClass ~= nil) then
-
-					local threshold = pCity:GetSpecialistUpgradeThreshold(unitClass.ID);			
-					controlTable = g_GPIM:GetInstance();
-					local percent = iProgress / threshold;
-					controlTable.GPMeter:SetPercent( percent );
-
-					local gp = GameInfo.Units[ unitClass.DefaultUnit ];
-					local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon(gp.ID, pCity:GetOwner());
-					local labelText = Locale.ConvertTextKey(unitClass.Description);
-					controlTable.GreatPersonLabel:SetText(labelText);
-					pediaSearchStrings[tostring(controlTable.GPImage)] = labelText;
-					controlTable.GPImage:RegisterCallback( Mouse.eRClick, GetPedia );
-					
-					local strToolTipText = Locale.ConvertTextKey("TXT_KEY_PROGRESS_TOWARDS",labelText);
-					strToolTipText = strToolTipText .. ": " .. tostring(iProgress) .. "/" .. tostring(threshold);					
-					local iCount = pCity:GetSpecialistCount( pSpecialistInfo.ID );
-					local iGPPChange = pSpecialistInfo.GreatPeopleRateChange * iCount * 100;
-					for building in GameInfo.Buildings{SpecialistType = pSpecialistInfo.Type} do
-				        local buildingID = building.ID;
-						if (pCity:IsHasBuilding(buildingID)) then
-							iGPPChange = iGPPChange + building.GreatPeopleRateChange * 100;
+				local gpuClass = specialist.GreatPeopleUnitClass	-- nil / UNITCLASS_ARTIST / UNITCLASS_SCIENTIST / UNITCLASS_MERCHANT / UNITCLASS_ENGINEER ...
+				local unitClass = GameInfo.UnitClasses[ gpuClass or -1 ]
+				if unitClass then
+					local gpThreshold = city:GetSpecialistUpgradeThreshold(unitClass.ID)
+					local gpProgress = city:GetSpecialistGreatPersonProgressTimes100(specialist.ID) / 100
+					local gpChange = specialist.GreatPeopleRateChange * city:GetSpecialistCount( specialist.ID )
+					for building in GameInfo.Buildings{SpecialistType = specialist.Type} do
+						if city:IsHasBuilding(building.ID) then
+							gpChange = gpChange + building.GreatPeopleRateChange
 						end
 					end
-					if iGPPChange > 0 then
+
+					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
+					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
+					local gpChangePolicyMod = 0
+					local gpChangeWorldCongressMod = 0
+					local gpChangeGoldenAgeMod = 0
+					local isGoldenAge = cityOwner:GetGoldenAgeTurns() > 0
+
+					if bnw_mode then
 						-- Generic GP mods
-						local iPlayerMod = pPlayer:GetGreatPeopleRateModifier();
-						local iPolicyMod = pPlayer:GetPolicyGreatPeopleRateModifier();
-						local iWorldCongressMod = 0;
-						local pWorldCongress = nil;
-						if (Game.GetNumActiveLeagues() > 0) then
-							pWorldCongress = Game.GetActiveLeague();
+
+						gpChangePolicyMod = cityOwner:GetPolicyGreatPeopleRateModifier()
+
+						local worldCongress = (Game.GetNumActiveLeagues() > 0) and Game.GetActiveLeague()
+
+						-- GP mods by type
+						if specialist.GreatPeopleUnitClass == "UNITCLASS_WRITER" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatWriterRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatWriterRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+							end
+							if isGoldenAge and cityOwner:GetGoldenAgeGreatWriterRateModifier() > 0 then
+								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatWriterRateModifier()
+							end
+						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ARTIST" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatArtistRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatArtistRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+							end
+							if isGoldenAge and cityOwner:GetGoldenAgeGreatArtistRateModifier() > 0 then
+								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatArtistRateModifier()
+							end
+						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MUSICIAN" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMusicianRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMusicianRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+							end
+							if isGoldenAge and cityOwner:GetGoldenAgeGreatMusicianRateModifier() > 0 then
+								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatMusicianRateModifier()
+							end
+						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_SCIENTIST" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatScientistRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatScientistRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+							end
+						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MERCHANT" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMerchantRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMerchantRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+							end
+						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ENGINEER" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatEngineerRateModifier()
+							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatEngineerRateModifier()
+							if worldCongress then
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+							end
+						-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
+						elseif cityOwner.GetGreatDiplomatRateModifier and specialist.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT" then
+							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatDiplomatRateModifier()
 						end
-						local iCityMod = pCity:GetGreatPeopleRateModifier();
-						local iGoldenAgeMod = 0;
-						local bGoldenAge = (pPlayer:GetGoldenAgeTurns() > 0);
-						
-						-- GP mods by type		
-						if (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_WRITER") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatWriterRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatWriterRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetArtsyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetArtsyGreatPersonRateModifier();
-							end
-							if (bGoldenAge and pPlayer:GetGoldenAgeGreatWriterRateModifier() > 0) then
-								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatWriterRateModifier();
-							end
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_ARTIST") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatArtistRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatArtistRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetArtsyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetArtsyGreatPersonRateModifier();
-							end
-							if (bGoldenAge and pPlayer:GetGoldenAgeGreatArtistRateModifier() > 0) then
-								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatArtistRateModifier();
-							end
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_MUSICIAN") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatMusicianRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatMusicianRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetArtsyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetArtsyGreatPersonRateModifier();
-							end
-							if (bGoldenAge and pPlayer:GetGoldenAgeGreatMusicianRateModifier() > 0) then
-								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatMusicianRateModifier();
-							end
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_SCIENTIST") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatScientistRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatScientistRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
-							end
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_MERCHANT") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatMerchantRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatMerchantRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
-							end
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_ENGINEER") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatEngineerRateModifier();
-							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatEngineerRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
-							end
-						end
-						
+
 						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
-						iPlayerMod = iPlayerMod - iPolicyMod - iWorldCongressMod;
-						
-						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod;
-						iGPPChange = (iGPPChange * (100 + iMod)) / 100;
-						strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
-						if (iPlayerMod > 0) then
-							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_GP_MOD", iPlayerMod);
+
+						gpChangePlayerMod = gpChangePlayerMod - gpChangePolicyMod - gpChangeWorldCongressMod
+
+					elseif gpuClass == "UNITCLASS_SCIENTIST" then
+
+						gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetTraitGreatScientistRateModifier()
+
+					end
+
+					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod
+					gpChange = (gpChangeMod / 100 + 1) * gpChange
+
+					if gpProgress > 0 or gpChange > 0 then
+						local instance = g_GreatPeopleIM.GetInstance()
+						local percent = gpProgress / gpThreshold
+						instance.GPMeter:SetPercent( percent )
+						local labelText = L(unitClass.Description)
+						local icon = GreatPeopleIcon(gpuClass)
+						local tips = table( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]"
+									.. " " .. gpProgress .. icon .." / " .. gpThreshold .. icon )
+	--					tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]" )
+						if gpChange > 0 then
+							local gpTurns = math_ceil( (gpThreshold - gpProgress) / gpChange )
+							tips:insert( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gpTurns ) ) .. "[ENDCOLOR]  "
+										 .. gpChange .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
+							labelText = labelText .. ": " .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", gpTurns ) )
 						end
-						if (iPolicyMod > 0) then
-							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_GP_MOD", iPolicyMod);
-						end
-						if (iCityMod > 0) then
-							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITY_GP_MOD", iCityMod);
-						end
-						if (iGoldenAgeMod > 0) then
-							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLDENAGE_GP_MOD", iGoldenAgeMod);
-						end
-						if (iWorldCongressMod ~= 0) then
-							if (iWorldCongressMod < 0) then
-								strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_WORLD_CONGRESS_NEGATIVE_GP_MOD", iWorldCongressMod);
-							else
-								strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_WORLD_CONGRESS_POSITIVE_GP_MOD", iWorldCongressMod);
+						instance.GreatPersonLabel:SetText( icon .. labelText )
+						if gk_mode then
+							if gpChangePlayerMod ~= 0 then
+								tips:insert( L( "TXT_KEY_PLAYER_GP_MOD", gpChangePlayerMod ) )
 							end
+							if gpChangePolicyMod ~= 0 then
+								tips:insert( L( "TXT_KEY_POLICY_GP_MOD", gpChangePolicyMod ) )
+							end
+							if gpChangeCityMod ~= 0 then
+								tips:insert( L( "TXT_KEY_CITY_GP_MOD", gpChangeCityMod ) )
+							end
+							if gpChangeGoldenAgeMod ~= 0 then
+								tips:insert( L( "TXT_KEY_GOLDENAGE_GP_MOD", gpChangeGoldenAgeMod ) )
+							end
+							if gpChangeWorldCongressMod ~= 0 then
+								if gpChangeWorldCongressMod < 0 then
+									tips:insert( L( "TXT_KEY_WORLD_CONGRESS_NEGATIVE_GP_MOD", gpChangeWorldCongressMod ) )
+								else
+									tips:insert( L( "TXT_KEY_WORLD_CONGRESS_POSITIVE_GP_MOD", gpChangeWorldCongressMod ) )
+								end
+							end
+						elseif gpChangeMod ~= 0 then
+							tips:insert( "[ICON_BULLET] "..gpChangeMod..icon )
 						end
-					end
-					controlTable.GPBox:SetToolTipString(strToolTipText);
-					
-					if IconHookup( portraitOffset, 64, portraitAtlas, controlTable.GPImage ) then
-						controlTable.GPImage:SetHide( false );
-					end
-				end
-			end			
-		end
-		-- header
-		if GPHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT" );
-			Controls.GPHeaderLabel:SetText(localizedLabel);
-			Controls.GPStack:SetHide( false );
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT" );
-			Controls.GPHeaderLabel:SetText(localizedLabel);
-			Controls.GPStack:SetHide( true );
-		end
-		if numGPs > 0 then
-			Controls.GPHeader:SetHide( false );
-		else
-			Controls.GPHeader:SetHide( true );
-			Controls.GPStack:SetHide( true );
-		end
-		Controls.GPHeader:RegisterCallback( Mouse.eLClick, OnGPHeaderSelected );
+						instance.GPBox:SetToolTipString( tips:concat("[NEWLINE]") )
+						instance.GPBox:SetVoid1( unitClass.ID )
+						instance.GPBox:RegisterCallback( Mouse.eRClick, UnitClassPedia )
 
-	
-		-- add in the slackers
-		local numberOfSlackersPerRow = 8;
-		local slackerSize = 32;
-		local slackerPadding = 2;
-		-- header
-		if slackerHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT" );
-			Controls.SlackerHeaderLabel:SetText(localizedLabel);
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT" );
-			Controls.SlackerHeaderLabel:SetText(localizedLabel);
+						local portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( GameInfoTypes[ unitClass.DefaultUnit ], cityOwnerID )
+						instance.GPImage:SetHide(not IconHookup( portraitOffset, 64, portraitAtlas, instance.GPImage ) )
+					end
+				end
+			end
+			g_GreatPeopleIM.Commit()
 		end
-		if numSlackersInThisCity > 0 then
-			--if header is not hidden and is open
-			Controls.SlackerHeader:SetHide( false );
-			if slackerHeadingOpen then
-				Controls.BoxOSlackers:SetHide( false );
-				
-				Controls.SlackerHeader:RegisterCallback( Mouse.eLClick, OnSlackerHeaderSelected );
-				Controls.BoxOSlackers:RegisterCallback( Mouse.eLClick, OnSlackersSelected );
 
-				-- build the tooltip for slackers
-				local pSpecialistInfo = GameInfo.Specialists[slackerType];
-				local specialistName = Locale.ConvertTextKey(pSpecialistInfo.Description);
-				local ToolTipString = specialistName .. " ";						
-				-- Culture
-				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-				if (iCultureFromSpecialist > 0) then
-					ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
-				end
-				-- Yield
-				for pYieldInfo in GameInfo.Yields() do
-					local iYieldID = pYieldInfo.ID;
-					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
-					
-					--Specialist Yield included in pCity:GetSpecialistYield();
-					--iYieldAmount = iYieldAmount + pPlayer:GetSpecialistExtraYield(iSpecialistID, iYieldID);
-					
-					if (iYieldAmount > 0) then
-						ToolTipString = ToolTipString .. " +" .. iYieldAmount .. pYieldInfo.IconString;
-					end
-				end
-				if pSpecialistInfo.GreatPeopleRateChange > 0 then
-					ToolTipString = ToolTipString .. " +" .. pSpecialistInfo.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]";					
-				end
+		-------------------------------------------
+		-- Buildings
+		-------------------------------------------
 
-				-- bunch-o-slackers
-				local slackerAdded = 0;
-				for i = 1, numSlackersInThisCity do
-					controlTable = g_SlackerIM:GetInstance();
-					controlTable.SlackerButton:SetOffsetVal( (slackerAdded % numberOfSlackersPerRow) * slackerSize + slackerPadding, math.floor(slackerAdded / numberOfSlackersPerRow) * slackerSize + slackerPadding );				
-					controlTable.SlackerButton:SetToolTipString( ToolTipString );
-					controlTable.SlackerButton:RegisterCallback( Mouse.eLClick, OnSlackersSelected );
-					pediaSearchStrings[tostring(controlTable.SlackerButton)] = specialistName;
-					controlTable.SlackerButton:RegisterCallback( Mouse.eRClick, GetPedia );
-					slackerAdded = slackerAdded + 1;
-				end
-				if slackerAdded > 0 then
-					local frameSize = {};
-					local h = (math.floor((slackerAdded - 1) / numberOfSlackersPerRow) + 1) * slackerSize + (slackerPadding * 2);
-					frameSize.x = 254;
-					frameSize.y = h;
-					Controls.BoxOSlackers:SetSize( frameSize );
-				end
-			else
-				Controls.BoxOSlackers:SetHide( true );
-			end
-		else
-			Controls.SlackerHeader:SetHide( true );
-			Controls.BoxOSlackers:SetHide( true );
-		end
-		
-		sortOrder = 0;
-		otherSortedList = {};
-		
-		local iBuildingMaintenance = pCity:GetTotalBaseBuildingMaintenance();
-		local strMaintenanceTT = Locale.ConvertTextKey("TXT_KEY_BUILDING_MAINTENANCE_TT", iBuildingMaintenance);
-		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT);
-		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT);
-		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT);
-		
-		-- buildings that take specialists
-		local numSpecialBuildingsInThisCity = 0;
-		if specialistBuildingHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_SPECIAL_TEXT" );
-			Controls.SpecialBuildingsHeaderLabel:SetText(localizedLabel);
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_SPECIAL_TEXT" );
-			Controls.SpecialBuildingsHeaderLabel:SetText(localizedLabel);
-		end
-		sortedList = {};
-		thisId = 1;
+		local greatWorkBuildings = table()
+		local specialistBuildings = table()
+		local wonders = table()
+		local otherBuildings = table()
+		local noWondersWithSpecialistInThisCity = true
+
 		for building in GameInfo.Buildings() do
-			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
-					if (pCity:IsHasBuilding(buildingID)) then
-						numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+			local buildingID = building.ID
+			if city:IsHasBuilding(buildingID) then
+				local buildingClass = GameInfo.BuildingClasses[ building.BuildingClass ]
+				local buildings
+				local greatWorkCount = civ5bnw_mode and building.GreatWorkCount or 0
+				local areSpecialistsAllowedByBuilding = city:GetNumSpecialistsAllowedByBuilding(buildingID) > 0
+
+				if buildingClass.MaxGlobalInstances > 0
+				or buildingClass.MaxTeamInstances > 0
+				or ( buildingClass.MaxPlayerInstances == 1 and not areSpecialistsAllowedByBuilding )
+				then
+					buildings = wonders
+					if areSpecialistsAllowedByBuilding then
+						noWondersWithSpecialistInThisCity = false
 					end
+				elseif areSpecialistsAllowedByBuilding then
+					buildings = specialistBuildings
+				elseif greatWorkCount > 0 then
+					buildings = greatWorkBuildings
+				elseif greatWorkCount == 0 then		-- compatibility with Firaxis code exploit for invisibility
+					buildings = otherBuildings
+				end
+				if buildings then
+					buildings:insert{ building, L(building.Description), greatWorkCount, areSpecialistsAllowedByBuilding and GameInfoTypes[building.SpecialistType] or 999 }
 				end
 			end
 		end
-		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		if numSpecialBuildingsInThisCity > 0 then
-			--if header is not hidden and is open
-			Controls.SpecialBuildingsHeader:SetHide( false );
-			Controls.SpecialistControlBox:SetHide( false );
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.SpecialBuildingsHeader )] = sortOrder;
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.SpecialistControlBox )] = sortOrder;
-			if specialistBuildingHeadingOpen then
-				Controls.SpecialBuildingsHeader:RegisterCallback( Mouse.eLClick, OnSpecialistBuildingsHeaderSelected );
-				for i, v in ipairs(sortedList) do
-					local building = GameInfo.Buildings[v.ID];
-					AddBuildingButton( pCity, building );
-				end
-			else
-				Controls.SpecialistControlBox:SetHide( true );
-			end			
-		else
-			Controls.SpecialBuildingsHeader:SetHide( true );
-			Controls.SpecialistControlBox:SetHide( true );
-		end
-		
-		-- now add the wonders
-		local numWondersInThisCity = 0;
-		local numWondersWithSpecialistInThisCity = 0;
-		if wonderHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WONDERS_TEXT" );
-			Controls.WondersHeaderLabel:SetText(localizedLabel);
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WONDERS_TEXT" );
-			Controls.WondersHeaderLabel:SetText(localizedLabel);
-		end
-		local sortedList = {};
-		local thisId = 1;
-		for building in GameInfo.Buildings() do
-			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
-				local buildingID= building.ID;
-				if (pCity:IsHasBuilding(buildingID)) then
-					numWondersInThisCity = numWondersInThisCity + 1;
-					if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
-						numWondersWithSpecialistInThisCity = numWondersWithSpecialistInThisCity + 1;
-					end
-					
-					local element = {};
-					local name = Locale.ConvertTextKey( building.Description )
-					element.name = name;
-					element.ID = building.ID;
-					sortedList[thisId] = element;
-					thisId = thisId + 1;
-				end
-			end
-		end
-		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		
-		
-		Controls.SpecialistControlBox2:SetHide( true );
-		if numWondersInThisCity > 0 then
-			--if header is not hidden and is open
-			Controls.WondersHeader:SetHide( false );
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.WondersHeader )] = sortOrder;
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.SpecialistControlBox2 )] = sortOrder;
-			
-			if wonderHeadingOpen then
-				Controls.WondersHeader:RegisterCallback( Mouse.eLClick, OnWondersHeaderSelected );
-				for i, v in ipairs(sortedList) do
-					local building = GameInfo.Buildings[v.ID];
-					AddBuildingButton( pCity, building );
-				end
-				
-				if(numWondersWithSpecialistInThisCity > 0) then
-					Controls.SpecialistControlBox2:SetHide( false );
-				end
-			end
-		else
-			Controls.WondersHeader:SetHide( true );
-		end
-			
-		-- now add the Great Work buildings
-		local numGreatWorkBuildingsInThisCity = 0;
-		if greatWorkHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_GREAT_WORK_BUILDINGS_TEXT" );
-			Controls.GreatWorkHeaderLabel:SetText(localizedLabel);
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_GREAT_WORK_BUILDINGS_TEXT" );
-			Controls.GreatWorkHeaderLabel:SetText(localizedLabel);
-		end
-		sortedList = {};
-		thisId = 1;
-		for building in GameInfo.Buildings() do
-			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local thisBuilding = GameInfo.Buildings[building.ID];
-				if thisBuilding.GreatWorkCount > 0 then
-					if (pCity:IsHasBuilding(building.ID)) then
-						numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
-						end
-				end
-			end
-		end
-		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		if numGreatWorkBuildingsInThisCity > 0 then
-			--if header is not hidden and is open
-			Controls.GreatWorkHeader:SetHide( false );
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.GreatWorkHeader )] = sortOrder;
-			if greatWorkHeadingOpen then
-				Controls.GreatWorkHeader:RegisterCallback( Mouse.eLClick, OnGreatWorkHeaderSelected );
-				for i, v in ipairs(sortedList) do
-					local building = GameInfo.Buildings[v.ID];
-					AddBuildingButton( pCity, building );
-				end
-			end
-		else
-			Controls.GreatWorkHeader:SetHide( true );
-		end
-				
-		-- the rest of the buildings
-		local numBuildingsInThisCity = 0;
-		if buildingHeadingOpen then
-			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT" );
-			Controls.BuildingsHeaderLabel:SetText(localizedLabel);
-		else
-			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT" );
-			Controls.BuildingsHeaderLabel:SetText(localizedLabel);
-		end
-		sortedList = {};
-		thisId = 1;
-		for building in GameInfo.Buildings() do
-			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-					if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
-						numBuildingsInThisCity = numBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
-					end
-				end
-			end
-		end
-		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		if numBuildingsInThisCity > 0 then
-			--if header is not hidden and is open
-			Controls.BuildingsHeader:SetHide( false );
-			sortOrder = sortOrder + 1;
-			otherSortedList[tostring( Controls.BuildingsHeader )] = sortOrder;
-			if buildingHeadingOpen then
-				Controls.BuildingsHeader:RegisterCallback( Mouse.eLClick, OnBuildingsHeaderSelected );
-				for i, v in ipairs(sortedList) do
-					local building = GameInfo.Buildings[v.ID];
-					AddBuildingButton( pCity, building );
-				end
-			end
-		else
-			Controls.BuildingsHeader:SetHide( true );
-		end
-		
-		Controls.BuildingStack:SortChildren( CVSortFunction );
-		
-		Controls.BuildingStack:CalculateSize();
-		Controls.BuildingStack:ReprocessAnchoring();
-		
-		Controls.WorkerManagementBox:CalculateSize();
-		Controls.WorkerManagementBox:ReprocessAnchoring();
-		
-		Controls.GPStack:CalculateSize();
-		Controls.GPStack:ReprocessAnchoring();
-		
-		RecalcPanelSize();
-		
-		-----------------------------------------
+		local strMaintenanceTT = L( "TXT_KEY_BUILDING_MAINTENANCE_TT", city:GetTotalBaseBuildingMaintenance() )
+		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT)
+		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT)
+		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT)
+		Controls.SpecialistControlBox:SetHide( #specialistBuildings < 1 )
+		Controls.SpecialistControlBox2:SetHide( noWondersWithSpecialistInThisCity )
+
+		SetupBuildingList( city, specialistBuildings, g_SpecialBuildingsIM )
+		SetupBuildingList( city, wonders, g_WondersIM )
+		SetupBuildingList( city, greatWorkBuildings, g_GreatWorkIM )
+		SetupBuildingList( city, otherBuildings, g_BuildingsIM )
+
+		ResizeRightStack()
+
+		-------------------------------------------
 		-- Buying Plots
 		-------------------------------------------
-		szText = string.format( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_BUY_TILE") );
-	    Controls.BuyPlotButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_BUY_TILE_TT" ) );
-		Controls.BuyPlotText:SetText(szText);
-	    if (GameDefines["BUY_PLOTS_DISABLED"] ~= 0) then
-			Controls.BuyPlotButton:SetDisabled(true);			
-	    end
-	    
-		
+--		szText = L"TXT_KEY_CITYVIEW_BUY_TILE"
+--		Controls.BuyPlotButton:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_BUY_TILE_TT" )
+--		Controls.BuyPlotText:SetText(szText)
+--		Controls.BuyPlotButton:SetDisabled( g_isViewingMode or (GameDefines.BUY_PLOTS_DISABLED ~= 0 and city:CanBuyAnyPlot()) )
+
 		-------------------------------------------
 		-- Resource Demanded
 		-------------------------------------------
-		
-		local szResourceDemanded = "??? (Research Required)";
-		
-		if (pCity:GetResourceDemanded(true) ~= -1) then
-			local pResourceInfo = GameInfo.Resources[pCity:GetResourceDemanded()];
-			szResourceDemanded = Locale.ConvertTextKey(pResourceInfo.IconString) .. " " .. Locale.ConvertTextKey(pResourceInfo.Description);
-			Controls.ResourceDemandedBox:SetHide(false);
-			
-		else
-			Controls.ResourceDemandedBox:SetHide(true);
-		end
-				
-		local iNumTurns = pCity:GetResourceDemandedCountdown();
-		if (iNumTurns > 0) then
-			-- szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", tostring(iNumTurns) );
-			-- Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" ) );
-		-- else
-			szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", szResourceDemanded );
-			szText = szText .. " (" .. string.format( "%i", iNumTurns ) .. ")";
-			Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" ) );
-		end
-		
-		Controls.ResourceDemandedString:SetText(szText);
-		Controls.ResourceDemandedBox:SetSizeX(Controls.ResourceDemandedString:GetSizeX() + 10);
-		
-		Controls.IconsStack:CalculateSize();
-		Controls.IconsStack:ReprocessAnchoring();
-		
-		Controls.NotificationStack:CalculateSize();
-		Controls.NotificationStack:ReprocessAnchoring();
-		
-		-------------------------------------------
-		-- Raze City Button (Occupied Cities only)
-		-------------------------------------------
-		
-		if (not pCity:IsOccupied() or pCity:IsRazing()) then		
-			g_bRazeButtonDisabled = true;
-			Controls.RazeCityButton:SetHide(true);
-		else
-			-- Can we not actually raze this city?
-			if (not pPlayer:CanRaze(pCity, false)) then
-				-- We COULD raze this city if it weren't a capital
-				if (pPlayer:CanRaze(pCity, true)) then
-					g_bRazeButtonDisabled = true;
-					Controls.RazeCityButton:SetHide(false);
-					Controls.RazeCityButton:SetDisabled(true);
-					Controls.RazeCityButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT" ) );
-				-- Can't raze this city period
+
+		if city:GetResourceDemanded(true) ~= -1 then
+			local iNumTotal = g_activePlayer:GetNumResourceTotal(city:GetResourceDemanded(true), true);
+			local resourceInfo = GameInfo.Resources[ city:GetResourceDemanded() ]
+			local weLoveTheKingDayCounter = city:GetResourceDemandedCountdown()
+			if weLoveTheKingDayCounter > 0 then
+				-- Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+				-- Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" )
+			-- else
+				if (iNumTotal > 0) then
+					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resourceInfo.IconString .. " " .. "[COLOR_POSITIVE_TEXT]" .. L(resourceInfo.Description) .. "[ENDCOLOR]" .. " (" .. string.format( "%i", weLoveTheKingDayCounter ) .. ")" )
 				else
-					g_bRazeButtonDisabled = true;
-					Controls.RazeCityButton:SetHide(true);
+					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resourceInfo.IconString .. " " .. "[COLOR_NEGATIVE_TEXT]" .. L(resourceInfo.Description) .. "[ENDCOLOR]" .. " (" .. string.format( "%i", weLoveTheKingDayCounter ) .. ")" )
 				end
-			else
-				g_bRazeButtonDisabled = false;
-				Controls.RazeCityButton:SetHide(false);
-				Controls.RazeCityButton:SetDisabled(false);		
-				Controls.RazeCityButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RAZE_BUTTON_TT" ) );
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" )
+			end
+
+			Controls.ResourceDemandedBox:SetSizeX(Controls.ResourceDemandedString:GetSizeX() + 10)
+			Controls.ResourceDemandedBox:SetHide(false)
+		else
+			Controls.ResourceDemandedBox:SetHide(true)
+		end
+
+		Controls.IconsStack:CalculateSize()
+		Controls.IconsStack:ReprocessAnchoring()
+
+		Controls.NotificationStack:CalculateSize()
+		Controls.NotificationStack:ReprocessAnchoring()
+
+		-------------------------------------------
+		-- Raze / Unraze / Annex City Buttons
+		-------------------------------------------
+
+		local buttonToolTip, buttonLabel, taskID
+		if isActivePlayerCity then
+
+			if city:IsRazing() then
+
+				-- We can unraze this city
+				taskID = TaskTypes.TASK_UNRAZE
+				buttonLabel = L"TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TEXT"
+				buttonToolTip = L"TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TT"
+
+			elseif city:IsPuppet() and not(bnw_mode and cityOwner:MayNotAnnex()) then
+
+				-- We can annex this city
+				taskID = TaskTypes.TASK_ANNEX_PUPPET
+				buttonLabel = L"TXT_KEY_POPUP_ANNEX_CITY"
+-- todo
+				if civ5_mode then
+					buttonToolTip = L( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", cityOwner:GetUnhappinessForecast(city) - cityOwner:GetUnhappiness() )
+				end
+			elseif not g_isViewingMode and cityOwner:CanRaze( city, true ) then
+				buttonLabel = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TEXT"
+
+				if cityOwner:CanRaze( city, false ) then
+
+					-- We can actually raze this city
+					taskID = TaskTypes.TASK_RAZE
+					buttonToolTip = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"
+				else
+					-- We COULD raze this city if it weren't a capital
+					buttonToolTip = L"TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT"
+				end
 			end
 		end
+		local CityTaskButton = Controls.CityTaskButton
+		CityTaskButton:SetText( buttonLabel )
+		CityTaskButton:SetVoids( cityID, taskID )
+		CityTaskButton:SetToolTipString( buttonToolTip )
+		CityTaskButton:SetDisabled( not taskID )
+		CityTaskButton:SetHide( not buttonLabel )
 
-		-- Stop city razing
-		if (pCity:IsRazing()) then
-			g_bRazeButtonDisabled = false;
-			Controls.UnrazeCityButton:SetHide(false);
-		else
-			g_bRazeButtonDisabled = true;
-			Controls.UnrazeCityButton:SetHide(true);
-		end
-		
---		UpdateSpecialists(pCity);
-		UpdateWorkingHexes();
-		UpdateBuyPlotButton();
+		UpdateWorkingHexesNow()
+		UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isActivePlayerCity and not isCityCaptureViewingMode and civ5_mode and bnw_mode and cityOwner:MayNotAnnex() and city:IsPuppet() )
 
-		-- Update left corner tooltips
-		DoUpdateUpperLeftTooltips();
-		
 		-- display gold income
-		local iGoldPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100;
-		Controls.GoldPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iGoldPerTurn) );
-		--Controls.ProdBox:SetToolTipString(strToolTip);
-		
+		local iGoldPerTurn = city:GetYieldRateTimes100( g_yieldCurrency ) / 100
+		Controls.GoldPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iGoldPerTurn )
+
 		-- display science income
-		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-			Controls.SciencePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_OFF") );
+		if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
+			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
 		else
-			local iSciencePerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100;
-			Controls.SciencePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iSciencePerTurn) );
+			local iSciencePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100
+			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iSciencePerTurn )
 		end
-		--Controls.ScienceBox:SetToolTipString(strToolTip);
-		
-		local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
-		Controls.CulturePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iCulturePerTurn) );
-		--Controls.CultureBox:SetToolTipString(strToolTip);
-		local cultureStored = pCity:GetJONSCultureStored();
-		local cultureNext = pCity:GetJONSCultureThreshold();
-		local cultureDiff = cultureNext - cultureStored;
-		if iCulturePerTurn > 0 then
-			local cultureTurns = math.ceil(cultureDiff / iCulturePerTurn);
-			if (cultureTurns < 1) then
-			   cultureTurns = 1
+
+		local culturePerTurn, cultureStored, cultureNext
+		-- thanks for Firaxis Cleverness !
+		if civ5_mode then
+			culturePerTurn = city:GetJONSCulturePerTurn()
+			cultureStored = city:GetJONSCultureStored()
+			cultureNext = city:GetJONSCultureThreshold()
+		else
+			culturePerTurn = city:GetCulturePerTurn()
+			cultureStored = city:GetCultureStored()
+			cultureNext = city:GetCultureThreshold()
+		end
+		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
+		local cultureDiff = cultureNext - cultureStored
+		if culturePerTurn > 0 then
+			local cultureTurns = math_max(math_ceil(cultureDiff / culturePerTurn), 1)
+			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )
+			Controls.CultureTimeTillGrowthLabel:SetHide( false )
+		else
+			Controls.CultureTimeTillGrowthLabel:SetHide( true )
+		end
+		local percentComplete = cultureStored / cultureNext
+		Controls.CultureMeter:SetPercent( percentComplete )
+
+		if gk_mode then
+			if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
+				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
+			else
+				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetFaithPerTurn() )
 			end
-			Controls.CultureTimeTillGrowthLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns) );
-			Controls.CultureTimeTillGrowthLabel:SetHide( false );
-		else
-			Controls.CultureTimeTillGrowthLabel:SetHide( true );
-		end
-		local percentComplete = cultureStored / cultureNext;
-		Controls.CultureMeter:SetPercent( percentComplete );
-		
-		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-			Controls.FaithPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_OFF") );
-		else
-			local iFaithPerTurn = pCity:GetFaithPerTurn();
-			Controls.FaithPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iFaithPerTurn) );
-		end
-		
-		local iTourismPerTurn = pCity:GetBaseTourism();
-		Controls.TourismPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iTourismPerTurn) );
-	
-
-		local cityGrowth = pCity:GetFoodTurnsLeft();			
-		if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
-			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STAGNATION_TEXT"));
-		elseif pCity:FoodDifference() < 0 then
-			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_STARVATION_TEXT"));
-		else
-			Controls.CityGrowthLabel:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", cityGrowth));
-		end
-		local iFoodPerTurn = pCity:FoodDifferenceTimes100() / 100;
-		
-		if (iFoodPerTurn >= 0) then
-			Controls.FoodPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iFoodPerTurn) );
-		else
-			Controls.FoodPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", iFoodPerTurn) );
+			Controls.FaithFocusButton:SetDisabled( g_isViewingMode )
 		end
 
-		local iCurrentFood = pCity:GetFood();
-		local iFoodNeeded = pCity:GrowthThreshold();
-		local iFoodDiff = pCity:FoodDifference();
-		local iCurrentFoodPlusThisTurn = iCurrentFood + iFoodDiff;
-			
-		local fGrowthProgressPercent = iCurrentFood / iFoodNeeded;			
-		
-		-- Viewing mode only
-		if (UI.IsCityScreenViewingMode()) then
-			
-			-- City Cycling
-			Controls.PrevCityButton:SetDisabled( true );
-			Controls.NextCityButton:SetDisabled( true );
-			
-			-- Governor
-			Controls.BalancedFocusButton:SetDisabled( true );
-			Controls.FoodFocusButton:SetDisabled( true );
-			Controls.ProductionFocusButton:SetDisabled( true );
-			Controls.GoldFocusButton:SetDisabled( true );
-			Controls.ResearchFocusButton:SetDisabled( true );
-			Controls.CultureFocusButton:SetDisabled( true );
-			Controls.GPFocusButton:SetDisabled( true );
-			Controls.FaithFocusButton:SetDisabled( true );
-			Controls.AvoidGrowthButton:SetDisabled( true );
-			Controls.ResetButton:SetDisabled( true );
-			
-			Controls.BoxOSlackers:SetDisabled( true );
-			Controls.NoAutoSpecialistCheckbox:SetDisabled( true );
-			Controls.NoAutoSpecialistCheckbox2:SetDisabled( true );
-			
-			-- Other
-			Controls.RazeCityButton:SetDisabled( true );
-			Controls.UnrazeCityButton:SetDisabled( true );
-			
-			Controls.BuyPlotButton:SetDisabled( true );
-			
+		local cityGrowth = city:GetFoodTurnsLeft()
+		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		if city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
+			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
+		elseif foodPerTurnTimes100 < 0 then
+			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STARVATION_TEXT" )
 		else
-			
-			-- City Cycling
-			Controls.PrevCityButton:SetDisabled( false );
-			Controls.NextCityButton:SetDisabled( false );
-			
-			-- Governor
-			Controls.BalancedFocusButton:SetDisabled( false );
-			Controls.FoodFocusButton:SetDisabled( false );
-			Controls.ProductionFocusButton:SetDisabled( false );
-			Controls.GoldFocusButton:SetDisabled( false );
-			Controls.ResearchFocusButton:SetDisabled( false );
-			Controls.CultureFocusButton:SetDisabled( false );
-			Controls.GPFocusButton:SetDisabled( false );
-			Controls.FaithFocusButton:SetDisabled( false );
-			Controls.AvoidGrowthButton:SetDisabled( false );
-			Controls.ResetButton:SetDisabled( false );
-			
-			Controls.BoxOSlackers:SetDisabled( false );
-			Controls.NoAutoSpecialistCheckbox:SetDisabled( false );
-			Controls.NoAutoSpecialistCheckbox2:SetDisabled( false );
-			
-			-- Other
-			if (not g_bRazeButtonDisabled) then
-				Controls.RazeCityButton:SetDisabled( false );
-				Controls.UnrazeCityButton:SetDisabled( false );
+			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", cityGrowth )
+		end
+
+		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", foodPerTurnTimes100 / 100 )
+
+		-------------------------------------------
+		-- Disable Buttons as Appropriate
+		-------------------------------------------
+		local bIsLock = g_isViewingMode or (cityOwner:GetNumCities() <= 1)
+		Controls.PrevCityButton:SetDisabled( bIsLock )
+		Controls.NextCityButton:SetDisabled( bIsLock )
+
+		Controls.BalancedFocusButton:SetDisabled( g_isViewingMode )
+		Controls.FoodFocusButton:SetDisabled( g_isViewingMode )
+		Controls.ProductionFocusButton:SetDisabled( g_isViewingMode )
+		Controls.GoldFocusButton:SetDisabled( g_isViewingMode )
+		Controls.ResearchFocusButton:SetDisabled( g_isViewingMode )
+		Controls.CultureFocusButton:SetDisabled( g_isViewingMode )
+		Controls.GPFocusButton:SetDisabled( g_isViewingMode )
+
+		Controls.AvoidGrowthButton:SetDisabled( g_isViewingMode )
+		Controls.ResetButton:SetDisabled( g_isViewingMode )
+
+		Controls.BoxOSlackers:SetDisabled( g_isViewingMode )
+
+		Controls.EditButton:SetHide( g_isViewingMode )
+	end
+end
+
+local function UpdateStuffNow()
+--	if IsGameCoreBusy() then
+--		return
+--	end
+	ContextPtr:ClearUpdate()
+	if g_isCityViewDirty then
+		UpdateCityViewNow()
+	end
+	if g_isCityHexesDirty then
+		UpdateWorkingHexesNow()
+	end
+end
+local function UpdateCityView()
+	g_isCityViewDirty = true
+	return ContextPtr:SetUpdate( UpdateStuffNow )
+end
+local function UpdateWorkingHexes()
+	g_isCityHexesDirty = true
+	return ContextPtr:SetUpdate( UpdateStuffNow )
+end
+
+local function UpdateOptionsAndCityView()
+	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
+	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
+	g_FocusSelectIM.Collapse( not OptionsManager.IsNoCitizenWarning() )
+	Controls.BuyPlotCheckBox:SetCheck( g_BuyPlotMode )
+	return UpdateCityView()
+end
+
+g_SpecialBuildingsIM	= StackInstanceManager( "BuildingInstance", "Button", Controls.SpecialBuildingsStack, Controls.SpecialBuildingsHeader, ResizeRightStack )
+g_GreatWorkIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.GreatWorkStack, Controls.GreatWorkHeader, ResizeRightStack )
+g_WondersIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.WondersStack, Controls.WondersHeader, ResizeRightStack )
+g_BuildingsIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.BuildingsStack, Controls.BuildingsHeader, ResizeRightStack )
+g_GreatPeopleIM		= StackInstanceManager( "GPInstance", "GPBox", Controls.GPStack, Controls.GPHeader, ResizeRightStack )
+g_SlackerIM		= StackInstanceManager( "Slot", "Button", Controls.SlackerStack, Controls.SlackerHeader, ResizeRightStack )
+g_ProdQueueIM		= StackInstanceManager( "ProductionInstance", "PQbox", Controls.QueueStack, Controls.ProdBox, ResizeProdQueue, true )
+g_UnitSelectIM		= StackInstanceManager( "SelectionInstance", "Button", Controls.UnitButtonStack, Controls.UnitButton, ResizeProdQueue )
+g_BuildingSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Controls.BuildingButtonStack, Controls.BuildingsButton, ResizeProdQueue )
+g_WonderSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Controls.WonderButtonStack, Controls.WondersButton, ResizeProdQueue )
+g_ProcessSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Controls.OtherButtonStack, Controls.OtherButton, ResizeProdQueue )
+g_FocusSelectIM		= StackInstanceManager( "", "", Controls.WorkerManagementBox, Controls.WorkerHeader, function(self, collapsed) g_workerHeadingOpen = not collapsed ResizeRightStack() UpdateWorkingHexes() end, true, not g_workerHeadingOpen )
+
+local function SetToolTipString( toolTipFunc )
+	g_leftTipControls.Text:SetText( toolTipFunc( UI_GetHeadSelectedCity() ) )
+	g_leftTipControls.PortraitFrame:SetHide( true )
+	return g_leftTipControls.Box:DoAutoSize()
+end
+
+local g_toolTips = {
+	ProdBox = function()
+		return SetToolTipString( GetProductionTooltip )
+	end,
+	FoodBox = function()
+		return SetToolTipString( GetFoodTooltip )
+	end,
+	GoldBox = function()
+		return SetToolTipString( GetGoldTooltip )
+	end,
+	ScienceBox = function()
+		return SetToolTipString( GetScienceTooltip )
+	end,
+	CultureBox = function()
+		return SetToolTipString( GetCultureTooltip )
+	end,
+	FaithBox = function()
+		return SetToolTipString( GetFaithTooltip )
+	end,
+	TourismBox = function()
+		return SetToolTipString( GetTourismTooltip )
+	end,
+	ProductionPortraitButton = ProductionToolTip
+}
+g_toolTips.PopulationBox = g_toolTips.FoodBox
+Controls.ProductionPortraitButton:SetVoid1(0)
+
+--------------
+-- Rename City
+local function RenameCity()
+	local city = UI_GetHeadSelectedCity()
+	if city then
+		return Events.SerialEventGameMessagePopup{
+				Type = ButtonPopupTypes.BUTTONPOPUP_RENAME_CITY,
+				Data1 = city:GetID(),
+				Data2 = -1,
+				Data3 = -1,
+				Option1 = false,
+				Option2 = false
+				}
+	end
+end
+
+----------------
+-- Citizen Focus
+local FocusButtonBehavior = {
+	[Mouse.eLClick] = function( focus )
+		local city = GetSelectedModifiableCity()
+		if city then
+			Network.SendSetCityAIFocus( city:GetID(), focus )
+			return Network.SendUpdateCityCitizens( city:GetID() )
+		end
+	end,
+}
+
+local g_callBacks = {
+	BalancedFocusButton = FocusButtonBehavior,
+	FoodFocusButton = FocusButtonBehavior,
+	ProductionFocusButton = FocusButtonBehavior,
+	GoldFocusButton = FocusButtonBehavior,
+	ResearchFocusButton = FocusButtonBehavior,
+	CultureFocusButton = FocusButtonBehavior,
+	GPFocusButton = FocusButtonBehavior,
+	FaithFocusButton = FocusButtonBehavior,
+
+	AvoidGrowthButton = {
+		[Mouse.eLClick] = function()
+			local city = GetSelectedModifiableCity()
+			if city then
+				Network.SendSetCityAvoidGrowth( city:GetID(), not city:IsForcedAvoidGrowth() )
+				return Network.SendUpdateCityCitizens( city:GetID() )
 			end
-			
-			Controls.BuyPlotButton:SetDisabled( false );
-		end
-		
-		if (pCity:GetOwner() ~= Game.GetActivePlayer()) then
-			Controls.ProductionButton:SetDisabled(true);
-			Controls.PurchaseButton:SetDisabled(true);
-			Controls.EditButton:SetHide(true);
-			Controls.EndTurnText:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RETURN_TO_ESPIONAGE"));
-		end
-		
-		if(UI.IsCityScreenViewingMode()) then
-			Controls.EditButton:SetHide(true);
-		end
-	end
-end
-Events.SerialEventCityScreenDirty.Add(OnCityViewUpdate);
-Events.SerialEventCityInfoDirty.Add(OnCityViewUpdate);
-
-
------------------------------------------------------------------
------------------------------------------------------------------
-function RecalcPanelSize()
-	Controls.RightStack:CalculateSize();
-	local size = math.min( screenSizeY + 30, Controls.RightStack:GetSizeY() + 85 );
-	size = math.max( size, 160 );
-    Controls.BuildingListBackground:SetSizeY( size );
-    
-	size = math.min( screenSizeY - 65, Controls.RightStack:GetSizeY() + 85 );
-    Controls.ScrollPanel:SetSizeY( size );
-	Controls.ScrollPanel:CalculateInternalSize();
-	Controls.ScrollPanel:ReprocessAnchoring();
-end
-
-
--------------------------------------------------
--- On City Set Damage
--------------------------------------------------
-function OnCitySetDamage(iDamage, iMaxDamage)
-	
-	local iHealthPercent = 1 - (iDamage / iMaxDamage);
-
-    Controls.HealthMeter:SetPercent(iHealthPercent);
-    
-    if iHealthPercent > 0.66 then
-        Controls.HealthMeter:SetTexture("CityNamePanelHealthBarGreen.dds");
-    elseif iHealthPercent > 0.33 then
-        Controls.HealthMeter:SetTexture("CityNamePanelHealthBarYellow.dds");
-    else
-        Controls.HealthMeter:SetTexture("CityNamePanelHealthBarRed.dds");
-    end
-    
-    -- Show or hide the Health Bar as necessary
-    if (iDamage == 0) then
-		Controls.HealthFrame:SetHide(true);
-	else
-		Controls.HealthFrame:SetHide(false);
-    end
-
-end
-
--------------------------------------------------
--- Update Production Info
--------------------------------------------------
-function DoUpdateProductionInfo( bNoProduction )
-	
-	local pCity = UI.GetHeadSelectedCity();
-	local pPlayer = Players[pCity:GetOwner()];
-
-	-- Production stored and needed
-	local iStoredProduction = pCity:GetProductionTimes100() / 100;
-	local iProductionNeeded = pCity:GetProductionNeeded();
-	if (pCity:IsProductionProcess()) then
-		iProductionNeeded = 0;
-	end
-	
-	-- Base Production per turn
-	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-	local iProductionModifier = pCity:GetProductionModifier() + 100;
-	--iProductionPerTurn = iProductionPerTurn * iProductionModifier;
-	--iProductionPerTurn = iProductionPerTurn / 100;
-	
-	-- Item being produced with food? (e.g. Settlers)
-	--if (pCity:IsFoodProduction()) then
-		--iProductionPerTurn = iProductionPerTurn + pCity:GetYieldRate(YieldTypes.YIELD_FOOD) - pCity:FoodConsumption(true);
-	--end
-	
-	local strProductionPerTurn = Locale.ConvertTextKey("TXT_KEY_CITY_SCREEN_PROD_PER_TURN", iProductionPerTurn);
-	Controls.ProductionOutput:SetText(strProductionPerTurn);
-	
-	-- Progress info for meter
-	local iStoredProductionPlusThisTurn = iStoredProduction + iProductionPerTurn;
-	
-	local fProductionProgressPercent = iStoredProduction / iProductionNeeded;
-	local fProductionProgressPlusThisTurnPercent = iStoredProductionPlusThisTurn / iProductionNeeded;
-	if (fProductionProgressPlusThisTurnPercent > 1) then
-		fProductionProgressPlusThisTurnPercent = 1
-	end
-	
-	Controls.ProductionMeter:SetPercents( fProductionProgressPercent, fProductionProgressPlusThisTurnPercent );
-	
-	-- Turns left
-	local productionTurnsLeft = pCity:GetProductionTurnsLeft();
-	
-	--if pCity:IsOccupation() then
-		--Controls.ProductionTurnsLabel:SetText(" (City in unrest)");
-	--else
-	
-	local strNumTurns;
-	if(productionTurnsLeft > 99) then
-		strNumTurns = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_99PLUS_TURNS");
-	else
-		strNumTurns = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", productionTurnsLeft);
-	end
-	
-	
-	
-	local bGeneratingProduction = pCity:IsProductionProcess() or pCity:GetCurrentProductionDifferenceTimes100(false, false) == 0;
-	
-	if (bGeneratingProduction) then
-		strNumTurns = "";
-	end
-	
-	-- Indicator for the fact that the empire is very unhappy
-	if (pPlayer:IsEmpireVeryUnhappy()) then
-		strNumTurns = strNumTurns .. " [ICON_HAPPINESS_4]";
-	end
-	
-	if (not bGeneratingProduction) then
-		Controls.ProductionTurnsLabel:SetText("(" .. strNumTurns .. ")");
-	else
-		Controls.ProductionTurnsLabel:SetText(strNumTurns);
-	end
-	
-	--end
-	
-	if bNoProduction then
-		Controls.ProductionTurnsLabel:SetHide(true);
-	else
-		Controls.ProductionTurnsLabel:SetHide(false);
-	end
-	
-	-----------------------------
-	-- TOOLTIP
-	-----------------------------
-	
-	local strToolTip = "";
-
-	-- What is being produced right now?
-	if (bNoProduction) then
-		strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NOTHING");
-	else
-		if (not pCity:IsProductionProcess()) then
-			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_TEXT", pCity:GetProductionNameKey(), strNumTurns);
-			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
-			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_PROGRESS", iStoredProduction, iProductionNeeded);
-		end
-	end
-	
-	local iBaseProductionPT = pCity:GetBaseYieldRate(YieldTypes.YIELD_PRODUCTION);
-	
-	-- Output
-	local strBase = Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", iBaseProductionPT, "[ICON_PRODUCTION]");
-	local strTotal = Locale.ConvertTextKey("TXT_KEY_YIELD_TOTAL", iProductionPerTurn, "[ICON_PRODUCTION]");
-	local strOutput = strBase .. "[NEWLINE]" .. strTotal;
-	strToolTip = strToolTip .. "[NEWLINE]";
-	
-	-- This builds the tooltip from C++
-	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
-	if (strCodeToolTip ~= "") then
-		strOutput = strOutput .. "[NEWLINE]----------------" .. strCodeToolTip;
-	end
-
-	strToolTip = strToolTip .. strOutput;
-	
-	--Controls.ProductionDescriptionBox:SetToolTipString(strToolTip);
-	Controls.ProductionPortraitButton:SetToolTipString(strToolTip);
-	
-	-- Info for the upper-left display
-	Controls.ProdPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iProductionPerTurn) );
-	
-	local strProductionHelp = GetProductionTooltip(pCity);
-	
-	Controls.ProdBox:SetToolTipString(strProductionHelp);
-	
-end
-
-
--------------------------------------------------
--- Update Tooltips in the upper-left part of the screen
--------------------------------------------------
-function DoUpdateUpperLeftTooltips()
-	
-	local pCity = UI.GetHeadSelectedCity();
-	
-	local strFoodToolTip = GetFoodTooltip(pCity);
-	Controls.FoodBox:SetToolTipString(strFoodToolTip);
-	Controls.PopulationBox:SetToolTipString(strFoodToolTip);
-	
-	local strGoldToolTip = GetGoldTooltip(pCity);
-	Controls.GoldBox:SetToolTipString(strGoldToolTip);
-	
-	local strScienceToolTip = GetScienceTooltip(pCity);
-	Controls.ScienceBox:SetToolTipString(strScienceToolTip);
-	
-	local strCultureToolTip = GetCultureTooltip(pCity);
-	Controls.CultureBox:SetToolTipString(strCultureToolTip);
-	
-	local strFaithToolTip = GetFaithTooltip(pCity);
-	Controls.FaithBox:SetToolTipString(strFaithToolTip);
-	
-	local strTourismToolTip = GetTourismTooltip(pCity);
-	Controls.TourismBox:SetToolTipString(strTourismToolTip);
-end
-
--------------------------------------------------
--- Enter City Screen
--------------------------------------------------
-function OnEnterCityScreen()
-	
-	local pCity = UI.GetHeadSelectedCity();
-	
-	if (pCity ~= nil) then
-		Network.SendUpdateCityCitizens(pCity:GetID());
-	end
-
-	LuaEvents.TryQueueTutorial("CITY_SCREEN", true);
-	
-	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-end
-Events.SerialEventEnterCityScreen.Add(OnEnterCityScreen);
-
-
--------------------------------------------------
--------------------------------------------------
-function PlotButtonClicked( iPlotIndex )
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		if iPlotIndex > 0 then
-			local pCity = UI.GetHeadSelectedCity();
-			Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, iPlotIndex, -1, false, bAlt, bShift, bCtrl);
-		end
-	end
-end
-
--------------------------------------------------
--------------------------------------------------
-function BuyPlotAnchorButtonClicked( iPlotIndex )
-
-	if not Players[Game.GetActivePlayer()]:IsTurnActive() then
-		return;
-	end
-	
-	local activePlayerID = Game.GetActivePlayer();
-	local pHeadSelectedCity = UI.GetHeadSelectedCity();
-	if pHeadSelectedCity then
-		local plot = pHeadSelectedCity:GetCityIndexPlot( iPlotIndex );
-		local plotX = plot:GetX();
-		local plotY = plot:GetY();
-		Network.SendCityBuyPlot(pHeadSelectedCity:GetID(), plotX, plotY);
-		UI.UpdateCityScreen();
-		Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE");		
-	end
-	return true;
-end
-
-
--------------------------------------------------
--------------------------------------------------
-function UpdateWorkingHexes()
-		
-	local pCity = UI.GetHeadSelectedCity();
-	
-    if( pCity == nil ) then
-        return;
-    end
-    
-	if (UI.IsCityScreenUp()) then   
-	
-		-- display worked plots
-		g_PlotButtonIM:ResetInstances();
-		for i = 0, pCity:GetNumCityPlots() - 1, 1 do
-			local plot = pCity:GetCityIndexPlot( i );
-			if (plot ~= nil) then
-				
-				bNoHighlight = false;
-				
-				if ( plot:GetOwner() == pCity:GetOwner() ) then
-				
-					if workerHeadingOpen then
-						local hexPos = ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) );
-						local worldPos = HexToWorld( hexPos );
-					
-						-- the city itself
-						if ( i == 0 ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	11, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_CENTER") );
-							controlTable.PlotButtonImage:SetVoid1( -1 );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, OnResetForcedTiles);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 1.0, 1.0, 1.0, 1 ) );
-						-- FORCED worked plot
-						elseif ( pCity:IsWorkingPlot( plot ) and pCity:IsForcedWorkingPlot( plot ) ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	10, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FORCED_WORK_TILE") );
-							controlTable.PlotButtonImage:SetVoid1( i );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 1.0, 1.0, 1.0, 1 ) );
-						-- AI-picked worked plot
-						elseif ( pCity:IsWorkingPlot( plot ) ) then						
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	0, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_GUVNA_WORK_TILE") );
-							controlTable.PlotButtonImage:SetVoid1( i );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 0.0, 1.0, 0.0, 1 ) );
-						-- Owned by another one of our Cities
-						elseif ( plot:GetWorkingCity():GetID() ~= pCity:GetID() and  plot:GetWorkingCity():IsWorkingPlot( plot ) ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	12, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_NUTHA_CITY_TILE") );
-							controlTable.PlotButtonImage:SetVoid1( i );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 0.0, 0.0, 1.0, 1 ) );
-						-- Blockaded water plot
-						elseif ( plot:IsWater() and pCity:IsPlotBlockaded( plot ) ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	13, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_BLOCKADED_CITY_TILE") );
-							controlTable.PlotButtonImage:SetVoid1( -1 );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 1.0, 0.0, 0.0, 1 ) );
-						-- Enemy Unit standing here
-						elseif ( plot:IsVisibleEnemyUnit(pCity:GetOwner()) ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							IconHookup(	13, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_ENEMY_UNIT_CITY_TILE") );
-							controlTable.PlotButtonImage:SetVoid1( -1 );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							
-							DoTestViewingModeOnly(controlTable);
-							
-							--Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), true, Vector4( 1.0, 0.0, 0.0, 1 ) );
-						-- Other: turn off highlight
-						elseif ( pCity:CanWork( plot ) or plot:GetWorkingCity():GetID() ~= pCity:GetID() ) then
-							local controlTable = g_PlotButtonIM:GetInstance();						
-							controlTable.PlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset ) );
-							controlTable.PlotButtonImage:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE") );
-							IconHookup(	9, 45, "CITIZEN_ATLAS", controlTable.PlotButtonImage);
-							controlTable.PlotButtonImage:SetVoid1( i );
-							controlTable.PlotButtonImage:RegisterCallback( Mouse.eLCLick, PlotButtonClicked);
-							bNoHighlight = true;
-							
-							DoTestViewingModeOnly(controlTable);
-							
-						end
-						
-					else
-						bNoHighlight = true;
-					end
-				end
-				
-				--if (bNoHighlight) then
-					Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) ), false, Vector4( 0.0, 1.0, 0.0, 1 ) );
-				--end
+		end,
+	},
+	CityTaskButton = {
+		[Mouse.eLClick] = function( cityID, taskID, button )
+			local city = GetSelectedCity()
+			if city and city:GetID() == cityID then
+				return Events.SerialEventGameMessagePopup{
+					Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
+					Data1 = cityID,
+					Data2 = taskID,
+					Text = button:GetToolTipString()
+					}
 			end
-		end
-		
-		-- Add buy plot buttons
-		g_BuyPlotButtonIM:ResetInstances();
-		if UI.GetInterfaceMode() == InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT then
-			Events.RequestYieldDisplay( YieldDisplayTypes.CITY_PURCHASABLE, pCity:GetX(), pCity:GetY() );
-			for i = 0, pCity:GetNumCityPlots() - 1, 1 do
-				local plot = pCity:GetCityIndexPlot( i );
-				if (plot ~= nil) then
-					local hexPos = ToHexFromGrid( Vector2( plot:GetX(), plot:GetY() ) );
-					local worldPos = HexToWorld( hexPos );
-					if (pCity:CanBuyPlotAt(plot:GetX(), plot:GetY(), false)) then
-						local controlTable = g_BuyPlotButtonIM:GetInstance();						
-						controlTable.BuyPlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset2 ) );
-						local iPlotCost = pCity:GetBuyPlotCost( plot:GetX(), plot:GetY() );
-						local strText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CLAIM_NEW_LAND",iPlotCost);
-						controlTable.BuyPlotAnchoredButton:SetToolTipString( strText );
-						controlTable.BuyPlotAnchoredButtonLabel:SetText( tostring(iPlotCost) );
-						controlTable.BuyPlotAnchoredButton:SetDisabled( false );
-						controlTable.BuyPlotAnchoredButton:SetVoid1( i );
-						controlTable.BuyPlotAnchoredButton:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked);
-					elseif (pCity:CanBuyPlotAt(plot:GetX(), plot:GetY(), true)) then
-						local controlTable = g_BuyPlotButtonIM:GetInstance();						
-						controlTable.BuyPlotButtonAnchor:SetWorldPosition( VecAdd( worldPos, WorldPositionOffset2 ) );
-						local iPlotCost = pCity:GetBuyPlotCost( plot:GetX(), plot:GetY() );						
-						local strText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE",iPlotCost);
-						controlTable.BuyPlotAnchoredButton:SetToolTipString( strText );
-						controlTable.BuyPlotAnchoredButton:SetDisabled( true );
-						controlTable.BuyPlotAnchoredButtonLabel:SetText( "[COLOR_WARNING_TEXT]"..tostring(iPlotCost).."[ENDCOLOR]" );
-					end
-				end
+		end,
+	},
+	YesButton = {
+		[Mouse.eLClick] = function( cityID, buildingID )
+			Controls.SellBuildingConfirm:SetHide( true )
+			if cityID and buildingID and buildingID > 0 and GetSelectedModifiableCity() then
+				Network.SendSellBuilding( cityID, buildingID )
+				Network.SendUpdateCityCitizens( cityID )
 			end
-			local aPurchasablePlots = {pCity:GetBuyablePlotList()};
-			for i = 1, #aPurchasablePlots, 1 do
-				Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( aPurchasablePlots[i]:GetX(), aPurchasablePlots[i]:GetY() ) ), true, Vector4( 1.0, 0.0, 1.0, 1 ) );
-			end
+			return Controls.YesButton:SetVoids( -1, -1 )
+		end,
+	},
+	NoButton = {
+		[Mouse.eLClick] = CancelBuildingSale,
+	},
+	NextCityButton = {
+		[Mouse.eLClick] = GotoNextCity,
+	},
+	PrevCityButton = {
+		[Mouse.eLClick] = GotoPrevCity,
+	},
+	ReturnToMapButton = {
+		[Mouse.eLClick] = ExitCityScreen,
+	},
+	ProductionPortraitButton = {
+		[Mouse.eRClick] = ProductionPedia,
+	},
+	BoxOSlackers = {
+		[Mouse.eLClick] = OnSlackersSelected,
+	},
+	ResetButton = {
+		[Mouse.eLClick] = PlotButtonClicked,
+	},
+	NoAutoSpecialistCheckbox = {
+		[Mouse.eLClick] = function()
+			return Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, not UI_GetHeadSelectedCity():IsNoAutoAssignSpecialists() )
+		end,
+	},
+	EditButton = {
+		[Mouse.eLClick] = RenameCity,
+	},
+	CityNameTitleBarLabel = {
+		[Mouse.eRClick] = RenameCity,
+	},
+}
+g_callBacks.NoAutoSpecialistCheckbox2 = g_callBacks.NoAutoSpecialistCheckbox
 
-		-- Standard mode - show plots that will be acquired by culture
-		else
-			local aPurchasablePlots = {pCity:GetBuyablePlotList()};
-			for i = 1, #aPurchasablePlots, 1 do
-				Events.SerialEventHexHighlight( ToHexFromGrid( Vector2( aPurchasablePlots[i]:GetX(), aPurchasablePlots[i]:GetY() ) ), true, Vector4( 1.0, 0.0, 1.0, 1 ) );
-			end
-		end
-    end
-end
-Events.SerialEventCityHexHighlightDirty.Add(UpdateWorkingHexes);
-
--------------------------------------------------
-function DoTestViewingModeOnly(controlTable)
-	
-	-- Viewing mode only?
-	if (UI.IsCityScreenViewingMode()) then
-		controlTable.PlotButtonImage:SetDisabled(true);
-	else
-		controlTable.PlotButtonImage:SetDisabled(false);
-	end
-	
-end	
-
-
-
--------------------------------------------------
--------------------------------------------------
-function OnProductionClick()
-	
-	local city = UI.GetHeadSelectedCity();
-	local cityID = city:GetID();
-	local popupInfo = {
-		Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION,
-		Data1 = cityID,
-		Data2 = -1,
-		Data3 = -1,
-		Option1 = (productionQueueOpen and city:GetOrderQueueLength() > 0),
-		Option2 = false;
-	}
-	Events.SerialEventGameMessagePopup(popupInfo);
-    -- send production popup message
-end
-Controls.ProductionButton:RegisterCallback( Mouse.eLClick, OnProductionClick );
-
-
--------------------------------------------------
--------------------------------------------------
-function OnRemoveClick( num )	
-	Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_POP_ORDER, num);
-end
-Controls.b1remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b1remove:SetVoid1( 0 );
-Controls.b2remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b2remove:SetVoid1( 1 );
-Controls.b3remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b3remove:SetVoid1( 2 );
-Controls.b4remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b4remove:SetVoid1( 3 );
-Controls.b5remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b5remove:SetVoid1( 4 );
-Controls.b6remove:RegisterCallback( Mouse.eLClick, OnRemoveClick );
-Controls.b6remove:SetVoid1( 5 );
-
--------------------------------------------------
--------------------------------------------------
-function OnSwapClick( num )
-	print()
-	Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_SWAP_ORDER, num);
-end
-Controls.b1down:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b1down:SetVoid1( 0 );
-
-Controls.b2up:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b2up:SetVoid1( 0 );
-Controls.b2down:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b2down:SetVoid1( 1 );
-
-Controls.b3up:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b3up:SetVoid1( 1 );
-Controls.b3down:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b3down:SetVoid1( 2 );
-
-Controls.b4up:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b4up:SetVoid1( 2 );
-Controls.b4down:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b4down:SetVoid1( 3 );
-
-Controls.b5up:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b5up:SetVoid1( 3 );
-Controls.b5down:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b5down:SetVoid1( 4 );
-
-Controls.b6up:RegisterCallback( Mouse.eLClick, OnSwapClick );
-Controls.b6up:SetVoid1( 4 );
---Controls.b6down:RegisterCallback( Mouse.eLClick, OnSwapClick );
---Controls.b6down:SetVoid1( 5 );
-
-
--------------------------------------------------
--------------------------------------------------
-
-local g_iCurrentSpecialist = -1;
-local g_bCurrentSpecialistGrowth = true;
-
----------------------------------------------------------------
--- Specialist Automation Checkbox
----------------------------------------------------------------
-function OnNoAutoSpecialistCheckboxClick()
-	local bValue = false;
-	
-	-- Checkbox was JUST turned on, 
-	if (not UI.GetHeadSelectedCity():IsNoAutoAssignSpecialists()) then
-		bValue = true;
-	end
-	
-	Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, bValue);
-end
-Controls.NoAutoSpecialistCheckbox:RegisterCallback(Mouse.eLClick, OnNoAutoSpecialistCheckboxClick);
-Controls.NoAutoSpecialistCheckbox2:RegisterCallback(Mouse.eLClick, OnNoAutoSpecialistCheckboxClick);
-
----------------------------------------------------------------
--- Clicking on Building instances to add or remove Specialists
----------------------------------------------------------------
-function OnBuildingClick(iBuilding)
-	--local pCity = UI.GetHeadSelectedCity();
-	--
-	--local iNumSpecialistsAllowed = pCity:GetNumSpecialistsAllowedByBuilding(iBuilding)
-	--local iNumSpecialistsAssigned = pCity:GetNumSpecialistsInBuilding(iBuilding);
-	--
-	--if (iNumSpecialistsAllowed > 0) then
-		--
-		---- If Specialists are automated then you can't change things with them
-		--if (not pCity:IsNoAutoAssignSpecialists()) then
-			--local bValue = true;
-			--Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, bValue);
-			--Controls.NoAutoSpecialistCheckbox:SetCheck(true);
-		--end
-		--
-		--local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
-		--
-		---- Switched to a different specialist type, so clicking on the building will grow the count
-		--if (iSpecialist ~= g_iCurrentSpecialist) then
-			--g_bCurrentSpecialistGrowth = true;
-		--end
-		--
-		---- Nobody assigned yet, so we must grow
-		--if (iNumSpecialistsAssigned == 0) then
-			--g_bCurrentSpecialistGrowth = true;
-		--end
-		--
-		---- If we can add something, add it
-		--if (g_bCurrentSpecialistGrowth and pCity:IsCanAddSpecialistToBuilding(iBuilding)) then
-			--Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, iSpecialist, iBuilding);
-			--
-		---- Can't add something, so remove what's here instead
-		--elseif (iNumSpecialistsAssigned > 0) then
-			--Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
-			--
-			---- Start removing Specialists
-			--g_bCurrentSpecialistGrowth = false;
-		--end
-		--
-		--g_iCurrentSpecialist = iSpecialist;
-	--end
-	--
-end
-
-
-function DisableSpecialist(iBuilding, slot)
-end
-
-
-function AddSpecialist(iBuilding, slot)
-	local pCity = UI.GetHeadSelectedCity();
-				
-	-- If Specialists are automated then you can't change things with them
-	if (not pCity:IsNoAutoAssignSpecialists()) then
-		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true);
-		Controls.NoAutoSpecialistCheckbox:SetCheck(true);
-		Controls.NoAutoSpecialistCheckbox2:SetCheck(true);
-	end
-	
-	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
-	
-	-- If we can add something, add it
-	if (pCity:IsCanAddSpecialistToBuilding(iBuilding)) then
-		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, iSpecialist, iBuilding);
-	end
-	
-	--g_iCurrentSpecialist = iSpecialist;
-	specialistTable[iBuilding][slot] = true;
-	
-end
-
-function RemoveSpecialist(iBuilding, slot)
-	local pCity = UI.GetHeadSelectedCity();
-	
-	local iNumSpecialistsAssigned = pCity:GetNumSpecialistsInBuilding(iBuilding);
-				
-	-- If Specialists are automated then you can't change things with them
-	if (not pCity:IsNoAutoAssignSpecialists()) then
-		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true);
-		Controls.NoAutoSpecialistCheckbox:SetCheck(true);
-		Controls.NoAutoSpecialistCheckbox2:SetCheck(true);
-	end
-	
-	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
-	
-	-- If we can remove something, remove it
-	if (iNumSpecialistsAssigned > 0) then
-		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
-	end
-	
-	--g_iCurrentSpecialist = iSpecialist;
-	
-	specialistTable[iBuilding][slot] = false;
-end
-
--------------------------------------------------
--------------------------------------------------
-function OnNextCityButton()
-	Game.DoControl(GameInfoTypes.CONTROL_NEXTCITY)
-end
-Controls.NextCityButton:RegisterCallback( Mouse.eLClick, OnNextCityButton );
-
--------------------------------------------------
--------------------------------------------------
-function OnPrevCityButton()
-	Game.DoControl(GameInfoTypes.CONTROL_PREVCITY)
-end
-Controls.PrevCityButton:RegisterCallback( Mouse.eLClick, OnPrevCityButton );
-
--------------------------------------------------
--------------------------------------------------
-function UpdateBuyPlotButton()
-
-end
-
--------------------------------------------------
--------------------------------------------------
-function OnBuyPlotClick()
-
-	if not Players[Game.GetActivePlayer()]:IsTurnActive() then
-		return;
-	end
-	
-	local city = UI.GetHeadSelectedCity();
-	
-	if (city == nil) then
-		return;
-	end;
-	
-	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT);
-	UpdateWorkingHexes();
-	
-	--UpdateBuyPlotButton();
-end
-Controls.BuyPlotButton:RegisterCallback( Mouse.eLClick, OnBuyPlotClick );
-
--------------------------------------------------
--- Plot moused over
--------------------------------------------------
-function OnMouseOverHex( hexX, hexY )
-	
-	if UI.GetInterfaceMode() == InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT then
-		
-		local city = UI.GetHeadSelectedCity();
-		
-		if (city == nil) then
-			return;
-		end;
-
-		local strText = "---";
-		
-		-- Can buy this plot
-		if (city:CanBuyPlotAt( hexX, hexY, true)) then
-			local iPlotCost = city:GetBuyPlotCost( hexX, hexY );
-			strText = "[ICON_GOLD] " .. iPlotCost;
-		end
-		
-		Controls.BuyPlotText:SetText(strText);
-	end
-	
-end
-Events.SerialEventMouseOverHex.Add( OnMouseOverHex );
-
--------------------------------------------------
--------------------------------------------------
-function OnReturnToMapButton()
-	--CloseScreen();
-	Events.SerialEventExitCityScreen();
-end
-Controls.ReturnToMapButton:RegisterCallback( Mouse.eLClick, OnReturnToMapButton);
-
--------------------------------------------------
--------------------------------------------------
-function OnRazeButton()
-
-	local pCity = UI.GetHeadSelectedCity();
-	
-	if (pCity == nil) then
-		return;
-	end;
-	
-	local popupInfo = {
-		Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
-		Data1 = pCity:GetID(),
-		Data2 = TaskTypes.TASK_RAZE,
-		}
-    
-	Events.SerialEventGameMessagePopup( popupInfo );
-end
-Controls.RazeCityButton:RegisterCallback( Mouse.eLClick, OnRazeButton);
-
--------------------------------------------------
--------------------------------------------------
-function OnUnrazeButton()
-
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		
-		if (pCity == nil) then
-			return;
-		end;
-		
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_UNRAZE, -1, -1, false, false, false, false);
-	end
-end
-Controls.UnrazeCityButton:RegisterCallback( Mouse.eLClick, OnUnrazeButton);
-
--------------------------------------------------
--------------------------------------------------
-function OnPurchaseButton()
-	local city = UI.GetHeadSelectedCity();
-	local cityID = city:GetID();
-	local popupInfo = {
-		Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION,
-		Data1 = cityID,
-		Data2 = -1,
-		Data3 = -1,
-		Option1 = (productionQueueOpen and city:GetOrderQueueLength() > 0),
-		Option2 = true;
-	}
-	Events.SerialEventGameMessagePopup(popupInfo);
-    -- send production popup message
-
-end
-Controls.PurchaseButton:RegisterCallback( Mouse.eLClick, OnPurchaseButton);
-
-
-function OnPortraitRClicked()
-	local city = UI.GetHeadSelectedCity();
-	local cityID = city:GetID();
-
-	local searchString = "";
-	local unitProduction = city:GetProductionUnit();
-	local buildingProduction = city:GetProductionBuilding();
-	local projectProduction = city:GetProductionProject();
-	local processProduction = city:GetProductionProcess();
-	local noProduction = false;
-
-	if unitProduction ~= -1 then
-		local thisUnitInfo = GameInfo.Units[unitProduction];
-		searchString = Locale.ConvertTextKey( thisUnitInfo.Description );
-	elseif buildingProduction ~= -1 then
-		local thisBuildingInfo = GameInfo.Buildings[buildingProduction];
-		searchString = Locale.ConvertTextKey( thisBuildingInfo.Description );
-	elseif projectProduction ~= -1 then
-		local thisProjectInfo = GameInfo.Projects[projectProduction];
-		searchString = Locale.ConvertTextKey( thisProjectInfo.Description );
-	elseif processProduction ~= -1 then
-		local pProcessInfo = GameInfo.Processes[processProduction];
-		searchString = Locale.ConvertTextKey( pProcessInfo.Description );
-	else
-		noProduction = true;
-	end
-		
-	if noProduction == false then
-	
-		--CloseScreen();
-
-		-- search by name
-		Events.SearchForPediaEntry( searchString );		
-	end
-		
-end
-Controls.ProductionPortraitButton:RegisterCallback( Mouse.eRClick, OnPortraitRClicked );
-
-
-----------------------------------------------------------------
-----------------------------------------------------------------
-function OnHideQueue( bIsChecked )
-	productionQueueOpen = bIsChecked;
-	OnCityViewUpdate();
-end
-Controls.HideQueueButton:RegisterCheckHandler( OnHideQueue );
-
-
-----------------------------------------------------------------
-----------------------------------------------------------------
-
-function FocusChanged( focus )
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		Network.SendSetCityAIFocus( pCity:GetID(), focus );
-	end
-end
+--Controls.ResetButton:SetVoid1( 0 )	-- calling with 0 = city center causes reset of all forced tiles
+--Controls.BoxOSlackers:SetVoids(-1,-1)
+--Controls.ProductionPortraitButton:SetVoid1( 0 )
 Controls.BalancedFocusButton:SetVoid1( CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE )
-Controls.BalancedFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
 Controls.FoodFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD )
-Controls.FoodFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
 Controls.ProductionFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION )
-Controls.ProductionFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
-Controls.GoldFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD )
-Controls.GoldFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
+Controls.GoldFocusButton:SetVoid1( g_focusCurrency )
 Controls.ResearchFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE )
-Controls.ResearchFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
 Controls.CultureFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE )
-Controls.CultureFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
 Controls.GPFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE )
-Controls.GPFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
-Controls.FaithFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH );
-Controls.FaithFocusButton:RegisterCallback( Mouse.eLClick, FocusChanged );
-
-----------------------------------------------------------------
-----------------------------------------------------------------
-
-function OnAvoidGrowth( )
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		Network.SendSetCityAvoidGrowth( pCity:GetID(), not pCity:IsForcedAvoidGrowth() );
-	end		
+if gk_mode then
+	Controls.FaithFocusButton:SetVoid1( CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH )
 end
-Controls.AvoidGrowthButton:RegisterCallback( Mouse.eLClick, OnAvoidGrowth );
+Controls.GPFocusButton:SetHide( civBE_mode )
+Controls.FaithBox:SetHide( civBE_mode or not gk_mode )
+Controls.FaithFocusButton:SetHide( civBE_mode or not gk_mode )
+Controls.TourismBox:SetHide( not civ5bnw_mode )
 
-----------------------------------------------------------------
-----------------------------------------------------------------
+SetupCallbacks( Controls, g_toolTips, "EUI_CityViewLeftTooltip", g_callBacks )
 
-function OnResetForcedTiles( )
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		if pCity ~= nil then
-			-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
-			Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, 0, -1, false, bAlt, bShift, bCtrl);
+Controls.BuyPlotCheckBox:RegisterCheckHandler( function( isChecked ) -- Void1, Void2, control )
+	g_BuyPlotMode = isChecked
+	g_options.SetValue( "CityPlotPurchase", isChecked and 1 or 0 )
+	return UpdateCityView()
+end )
+
+----------------------------------------------
+-- Register Events
+----------------------------------------------
+
+Events.SerialEventCityScreenDirty.Add( UpdateCityView )
+Events.SerialEventCityInfoDirty.Add( UpdateCityView )
+Events.GameOptionsChanged.Add( UpdateOptionsAndCityView )
+Events.SerialEventCityHexHighlightDirty.Add( UpdateWorkingHexes )
+UpdateOptionsAndCityView()
+
+--------------------------
+-- Enter City Screen Event
+Events.SerialEventEnterCityScreen.Add(
+function()
+
+--	local city = UI_GetHeadSelectedCity()
+--	if city then
+--		Network.SendUpdateCityCitizens( city:GetID() )
+--	end
+
+	LuaEvents.TryQueueTutorial("CITY_SCREEN", true)
+
+	g_queuedItemNumber = false
+	g_previousCity = false
+--TODO other scroll panels
+	Controls.RightScrollPanel:SetScrollValue(0)
+end)
+
+-------------------------
+-- Exit City Screen Event
+Events.SerialEventExitCityScreen.Add(
+function()
+	Events.ClearHexHighlights()
+
+	-- We may get here after a player change, clear the UI if this is not the active player's city
+	local city = UI_GetHeadSelectedCity()
+	if not city or city:GetOwner() ~= g_activePlayerID then
+		ClearCityUIInfo()
+	end
+	UI.ClearSelectedCities()
+	LuaEvents.TryDismissTutorial("CITY_SCREEN")
+
+	CancelBuildingSale()
+
+	-- Try and re-select the last unit selected
+	if not UI.GetHeadSelectedUnit() then
+		local unit = UI.GetLastSelectedUnit()
+		if unit and unit:MovesLeft() > 0 then
+			UI.SelectUnit( unit )
+			UI.LookAtSelectionPlot()
 		end
 	end
+	g_isViewingMode = true
+	return UI.SetCityScreenViewingMode(false)
+end)
+if civ5_mode then
+	------------------------------------
+	-- Strategic View State Change Event
+	local NormalWorldPositionOffset = g_worldPositionOffset
+	local NormalWorldPositionOffset2 = g_worldPositionOffset2
+	local StrategicViewWorldPositionOffset = { x = 0, y = 20, z = 0 }
+	Events.StrategicViewStateChanged.Add(
+	function( bStrategicView )
+		if bStrategicView then
+			g_worldPositionOffset = StrategicViewWorldPositionOffset
+			g_worldPositionOffset2 = StrategicViewWorldPositionOffset
+		else
+			g_worldPositionOffset = NormalWorldPositionOffset
+			g_worldPositionOffset2 = NormalWorldPositionOffset2
+		end
+		g_previousCity = false
+		return UpdateCityView()
+	end)
 end
-Controls.ResetButton:RegisterCallback( Mouse.eLClick, OnResetForcedTiles );
-
----------------------------------------------------------------------------------------
--- Support for Modded Add-in UI's
----------------------------------------------------------------------------------------
-g_uiAddins = {};
-for addin in Modding.GetActivatedModEntryPoints("CityViewUIAddin") do
-	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
-	local addinPath = addinFile.EvaluatedPath;
-	
-	-- Get the absolute path and filename without extension.
-	local extension = Path.GetExtension(addinPath);
-	local path = string.sub(addinPath, 1, #addinPath - #extension);
-	
-	table.insert(g_uiAddins, ContextPtr:LoadNewContext(path));
-end
-
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-function OnProductionPopup( bIsHide )
-	if OptionsManager.GetSmallUIAssets() then
-		Controls.TopLeft:SetHide( not bIsHide );
-		Controls.CivIconFrame:SetHide( not bIsHide );
-		Controls.ProdQueueBackground:SetHide( not bIsHide );
-		Controls.LeftTrim:SetHide( not bIsHide );
-    else
-		Controls.TopLeft:SetHide( not bIsHide );
-		Controls.InfoBG:SetHide( not bIsHide );
-		Controls.CityInfo:SetHide( not bIsHide );
-		Controls.ProdQueueBackground:SetHide( not bIsHide );
-		Controls.LeftTrim:SetHide( not bIsHide );
-    end
-end
-LuaEvents.ProductionPopup.Add( OnProductionPopup );
-
-
-------------------------------------------------------------
--- Selling Buildings
-------------------------------------------------------------
-	
-function OnBuildingClicked(iBuildingID)
-
-	if (not Players[Game.GetActivePlayer()]:IsTurnActive()) then
-		return;
-	end
-
-	local pCity = UI.GetHeadSelectedCity();
-	
-	-- Can this building even be sold?
-	if (not pCity:IsBuildingSellable(iBuildingID)) then
-		return;
-	end
-	
-	-- Build info string
-	local pBuilding = GameInfo.Buildings[iBuildingID];
-	
-	local iRefund = pCity:GetSellBuildingRefund(iBuildingID);
-	local iMaintenance = pBuilding.GoldMaintenance;
-	
-	local localizedLabel = Locale.ConvertTextKey( "TXT_KEY_SELL_BUILDING_INFO", iRefund, iMaintenance );
-	Controls.SellBuildingPopupText:SetText(localizedLabel);
-	
-	g_iBuildingToSell = iBuildingID;
-	
-	Controls.SellBuildingConfirm:SetHide(false);
-end
-
-function OnYes( )
-	Controls.SellBuildingConfirm:SetHide(true);
-	if Players[Game.GetActivePlayer()]:IsTurnActive() then
-		local pCity = UI.GetHeadSelectedCity();
-		Network.SendSellBuilding(pCity:GetID(), g_iBuildingToSell);
-	end
-	g_iBuildingToSell = -1;
-end
-Controls.YesButton:RegisterCallback( Mouse.eLClick, OnYes );
-
-function OnNo( )
-	Controls.SellBuildingConfirm:SetHide(true);
-	g_iBuildingToSell = -1;
-end
-Controls.NoButton:RegisterCallback( Mouse.eLClick, OnNo );
-
-
-------------------------------------------------------------
-------------------------------------------------------------
-local NormalWorldPositionOffset  = WorldPositionOffset;
-local NormalWorldPositionOffset2 = WorldPositionOffset2;
-local StrategicViewWorldPositionOffset = { x = 0, y = 20, z = 0 };
-function OnStrategicViewStateChanged( bStrategicView )
-	if bStrategicView then
-		WorldPositionOffset  = StrategicViewWorldPositionOffset;
-		WorldPositionOffset2 = StrategicViewWorldPositionOffset;
-	else
-		WorldPositionOffset  = NormalWorldPositionOffset;
-		WorldPositionOffset2 = NormalWorldPositionOffset2;
-	end
-end
-Events.StrategicViewStateChanged.Add(OnStrategicViewStateChanged);
-
-----------------------------------------------------------------
+--------------------------------------------
 -- 'Active' (local human) player has changed
-----------------------------------------------------------------
-function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
-	ClearCityUIInfo();
-    if( not ContextPtr:IsHidden() ) then
-		Events.SerialEventExitCityScreen();	
+Events.GameplaySetActivePlayer.Add(
+function( activePlayerID )--, previousActivePlayerID )
+	g_activePlayerID = activePlayerID
+	g_activePlayer = Players[ g_activePlayerID ]
+	g_finishedItems = {}
+	ClearCityUIInfo()
+	if UI.IsCityScreenUp() then
+		return ExitCityScreen()
+	end
+end)
+
+Events.ActivePlayerTurnEnd.Add(
+function()
+	g_finishedItems = {}
+end)
+
+Events.SerialEventGameMessagePopup.Add(
+function( popupInfo )
+	if popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION then
+		Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION, 0)
+		Events.SerialEventGameMessagePopupShown( popupInfo )
+
+		local cityID = popupInfo.Data1		-- city id
+		local orderID = popupInfo.Data2		-- finished order id
+		local itemID = popupInfo.Data3		-- finished item id
+		local city = cityID and g_activePlayer:GetCityByID( cityID )
+
+		if city and not UI.IsCityScreenUp() then
+			if orderID >= 0 and itemID >= 0 then
+				g_finishedItems[ cityID ] = { orderID, itemID }
+			end
+			g_isButtonPopupChooseProduction = g_isAutoClose
+			return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
+		end
+	end
+end)
+
+Events.NotificationAdded.Add(
+function( notificationID, notificationType, toolTip, strSummary, data1, data2, playerID )
+	if notificationType == NotificationTypes.NOTIFICATION_PRODUCTION and playerID == g_activePlayerID then
+		-- Hack to find city
+		for city in g_activePlayer:Cities() do
+			if strSummary == L( "TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", city:GetNameKey() ) then
+				if data1 >= 0 and data2 >=0 then
+					g_finishedItems[ city:GetID() ] = { data1, data2 }
+				end
+				if city:GetGameTurnFounded() == Game.GetGameTurn() and not UI.IsCityScreenUp() then
+					return UI.DoSelectCityAtPlot( city:Plot() )	-- open city screen
+				end
+				return
+			end
+		end
+	end
+end)
+print("Finished loading EUI city view",os.clock())
+end)
+
+---------------------------------
+-- Support for Modded Add-in UI's
+---------------------------------
+local g_uiAddins = {}
+for addin in Modding.GetActivatedModEntryPoints("CityViewUIAddin") do
+	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File)
+	local addinPath = addinFile.EvaluatedPath
+
+	-- Get the absolute path and filename without extension.
+	local extension = Path.GetExtension(addinPath)
+	local ok, result = pcall( ContextPtr.LoadNewContext, ContextPtr, addinPath:sub( 1, #addinPath - #extension ) )
+	if ok then
+		table.insert( g_uiAddins, result )
+	else
+		print( addinPath, result )
 	end
 end
-Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);

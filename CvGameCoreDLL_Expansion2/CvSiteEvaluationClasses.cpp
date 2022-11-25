@@ -1100,7 +1100,11 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, 
 		// if the civ gets a benefit from settling on a new continent (ie: Indonesia)
 		// double the fertility of that plot
 		int iLuxuryModifier = 0;
+#ifdef INDONESIA_UA_REWORK
+		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea) && bIsCoastal)
+#else
 		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
+#endif
 		{
 			iLuxuryModifier = CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield) * 2;
 			return iLuxuryModifier;

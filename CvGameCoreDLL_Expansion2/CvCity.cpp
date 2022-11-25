@@ -14076,6 +14076,9 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_strName;
 
 	kStream >> m_bOwedCultureBuilding;
+#ifdef OWED_FOOD_BUILDING
+	kStream >> m_bOwedFoodBuilding;
+#endif
 
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -14329,6 +14332,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_bRouteToCapitalConnectedThisTurn;
 	kStream << m_strName;
 	kStream << m_bOwedCultureBuilding;
+#ifdef OWED_FOOD_BUILDING
+	kStream << m_bOwedFoodBuilding;
+#endif
 
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
