@@ -62,7 +62,7 @@ FIND %text% "%cd%\UI_bc1\TopPanel\TopPanel.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TopPanel.lua" "%cd%\%patchfolder%\UI\TopPanel.lua"
 )
 ECHO -------------------------------------------------
-set text="if popupInfo.Data1 == -2 then"
+set text="Game.SelectionListGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_COMMAND, action.CommandType, action.CommandData, -1, 0, bAlt );"
 FIND %text% "%cd%\UI_bc1\Improvements\ConfirmCommandPopup.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\ConfirmCommandPopup.lua" "%cd%\%patchfolder%\UI\ConfirmCommandPopup.lua"
 ) || (
