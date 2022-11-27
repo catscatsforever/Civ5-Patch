@@ -9,6 +9,7 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.xml" "%cd%\%patc
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EnemyUnitPanel.lua" "%cd%\%patchfolder%\UI\EnemyUnitPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\JoiningRoom.lua" "%cd%\%patchfolder%\UI\JoiningRoom.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.xml" "%cd%\%patchfolder%\UI\VictoryProgress.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPList.lua" "%cd%\%patchfolder%\UI\MPList.lua"
 ECHO -------------------------------------------------
 REM проверяет наличие файла в папке интерфейса, если файл есть ничего не делает, если нету помещает его копию в tm/ui
 IF EXIST "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" (
@@ -59,5 +60,12 @@ FIND %text% "%cd%\UI_bc1\TopPanel\TopPanel.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TopPanel.lua" "%cd%\%patchfolder%\UI\TopPanel.lua"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TopPanel.lua" "%cd%\%patchfolder%\UI\TopPanel.lua"
+)
+ECHO -------------------------------------------------
+set text="if popupInfo.Data1 == -2 then"
+FIND %text% "%cd%\UI_bc1\Improvements\ConfirmCommandPopup.lua" && (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\ConfirmCommandPopup.lua" "%cd%\%patchfolder%\UI\ConfirmCommandPopup.lua"
+) || (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ConfirmCommandPopup.lua" "%cd%\%patchfolder%\UI\ConfirmCommandPopup.lua"
 )
 EXIT
