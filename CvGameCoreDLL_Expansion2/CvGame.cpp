@@ -3506,10 +3506,11 @@ void CvGame::doControl(ControlTypes eControl)
 	{
 		if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
 		{
-			if(getElapsedGameTurns() > 0)
+			if((getElapsedGameTurns() > 0) && GET_PLAYER(getActivePlayer()).isTurnActive())
 			{
 				// as there is no netcode for timer reset,
 				// this function will act as one, if called with special agreed upon arguments
+				resetTurnTimer(true);
 				gDLL->sendGiftUnit(NO_PLAYER, -1);
 			}
 		}
