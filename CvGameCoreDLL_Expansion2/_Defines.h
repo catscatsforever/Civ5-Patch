@@ -269,6 +269,8 @@
 #define NO_EMBARKED_CIVILIAN_DEFENSE
 ///
 #define DISABLE_AUTOMOVES
+/// Player can move only one unit while MP turn is loading
+#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 /*UNITS CHANGES END*/
 
 
