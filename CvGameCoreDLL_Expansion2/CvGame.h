@@ -233,6 +233,10 @@ public:
 	float getPreviousTurnLen();
 	void setPreviousTurnLen(float fNewValue);
 #endif
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+	bool isMPOrderedMoveOnTurnLoading() const;
+	void setMPOrderedMoveOnTurnLoading(bool bNewValue);
+#endif
 
 	bool isScoreDirty() const;
 	void setScoreDirty(bool bNewValue);
@@ -628,6 +632,9 @@ protected:
 	unsigned int m_uiInitialTime;
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	float m_fPreviousTurnLen;
+#endif
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+	bool m_bMPOrderedMoveOnTurnLoading;
 #endif
 
 	bool m_bScoreDirty;
