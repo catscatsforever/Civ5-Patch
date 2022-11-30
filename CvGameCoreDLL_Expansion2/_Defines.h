@@ -461,6 +461,8 @@
 // #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 ///
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
+// Fixes incorrect plot distance calculation for wrapped maps
+#define CAMECOREUTILS_FIX_PLOT_DISTANCE
 /*BUGS FIXES END*/
 
 
