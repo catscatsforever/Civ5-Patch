@@ -246,6 +246,8 @@
 ///
 // #define SEPARATE_MERCHANTS
 #endif
+/// 
+#define CANT_GIFT_GP
 /*GP CHAGES END*/
 
 
@@ -278,8 +280,6 @@
 #define AQUEDUCT_FIX
 ///
 #define OWED_FOOD_BUILDING
-///
-#define SPACESHIP_GRAPHICS
 ///
 #define SS_PART_PURCHASE_RESTRICTION
 ///
@@ -444,6 +444,8 @@
 #define REDUCE_RESISTANCE_TIME
 ///
 #define NO_OXFORD_AFTER_ATOM
+///
+#define CAN_BUILD_OU_AND_NIA_ONLY_ONCE
 /*CITIES CHANGES END*/
 
 
@@ -457,6 +459,8 @@
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
 /// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
 // #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
+///
+#define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
 /*BUGS FIXES END*/
 
 
@@ -501,9 +505,19 @@
 ///
 #define RES_AGR_COUNT
 ///
+#define DIPLO_VICTORY_VOTING
+///
+#define FINISH_LEAGUE_SESSION_EVEN_IF_SOMEONE_HAS_VOTES
+///
 #define CANT_STEAL_CLASSICAL_ERA_TECHS
 ///
-#define DIPLO_VICTORY_VOTING
+#define BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+///
+// #define BUILD_ADOPTABLE_POLICY_LIST
+///
+#define SPACESHIP_GRAPHICS
+///
+#define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
 ///
 // #define NO_PUPPET_TECH_COST_MOD
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
@@ -512,6 +526,8 @@
 #ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
 // #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+///
+// #define test_push_mission
 #endif
 /*OTHER CHANGES END*/
 

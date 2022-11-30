@@ -330,6 +330,10 @@ CvPlayer::CvPlayer() :
 	, m_iNumGreatPeople("CvPlayer::m_iNumGreatPeople", m_syncArchive)
 	, m_uiStartTime("CvPlayer::m_uiStartTime", m_syncArchive)  // XXX save these?
 	, m_bHasBetrayedMinorCiv("CvPlayer::m_bHasBetrayedMinorCiv", m_syncArchive)
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	, m_bOxfordUniversityWasEverBuilt("CvPlayer::m_bOxfordUniversityWasEverBuilt", m_syncArchive)
+	, m_bNationalIntelligenceAgencyWasEverBuilt("CvPlayer::m_bNationalIntelligenceAgencyWasEverBuilt", m_syncArchive)
+#endif
 	, m_bAlive("CvPlayer::m_bAlive", m_syncArchive)
 	, m_bEverAlive("CvPlayer::m_bEverAlive", m_syncArchive)
 	, m_bBeingResurrected(false)
@@ -979,6 +983,10 @@ void CvPlayer::uninit()
 	m_iLastSliceMoved = 0;
 
 	m_bHasBetrayedMinorCiv = false;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	m_bOxfordUniversityWasEverBuilt = false;
+	m_bNationalIntelligenceAgencyWasEverBuilt = false;
+#endif
 	m_bAlive = false;
 	m_bEverAlive = false;
 	m_bBeingResurrected = false;
@@ -7268,6 +7276,15 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	if(pkBuildingInfo == NULL)
 		return false;
 
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_OXFORD_UNIVERSITY"))
+		if(isOxfordUniversityWasEverBuilt())
+			return false;
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_INTELLIGENCE_AGENCY"))
+		if(isNationalIntelligenceAgencyWasEverBuilt())
+			return false;
+#endif
+
 	// Don't allow a city to consider an espionage building if they are playing a non-espionage game
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
 	{
@@ -8394,6 +8411,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	// One-shot items
 	if(bFirst && iChange > 0)
 	{
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_OXFORD_UNIVERSITY"))
+		setOxfordUniversityWasEverBuilt(true);
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_INTELLIGENCE_AGENCY"))
+		setNationalIntelligenceAgencyWasEverBuilt(true);
+#endif
+
 		// Free Policies
 		int iFreePolicies = pBuildingInfo->GetFreePolicies();
 		if(iFreePolicies > 0)
@@ -16147,6 +16171,28 @@ void CvPlayer::SetHasBetrayedMinorCiv(bool bValue)
 	}
 }
 
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+bool CvPlayer::isOxfordUniversityWasEverBuilt() const
+{
+	return m_bOxfordUniversityWasEverBuilt;
+}
+
+void CvPlayer::setOxfordUniversityWasEverBuilt(bool bNewValue)
+{
+	m_bOxfordUniversityWasEverBuilt = bNewValue;
+}
+
+bool CvPlayer::isNationalIntelligenceAgencyWasEverBuilt() const
+{
+	return m_bNationalIntelligenceAgencyWasEverBuilt;
+}
+
+void CvPlayer::setNationalIntelligenceAgencyWasEverBuilt(bool bNewValue)
+{
+	m_bNationalIntelligenceAgencyWasEverBuilt = bNewValue;
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 {
@@ -22761,6 +22807,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	kStream >> m_iLastSliceMoved;
 	kStream >> m_bHasBetrayedMinorCiv;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	kStream >> m_bOxfordUniversityWasEverBuilt;
+	kStream >> m_bNationalIntelligenceAgencyWasEverBuilt;
+#endif
 	kStream >> m_bAlive;
 	kStream >> m_bEverAlive;
 	kStream >> m_bBeingResurrected;
@@ -23254,6 +23304,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iLastSliceMoved;
 
 	kStream << m_bHasBetrayedMinorCiv;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	kStream << m_bOxfordUniversityWasEverBuilt;
+	kStream << m_bNationalIntelligenceAgencyWasEverBuilt;
+#endif
 	kStream << m_bAlive;
 	kStream << m_bEverAlive;
 	kStream << m_bBeingResurrected;
@@ -23636,7 +23690,11 @@ bool CvPlayer::canStealTech(PlayerTypes eTarget, TechTypes eTech) const
 {
 	if(GET_TEAM(GET_PLAYER(eTarget).getTeam()).GetTeamTechs()->HasTech(eTech))
 	{
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+		if(GetPlayerTechs()->CanResearch(eTech) && GetEspionage()->IsTechStealable(eTarget, eTech))
+#else
 		if(GetPlayerTechs()->CanResearch(eTech))
+#endif
 		{
 			return true;
 		}

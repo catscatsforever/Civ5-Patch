@@ -931,6 +931,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsSpySchmoozing);
 	Method(CanSpyStageCoup);
 	Method(GetAvailableSpyRelocationCities);
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+	Method(canStealTech);
+#endif
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
 	Method(HasRecentIntrigueAbout);
@@ -10781,6 +10784,20 @@ int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 
 	return 1;
 }
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+//------------------------------------------------------------------------------
+//bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
+int CvLuaPlayer::lcanStealTech(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes eTarget = (PlayerTypes)luaL_checkinteger(L, 2);
+	const TechTypes eTech = (TechTypes)luaL_checkinteger(L, 3);
+
+	const bool bResult = pkPlayer->canStealTech(eTarget, eTech);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetNumTechsToSteal(lua_State* L)
 {

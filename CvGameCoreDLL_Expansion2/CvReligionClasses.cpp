@@ -2044,6 +2044,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	}
 #endif
 
+	/* UnitClassTypes eUnitClass = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_PROPHET", true);
+	UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);*/
+
 	UnitTypes eUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
 	if (eUnit == NO_UNIT)
 	{

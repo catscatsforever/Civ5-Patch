@@ -11892,6 +11892,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				setUnitProduction(eTrainUnit, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold = 0;
+#endif
 				if(iProductionGold > 0)
 				{
 					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
@@ -11958,6 +11961,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold = 0;
+#endif
 				if(iProductionGold > 0)
 				{
 					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
@@ -12029,6 +12035,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			setProjectProduction(eCreateProject, 0);
 
 			int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+			iProductionGold = 0;
+#endif
 			if(iProductionGold > 0)
 			{
 				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);

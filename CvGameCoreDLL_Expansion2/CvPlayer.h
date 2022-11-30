@@ -955,6 +955,13 @@ public:
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	bool isOxfordUniversityWasEverBuilt() const;
+	void setOxfordUniversityWasEverBuilt(bool bNewValue);
+	bool isNationalIntelligenceAgencyWasEverBuilt() const;
+	void setNationalIntelligenceAgencyWasEverBuilt(bool bNewValue);
+#endif
+
 	void setAlive(bool bNewValue, bool bNotify = true);
 	void verifyAlive();
 	bool isAlive() const
@@ -1823,6 +1830,10 @@ protected:
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	FAutoVariable<bool, CvPlayer> m_bOxfordUniversityWasEverBuilt;
+	FAutoVariable<bool, CvPlayer> m_bNationalIntelligenceAgencyWasEverBuilt;
+#endif
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
 	bool m_bBeingResurrected;

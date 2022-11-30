@@ -134,20 +134,6 @@ public:
 		m_bForceReset = true;
 	}
 
-#ifdef AUI_ASTAR_TURN_LIMITER
-	inline int GetMaxTurns() const
-	{
-		return m_iMaxTurns;
-	}
-
-	inline void SetMaxTurns(int iMaxTurns)
-	{
-		if (m_bDataChangeInvalidatesCache && m_iMaxTurns != iMaxTurns)
-			m_bForceReset = true;
-		m_iMaxTurns = iMaxTurns;
-	}
-#endif
-
 	inline void SetData(const void* pData)
 	{
 		if(m_bDataChangeInvalidatesCache && m_pData != pData)
@@ -328,10 +314,6 @@ protected:
 
 
 	const void* m_pData;			// Data passed back to functions
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-	int m_iMaxTurns;				// Pathfinder never lets a path's turn cost become higher than this number
-#endif
 
 	int m_iColumns;					// Used to calculate node->number
 	int m_iRows;					// Used to calculate node->number

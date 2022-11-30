@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V5.1a
+set patchfolder=Tournament Mod V5.2
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -39,6 +39,13 @@ IF EXIST "%cd%\UI_bc1\CityView\ProductionPopup.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProductionPopup.lua" "%cd%\%patchfolder%\UI\ProductionPopup.lua"
 )
 REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\TechTree\TechPopup.lua" (
+  ECHO TechPopup.lua exists on EUI, skipping
+) ELSE (
+  ECHO TechPopup.lua does not exists on EUI, copying to TM
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechPopup.lua" "%cd%\%patchfolder%\UI\TechPopup.lua"
+)
+REM -------------------------------------------------
 set text="-- modified by bc1 from 1.0.3.144 brave new world code"
 FIND %text% "%cd%\UI_bc1\CityStatePopup\CityStateDiploPopup.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityStateDiploPopup.lua" "%cd%\%patchfolder%\UI\CityStateDiploPopup.lua"
@@ -65,5 +72,12 @@ FIND %text% "%cd%\UI_bc1\Improvements\ConfirmCommandPopup.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\ConfirmCommandPopup.lua" "%cd%\%patchfolder%\UI\ConfirmCommandPopup.lua"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ConfirmCommandPopup.lua" "%cd%\%patchfolder%\UI\ConfirmCommandPopup.lua"
+)
+REM -------------------------------------------------
+set text="-- coded by bc1 from Civ V 1.0.3.276 code"
+FIND %text% "%cd%\UI_bc1\TechTree\TechTree.lua" && (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TechTree.lua" "%cd%\%patchfolder%\UI\TechTree.lua"
+) || (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechTree.lua" "%cd%\%patchfolder%\UI\TechTree.lua"
 )
 EXIT
