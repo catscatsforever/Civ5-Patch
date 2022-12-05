@@ -264,7 +264,7 @@
 ///
 #define CAN_SET_INTERCEPT_HALF_TIMER
 ///
-#define MARINE_DISEMARK_FOR_1_MP
+#define MARINE_DISEMBARK_FOR_1_MP
 ///
 #define NO_EMBARKED_CIVILIAN_DEFENSE
 ///
@@ -409,11 +409,13 @@
 ///
 #define NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
 // city states will no longer declare peace if influence is less than -50
-#define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
+// #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 ///
 #define DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 ///
 // #define NO_FAITH_FROM_MEETING_CS
+///
+#define PEACE_BLOCKED_WITH_MINORS
 /*CITY-STATES CHANGES END*/
 
 
@@ -446,6 +448,10 @@
 #define NO_OXFORD_AFTER_ATOM
 ///
 #define CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+///
+#define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+///
+#define SPACESHIP_GRAPHICS
 /*CITIES CHANGES END*/
 
 
@@ -461,6 +467,8 @@
 // #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 ///
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
+// Fixes incorrect plot distance calculation for wrapped maps
+#define CAMECOREUTILS_FIX_PLOT_DISTANCE
 /*BUGS FIXES END*/
 
 
@@ -469,10 +477,10 @@
 /// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
 #define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
 /// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
-// #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
+#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
 ///
 #if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
-#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
+// #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
 #endif
 /// Turn timers are paused when a player is reconnecting
 // #define AUI_GAME_SET_PAUSED_TURN_TIMERS_PAUSE_ON_RECONNECT
@@ -515,19 +523,15 @@
 ///
 // #define BUILD_ADOPTABLE_POLICY_LIST
 ///
-#define SPACESHIP_GRAPHICS
-///
-#define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-///
 // #define NO_PUPPET_TECH_COST_MOD
+///
+// #define test_push_mission
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
 // #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
 #ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
 // #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
-///
-// #define test_push_mission
 #endif
 /*OTHER CHANGES END*/
 
@@ -1093,9 +1097,7 @@
 // notifications of city growth occur at all pop levels (not just less than 5)
 /////#define NQ_ALWAYS_SHOW_POP_GROWTH_NOTIFICATION
 /*// tributing now relies more on local military power rather than global
-#define NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
-// city states will no longer declare peace if influence is less than -50
-#define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW*/
+#define NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER*/
 // We Love The King Day now scales based on game speed
 /////#define NQ_WLTKD_SCALES_BY_GAME_SPEED
 /*// We Love The King Day initial seed now scales with game speed

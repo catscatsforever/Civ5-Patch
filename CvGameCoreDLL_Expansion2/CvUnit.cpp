@@ -3493,16 +3493,6 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 	const CvPlot* pPlot = plot();
 	const CvUnit* pTransport = getTransportUnit();
 
-#ifdef CANT_GIFT_GP
-	if(!GET_PLAYER(pPlot->getOwner()).isMinorCiv()
-		&& (GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER")
-		|| GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST")
-		|| GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN")
-		|| GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST")
-		|| GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT")
-		|| GetID() == (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER")))
-		return false;
-#endif
 	if(isDelayedDeath())
 		return false;
 
@@ -3555,6 +3545,13 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			}
 		}
 	}
+#ifdef CANT_GIFT_GP
+	else
+	{
+		if (getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER"))
+			return false;
+	}
+#endif
 
 	// No for religious units
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())

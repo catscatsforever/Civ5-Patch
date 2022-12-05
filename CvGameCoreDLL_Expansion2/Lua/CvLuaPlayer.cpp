@@ -592,6 +592,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #ifdef NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 	Method(IsInfluenceTooLowForPeace);
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	Method(IsPeaceBlockedWithMinor);
+#endif
 	Method(IsMinorPermanentWar);
 	Method(GetNumMinorCivsMet);
 	Method(DoMinorLiberationByMajor);
@@ -601,6 +604,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanMajorWithdrawProtection);
 	Method(GetTurnLastPledgedProtectionByMajor);
 	Method(GetTurnLastPledgeBrokenByMajor);
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	Method(GetTurnPeaceBlockedWithMinor);
+#endif
 	Method(GetMinorCivBullyGoldAmount);
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
@@ -6033,6 +6039,18 @@ int CvLuaPlayer::lIsInfluenceTooLowForPeace(lua_State* L)
 	return 1;
 }
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsPeaceBlockedWithMinor(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsPeaceBlockedWithMinor(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsMinorPermanentWar(lua_State* L)
 {
@@ -6495,6 +6513,19 @@ int CvLuaPlayer::lGetTurnLastPledgeBrokenByMajor(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
+#ifdef PEACE_BLOCKED_WITH_MINORS
+//------------------------------------------------------------------------------
+//int GetTurnPeaceBlockedWithMinor(PlayerTypes eMajor) const;
+int CvLuaPlayer::lGetTurnPeaceBlockedWithMinor(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iValue = pkPlayer->GetMinorCivAI()->GetTurnPeaceBlockedWithMinor(eMajor);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetMinorCivBullyGoldAmount(PlayerTypes eMajor);
 int CvLuaPlayer::lGetMinorCivBullyGoldAmount(lua_State* L)

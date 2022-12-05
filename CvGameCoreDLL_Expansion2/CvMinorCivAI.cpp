@@ -1670,6 +1670,9 @@ void CvMinorCivAI::Reset()
 #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 		m_bPledgeRevoked[iI] = false;
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+		m_bTurnPeaceBlockedWithMinor[iI] = -10;
+#endif
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
 	}
@@ -1768,6 +1771,9 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 	kStream >> m_bPledgeRevoked;
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	kStream >> m_bTurnPeaceBlockedWithMinor;
+#endif
 
 	kStream >> m_abPledgeToProtect;
 
@@ -1846,6 +1852,10 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 	kStream << m_bPledgeRevoked;
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	kStream << m_bTurnPeaceBlockedWithMinor;
+#endif
+
 	kStream << m_abPledgeToProtect;
 	kStream << m_abPermanentWar;
 	kStream << m_abWaryOfTeam; // Version 12
@@ -3170,6 +3180,27 @@ bool CvMinorCivAI::IsPledgeRevokedByAnyMajor() const
 void CvMinorCivAI::SetPledgeRevokedByMajor(PlayerTypes eMajor, bool bValue)
 {
 	m_bPledgeRevoked[eMajor] = bValue;
+}
+
+#endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+int CvMinorCivAI::GetTurnPeaceBlockedWithMinor(PlayerTypes eMajor) const
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+
+	return m_bTurnPeaceBlockedWithMinor[eMajor];
+}
+
+bool CvMinorCivAI::IsPeaceBlockedWithMinor(PlayerTypes eMajor) const
+{
+	return (GC.getGame().getElapsedGameTurns() - GetTurnPeaceBlockedWithMinor(eMajor)) < 5;
+}
+
+void CvMinorCivAI::SetTurnPeaceBlockedWithMinor(PlayerTypes eMajor, int bValue)
+{
+	m_bTurnPeaceBlockedWithMinor[eMajor] = bValue;
 }
 
 #endif
@@ -9299,6 +9330,10 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
 		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR());
+
+#ifdef PEACE_BLOCKED_WITH_MINORS
+		SetTurnPeaceBlockedWithMinor(eEnemyMajorLoop, GC.getGame().getElapsedGameTurns());
+#endif
 	}
 
 	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War

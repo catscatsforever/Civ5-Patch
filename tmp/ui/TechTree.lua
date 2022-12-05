@@ -588,7 +588,7 @@ function RefreshDisplayOfSpecificTech( tech )
 			opponentPlayer = Players[stealingTechTargetPlayerID];
 			local opponentTeam = Teams[opponentPlayer:GetTeam()];
 			-- if (opponentTeam:IsHasTech(techID)) then
-			if (player:canStealTech(stealingTechTargetPlayerID, techID)
+			if (player:canStealTech(stealingTechTargetPlayerID, techID)) then
 				isAllowedToStealTech = true;
 			end
 		end
