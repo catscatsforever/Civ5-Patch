@@ -2301,6 +2301,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 
 			SetPolicyBranchFinished(eThisBranch, bBranchFinished);
 
+#ifndef RandomPolicies
 			if(bBranchFinished)
 			{
 				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eThisBranch);
@@ -2314,6 +2315,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 					}
 				}
 			}
+#endif
 		}
 	}
 }
@@ -2859,6 +2861,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 
 	PolicyBranchTypes eBranch = (PolicyBranchTypes) pkPolicyEntry->GetPolicyBranchType();
 
+#ifndef RandomPolicies
 	// If it doesn't have a branch, it's a freebie that comes WITH the branch, so we can't pick it manually
 	if(eBranch == NO_POLICY_BRANCH_TYPE)
 	{
@@ -2869,6 +2872,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	{
 		return false;
 	}
+#endif
 
 	// Is it from a branch with Levels?
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);

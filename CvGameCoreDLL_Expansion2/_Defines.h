@@ -416,11 +416,15 @@
 // #define NO_FAITH_FROM_MEETING_CS
 ///
 #define PEACE_BLOCKED_WITH_MINORS
+// coup chances now use base influence instead of effective influence (which would be -60 during war)
+#define NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
 /*CITY-STATES CHANGES END*/
 
 
 
 /*GOODIES CHANGES START*/
+///
+#define XP_RUINS_FIX
 ///
 #define REMOVE_EARLY_CULTURE_RUINS
 /// Goody hut messages now properly appear for all yields, even if there's no popup
@@ -468,7 +472,7 @@
 ///
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
 // Fixes incorrect plot distance calculation for wrapped maps
-#define CAMECOREUTILS_FIX_PLOT_DISTANCE
+#define GAMECOREUTILS_FIX_PLOT_DISTANCE
 /*BUGS FIXES END*/
 
 
@@ -524,8 +528,6 @@
 // #define BUILD_ADOPTABLE_POLICY_LIST
 ///
 // #define NO_PUPPET_TECH_COST_MOD
-///
-// #define test_push_mission
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
 // #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
@@ -533,9 +535,23 @@
 ///
 // #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
 #endif
+///
+// #define test_push_mission
+///
+// #define no_more_sameturned_wonders
+///
+// #define pillage_revealed
 /*OTHER CHANGES END*/
 
 #endif
+
+// SHOW MATCH
+// #define FiveTrainedFreePromotion
+// #define FreePolEveryTenTurns
+// #define GoldForTechs
+// #define SettlerCost
+// #define RandomPolicies
+
 
 
 
@@ -990,8 +1006,6 @@
 #define NQ_FIX_ADD_TOURISM_GAME_SPEED_MOD
 // golden age points accrue even while in golden ages
 #define NQ_GOLDEN_AGE_OVERHAUL
-// coup chances now use base influence instead of effective influence (which would be -60 during war)
-#define NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
 // show base influence you would have at peace in tooltip while at war with city states
 #define NQ_SHOW_BASE_INFLUENCE_WHILE_AT_WAR_IN_CS_TOOLTIP
 // disable gifting of great people between major powers

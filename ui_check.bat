@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V5.2b
+set patchfolder=Tournament Mod V5.3b
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -9,12 +9,15 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.xml" "%cd%\%patc
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EnemyUnitPanel.lua" "%cd%\%patchfolder%\UI\EnemyUnitPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\JoiningRoom.lua" "%cd%\%patchfolder%\UI\JoiningRoom.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.xml" "%cd%\%patchfolder%\UI\VictoryProgress.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.lua" "%cd%\%patchfolder%\UI\VictoryProgress.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPList.lua" "%cd%\%patchfolder%\UI\MPList.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.lua" "%cd%\%patchfolder%\UI\MiniMapPanel.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.xml" "%cd%\%patchfolder%\UI\MiniMapPanel.xml"
 REM -------------------------------------------------
-IF EXIST "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" (
-  ECHO UnitFlagManager.lua exists on EUI, skipping
-) ELSE (
-  ECHO UnitFlagManager.lua does not exists on EUI, copying to TM
+set text="-- destroy: check fix for need to update plot & cargo & airbase"
+FIND %text% "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" && (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
+) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
 )
 REM -------------------------------------------------
@@ -44,6 +47,13 @@ IF EXIST "%cd%\UI_bc1\TechTree\TechPopup.lua" (
 ) ELSE (
   ECHO TechPopup.lua does not exists on EUI, copying to TM
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechPopup.lua" "%cd%\%patchfolder%\UI\TechPopup.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\UnitPanel\UnitPanel.lua" (
+  ECHO UnitPanel.lua exists on EUI, skipping
+) ELSE (
+  ECHO UnitPanel.lua does not exists on EUI, copying to TM
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
 )
 REM -------------------------------------------------
 set text="-- modified by bc1 from 1.0.3.144 brave new world code"
@@ -79,5 +89,12 @@ FIND %text% "%cd%\UI_bc1\TechTree\TechTree.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TechTree.lua" "%cd%\%patchfolder%\UI\TechTree.lua"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechTree.lua" "%cd%\%patchfolder%\UI\TechTree.lua"
+)
+REM -------------------------------------------------
+set text="-- modified by bc1 from 1.0.3.144 brave new world & civ BE code"
+FIND %text% "%cd%\UI_bc1\Core\CityStateStatusHelper.lua" && (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityStateStatusHelper.lua" "%cd%\%patchfolder%\UI\CityStateStatusHelper.lua"
+) || (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityStateStatusHelper.lua" "%cd%\%patchfolder%\UI\CityStateStatusHelper.lua"
 )
 EXIT

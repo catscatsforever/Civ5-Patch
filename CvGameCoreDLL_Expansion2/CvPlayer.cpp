@@ -4362,9 +4362,87 @@ void CvPlayer::doTurnPostDiplomacy()
 	// if this is the human player, have the popup come up so that he can choose a new policy
 	if(isAlive() && isHuman() && getNumCities() > 0)
 	{
+
+#ifdef FreePolEveryTenTurns
+		bool bSuccess;
+		int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+
+		if (GC.getGame().getElapsedGameTurns() % 6 == 0)
+		{
+			// ChangeNumFreePolicies(1);
+			bSuccess = false;
+			while (bSuccess == false)
+			{
+				iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+				if (iNextPolicy == NO_POLICY)
+					continue;
+				PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
+				CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
+				if(pkPolicyEntry == NULL)
+					continue;
+				if (!GetPlayerPolicies()->HasPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
+					bSuccess = true;
+			}
+
+			// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
+			if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
+			{
+				GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
+			}
+			else
+			{
+				// m_pPlayerPolicies->SetPolicy((PolicyTypes)iNextPolicy, true);
+				setHasPolicy((PolicyTypes)iNextPolicy, true);
+				ChangeNumFreePoliciesEver(1);
+				// doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
+			}
+		}
+#endif
 		if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 		{
+#ifdef RandomPolicies
 			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+			{
+				int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+
+				// Do we have enough points to buy a new policy?
+				if(getNextPolicyCost() > 0)
+				{
+					// Adopt new policies until we run out of freebies and culture (usually only one per turn)
+					while(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0 || GetNumFreeTenets() > 0)
+					{
+						bSuccess = false;
+						while (bSuccess == false)
+						{
+							iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+							if (iNextPolicy == NO_POLICY)
+								continue;
+							PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
+							CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
+							if(pkPolicyEntry == NULL)
+								continue;
+							if (canAdoptPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
+								bSuccess = true;
+						}
+						// Choose the policy we want next (or a branch)
+						// int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);
+						// if (iNextPolicy == NO_POLICY)
+							// break;
+
+						// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
+						if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
+						{
+							GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
+						}
+						else
+						{
+							doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
+						}
+					}
+				}
+			}
+#else
+			if((getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0))
 			{
 				CvNotifications* pNotifications = GetNotifications();
 				if(pNotifications)
@@ -4380,6 +4458,7 @@ void CvPlayer::doTurnPostDiplomacy()
 					pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
 				}
 			}
+#endif
 		}
 
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
@@ -5696,6 +5775,15 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// No XP in first 10 turns
+#ifdef XP_RUINS_FIX
+	if(kGoodyInfo.getExperience() > 0)
+	{
+		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()))
+		{
+			return false;
+		}
+	}
+#else
 	/*if(kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
@@ -5703,6 +5791,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 	}*/
+#endif
 
 	// Unit Healing
 	if(kGoodyInfo.getDamagePrereq() > 0)
@@ -21987,16 +22076,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifdef CS_INFLUENCE_BOOST
 	// City-State Influence Boost
 	//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
-	// PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/);
-	// GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
-	if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
+	int iInfluenceBoost = GC.getRETURN_CIVILIAN_FRIENDSHIP() * iChange;
+	if (iInfluenceBoost > 0)
 	{
-		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
 		{
-			PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
-			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), 45 /*pRewardInfo->GetCityStateInfluenceBoost()*/);
+				PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
+				if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+				{
+					GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), iInfluenceBoost);
+				}
 			}
 		}
 	}

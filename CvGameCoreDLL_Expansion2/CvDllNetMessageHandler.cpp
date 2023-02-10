@@ -749,33 +749,10 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
-#ifdef test_push_mission
-	bool isAllHumansTurnActive = true;
-	if (GC.getGame().isSimultaneousTeamTurns())
-	{
-		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-		{
-			if (GET_PLAYER((PlayerTypes)iI).isHuman())
-				if (!GET_PLAYER((PlayerTypes)iI).isTurnActive())
-				{
-					isAllHumansTurnActive = false;
-					break;
-				}
-		}
-		 if (gDLL->HasReceivedTurnAllCompleteFromAllPlayers())
-			 isAllHumansTurnActive = false;
-	}
-
-	if(pkUnit != NULL && isAllHumansTurnActive)
-	{
-		pkUnit->PushMission(eMission, iData1, iData2, iFlags, bShift, true);
-	}
-#else
 	if(pkUnit != NULL)
 	{
 		pkUnit->PushMission(eMission, iData1, iData2, iFlags, bShift, true);
 	}
-#endif
 
 	CvUnit::dispatchingNetMessage(false);
 }
@@ -900,10 +877,15 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 		if (kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)
 		{
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-			if (kPlayer.GetEspionage()->IsTechStealable(ePlayerToStealFrom, eTech))
+			if (kPlayer.canStealTech(ePlayerToStealFrom, eTech))
+			// if (kPlayer.GetEspionage()->IsTechStealable(ePlayerToStealFrom, eTech))
 			{
 				kTeam.setHasTech(eTech, true, ePlayer, true, true);
-				kPlayer.GetEspionage()->BuildStealableTechList(ePlayerToStealFrom);
+				/*for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+				{
+					kPlayer.GetEspionage()->BuildStealableTechList((PlayerTypes)ui);
+				}*/
+				// kPlayer.GetEspionage()->BuildStealableTechList(ePlayerToStealFrom);
 				kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 			}
 #else

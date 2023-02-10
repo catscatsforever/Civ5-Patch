@@ -135,7 +135,7 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 	int iWrappedDY = dyWrap(iY2 - iY1);
 	int iDY = abs(iWrappedDY);
 
-#ifdef CAMECOREUTILS_FIX_PLOT_DISTANCE
+#ifdef GAMECOREUTILS_FIX_PLOT_DISTANCE
 		const CvMap& kMap = GC.getMap();
 		// equidistant column joint fix (on X-wrapped maps):
 		if ((kMap.isWrapX()) && (abs(iWrappedDX * 2) == kMap.getGridWidth()) && (iDY % 2 != 0) && ((iY1 % 2 == 0) == (iWrappedDX > (kMap.getGridWidth() >> 2))))
@@ -158,7 +158,7 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 	int iHX1 = xToHexspaceX(iX1, iY1);
 	int iHX2 = xToHexspaceX(iX1 + iWrappedDX, iY1 + iWrappedDY);
 
-#ifdef CAMECOREUTILS_FIX_PLOT_DISTANCE
+#ifdef GAMECOREUTILS_FIX_PLOT_DISTANCE
 	// obvious bug
 	iDX = abs(iHX2 - iHX1);
 #else

@@ -1832,7 +1832,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	int aiNewInfluenceValueTimes100[MAX_MAJOR_CIVS];
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
+#ifdef NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
+		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetBaseFriendshipWithMajorTimes100((PlayerTypes)ui);
+#else
 		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100((PlayerTypes)ui);
+#endif
 	}
 
 	m_aSpyList[uiSpyIndex].m_bEvaluateReassignment = true; // flag for reassignment
@@ -2187,7 +2191,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 	int iMaxTechCost = -1;
 
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
+	// CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
 	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
@@ -2199,11 +2203,13 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 			continue;
 		}
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		// can we not research this tech?
 		if(!pMyPlayerTechs->CanResearch(eTech))
 		{
 			continue;
 		}
+#endif
 
 #ifdef CANT_STEAL_CLASSICAL_ERA_TECHS
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
