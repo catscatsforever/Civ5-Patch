@@ -259,6 +259,11 @@ public:
 	bool IsPledgeRevokedByAnyMajor() const;
 	void SetPledgeRevokedByMajor(PlayerTypes eMajor, bool bValue);
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	int GetTurnPeaceBlockedWithMinor(PlayerTypes eMajor) const;
+	bool IsPeaceBlockedWithMinor(PlayerTypes eMajor) const;
+	void SetTurnPeaceBlockedWithMinor(PlayerTypes eMajor, int bValue);
+#endif
 	void DoTestActiveQuests(bool bTestComplete, bool bTestObsolete);
 	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoCompletedQuests();
@@ -595,6 +600,9 @@ private:
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
 #ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
 	bool m_bPledgeRevoked[MAX_MAJOR_CIVS];
+#endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	int m_bTurnPeaceBlockedWithMinor[MAX_MAJOR_CIVS];
 #endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];

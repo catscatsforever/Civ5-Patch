@@ -182,6 +182,14 @@ void CvPlayerEspionage::DoTurn()
 		m_aHeistLocations[ui].clear();
 	}
 
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		BuildStealableTechList((PlayerTypes)iI);
+		GET_PLAYER((PlayerTypes)iI).GetEspionage()->BuildStealableTechList(m_pPlayer->GetID());
+	}
+#endif
+
 	for(uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
 	{
 		ProcessSpy(uiSpy);
@@ -311,12 +319,17 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 				BuildStealableTechList(eCityOwner);
+#endif
 				// moved rate out here to set the potential
 				int iBasePotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
 				pCityEspionage->SetLastBasePotential(ePlayer, iBasePotentialRate);
-
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+				if(GetNumTechsToSteal(eCityOwner) > 0)
+#else
 				if(m_aaPlayerStealableTechList[eCityOwner].size() > 0)
+#endif
 				{
 					// TODO: need to proclaim surveillance somehow
 					pSpy->m_eSpyState = SPY_STATE_GATHERING_INTEL;
@@ -367,7 +380,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			return;
 		}
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		BuildStealableTechList(eCityOwner);
+#endif
 		pCityEspionage->Process(ePlayer);
 		// if the rate is too low, reassign the spy
 		if (pCityEspionage->m_aiRate[m_pPlayer->GetID()] < 100)
@@ -382,7 +397,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 		}
 
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+		if(GetNumTechsToSteal(eCityOwner) == 0)
+#else
 		if(m_aaPlayerStealableTechList[eCityOwner].size() == 0)
+#endif
 		{
 			// set the spy back to surveillance mode
 			pCityEspionage->ResetProgress(ePlayer);
@@ -594,7 +613,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 
 				// this check was added because m_aiNumTechsToStealList was getting out of whack somehow and this is a check to prevent the UI from going haywire
 				CvAssertMsg(m_aiNumTechsToStealList[iCityOwner] > 0, "m_aiNumTechsToStealList[iCityOwner] <= 0, which shouldn't happen after you succeed at stealing");
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+				if (GetNumTechsToSteal(eCityOwner) > 0)
+#else
 				if (m_aiNumTechsToStealList[iCityOwner] > 0)
+#endif
 				{
 					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 					if(pNotifications)
@@ -1821,7 +1844,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	int aiNewInfluenceValueTimes100[MAX_MAJOR_CIVS];
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
+#ifdef NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
+		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetBaseFriendshipWithMajorTimes100((PlayerTypes)ui);
+#else
 		aiNewInfluenceValueTimes100[ui] = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100((PlayerTypes)ui);
+#endif
 	}
 
 	m_aSpyList[uiSpyIndex].m_bEvaluateReassignment = true; // flag for reassignment
@@ -2176,7 +2203,9 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 	int iMaxTechCost = -1;
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
+#endif
 	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
@@ -2188,11 +2217,13 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 			continue;
 		}
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		// can we not research this tech?
 		if(!pMyPlayerTechs->CanResearch(eTech))
 		{
 			continue;
 		}
+#endif
 
 #ifdef CANT_STEAL_CLASSICAL_ERA_TECHS
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
@@ -2242,6 +2273,19 @@ bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)
 /// GetNumTechsToSteal - How many techs you can steal from a given player
 int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 {
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+	int numTechsToSteal = 0;
+	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
+	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	{
+		if(m_pPlayer->GetPlayerTechs()->CanResearch((TechTypes)iTechLoop) && m_pPlayer->GetEspionage()->IsTechStealable(ePlayer, (TechTypes)iTechLoop))
+		{
+			numTechsToSteal++;
+		}
+	}
+
+	return numTechsToSteal;
+#else
 	CvAssertMsg((uint)ePlayer < m_aiNumTechsToStealList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aiNumTechsToStealList.size())
 	{
@@ -2249,6 +2293,7 @@ int CvPlayerEspionage::GetNumTechsToSteal(PlayerTypes ePlayer)
 	}
 
 	return m_aiNumTechsToStealList[ePlayer];
+#endif
 }
 
 bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling)
@@ -4180,7 +4225,9 @@ void CvEspionageAI::DoTurn()
 
 	AI_PERF_FORMAT("AI-perf.csv", ("Espionage AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 	StealTechnology();
+#endif
 	UpdateCivOutOfTechTurn();
 	AttemptCoups();
 
@@ -4461,7 +4508,11 @@ void CvEspionageAI::StealTechnology()
 	{
 		PlayerTypes eDefendingPlayer = (PlayerTypes)uiDefendingPlayer;
 		int iHeistLocationCounter = 0;
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+		while(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0)
+#else
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+#endif
 		{
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
@@ -4494,6 +4545,7 @@ void CvEspionageAI::StealTechnology()
 			}
 			iHeistLocationCounter++;
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 			// recalculate the num techs to steal list
 			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
 			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
@@ -4504,6 +4556,7 @@ void CvEspionageAI::StealTechnology()
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
 			}
+#endif
 		}
 	}
 }
@@ -4528,8 +4581,12 @@ void CvEspionageAI::UpdateCivOutOfTechTurn()
 			continue;
 		}
 
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		pEspionage->BuildStealableTechList(eOtherPlayer);
 		if(pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].size() > 0)
+#else
+		if(pEspionage->GetNumTechsToSteal(eOtherPlayer) > 0)
+#endif
 		{
 			continue;
 		}

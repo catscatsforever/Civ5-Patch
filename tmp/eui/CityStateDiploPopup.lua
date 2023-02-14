@@ -384,12 +384,25 @@ function OnDisplay()
 	if isAtWar then
 
 		-- Warmongering player
-		if minorPlayer:IsPeaceBlocked(activeTeamID) or minorPlayer:IsInfluenceTooLowForPeace(activeTeamID) then
+		-- if minorPlayer:IsPeaceBlocked(activeTeamID) or minorPlayer:IsInfluenceTooLowForPeace(activeTeamID) then
+		if minorPlayer:IsPeaceBlocked(activeTeamID) then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_HELLO_WARMONGER")
 			Controls.PeaceButton:SetHide(true)
 
 		-- Normal War
 		else
+			if (minorPlayer:IsPeaceBlockedWithMinor(activePlayerID)) then
+				Controls.PeaceAnim:SetHide(true);
+				Controls.PeaceButton:ClearCallback( Mouse.eLClick );
+				Controls.PeaceLabel:SetText("[COLOR_WARNING_TEXT]" .. L("TXT_KEY_POP_CSTATE_MAKE_PEACE") .. "[ENDCOLOR]");
+				local iTurnsPeaceBloked = (minorPlayer:GetTurnPeaceBlockedWithMinor(activePlayerID) + 5) - Game.GetGameTurn();
+				Controls.PeaceButton:SetToolTipString(L("TXT_KEY_MAKE_PEACE_BLOCKED_TOOLTIP", strShortDescKey, iTurnsPeaceBloked));
+			else
+				Controls.PeaceAnim:SetHide(false)
+				Controls.PeaceButton:RegisterCallback( Mouse.eLClick, OnPeaceButtonClicked )
+				Controls.PeaceLabel:SetText(L("TXT_KEY_POP_CSTATE_MAKE_PEACE"));
+				Controls.PeaceButton:SetToolTipString();
+			end
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_HELLO_WAR")
 			Controls.PeaceButton:SetHide(false)
 		end

@@ -330,6 +330,10 @@ CvPlayer::CvPlayer() :
 	, m_iNumGreatPeople("CvPlayer::m_iNumGreatPeople", m_syncArchive)
 	, m_uiStartTime("CvPlayer::m_uiStartTime", m_syncArchive)  // XXX save these?
 	, m_bHasBetrayedMinorCiv("CvPlayer::m_bHasBetrayedMinorCiv", m_syncArchive)
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	, m_bOxfordUniversityWasEverBuilt("CvPlayer::m_bOxfordUniversityWasEverBuilt", m_syncArchive)
+	, m_bNationalIntelligenceAgencyWasEverBuilt("CvPlayer::m_bNationalIntelligenceAgencyWasEverBuilt", m_syncArchive)
+#endif
 	, m_bAlive("CvPlayer::m_bAlive", m_syncArchive)
 	, m_bEverAlive("CvPlayer::m_bEverAlive", m_syncArchive)
 	, m_bBeingResurrected(false)
@@ -979,6 +983,10 @@ void CvPlayer::uninit()
 	m_iLastSliceMoved = 0;
 
 	m_bHasBetrayedMinorCiv = false;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	m_bOxfordUniversityWasEverBuilt = false;
+	m_bNationalIntelligenceAgencyWasEverBuilt = false;
+#endif
 	m_bAlive = false;
 	m_bEverAlive = false;
 	m_bBeingResurrected = false;
@@ -4354,8 +4362,86 @@ void CvPlayer::doTurnPostDiplomacy()
 	// if this is the human player, have the popup come up so that he can choose a new policy
 	if(isAlive() && isHuman() && getNumCities() > 0)
 	{
+
+#ifdef FreePolEveryTenTurns
+		bool bSuccess;
+		int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+
+		if (GC.getGame().getElapsedGameTurns() % 6 == 0)
+		{
+			// ChangeNumFreePolicies(1);
+			bSuccess = false;
+			while (bSuccess == false)
+			{
+				iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+				if (iNextPolicy == NO_POLICY)
+					continue;
+				PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
+				CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
+				if(pkPolicyEntry == NULL)
+					continue;
+				if (!GetPlayerPolicies()->HasPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
+					bSuccess = true;
+			}
+
+			// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
+			if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
+			{
+				GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
+			}
+			else
+			{
+				// m_pPlayerPolicies->SetPolicy((PolicyTypes)iNextPolicy, true);
+				setHasPolicy((PolicyTypes)iNextPolicy, true);
+				ChangeNumFreePoliciesEver(1);
+				// doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
+			}
+		}
+#endif
 		if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 		{
+#ifdef RandomPolicies
+			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+			{
+				int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+
+				// Do we have enough points to buy a new policy?
+				if(getNextPolicyCost() > 0)
+				{
+					// Adopt new policies until we run out of freebies and culture (usually only one per turn)
+					while(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0 || GetNumFreeTenets() > 0)
+					{
+						bSuccess = false;
+						while (bSuccess == false)
+						{
+							iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
+							if (iNextPolicy == NO_POLICY)
+								continue;
+							PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
+							CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
+							if(pkPolicyEntry == NULL)
+								continue;
+							if (canAdoptPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
+								bSuccess = true;
+						}
+						// Choose the policy we want next (or a branch)
+						// int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);
+						// if (iNextPolicy == NO_POLICY)
+							// break;
+
+						// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
+						if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
+						{
+							GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
+						}
+						else
+						{
+							doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
+						}
+					}
+				}
+			}
+#else
 			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 			{
 				CvNotifications* pNotifications = GetNotifications();
@@ -4372,6 +4458,7 @@ void CvPlayer::doTurnPostDiplomacy()
 					pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
 				}
 			}
+#endif
 		}
 
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
@@ -5688,6 +5775,19 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// No XP in first 10 turns
+#ifdef XP_RUINS_FIX
+	if(kGoodyInfo.getExperience() > 0)
+	{
+		if(pUnit == NULL)
+		{
+			return false;
+		}
+		if (!pUnit->canAcquirePromotionAny())
+		{
+			return false;
+		}
+	}
+#else
 	/*if(kGoodyInfo.getExperience() > 0)
 	{
 		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
@@ -5695,6 +5795,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 	}*/
+#endif
 
 	// Unit Healing
 	if(kGoodyInfo.getDamagePrereq() > 0)
@@ -7268,6 +7369,15 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	if(pkBuildingInfo == NULL)
 		return false;
 
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_OXFORD_UNIVERSITY"))
+		if(isOxfordUniversityWasEverBuilt())
+			return false;
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_INTELLIGENCE_AGENCY"))
+		if(isNationalIntelligenceAgencyWasEverBuilt())
+			return false;
+#endif
+
 	// Don't allow a city to consider an espionage building if they are playing a non-espionage game
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
 	{
@@ -8394,6 +8504,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	// One-shot items
 	if(bFirst && iChange > 0)
 	{
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_OXFORD_UNIVERSITY"))
+		setOxfordUniversityWasEverBuilt(true);
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_INTELLIGENCE_AGENCY"))
+		setNationalIntelligenceAgencyWasEverBuilt(true);
+#endif
+
 		// Free Policies
 		int iFreePolicies = pBuildingInfo->GetFreePolicies();
 		if(iFreePolicies > 0)
@@ -16147,6 +16264,28 @@ void CvPlayer::SetHasBetrayedMinorCiv(bool bValue)
 	}
 }
 
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+bool CvPlayer::isOxfordUniversityWasEverBuilt() const
+{
+	return m_bOxfordUniversityWasEverBuilt;
+}
+
+void CvPlayer::setOxfordUniversityWasEverBuilt(bool bNewValue)
+{
+	m_bOxfordUniversityWasEverBuilt = bNewValue;
+}
+
+bool CvPlayer::isNationalIntelligenceAgencyWasEverBuilt() const
+{
+	return m_bNationalIntelligenceAgencyWasEverBuilt;
+}
+
+void CvPlayer::setNationalIntelligenceAgencyWasEverBuilt(bool bNewValue)
+{
+	m_bNationalIntelligenceAgencyWasEverBuilt = bNewValue;
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 {
@@ -21941,16 +22080,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifdef CS_INFLUENCE_BOOST
 	// City-State Influence Boost
 	//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
-	// PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/);
-	// GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
-	if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
+	int iInfluenceBoost = GC.getRETURN_CIVILIAN_FRIENDSHIP() * iChange;
+	if (iInfluenceBoost > 0)
 	{
-		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
 		{
-			PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
-			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
-				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), 45 /*pRewardInfo->GetCityStateInfluenceBoost()*/);
+				PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
+				if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
+				{
+					GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), iInfluenceBoost);
+				}
 			}
 		}
 	}
@@ -22761,6 +22902,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	kStream >> m_iLastSliceMoved;
 	kStream >> m_bHasBetrayedMinorCiv;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	kStream >> m_bOxfordUniversityWasEverBuilt;
+	kStream >> m_bNationalIntelligenceAgencyWasEverBuilt;
+#endif
 	kStream >> m_bAlive;
 	kStream >> m_bEverAlive;
 	kStream >> m_bBeingResurrected;
@@ -23254,6 +23399,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iLastSliceMoved;
 
 	kStream << m_bHasBetrayedMinorCiv;
+#ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
+	kStream << m_bOxfordUniversityWasEverBuilt;
+	kStream << m_bNationalIntelligenceAgencyWasEverBuilt;
+#endif
 	kStream << m_bAlive;
 	kStream << m_bEverAlive;
 	kStream << m_bBeingResurrected;
@@ -23636,7 +23785,11 @@ bool CvPlayer::canStealTech(PlayerTypes eTarget, TechTypes eTech) const
 {
 	if(GET_TEAM(GET_PLAYER(eTarget).getTeam()).GetTeamTechs()->HasTech(eTech))
 	{
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+		if(GetPlayerTechs()->CanResearch(eTech) && GetEspionage()->IsTechStealable(eTarget, eTech))
+#else
 		if(GetPlayerTechs()->CanResearch(eTech))
+#endif
 		{
 			return true;
 		}
@@ -25259,6 +25412,26 @@ void CvPlayer::disconnected()
 			{//When in fully simultaneous turn mode, having a player disconnect might trigger the automove phase for all human players.
 				checkRunAutoMovesForEveryone();
 			}
+#ifdef DO_CANCEL_DEALS_WITH_AI
+			GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+			for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+			{
+				TeamTypes eTeam = (TeamTypes)iLoopTeam;
+				if (getTeam() != eTeam)
+				{
+					GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+					GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+					GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+					GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+					GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+					GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+
+					// Bump Units out of places they shouldn't be
+					GC.getMap().verifyUnitValidPlot();
+				}
+			}
+#endif
 		}
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() &&

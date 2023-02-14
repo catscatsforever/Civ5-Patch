@@ -4648,7 +4648,11 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
 	if(eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER") && GET_PLAYER(getOwner()).GetPlayerTraits()->HasTrait(eTrait))
 	{
+#ifdef SettlerCost
+		iCost *= 41;
+#else
 		iCost *= 73;
+#endif
 		iCost /= 100;
 	}
 #endif
@@ -9721,6 +9725,10 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
 	iValue += GetBaseYieldRateFromReligion(eIndex);
+#ifdef GoldForTechs
+	if (isCapital() && eIndex == YIELD_GOLD)
+		iValue += GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
+#endif
 
 	return iValue;
 }
@@ -11892,6 +11900,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				setUnitProduction(eTrainUnit, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold = 0;
+#endif
 				if(iProductionGold > 0)
 				{
 					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
@@ -11958,6 +11969,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold = 0;
+#endif
 				if(iProductionGold > 0)
 				{
 					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
@@ -12029,6 +12043,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			setProjectProduction(eCreateProject, 0);
 
 			int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
+			iProductionGold = 0;
+#endif
 			if(iProductionGold > 0)
 			{
 				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
@@ -12411,6 +12428,40 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	{
 		IncrementUnitStatCount(pUnit);
 	}
+
+#ifdef FiveTrainedFreePromotion
+	std::vector<int> aPossiblePromotions;
+
+	for (int iI = 1; iI < GC.GetGamePromotions()->GetNumPromotions(); iI++)
+	{
+		// if (iI != 191)
+		aPossiblePromotions.push_back(iI);
+	}
+
+	int iNumChoices = aPossiblePromotions.size();
+	int iI = 0;
+	int iSwap;
+	if (pUnit->isHuman() && pUnit->IsCombatUnit())
+		while (iI < 5)
+		{
+			if (iNumChoices - iI > 0)
+			{
+				int iChoice = GC.getGame().getJonRandNum(iNumChoices - iI, "Random Promotion Pick");
+				PromotionTypes ePromotion = (PromotionTypes)aPossiblePromotions[iChoice];
+				CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
+				if (!promotionInfo == NULL)
+					if (!promotionInfo->IsCannotBeChosen())
+						if (!pUnit->isHasPromotion(ePromotion))
+						{
+							pUnit->setHasPromotion(ePromotion, true);
+							iSwap = aPossiblePromotions[iChoice];
+							aPossiblePromotions[iChoice] = aPossiblePromotions[iNumChoices - iI - 1];
+							aPossiblePromotions[iNumChoices - iI - 1] = iSwap;
+							iI++;
+						}
+			}
+		}
+#endif
 
 	return pUnit->GetID();
 }
@@ -13342,7 +13393,11 @@ bool CvCity::doCheckProduction()
 				if(thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
 				{
 					// Beaten to a world wonder by someone?
+#ifdef no_more_sameturned_wonders
+					if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()) && m_pCityBuildings->GetBuildingOriginalTime(eExpiredBuilding) != GC.getGame().getGameTurnYear())
+#else
 					if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
+#endif
 					{
 						for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{

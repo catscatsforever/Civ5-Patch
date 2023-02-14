@@ -580,6 +580,9 @@ protected:
 #ifdef NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 	static int lIsInfluenceTooLowForPeace(lua_State* L);
 #endif
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	static int lIsPeaceBlockedWithMinor(lua_State* L);
+#endif
 	static int lIsMinorPermanentWar(lua_State* L);
 	static int lGetNumMinorCivsMet(lua_State* L);
 	static int lDoMinorLiberationByMajor(lua_State* L);
@@ -589,6 +592,9 @@ protected:
 	static int lCanMajorWithdrawProtection(lua_State* L);
 	static int lGetTurnLastPledgedProtectionByMajor(lua_State* L);
 	static int lGetTurnLastPledgeBrokenByMajor(lua_State* L);
+#ifdef PEACE_BLOCKED_WITH_MINORS
+	static int lGetTurnPeaceBlockedWithMinor(lua_State* L);
+#endif
 	static int lGetMinorCivBullyGoldAmount(lua_State* L);
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
@@ -935,6 +941,9 @@ protected:
 	static int lCanSpyStageCoup(lua_State* L);
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+	static int lcanStealTech(lua_State* L);
+#endif
 	static int lGetIntrigueMessages(lua_State* L);
 	static int lHasRecentIntrigueAbout(lua_State* L);
 	static int lGetRecentIntrigueInfo(lua_State* L);
