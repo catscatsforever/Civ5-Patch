@@ -4442,7 +4442,7 @@ void CvPlayer::doTurnPostDiplomacy()
 				}
 			}
 #else
-			if((getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0))
+			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 			{
 				CvNotifications* pNotifications = GetNotifications();
 				if(pNotifications)
@@ -5778,7 +5778,11 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 #ifdef XP_RUINS_FIX
 	if(kGoodyInfo.getExperience() > 0)
 	{
-		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()))
+		if(pUnit == NULL)
+		{
+			return false;
+		}
+		if (!pUnit->canAcquirePromotionAny())
 		{
 			return false;
 		}
@@ -25408,6 +25412,26 @@ void CvPlayer::disconnected()
 			{//When in fully simultaneous turn mode, having a player disconnect might trigger the automove phase for all human players.
 				checkRunAutoMovesForEveryone();
 			}
+#ifdef DO_CANCEL_DEALS_WITH_AI
+			GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+			for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+			{
+				TeamTypes eTeam = (TeamTypes)iLoopTeam;
+				if (getTeam() != eTeam)
+				{
+					GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+					GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+					GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+					GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+					GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+					GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+
+					// Bump Units out of places they shouldn't be
+					GC.getMap().verifyUnitValidPlot();
+				}
+			}
+#endif
 		}
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() &&
