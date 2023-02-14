@@ -614,7 +614,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				// this check was added because m_aiNumTechsToStealList was getting out of whack somehow and this is a check to prevent the UI from going haywire
 				CvAssertMsg(m_aiNumTechsToStealList[iCityOwner] > 0, "m_aiNumTechsToStealList[iCityOwner] <= 0, which shouldn't happen after you succeed at stealing");
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-				if (GetNumTechsToSteal(eCityOwner) > 0)
+				if (GetNumTechsToSteal(eCityOwner) > 0 && m_aiNumTechsToStealList[iCityOwner] > 0)
 #else
 				if (m_aiNumTechsToStealList[iCityOwner] > 0)
 #endif
@@ -4509,7 +4509,7 @@ void CvEspionageAI::StealTechnology()
 		PlayerTypes eDefendingPlayer = (PlayerTypes)uiDefendingPlayer;
 		int iHeistLocationCounter = 0;
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-		while(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0)
+		while(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 #else
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 #endif
@@ -4549,6 +4549,9 @@ void CvEspionageAI::StealTechnology()
 			// recalculate the num techs to steal list
 			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
 			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+#else
+			if(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+#endif
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
@@ -4556,7 +4559,6 @@ void CvEspionageAI::StealTechnology()
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
 			}
-#endif
 		}
 	}
 }

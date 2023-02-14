@@ -5223,6 +5223,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		}
 		else
 		{
+#ifdef HAS_TECH_BY_HUMAN
+			if (isHuman())
+			{
+				GetTeamTechs()->SetHasTechByHuman(eIndex, bNewValue);
+			}
+#endif
 			GetTeamTechs()->SetHasTech(eIndex, bNewValue);
 
 			// Tech progress affects city strength, so update
@@ -5787,7 +5793,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #endif
 
 						// if the player is out of techs to steal, set their number of stealable techs to zero
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+						if(pEspionage->GetNumTechsToSteal((PlayerTypes)ui) == 0)
+#else
 						if(pEspionage->m_aaPlayerStealableTechList[ui].size() == 0)
+#endif
 						{
 							pEspionage->m_aiNumTechsToStealList[ui] = 0;
 						}
