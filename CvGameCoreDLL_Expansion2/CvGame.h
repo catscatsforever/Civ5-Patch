@@ -32,6 +32,9 @@ class CvGameCulture;
 class CvGameLeagues;
 class CvGameTrade;
 class CvTacticalAnalysisMap;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+class CvMPVotingSystem;
+#endif
 class CvAdvisorCounsel;
 class CvAdvisorRecommender;
 
@@ -492,6 +495,9 @@ public:
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap();
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	CvMPVotingSystem* GetMPVotingSystem();
+#endif
 
 	int GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
 	int IsAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
@@ -727,6 +733,9 @@ protected:
 	CvGameLeagues*             m_pGameLeagues;
 	CvGameTrade*               m_pGameTrade;
 	CvTacticalAnalysisMap*     m_pTacticalMap;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	CvMPVotingSystem* m_pMPVotingSystem;
+#endif
 
 	CvAdvisorCounsel*          m_pAdvisorCounsel;
 	CvAdvisorRecommender*      m_pAdvisorRecommender;
