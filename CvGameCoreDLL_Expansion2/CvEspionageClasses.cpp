@@ -1443,7 +1443,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			}
 
 			CvAssertMsg(m_aiMaxTechCost[ePlayer] >= 0, "m_aiMaxTechCost[ePlayer] is below zero");
-			uint uiMaxTechCostAdjusted = m_aiMaxTechCost[ePlayer];			
+			uint uiMaxTechCostAdjusted = m_aiMaxTechCost[ePlayer];
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
 			int iMaxTechCostAdjusted = uiMaxTechCostAdjusted;
