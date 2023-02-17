@@ -13393,11 +13393,7 @@ bool CvCity::doCheckProduction()
 				if(thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
 				{
 					// Beaten to a world wonder by someone?
-#ifdef no_more_sameturned_wonders
-					if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()) && m_pCityBuildings->GetBuildingOriginalTime(eExpiredBuilding) != GC.getGame().getGameTurnYear())
-#else
 					if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
-#endif
 					{
 						for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{

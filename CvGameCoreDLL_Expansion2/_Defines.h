@@ -544,12 +544,6 @@
 ///
 #define HAS_TECH_BY_HUMAN
 ///
-// #define test_push_mission
-///
-// #define no_more_sameturned_wonders
-///
-// #define pillage_revealed
-///
 #define MP_PLAYERS_VOTING_SYSTEM
 /*OTHER CHANGES END*/
 

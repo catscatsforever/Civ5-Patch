@@ -6255,67 +6255,6 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 	}
 }
 
-#ifdef pillage_revealed
-//	--------------------------------------------------------------------------------
-bool CvPlot::IsImprovementPillagedRevealed(TeamTypes eTeam) const
-{
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-
-	return (ImprovementTypes)m_aeImprovementPillagedRevealed[eTeam];
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::SetImprovementPillagedRevealed(TeamTypes eTeam, bool bPillaged)
-{
-	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-
-	bool bWasPillaged = m_aeImprovementPillagedRevealed[eTeam];
-
-	if(bPillaged != bWasPillaged)
-	{
-		m_aeImprovementPillagedRevealed[eTeam] = bPillaged;
-		updateYield();
-
-		// Quantified Resource changes
-		if(getResourceType() != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
-		{
-			if(getTeam() != NO_TEAM)
-			{
-				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
-				{
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
-					{
-						if(bPillaged)
-						{
-							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
-
-							// Disconnect resource link
-							if(GetResourceLinkedCity() != NULL)
-								SetResourceLinkedCityActive(false);
-						}
-						else
-						{
-							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
-
-							// Reconnect resource link
-							if(GetResourceLinkedCity() != NULL)
-								SetResourceLinkedCityActive(true);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(bWasPillaged != m_aeImprovementPillagedRevealed[eTeam])
-	{
-		setLayoutDirty(true);
-	}
-}
-
-#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovedByGiftFromMajor() const
 {

@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V5.3d
+set patchfolder=Tournament Mod V5.4
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -26,6 +26,7 @@ IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.lua" (
 ) ELSE (
   ECHO PlotHelpManager.lua does not exists on EUI, copying to TM
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\PlotHelpManager.lua" "%cd%\%patchfolder%\UI\PlotHelpManager.lua"
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\PlotMouseoverInclude.lua" "%cd%\%patchfolder%\UI\PlotMouseoverInclude.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.xml" (

@@ -2581,39 +2581,6 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 				{
 					MissionTypes eMission = (MissionTypes)iData2;
 					CvPlot* pPlot = GC.getMap().plot(iData3, iData4);
-#ifdef test_push_mission
-					if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
-					{
-						float fTimeSinceCurrentTurnStart = GC.getGame().m_curTurnTimer.Peek() + GC.getGame().m_fCurrentTurnTimerPauseDelta;
-						float fTimeSinceGameTurnStart = GC.getGame().m_timeSinceGameTurnStart.Peek() + GC.getGame().m_fCurrentTurnTimerPauseDelta;
-						float fTimeElapsed = (GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
-						if(pPlot && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
-						{
-							if (fTimeElapsed > 0 || GC.getGame().getElapsedGameTurns() == 0)
-							{
-								gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-							}
-						}
-						else
-						{
-							if (fTimeElapsed > 0 || GC.getGame().getElapsedGameTurns() == 0)
-							{
-								gDLL->sendPushMission(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-							}
-						}
-					}
-					else
-					{
-						if(pPlot && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
-						{
-							gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-						}
-						else
-						{
-							gDLL->sendPushMission(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-						}
-					}
-#else
 					if(pPlot && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
 					{
 						gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
@@ -2622,7 +2589,6 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 					{
 						gDLL->sendPushMission(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
 					}
-#endif
 				}
 				else
 				{
