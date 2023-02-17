@@ -1724,7 +1724,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_SPY_STOLE_TECH:
 	{
 		CvPlayerEspionage* pEspionage = GET_PLAYER(m_ePlayer).GetEspionage();
-#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		if (pEspionage->GetNumTechsToSteal((PlayerTypes)m_aNotifications[iIndex].m_iGameDataIndex) <= 0)
 #else
 		if (pEspionage->m_aiNumTechsToStealList[m_aNotifications[iIndex].m_iGameDataIndex] <= 0)

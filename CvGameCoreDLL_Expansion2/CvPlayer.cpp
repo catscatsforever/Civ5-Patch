@@ -9222,7 +9222,11 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		{
 			if(GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
 			{
+#ifdef HAS_TECH_BY_HUMAN
+				if(kLoopTeam.GetTeamTechs()->HasTechByHuman(eTech))
+#else
 				if(kLoopTeam.GetTeamTechs()->HasTech(eTech))
+#endif
 				{
 					iKnownCount++;
 				}
@@ -11807,7 +11811,19 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	// Normal City
 	else
 	{
+#ifdef LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
+		PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_LIBERTY_FINISHER", true /*bHideAssert*/);
+		if (GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
+		{
+			iNumCitiesUnhappinessTimes100 += (100 * /*2*/ (GC.getUNHAPPINESS_PER_CITY() - 1));
+		}
+		else
+		{
+			iNumCitiesUnhappinessTimes100 += (100 * /*2*/ GC.getUNHAPPINESS_PER_CITY());
+		}
+#else
 		iNumCitiesUnhappinessTimes100 += (100 * /*2*/ GC.getUNHAPPINESS_PER_CITY());
+#endif
 		iPopulationUnhappinessTimes100 += (iPopulation* /*1*/ GC.getUNHAPPINESS_PER_POPULATION());
 
 		if(pCity->isCapital() && GetCapitalUnhappinessMod() != 0)
@@ -11851,7 +11867,20 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
 	int iUnhappiness = 0;
+#ifdef LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
+	PolicyTypes ePolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_LIBERTY_FINISHER", true /*bHideAssert*/);
+	int iUnhappinessPerCity;
+	if (GET_PLAYER((PlayerTypes)GetID()).GetPlayerPolicies()->HasPolicy(ePolicy))
+	{
+		iUnhappinessPerCity = /*2*/ (GC.getUNHAPPINESS_PER_CITY() - 1) * 100;
+	}
+	else
+	{
+		iUnhappinessPerCity = /*2*/ GC.getUNHAPPINESS_PER_CITY() * 100;
+	}
+#else
 	int iUnhappinessPerCity = /*2*/ GC.getUNHAPPINESS_PER_CITY() * 100;
+#endif
 
 	bool bCityValid;
 

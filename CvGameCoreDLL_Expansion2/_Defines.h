@@ -288,6 +288,8 @@
 #define AUTOCRACY_EXTRA_VOTES
 ///
 #define CS_INFLUENCE_BOOST
+///
+#define LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
 /*POLICIES CHANGES END*/
 
 
@@ -537,6 +539,8 @@
 ///
 // #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
 #endif
+///
+#define HAS_TECH_BY_HUMAN
 ///
 // #define test_push_mission
 ///
