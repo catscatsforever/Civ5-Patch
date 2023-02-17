@@ -131,6 +131,9 @@ CvGame::CvGame() :
 	m_pGameLeagues = NULL;
 	m_pGameTrade = NULL;
 	m_pTacticalMap = NULL;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	m_pMPVotingSystem = NULL;
+#endif
 
 	m_pAdvisorCounsel = NULL;
 	m_pAdvisorRecommender = NULL;
@@ -977,6 +980,9 @@ void CvGame::uninit()
 	SAFE_DELETE(m_pGameLeagues);
 	SAFE_DELETE(m_pGameTrade);
 	SAFE_DELETE(m_pTacticalMap);
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	SAFE_DELETE(m_pMPVotingSystem);
+#endif
 
 	SAFE_DELETE(m_pAdvisorCounsel);
 	SAFE_DELETE(m_pAdvisorRecommender);
@@ -1268,6 +1274,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		CvAssertMsg(m_pTacticalMap==NULL, "about to leak memory, CvGame::m_pTacticalMap");
 		m_pTacticalMap = FNEW(CvTacticalAnalysisMap, c_eCiv5GameplayDLL, 0);
 
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pTacticalMap");
+		m_pMPVotingSystem = FNEW(CvMPVotingSystem, c_eCiv5GameplayDLL, 0);
+
+#endif
 		CvAssertMsg(m_pAdvisorCounsel==NULL, "about to leak memory, CvGame::m_pAdvisorCounsel");
 		m_pAdvisorCounsel = FNEW(CvAdvisorCounsel, c_eCiv5GameplayDLL, 0);
 
@@ -7681,6 +7692,9 @@ void CvGame::doTurn()
 	GetGameTrade()->DoTurn();
 	GetGameLeagues()->DoTurn();
 	GetGameCulture()->DoTurn();
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	GetMPVotingSystem()->DoTurn();
+#endif
 
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
@@ -10228,6 +10242,14 @@ CvTacticalAnalysisMap* CvGame::GetTacticalAnalysisMap()
 	return m_pTacticalMap;
 }
 
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+//	--------------------------------------------------------------------------------
+CvMPVotingSystem* CvGame::GetMPVotingSystem()
+{
+	return m_pMPVotingSystem;
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 CvAdvisorCounsel* CvGame::GetAdvisorCounsel()
 {
