@@ -494,6 +494,10 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	CvAssertMsg(pLeague->CanProposeEnact(eResolution, eProposer, iChoice), "eProposer not allowed to enact Resolution. Please send Anton your save file and version.");
 	pLeague->DoProposeEnact(eResolution, eProposer, iChoice);
+#ifdef ASSIGN_SECOND_PROPOSAL_PRIVILEGE
+	if(eProposer == pLeague->GetHostMember() || pLeague->GetNumProposersPerSession() == 2)
+		pLeague->AssignSecondProposalPrivilege();
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, int iResolutionID, PlayerTypes eProposer)
@@ -504,6 +508,10 @@ void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, in
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	CvAssertMsg(pLeague->CanProposeRepeal(iResolutionID, eProposer), "eProposer not allowed to repeal Resolution. Please send Anton your save file and version.");
 	pLeague->DoProposeRepeal(iResolutionID, eProposer);
+#ifdef ASSIGN_SECOND_PROPOSAL_PRIVILEGE
+	if(eProposer == pLeague->GetHostMember() || pLeague->GetNumProposersPerSession() == 2)
+		pLeague->AssignSecondProposalPrivilege();
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseLeagueEditName(LeagueTypes eLeague, PlayerTypes ePlayer, const char* szCustomName)
@@ -913,14 +921,27 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 		{
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 			if (kPlayer.canStealTech(ePlayerToStealFrom, eTech))
-			// if (kPlayer.GetEspionage()->IsTechStealable(ePlayerToStealFrom, eTech))
 			{
-				kTeam.setHasTech(eTech, true, ePlayer, true, true);
-				/*for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+#ifdef ESPIONAGE_SYSTEM_REWORK
+				if(kTeam.GetTeamTechs())
 				{
-					kPlayer.GetEspionage()->BuildStealableTechList((PlayerTypes)ui);
-				}*/
-				// kPlayer.GetEspionage()->BuildStealableTechList(ePlayerToStealFrom);
+					int iMedianTechResearch = GET_PLAYER(ePlayerToStealFrom).GetPlayerTechs()->GetMedianTechResearch();
+
+					if(kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]/kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] < 2)
+					{
+						kTeam.GetTeamTechs()->ChangeResearchProgressTimes100(eTech, std::min(kTeam.GetTeamTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch/2), ePlayer);
+						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
+					}
+					else
+					{
+						kTeam.GetTeamTechs()->ChangeResearchProgressTimes100(eTech, std::min(kTeam.GetTeamTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch), ePlayer);
+						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
+						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
+					}
+				}
+#else
+				kTeam.setHasTech(eTech, true, ePlayer, true, true);
+#endif
 				kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 			}
 #else

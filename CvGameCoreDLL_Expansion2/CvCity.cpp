@@ -4711,21 +4711,46 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 					PolicyBranchTypes eBranch = NO_POLICY_BRANCH_TYPE;
 					int iNum = 0;
 
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+					bool bAllUnlockedByBelief = false;
+#endif
 					// Check social policy tree
 					if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
 						iNum = kPlayer.getWritersFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbWritersFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
+
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
 						iNum = kPlayer.getArtistsFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbArtistsFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
 						iNum = kPlayer.getMusiciansFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbMusiciansFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true /*bHideAssert*/))
 					{
@@ -4739,28 +4764,76 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 							iNum++;
 						}
 #endif
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbScientistsFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+#ifdef FAITH_FOR_THE_FIRST_SCIENTIST
+							CvGame& kGame = GC.getGame();
+							if (kGame.isOption("GAMEOPTION_EXPENSIVE_SCIENTISTS_FOR_FAITH"))
+							{
+								iNum = 1;
+							}
+							else
+							{
+								iNum = 0;
+							}
+#else
+							iNum = 0;
+#endif
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true /*bHideAssert*/);
 						iNum = kPlayer.getMerchantsFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbMerchantsFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true /*bHideAssert*/);
 						iNum = kPlayer.getEngineersFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbEngineersFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
 						iNum = kPlayer.getGeneralsFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbGeneralsFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
 						iNum = kPlayer.getAdmiralsFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+						if(kPlayer.getbAdmiralsFromFaith())
+						{
+							bAllUnlockedByBelief = true;
+							iNum = 0;
+						}
+#endif
 					}
 
+#ifndef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
 					bool bAllUnlockedByBelief = false;
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
 					if(pReligion)
@@ -4770,10 +4843,11 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 							bAllUnlockedByBelief = true;
 						}
 					}
+#endif
 
 					if (bAllUnlockedByBelief || (eBranch != NO_POLICY_BRANCH_TYPE && kPlayer.GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) && !kPlayer.GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
 					{
-						iCost = GC.getGame().GetGameReligions()->GetFaithGreatPersonNumber(iNum + 1);	
+						iCost = GC.getGame().GetGameReligions()->GetFaithGreatPersonNumber(iNum + 1);
 					}
 				}
 			}
@@ -6584,7 +6658,33 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					{
 						if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+							CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+							int iYieldFromBuilding = 0;
+
+							for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+							{
+								if(pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+								{
+									if(iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+									{
+										if(pBeliefs->GetEntry(i)->IsReformationBelief())
+										{
+											if(pReligion->m_eFounder == getOwner())
+											{
+												iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
+											}
+										}
+										else
+										{
+											iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
+										}
+									}
+								}
+							}
+#else
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
+#endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))
 							{
@@ -12827,10 +12927,20 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 						else
 						{
 							const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+							if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/) || GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/) && pReligion->m_eFounder == getOwner())
+							{
+								if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra()))
+								{
+									return false;
+								}
+							}
+#else
 							if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra()))
 							{
 								return false;
 							}
+#endif
 							if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
 								return false;
@@ -12854,10 +12964,47 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+				if(pReligion == NULL)
+				{
+					return false;
+				}
+				CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+				bool bIsBuildingClassEnabled = false;
+
+				for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+				{
+					if(pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+					{
+						if(pBeliefs->GetEntry(i)->IsReformationBelief())
+						{
+							if(pReligion->m_eFounder == getOwner())
+							{
+								if(pBeliefs->GetEntry(i)->IsBuildingClassEnabled(pkBuildingInfo->GetBuildingClassType()))
+								{
+									bIsBuildingClassEnabled = true;
+								}
+							}
+						}
+						else
+						{
+							if(pBeliefs->GetEntry(i)->IsBuildingClassEnabled(pkBuildingInfo->GetBuildingClassType()))
+							{
+								bIsBuildingClassEnabled = true;
+							}
+						}
+					}
+				}
+				if(!bIsBuildingClassEnabled)
+				{
+					return false;
+				}
+#else
 				if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
 				{
 					return false;
 				}
+#endif
 
 				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/))
 				{
@@ -13124,35 +13271,123 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
 			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbWritersFromFaith() == true)
+				{
+					kPlayer.setWritersFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementWritersFromFaith();
+				}
+#else
 				kPlayer.incrementWritersFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbArtistsFromFaith() == true)
+				{
+					kPlayer.setArtistsFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementArtistsFromFaith();
+				}
+#else
 				kPlayer.incrementArtistsFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbMusiciansFromFaith() == true)
+				{
+					kPlayer.setMusiciansFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementMusiciansFromFaith();
+				}
+#else
 				kPlayer.incrementMusiciansFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbScientistsFromFaith() == true)
+				{
+					kPlayer.setScientistsFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementScientistsFromFaith();
+				}
+#else
 				kPlayer.incrementScientistsFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbMerchantsFromFaith() == true)
+				{
+					kPlayer.setMerchantsFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementMerchantsFromFaith();
+				}
+#else
 				kPlayer.incrementMerchantsFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbEngineersFromFaith() == true)
+				{
+					kPlayer.setEngineersFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementEngineersFromFaith();
+				}
+#else
 				kPlayer.incrementEngineersFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbGeneralsFromFaith() == true)
+				{
+					kPlayer.setGeneralsFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementGeneralsFromFaith();
+				}
+#else
 				kPlayer.incrementGeneralsFromFaith();
+#endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 			{
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+				if(kPlayer.getbAdmiralsFromFaith() == true)
+				{
+					kPlayer.setAdmiralsFromFaith(false);
+				}
+				else
+				{
+					kPlayer.incrementAdmiralsFromFaith();
+				}
+#else
 				kPlayer.incrementAdmiralsFromFaith();
+#endif
 				CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(pUnit);
 				if (pUnit->plot() != pSpawnPlot)
 				{

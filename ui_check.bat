@@ -13,6 +13,8 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.lua" "%cd%\%patc
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPList.lua" "%cd%\%patchfolder%\UI\MPList.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.lua" "%cd%\%patchfolder%\UI\MiniMapPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.xml" "%cd%\%patchfolder%\UI\MiniMapPanel.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ChooseIdeologyPopup.lua" "%cd%\%patchfolder%\UI\ChooseIdeologyPopup.lua"
+
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
 FIND %text% "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" && (
@@ -97,5 +99,21 @@ FIND %text% "%cd%\UI_bc1\Core\CityStateStatusHelper.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityStateStatusHelper.lua" "%cd%\%patchfolder%\UI\CityStateStatusHelper.lua"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityStateStatusHelper.lua" "%cd%\%patchfolder%\UI\CityStateStatusHelper.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\NotificationPanel\NotificationPanel.lua" (
+  ECHO NotificationPanel.lua: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\NotificationPanel.lua" "%cd%\%patchfolder%\UI\NotificationPanel.lua"
+) ELSE (
+  ECHO NotificationPanel.lua: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NotificationPanel.lua" "%cd%\%patchfolder%\UI\NotificationPanel.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\NotificationPanel\NotificationPanel.xml" (
+  ECHO NotificationPanel.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\NotificationPanel.xml" "%cd%\%patchfolder%\UI\NotificationPanel.xml"
+) ELSE (
+  ECHO NotificationPanel.xml: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NotificationPanel.xml" "%cd%\%patchfolder%\UI\NotificationPanel.xml"
 )
 EXIT

@@ -331,6 +331,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
 		{
+#ifndef UNDERGROUND_SECT_REWORK
 			int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure();
 			if (iSpyPressure > 0)
 			{
@@ -340,6 +341,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 					pCity->GetCityReligions()->AddSpyPressure(eReligionFounded, iSpyPressure);
 				}
 			}
+#endif
 
 			// Loop through each of their cities
 			int iLoop;
@@ -1209,6 +1211,10 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
 	kPlayer.UpdateReligion();
+
+#ifdef NQ_ALLOW_RELIGION_ONE_SHOTS
+	kPlayer.DoReligionOneShots(eReligion);
+#endif
 
 	//Notify the masses
 	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){

@@ -200,6 +200,9 @@ public:
 	int m_iSpyListNameOrderIndex;
 	PlayerTechList m_aaPlayerStealableTechList;
 	NumTechsToStealList m_aiNumTechsToStealList;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	NumTechsToStealList m_aiWeightTechsToStealList;
+#endif
 	MaxTechCost m_aiMaxTechCost;
 	HeistLocationList m_aHeistLocations;
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player

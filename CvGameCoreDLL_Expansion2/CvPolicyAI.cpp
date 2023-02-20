@@ -383,9 +383,15 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 
 	// Next look at free policies we can get
+#ifdef NEW_IDEOLOGY_TRIGGER
+	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch, pPlayer->GetID()) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
+	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch, pPlayer->GetID()) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
+	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch, pPlayer->GetID()) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
+#else
 	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
 	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
-	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();;
+	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
+#endif
 
 	stage = "After Free Policies";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);

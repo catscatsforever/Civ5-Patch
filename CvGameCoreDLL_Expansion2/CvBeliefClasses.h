@@ -73,6 +73,9 @@ public:
 	int GetSpyPressure() const;
 	int GetInquisitorPressureRetention() const;
 	int GetFaithBuildingTourism() const;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	int GetGreatPeopleRateModifier() const;
+#endif
 
 	bool IsPantheonBelief() const;
 	bool IsFounderBelief() const;
@@ -162,6 +165,10 @@ protected:
 	int m_iSpyPressure;
 	int m_iInquisitorPressureRetention;
 	int m_iFaithBuildingTourism;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	int m_iGreatPeopleRateModifier;
+#endif
+
 
 	bool m_bPantheon;
 	bool m_bFounder;
@@ -362,6 +369,13 @@ public:
 	{
 		return m_iFaithBuildingTourism;
 	}
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	int GetGreatPeopleRateModifier() const
+	{
+		return m_iGreatPeopleRateModifier;
+	}
+#endif
+
 
 	EraTypes GetObsoleteEra() const
 	{
@@ -449,6 +463,9 @@ private:
 	int m_iSpyPressure;
 	int m_iInquisitorPressureRetention;
 	int m_iFaithBuildingTourism;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	int m_iGreatPeopleRateModifier;
+#endif
 
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;

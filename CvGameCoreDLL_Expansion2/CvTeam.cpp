@@ -5800,6 +5800,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #endif
 						{
 							pEspionage->m_aiNumTechsToStealList[ui] = 0;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+							pEspionage->m_aiWeightTechsToStealList[ui] = 0;
+#endif
 						}
 					}
 				}
@@ -6021,6 +6024,9 @@ void CvTeam::testCircumnavigated()
 	}
 
 	CvMap& kMap = GC.getMap();
+#ifdef GOLD_FOR_CIRCUMNAVIGATE
+	pPlot = kMap.plotUnchecked(kMap.getGridWidth(), kMap.getGridHeight());
+#endif
 
 	// Test one of the wrapping axises.  This is brute force and not exactly "correct".
 	// It does not test for continuity and is not able to test whether the plot was revealed by exploration or
@@ -6128,6 +6134,38 @@ void CvTeam::testCircumnavigated()
 				}
 			}
 		}
+
+#ifdef GOLD_FOR_CIRCUMNAVIGATE
+		// Compute gold per team member
+		int GoldForCircumnavigate = 200;
+		int iGoldPerTeamMember = GoldForCircumnavigate;
+
+		if(getNumMembers() > 0)
+		{
+			iGoldPerTeamMember = GoldForCircumnavigate / getNumMembers();
+		}
+
+		for(int iI = 0; iI < MAX_MAJOR_CIVS; ++iI)
+		{
+			CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
+			if(playerI.isAlive())
+			{
+				if(playerI.getTeam() == eTeamID)
+				{
+					playerI.GetTreasury()->ChangeGold(iGoldPerTeamMember);
+				}
+			}
+
+			if(eTeamID == GC.getGame().getActiveTeam())
+			{
+				char text[256] = {0};
+				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
+				text[0] = NULL;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GoldForCircumnavigate);
+				GC.GetEngineUserInterface()->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+			}
+		}
+#endif
 
 		strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE", getName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);

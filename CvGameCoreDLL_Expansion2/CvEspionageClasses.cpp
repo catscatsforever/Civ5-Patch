@@ -146,6 +146,12 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	{
 		m_aiNumTechsToStealList.push_back(0);
 	}
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		m_aiWeightTechsToStealList.push_back(0);
+	}
+#endif
 }
 
 /// Uninit
@@ -161,6 +167,9 @@ void CvPlayerEspionage::Reset()
 	m_aiSpyListNameOrder.clear();
 	m_iSpyListNameOrderIndex = -1;
 	m_aiNumTechsToStealList.clear();
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	m_aiWeightTechsToStealList.clear();
+#endif
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
@@ -426,6 +435,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 
 			// can't steal any techs from this civ
 			m_aiNumTechsToStealList[eCityOwner] = 0;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+			m_aiWeightTechsToStealList[eCityOwner] = 0;
+#endif
 
 			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 			if(pNotifications)
@@ -433,7 +445,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
 				strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
-				strNotification << GetSpyRankName(pSpy->m_eRank);;
+				strNotification << GetSpyRankName(pSpy->m_eRank);
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
 				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -446,6 +458,65 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			kHeistLocation.m_iY = pCity->getY();
 			m_aHeistLocations[eCityOwner].push_back(kHeistLocation);
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+			int iCounterspyRank = 0;
+			if(pCityEspionage->HasCounterSpy())
+			{
+				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
+				iCounterspyRank = GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank;
+				iCounterspyRank += GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER)/100;
+				if(pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_CONSTABLE")) >= GC.getCITY_MAX_NUM_BUILDINGS())
+					iCounterspyRank++;
+				if(pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_INTELLIGENCE_AGENCY")) >= GC.getCITY_MAX_NUM_BUILDINGS())
+					iCounterspyRank++;
+				iCounterspyRank++;
+			}
+			int iSpyRankDifference = (pSpy->m_eRank + GET_PLAYER(eCityOwner).GetReligions()->GetSpyPressure() + 1) - iCounterspyRank + 1;
+
+			bool bSpyUpgrade = false;
+			bool bCounterSpyUpgrade = false;
+			if(pCityEspionage->HasCounterSpy())
+			{
+				if(iSpyRankDifference > 2)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
+					bSpyUpgrade = true;
+				}
+				else if(iSpyRankDifference == 2 || iSpyRankDifference == 1)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
+					bSpyUpgrade = true;
+				}
+				else if(iSpyRankDifference == 0)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
+					bCounterSpyUpgrade = true;
+				}
+				else if(iSpyRankDifference < 0)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
+					bCounterSpyUpgrade = true;
+				}
+			}
+			else
+			{
+				if(iSpyRankDifference > 3)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_UNDETECTED);
+					bSpyUpgrade = true;
+				}
+				else if(iSpyRankDifference == 3)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
+					bSpyUpgrade = true;
+				}
+				else if(iSpyRankDifference == 2)
+				{
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
+					bSpyUpgrade = true;
+				}
+			}
+#else
 			int iSpyResult;
 			if(pCityEspionage->HasCounterSpy())
 			{
@@ -500,6 +571,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
 				}
 			}
+#endif
 
 			CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
 			CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
@@ -557,7 +629,12 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					CvAssertMsg(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
 					if(iDefendingSpy >= 0)
 					{
+#ifdef ESPIONAGE_SYSTEM_REWORK
+						if(bCounterSpyUpgrade)
+							pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
+#else
 						pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
+#endif
 					}
 				}
 
@@ -581,6 +658,34 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					LogEspionageMsg(strMsg);
 				}
 			}
+#ifdef ESPIONAGE_SYSTEM_REWORK
+			else if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
+			{
+				// level up the defending spy
+				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
+				if(pDefendingPlayerEspionage)
+				{
+					CvAssertMsg(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
+					if(iDefendingSpy >= 0)
+					{
+#ifdef ESPIONAGE_SYSTEM_REWORK
+						if(bCounterSpyUpgrade)
+							pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
+#else
+						pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
+#endif
+					}
+				}
+
+				CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
+				CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+				if(pDefenderEspionageAI)
+				{
+					pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
+					pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
+				}
+			}
+#endif
 			else // spy successfully completed mission
 			{
 				pSpy->m_bEvaluateReassignment = true; // flag spy for reassignment
@@ -593,6 +698,16 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				int iCityOwner = (int)eCityOwner;
 				m_aiNumTechsToStealList[iCityOwner] = m_aiNumTechsToStealList[iCityOwner] + 1;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+				if (iSpyRankDifference > 1)
+				{
+					m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 2;
+				}
+				else
+				{
+					m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 1;
+				}
+#endif
 				pCityEspionage->ResetProgress(ePlayer);
 				int iRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
 				int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
@@ -600,6 +715,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				pCityEspionage->SetLastProgress(ePlayer, iRate);
 				pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
 
+#ifndef ESPIONAGE_SYSTEM_REWORK
 				if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
 				{
 					CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
@@ -610,6 +726,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
 					}
 				}
+#endif
 
 				// this check was added because m_aiNumTechsToStealList was getting out of whack somehow and this is a check to prevent the UI from going haywire
 				CvAssertMsg(m_aiNumTechsToStealList[iCityOwner] > 0, "m_aiNumTechsToStealList[iCityOwner] <= 0, which shouldn't happen after you succeed at stealing");
@@ -634,6 +751,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				else
 				{
 					m_aiNumTechsToStealList[iCityOwner] = 0;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+					m_aiWeightTechsToStealList[iCityOwner] = 0;
+#endif
 				}
 
 				//Achievements!
@@ -642,7 +762,12 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_12);
 				}
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+				if(bSpyUpgrade)
+					LevelUpSpy(uiSpyIndex);
+#else
 				LevelUpSpy(uiSpyIndex);
+#endif
 
 				if(GC.getLogging())
 				{
@@ -2203,9 +2328,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 	int iMaxTechCost = -1;
 
-#ifndef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
-#endif
 	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
@@ -2241,7 +2364,11 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 		// try to find the most expensive tech that can be researched
 		int iTechCost = m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) * 100;
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+		if(iTechCost > iMaxTechCost && pMyPlayerTechs->CanResearch(eTech))
+#else
 		if(iTechCost > iMaxTechCost)
+#endif
 		{
 			iMaxTechCost = iTechCost;
 		}
@@ -3709,6 +3836,15 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	loadFrom >> uiNumCivs;
+	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
+	{
+		int iNumWeightToSteal;
+		loadFrom >> iNumWeightToSteal;
+		writeTo.m_aiWeightTechsToStealList.push_back(iNumWeightToSteal);
+	}
+#endif
 
 	int iMaxTechCostEntries;
 	loadFrom >> iMaxTechCostEntries;
@@ -3804,6 +3940,13 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aiNumTechsToStealList[uiCiv];
 	}
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	saveTo << readFrom.m_aiWeightTechsToStealList.size();
+	for(uint uiCiv = 0; uiCiv < readFrom.m_aiWeightTechsToStealList.size(); uiCiv++)
+	{
+		saveTo << readFrom.m_aiWeightTechsToStealList[uiCiv];
+	}
+#endif
 
 	saveTo << MAX_MAJOR_CIVS;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
@@ -4510,6 +4653,9 @@ void CvEspionageAI::StealTechnology()
 		int iHeistLocationCounter = 0;
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		while(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	NumTechsToStealList m_aiWeightTechsToStealList;
+#endif
 #else
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 #endif
@@ -4518,7 +4664,14 @@ void CvEspionageAI::StealTechnology()
 			CvAssertMsg(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
 			TeamTypes eTeam = m_pPlayer->getTeam();
 			TechTypes eStolenTech = pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer][0];
+#ifdef ESPIONAGE_SYSTEM_REWORK
+			if(GET_TEAM(eTeam).GetTeamTechs())
+			{
+				GET_TEAM(eTeam).GetTeamTechs()->ChangeResearchProgressTimes100(eStolenTech, m_pPlayer->GetEspionage()->m_aiMaxTechCost[eDefendingPlayer], m_pPlayer->GetID());
+			}
+#else
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
+#endif
 			GET_TEAM(eTeam).GetTeamTechs()->SetNoTradeTech(eStolenTech, true);
 
 			// send out notifications to the parties that were stolen from
@@ -4553,11 +4706,25 @@ void CvEspionageAI::StealTechnology()
 			if(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 #endif
 			{
+#ifdef ESPIONAGE_SYSTEM_REWORK
+				if(pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]/pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] < 2)
+				{
+					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
+				}
+				else
+				{
+					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
+					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
+				}
+#endif
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
 			else
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+				pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer] = 0;
+#endif
 			}
 		}
 	}

@@ -527,6 +527,9 @@ public:
 #ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
 	void UpdateCanProposeEnact();
 #endif
+#ifdef ASSIGN_SECOND_PROPOSAL_PRIVILEGE
+	void AssignSecondProposalPrivilege();
+#endif
 
 	// Members
 	void AddMember(PlayerTypes ePlayer);
