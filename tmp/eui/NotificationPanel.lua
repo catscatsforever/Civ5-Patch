@@ -321,6 +321,10 @@ for k, v, w in ([[
 
 	NOTIFICATION_LEAGUE_PROJECT_COMPLETE		LeagueProjectComplete
 	NOTIFICATION_LEAGUE_PROJECT_PROGRESS		LeagueProjectProgress
+	NOTIFICATION_MP_IRR_PROPOSAL		MPVotingSystemProposal
+	NOTIFICATION_MP_CC_PROPOSAL		MPVotingSystemProposal
+	NOTIFICATION_MP_SCRAP_PROPOSAL		MPVotingSystemProposal
+	NOTIFICATION_MP_PROPOSAL_RESULT		MPVotingSystemResult
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
 	if n then
@@ -440,19 +444,29 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			itemImage = instance.WonderConstructedAlphaAnim
 			smallCivFrame = instance.WonderSmallCivFrame
 
-		elseif type == 1001 or type == 1002 or type == 1003 then
+		elseif type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL
+			or type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL
+			or type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL
+			then
 			print('irr/cc/scrap notification setup')
 			print('icon hookup for proposal owner:', iGameValue)
 			local playerID = iGameValue
-			if type == 1001 then
+			if type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TEAM_1]')
-			elseif type == 1002 then
+			elseif type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TROPHY_GOLD]')
-			elseif type == 1003 then
+			elseif type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_FLOWER]')
 			end
 			LuaEvents.OnProposalCreated()
 			return CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+		elseif type == NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT then
+			if iExtraGameData == 1 then
+				instance.MPVotingSystemResultCancelImage:SetHide(true)  -- hide cancel frame
+			else
+				instance.MPVotingSystemResultCancelImage:SetHide(false)  -- show cancel frame
+			end
+			--return IconHookup( 57, 64, GameInfo.Policies.POLICY_LEGALISM.IconAtlas, instance.MPVotingSystemProposalResultImage )
 		elseif type == NotificationTypes.NOTIFICATION_PROJECT_COMPLETED then
 			itemInfo = GameInfo.Projects[ iGameValue ]
 			itemImage = instance.ProjectConstructedAlphaAnim
@@ -577,6 +591,7 @@ local function GenericLeftClick( Id )
 			end
 		end
 	end
+	print('activating notification Id:', Id)
 	UI.ActivateNotification( Id )
 end
 
@@ -606,33 +621,6 @@ for _, button in pairs( Controls ) do
 	end
 end
 
-local function IrrProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function CCProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function ScrapProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function IrrProposalRightClick( Id )
-end
-
-local function CCProposalRightClick( Id )
-end
-
-local function ScrapProposalRightClick( Id )
-end
-
-
-
-
 -------------------------------------------------
 -- Notification Added
 -------------------------------------------------
@@ -642,13 +630,7 @@ function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID ) 
 	print('UI_id', Id)
 	print('type', type)
 	print('-----------------------------')
-	local name
-
-	if type >= 1001 and type <= 1003 then
-		name = 'MPVotingSystemProposal'
-	else
-		name = not g_ActiveNotifications[ Id ] and (g_notificationNames[ type ] or "Generic")
-	end
+	local name = not g_ActiveNotifications[ Id ] and (g_notificationNames[ type ] or "Generic")
 
 	if name then
 		local button = Controls[ name ]
@@ -673,23 +655,14 @@ function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID ) 
 					instance.Container:ChangeParent( Controls_SmallStack )
 					button = instance.Button
 				else
+					print('WARN not instance')
 					instance = {}
 					ContextPtr:BuildInstanceForControl( name, instance, Controls_SmallStack )
 					instance.Name = name
 					button = instance.Button
-					if type == 1001 then
-						button:RegisterCallback( Mouse.eLClick, IrrProposalLeftClick )
-						button:RegisterCallback( Mouse.eRClick, IrrProposalRightClick )
-					elseif type == 1002 then
-						button:RegisterCallback( Mouse.eLClick, CCProposalLeftClick )
-						button:RegisterCallback( Mouse.eRClick, CCProposalRightClick )
-					elseif type == 1003 then
-						button:RegisterCallback( Mouse.eLClick, ScrapProposalLeftClick )
-						button:RegisterCallback( Mouse.eRClick, ScrapProposalRightClick )
-					else
-						button:RegisterCallback( Mouse.eLClick, GenericLeftClick )
-						button:RegisterCallback( Mouse.eRClick, GenericRightClick )
-					end
+					button:RegisterCallback( Mouse.eLClick, GenericLeftClick )
+					button:RegisterCallback( Mouse.eRClick, GenericRightClick )
+
 					button:RegisterCallback( Mouse.eMouseExit, MouseExit )
 					if UI.IsTouchScreenEnabled() then
 						button:RegisterCallback( Mouse.eLDblClick, GenericRightClick )

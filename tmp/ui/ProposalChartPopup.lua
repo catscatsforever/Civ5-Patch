@@ -15,19 +15,12 @@ local g_TeamEntries = {};
 local g_TeamData = {};
 
 local SEPARATOR_MARGIN = 10;
-
-local DiploRequestIncoming = Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_INCOMING" );
-local DiploRequestOutgoing = Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_OUTGOING" );
-local PlayerConnectedStr = Locale.ConvertTextKey( "TXT_KEY_MP_PLAYER_CONNECTED" );
-local PlayerConnectingStr = Locale.ConvertTextKey( "TXT_KEY_MP_PLAYER_CONNECTING" );
-local PlayerNotConnectedStr = Locale.ConvertTextKey( "TXT_KEY_MP_PLAYER_NOTCONNECTED" );
-
 local g_MPVotingSystemLastId = 0
 
 local function onVoteReceived( Id, playerId, bVote )
 	print('--- vote received --- Id:', Id, 'playerId:', playerId, 'bVote:', bVote)
 	if Id == g_MPVotingSystemLastId then
-		UpdateAndSort(Id);
+		UpdateAndSort(Id, 0);
 	end
 end
 
@@ -47,34 +40,17 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 				if Game.GetActivePlayer() == SubjectId then
 					Events.EndGameShow(EndGameTypes.Loss, -1)
 				end
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_IRR_PROPOSAL_PASSED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL_PASSED" );
 			elseif iType ==1002 then
 				Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_CC_PROPOSAL_PASSED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL_PASSED" );
 			elseif iType ==1003 then
 				print('calling SCRAP screen iType=', iType)
 				Events.EndGameShow(-1, Players[Game.GetActivePlayer()]:GetTeam())  -- scrap screen
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_SCRAP_PROPOSAL_PASSED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_PASSED" );
-			end
-		else
-			if iType == 1001 then
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_IRR_PROPOSAL_FAILED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL_FAILED" );
-			elseif iType == 1002 then
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_CC_PROPOSAL_FAILED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL_FAILED" );
-			elseif iType == 1003 then
-				sMessage = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_MP_SCRAP_PROPOSAL_FAILED" );
-				sSummary = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_FAILED" );
 			end
 		end
-		pActivePlayer:AddNotification(-1, sMessage, sSummary, -1, -1, 0);
-		OnClose();
+		if Id == g_MPVotingSystemLastId then
+			OnClose();
+		end
 	end
-
 end
 
 GameEvents.MPVotingSystemVote.Add(onVoteReceived)
@@ -298,7 +274,6 @@ function BuildControls()
             if(bObserverTeam) then 
 				-- OBSERVER_TEAM
 				teamEntry.TeamName:LocalizeAndSetText( "TXT_KEY_MULTIPLAYER_OBSERVER_TEAM_NAME" );
-				teamEntry.Vote:SetHide(true);
 			else			
 				teamEntry.TeamName:LocalizeAndSetText( "TXT_KEY_MULTIPLAYER_DEFAULT_TEAM_NAME", iTeam + 1 );
 			end
@@ -325,7 +300,7 @@ end
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function UpdateAndSort(Id)
+function UpdateAndSort(Id, iResult)
 
 	if Id ~= nil then
 		g_MPVotingSystemLastId = Id;
@@ -370,7 +345,6 @@ function UpdateAndSort(Id)
     for iTeam, teamEntry in pairs( g_TeamEntries ) do
 		local pTeam = Teams[ iTeam ];
     	local score = pTeam:GetScore();
-    	teamEntry.Vote:SetText( score );
 	
     	teamEntry.TeamStack:CalculateSize();
 		teamEntry.TeamBox:SetSizeX( teamEntry.TeamStack:GetSizeX() );
@@ -386,51 +360,73 @@ function UpdateAndSort(Id)
     
     -- sort all of the teams
 	Controls.MPListStack:SortChildren( MPListSort );
-	if Id ~= nil then
-  		print('updating buttons for Id:', Id)
-  		if Game.GetProposalVoterEligibility(Id, Game.GetActivePlayer()) == true then
-  			Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Id, -5); end );  -- Yes
-  			Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Id, -6); end );  -- No
-  			Controls.VoteYesButton:SetDisabled(false)
-  			Controls.VoteNoButton:SetDisabled(false)
-			Controls.VoteYesLabel:SetAlpha( 1 );
-			Controls.VoteNoLabel:SetAlpha( 1 );
-  		else
-  			Controls.VoteYesButton:SetDisabled(true)
-  			Controls.VoteNoButton:SetDisabled(true)
-			Controls.VoteYesLabel:SetAlpha( 0.5 );
-			Controls.VoteNoLabel:SetAlpha( 0.5 );
-  		end
-  		print('voteyes ready');
-  		print('voteno ready'); 
-    else
-  	    print('Id was nil! don\'t press voteyes/voteno!')
-    end
-    Controls.MPListStack:ReprocessAnchoring();  
-    print('UpdateAndSort finished')
-end
-
-function OnShowPopup(Id)
-	print('OnShowPopup received Id:', Id)
-	if Id ~= nil then
-		UpdateAndSort(Id)
+  	print('updating buttons for Id:', Id)
+  	print('result:', iResult)
+	if iResult == 0 then  -- no result yet
+		Controls.ProposalResultLabel:SetHide(true);
+  		Controls.VoteYesButton:SetHide(false)
+  		Controls.VoteNoButton:SetHide(false)
+		if (Id ~= nil) and (Controls.VoteYesButton ~= nil) and (Controls.VoteNoButton ~= nil) then
+  			local bEligible = Game.GetProposalVoterEligibility(Id, Game.GetActivePlayer())
+  			if bEligible == true then
+  				Controls.VoteYesButton:SetDisabled(false)
+  				Controls.VoteNoButton:SetDisabled(false)
+				Controls.VoteYesLabel:SetAlpha( 1 );
+				Controls.VoteNoLabel:SetAlpha( 1 );
+  			else
+  				Controls.VoteYesButton:SetDisabled(true)
+  				Controls.VoteNoButton:SetDisabled(true)
+				Controls.VoteYesLabel:SetAlpha( 0.5 );
+				Controls.VoteNoLabel:SetAlpha( 0.5 );
+  			end
+    	else
+  		    print('Id was nil! don\'t press voteyes/voteno!')
+    	end
 	else
-		print('Id was nil!')
-	end
-	ContextPtr:SetHide( false );
+		print('ProposalResultLabel')
+		Controls.ProposalResultLabel:SetHide(false);
+		print('votey/n')
+  		Controls.VoteYesButton:SetHide(true)
+  		Controls.VoteNoButton:SetHide(true)
+		if iResult == 1 then  -- result is passed
+			print('iResult1')
+			Controls.ProposalResultLabel:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_PROPOSAL_PASSED");
+		elseif iResult == 2 then  -- result is failed
+			print('iResult2')
+			Controls.ProposalResultLabel:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_PROPOSAL_FAILED");
+		end
+    end
+	print('ReprocessAnchoring')
+    Controls.MPListStack:ReprocessAnchoring();
 end
 
-LuaEvents.OpenProposalPopup.Add( OnShowPopup );
+function OnPopup( popupInfo )
+	print('OnPopup start')
+	if( popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_MODDER_0 ) then
+		m_PopupInfo = popupInfo;
+        if ( ContextPtr:IsHidden() == true ) then
+			print('OnPopup received Id:', m_PopupInfo.Data1)
+			print('OnPopup result:', m_PopupInfo.Data2)
+			UpdateAndSort(m_PopupInfo.Data1, m_PopupInfo.Data2)
+        	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
+        end
+	end
+end
+Events.SerialEventGameMessagePopup.Add( OnPopup );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
 function OnClose()
-	ContextPtr:SetHide( true );
-	g_MPVotingSystemLastId = -1;
+	print("Dequeuing proposal chart");
+    Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_MODDER_0, 0);
+	UIManager:DequeuePopup( ContextPtr );
 end
 Controls.CloseButton:RegisterCallback( Mouse.eLClick, OnClose );
 Events.ActivePlayerTurnEnd.Add(OnClose)
+Events.GameplaySetActivePlayer.Add(OnClose);
+
+
 
 ----------------------------------------------------------------
 -- Key Down Processing
@@ -448,7 +444,9 @@ ContextPtr:SetInputHandler( InputHandler );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+
 BuildStaticTeamsList();
 BuildControls();
 
-ContextPtr:SetHide( true );
+Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -5); end );  -- Yes
+Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -6); end );  -- No

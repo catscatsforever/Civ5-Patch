@@ -33,32 +33,6 @@ function GenericRightClick ( Id )
 	UI.RemoveNotification( Id )
 end
 
--------------------------------------------------
--------------------------------------------------
-local function IrrProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function CCProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function ScrapProposalLeftClick( Id )
-	print('OpenProposalPopup id:', Id)
-	LuaEvents.OpenProposalPopup(Id);
-end
-
-local function IrrProposalRightClick( Id )
-end
-
-local function CCProposalRightClick( Id )
-end
-
-local function ScrapProposalRightClick( Id )
-end
-
 ------------------------------------------------------------------------------------
 -- set up the exceptions
 ------------------------------------------------------------------------------------
@@ -254,6 +228,10 @@ g_NameTable[ NotificationTypes.NOTIFICATION_CITY_REVOLT ] = "Generic";
 
 g_NameTable[ NotificationTypes.NOTIFICATION_LEAGUE_PROJECT_COMPLETE ] = "LeagueProjectComplete";
 g_NameTable[ NotificationTypes.NOTIFICATION_LEAGUE_PROJECT_PROGRESS ] = "LeagueProjectProgress";
+g_NameTable[ NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL ] = "MPVotingSystemProposal";
+g_NameTable[ NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL ] = "MPVotingSystemProposal";
+g_NameTable[ NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL ] = "MPVotingSystemProposal";
+g_NameTable[ NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT ] = "MPVotingSystemResult";
 
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
@@ -273,14 +251,7 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
         return;
     end
        
-    local name 
-	if type >= 1001 and type <= 1003 then
-		name = 'MPVotingSystemProposal'
-	elseif type == 1000 then
-		name = 'Generic'
-	else
-		name = g_NameTable[ type ];
-	end
+    local name = g_NameTable[ type ];
     
     local button;
     local text;
@@ -341,20 +312,29 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 				CivIconHookup( 22, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
 				instance.WonderSmallCivFrame:SetHide(true);				
 			end
-		elseif type == 1001 or type == 1002 or type == 1003 then
+		elseif type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL
+			or type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL
+			or type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL
+			then
 			print('irr/cc/scrap notification setup')
 			print('icon hookup for proposal owner:', iGameValue)
 			local playerID = iGameValue
-			if type == 1001 then
+			if type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TEAM_1]')
-			elseif type == 1002 then
+			elseif type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TROPHY_GOLD]')
-			elseif type == 1003 then
+			elseif type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_FLOWER]')
 			end
 			LuaEvents.OnProposalCreated()
-			CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
-			instance.SmallCivFrame:SetHide(false);	
+			return CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+		elseif type == NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT then
+			if iExtraGameData == 1 then
+				instance.MPVotingSystemResultCancelImage:SetHide(true)  -- hide cancel frame
+			else
+				instance.MPVotingSystemResultCancelImage:SetHide(false)  -- show cancel frame
+			end
+			--return IconHookup( 57, 64, GameInfo.Policies.POLICY_LEGALISM.IconAtlas, instance.MPVotingSystemProposalResultImage )
 		elseif type == NotificationTypes.NOTIFICATION_PROJECT_COMPLETED then
 			if iGameValue ~= -1 then
 				local portraitIndex = GameInfo.Projects[iGameValue].PortraitIndex;
@@ -445,19 +425,8 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
     
     button:SetHide( false );
     button:SetVoid1( Id );
-	if type == 1001 then
-		button:RegisterCallback( Mouse.eLClick, IrrProposalLeftClick )
-		button:RegisterCallback( Mouse.eRClick, IrrProposalRightClick )
-	elseif type == 1002 then
-		button:RegisterCallback( Mouse.eLClick, CCProposalLeftClick )
-		button:RegisterCallback( Mouse.eRClick, CCProposalRightClick )
-	elseif type == 1003 then
-		button:RegisterCallback( Mouse.eLClick, ScrapProposalLeftClick )
-		button:RegisterCallback( Mouse.eRClick, ScrapProposalRightClick )
-	else
-   		button:RegisterCallback( Mouse.eLClick, GenericLeftClick );
-   		button:RegisterCallback( Mouse.eRClick, GenericRightClick );
-	end
+   	button:RegisterCallback( Mouse.eLClick, GenericLeftClick );
+   	button:RegisterCallback( Mouse.eRClick, GenericRightClick );
     if (UI.IsTouchScreenEnabled()) then
         button:RegisterCallback( Mouse.eLDblClick, GenericRightClick );
 	end

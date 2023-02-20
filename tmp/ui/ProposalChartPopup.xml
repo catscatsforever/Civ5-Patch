@@ -6,8 +6,7 @@
   <Instance Name="TeamEntry" >
     <Stack ID="Root" ConsumeMouse="1" >
 	  <Box Size="356,54" Color="0,0,0,128" ID="TeamBox">
-        <Label Anchor="L,C" Offset="6,0" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Team Name" ID="TeamName" ConsumeMouse="0"/>
-        <Label Anchor="R,C" Offset="10,0" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" String="123" ID="Vote" ConsumeMouse="0"/>
+        <Label Anchor="C,C" Offset="6,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Team Name" ID="TeamName" ConsumeMouse="0"/>
         <Box Anchor="C,B" Size="175,1" Offset="0,1" Color="255,255,200,128" ID="TeamHeaderSeparator"/>
 	  </Box>
 	  <Stack StackGrowth="Bottom" ID="TeamStack" />
@@ -87,6 +86,7 @@
 		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_YES_VOTES"/>
 		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_MISSING_VOTES"/>
 		  <Image Offset="-6,0" Anchor="L,T" Texture="bar300x2.dds" Size="300.1"/>
+		  <Label ID="ProposalResultLabel" Offset="-10,20" Anchor="C,T" Font="TwCenMT20"/>
 		  <GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="70,0" StateOffsetIncrement="0,0" ID="VoteYesButton">
 		    <Label ID="VoteYesLabel" Anchor="C,C" Offset="0,0" String="TXT_KEY_MP_PROPOSAL_SCREEN_VOTE_YES_BUTTON" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 		  </GridButton>

@@ -554,6 +554,11 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 			case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
 			case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 			case NOTIFICATION_CHOOSE_IDEOLOGY:
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+			case NOTIFICATION_MP_IRR_PROPOSAL:
+			case NOTIFICATION_MP_CC_PROPOSAL:
+			case NOTIFICATION_MP_SCRAP_PROPOSAL:
+#endif
 				return false;
 				break;
 
@@ -1102,6 +1107,23 @@ void CvNotifications::Activate(Notification& notification)
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+
+	case NOTIFICATION_MP_IRR_PROPOSAL:
+	case NOTIFICATION_MP_CC_PROPOSAL:
+	case NOTIFICATION_MP_SCRAP_PROPOSAL:
+	case NOTIFICATION_MP_PROPOSAL_RESULT:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			CvMPVotingSystem* pkMPVotingSystem = GC.getGame().GetMPVotingSystem();
+			int iUI_id = notification.m_iLookupIndex;
+			int iStatus = (int)pkMPVotingSystem->GetProposalStatus(pkMPVotingSystem->GetProposalIDbyUIid(iUI_id));
+			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_0, iUI_id, iStatus);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
