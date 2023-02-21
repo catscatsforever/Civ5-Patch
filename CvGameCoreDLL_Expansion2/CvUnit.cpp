@@ -5773,6 +5773,9 @@ bool CvUnit::paradrop(int iX, int iY)
 	}
 #endif
 	setXY(pPlot->getX(), pPlot->getY(), true, true, false);
+#ifdef QUICK_PARADROP
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)

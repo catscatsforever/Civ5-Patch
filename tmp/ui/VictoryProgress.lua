@@ -1,4 +1,7 @@
 ----------------------------------------------------------------
+-- edit: MP voting system for EUI & vanilla UI
+----------------------------------------------------------------
+----------------------------------------------------------------
 ----------------------------------------------------------------
 include( "IconSupport" );
 include( "SupportFunctions"  );
@@ -35,6 +38,44 @@ MAX_CULTURE_ICONS_PER_ROW = 8;
 -- Score Details Variables
 local g_ScoreIM = InstanceManager:new( "ScoreCiv", "Civ", Controls.ScoreStack );
 local g_ScoreList = {};
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+function OnProposeIrr()
+	-- debug only -- uncomment before release!
+	--Controls.MPProposeIrrButton:SetDisabled(true)
+	--Controls.MPProposeCCButton:SetDisabled(true)
+	--Controls.MPProposeScrapButton:SetDisabled(true)
+	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	Network.SendGiftUnit(-1, -2);
+end
+Controls.MPProposeIrrButton:RegisterCallback( Mouse.eLClick, OnProposeIrr );
+
+function OnProposeCC()
+	-- debug only -- uncomment before release!
+	--Controls.MPProposeIrrButton:SetDisabled(true)
+	--Controls.MPProposeCCButton:SetDisabled(true)
+	--Controls.MPProposeScrapButton:SetDisabled(true)
+	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	LuaEvents.MPProposeCCButtonPress({ Type = 123 });
+end
+Controls.MPProposeCCButton:RegisterCallback( Mouse.eLClick, OnProposeCC );
+
+function OnProposeScrap()
+	-- debug only -- uncomment before release!
+	--Controls.MPProposeIrrButton:SetDisabled(true)
+	--Controls.MPProposeCCButton:SetDisabled(true)
+	--Controls.MPProposeScrapButton:SetDisabled(true)
+	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	Network.SendGiftUnit(-1, -4);
+end
+Controls.MPProposeScrapButton:RegisterCallback( Mouse.eLClick, OnProposeScrap );
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
@@ -686,7 +727,52 @@ function SetupScreen()
 	
 	-- Set Player Score
 	PopulateScoreBreakdown();
-	
+	-- Proposal buttons
+	if Game.IsPlayerHasActiveProposal(Game.GetActivePlayer()) == false then
+		print('has active proposal false')
+		if Game.IsAnyActiveProposalType(0) == false then  -- irr
+			print('any active irr false')
+			Controls.MPProposeIrrButton:SetDisabled(false)
+			Controls.MPProposeIrrLabel:SetAlpha( 1 );
+		else
+			print('any active irr true')
+			-- debug only -- uncomment before release!
+			--Controls.MPProposeIrrButton:SetDisabled(true)
+			--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+		end
+
+		if Game.IsAnyActiveProposalType(1) == false then  -- cc
+			print('any active cc false')
+			Controls.MPProposeCCButton:SetDisabled(false)
+			Controls.MPProposeCCLabel:SetAlpha( 1 );
+		else
+			-- debug only -- uncomment before release!
+			--Controls.MPProposeCCButton:SetDisabled(true)
+			--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+			print('any active cc true')
+		end
+
+		if Game.IsAnyActiveProposalType(2) == false then  -- scrap
+			print('any active scrap false')
+			Controls.MPProposeScrapButton:SetDisabled(false)
+			Controls.MPProposeScrapLabel:SetAlpha( 1 );
+		else
+			print('any active scrap true')
+			-- debug only -- uncomment before release!
+			--Controls.MPProposeScrapButton:SetDisabled(true)
+			--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+		end
+	else
+		print('has active proposal true')
+		-- debug only -- uncomment before release!
+		--Controls.MPProposeIrrButton:SetDisabled(true)
+		--Controls.MPProposeCCButton:SetDisabled(true)
+		--Controls.MPProposeScrapButton:SetDisabled(true)
+		--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+		--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+		--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	end
+
 	-- Populate Victories
 	PopulateDomination();
 	PopulateSpaceRace();
@@ -694,6 +780,8 @@ function SetupScreen()
 	PopulateCultural();
 		
 end
+
+LuaEvents.OnProposalCreated.Add( SetupScreen )
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
