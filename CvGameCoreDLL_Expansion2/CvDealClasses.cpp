@@ -338,6 +338,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
 #endif
+#ifdef EXTENDED_PLAYER_EMBARGO_EFFECTS
+		if (!(GET_PLAYER(ePlayer).IsAllowedToTradeWith(eToPlayer)))
+			return false;
+#endif
 		// DoF has not been made with this player
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 		{
@@ -355,6 +359,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 #ifdef NO_TRADE_ITEMS_WITH_AI
 		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			return false;
+#endif
+#ifdef EXTENDED_PLAYER_EMBARGO_EFFECTS
+		if (!(GET_PLAYER(ePlayer).IsAllowedToTradeWith(eToPlayer)))
 			return false;
 #endif
 		// Can't trade more GPT than you're making
@@ -437,6 +445,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				{
 					return false;
 				}
+#ifdef EXTENDED_PLAYER_EMBARGO_EFFECTS
+				if (!(GET_PLAYER(ePlayer).IsAllowedToTradeWith(eToPlayer)))
+					return false;
+#endif
 			}
 
 			// Can't trade them something they're already giving us in the deal

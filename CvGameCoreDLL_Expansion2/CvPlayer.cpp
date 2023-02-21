@@ -189,6 +189,9 @@ CvPlayer::CvPlayer() :
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	, m_bHasUsedDharma(false)
 #endif
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	, m_bHasUsedUnityProphets(false)
+#endif
 #ifdef FREE_GREAT_PERSON
 	, m_iGreatProphetsCreated(0)
 #endif
@@ -208,6 +211,16 @@ CvPlayer::CvPlayer() :
 	, m_iGeneralsFromFaith(0)
 	, m_iAdmiralsFromFaith(0)
 	, m_iEngineersFromFaith(0)
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	, m_bMerchantsFromFaith(false)
+	, m_bScientistsFromFaith(false)
+	, m_bWritersFromFaith(false)
+	, m_bArtistsFromFaith(false)
+	, m_bMusiciansFromFaith(false)
+	, m_bGeneralsFromFaith(false)
+	, m_bAdmiralsFromFaith(false)
+	, m_bEngineersFromFaith(false)
+#endif
 	, m_iGreatPeopleThresholdModifier("CvPlayer::m_iGreatPeopleThresholdModifier", m_syncArchive)
 	, m_iGreatGeneralsThresholdModifier("CvPlayer::m_iGreatGeneralsThresholdModifier", m_syncArchive)
 	, m_iGreatAdmiralsThresholdModifier(0)
@@ -815,6 +828,9 @@ void CvPlayer::uninit()
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	m_bHasUsedDharma = false;
 #endif
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	m_bHasUsedUnityProphets = false;
+#endif
 #ifdef FREE_GREAT_PERSON
 	m_iGreatProphetsCreated = 0;
 #endif
@@ -834,6 +850,16 @@ void CvPlayer::uninit()
 	m_iGeneralsFromFaith = 0;
 	m_iAdmiralsFromFaith = 0;
 	m_iEngineersFromFaith = 0;
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	m_bMerchantsFromFaith = false;
+	m_bScientistsFromFaith = false;
+	m_bWritersFromFaith = false;
+	m_bArtistsFromFaith = false;
+	m_bMusiciansFromFaith = false;
+	m_bGeneralsFromFaith = false;
+	m_bAdmiralsFromFaith = false;
+	m_bEngineersFromFaith = false;
+#endif
 	m_iGreatPeopleThresholdModifier = 0;
 	m_iGreatGeneralsThresholdModifier = 0;
 	m_iGreatAdmiralsThresholdModifier = 0;
@@ -4348,8 +4374,14 @@ void CvPlayer::doTurnPostDiplomacy()
 	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
 	if(kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
+#ifdef AI_CULTURE_RESTRICTION
+		if(getJONSCulture() < getNextPolicyCost())
+			if(isHuman() || GetTotalJONSCulturePerTurn() < 1000)
+				changeJONSCulture(GetTotalJONSCulturePerTurn());
+#else
 		if(getJONSCulture() < getNextPolicyCost())
 			changeJONSCulture(GetTotalJONSCulturePerTurn());
+#endif
 	}
 	else
 	{
@@ -4874,6 +4906,9 @@ void CvPlayer::UpdateNotifications()
 void CvPlayer::UpdateReligion()
 {
 	DoUpdateHappiness();
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	recomputeGreatPeopleModifiers();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -10408,6 +10443,24 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	bool setUnitReligion = false;
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	// const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
+	if(pReligion)
+	{	
+		if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople())
+		{
+			setMerchantsFromFaith(true);
+			setScientistsFromFaith(true);
+			setWritersFromFaith(true);
+			setArtistsFromFaith(true);
+			setMusiciansFromFaith(true);
+			setGeneralsFromFaith(true);
+			setAdmiralsFromFaith(true);
+			setEngineersFromFaith(true);
+		}
+	}
+#endif
+
 #ifdef NQ_FREE_SETTLERS_FROM_BELIEF
 	if (!m_bHasUsedReligiousSettlements && pReligion->m_Beliefs.GetNumFreeSettlers() > 0)
 	{
@@ -10420,6 +10473,33 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 		{
 			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER"));
 		}
+	}
+#endif
+
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	BeliefTypes pBelief = NO_BELIEF;
+	for(int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+		CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+		if(pEntry && pEntry->IsPantheonBelief())
+		{
+			pBelief = eBelief;
+			break;
+		}
+	}
+	if (!m_bHasUsedUnityProphets && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_UNITY_OF_PROPHETS", true))
+	{
+		m_bHasUsedUnityProphets = true;
+
+		// add free settlers from Religious Settlements belief - I know this is super ugly, sorry :(
+		// real solution is to make a Belief_FreeUnitClasses table and figure out how to check for each belief being triggered only once... :(
+		// also should be regular settlers, not uniques (like American Pioneer for example)
+		// for (int iFreeSettlerLoop = 0; iFreeSettlerLoop < pReligion->m_Beliefs.GetNumFreeSettlers(); iFreeSettlerLoop++)
+		// {
+			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
+			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
+		// }
 	}
 #endif
 
@@ -13386,6 +13466,128 @@ void CvPlayer::incrementEngineersFromFaith()
 	m_iEngineersFromFaith++;
 }
 
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbMerchantsFromFaith() const
+{
+	return m_bMerchantsFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setMerchantsFromFaith(bool bNewValue)
+{
+	if(m_bMerchantsFromFaith != bNewValue)
+	{
+		m_bMerchantsFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbScientistsFromFaith() const
+{
+	return m_bScientistsFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setScientistsFromFaith(bool bNewValue)
+{
+	if(m_bScientistsFromFaith != bNewValue)
+	{
+		m_bScientistsFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbWritersFromFaith() const
+{
+	return m_bWritersFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setWritersFromFaith(bool bNewValue)
+{
+	if(m_bWritersFromFaith != bNewValue)
+	{
+		m_bWritersFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbArtistsFromFaith() const
+{
+	return m_bArtistsFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setArtistsFromFaith(bool bNewValue)
+{
+	if(m_bArtistsFromFaith != bNewValue)
+	{
+		m_bArtistsFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbMusiciansFromFaith() const
+{
+	return m_bMusiciansFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setMusiciansFromFaith(bool bNewValue)
+{
+	if(m_bMusiciansFromFaith != bNewValue)
+	{
+		m_bMusiciansFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbGeneralsFromFaith() const
+{
+	return m_bGeneralsFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setGeneralsFromFaith(bool bNewValue)
+{
+	if(m_bGeneralsFromFaith != bNewValue)
+	{
+		m_bGeneralsFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbAdmiralsFromFaith() const
+{
+	return m_bAdmiralsFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setAdmiralsFromFaith(bool bNewValue)
+{
+	if(m_bAdmiralsFromFaith != bNewValue)
+	{
+		m_bAdmiralsFromFaith = bNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::getbEngineersFromFaith() const
+{
+	return m_bEngineersFromFaith;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setEngineersFromFaith(bool bNewValue)
+{
+	if(m_bEngineersFromFaith != bNewValue)
+	{
+		m_bEngineersFromFaith = bNewValue;
+	}
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatPeopleThresholdModifier() const
 {
@@ -13634,6 +13836,19 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += m_pTraits->GetGreatPeopleRateModifier();
 	m_iGreatGeneralRateModifier += m_pTraits->GetGreatGeneralRateModifier();
 	m_iGreatScientistRateModifier += m_pTraits->GetGreatScientistRateModifier();
+
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+	if(eFoundedReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+		if(pReligion)
+		{
+			m_iGreatPeopleRateModifier += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+		}
+	}
+#endif
 
 	// Then get from current policies
 	m_iGreatPeopleRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_PERSON_RATE);
@@ -22706,6 +22921,9 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	kStream >> m_bHasUsedDharma;
 #endif
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	kStream >> m_bHasUsedUnityProphets;
+#endif
 #ifdef FREE_GREAT_PERSON
 	kStream >> m_iGreatProphetsCreated;
 #endif
@@ -22725,6 +22943,16 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGeneralsFromFaith;
 	kStream >> m_iAdmiralsFromFaith;
 	kStream >> m_iEngineersFromFaith;
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	kStream >> m_bMerchantsFromFaith;
+	kStream >> m_bScientistsFromFaith;
+	kStream >> m_bWritersFromFaith;
+	kStream >> m_bArtistsFromFaith;
+	kStream >> m_bMusiciansFromFaith;
+	kStream >> m_bGeneralsFromFaith;
+	kStream >> m_bAdmiralsFromFaith;
+	kStream >> m_bEngineersFromFaith;
+#endif
 	kStream >> m_iGreatPeopleThresholdModifier;
 	kStream >> m_iGreatGeneralsThresholdModifier;
 	kStream >> m_iGreatAdmiralsThresholdModifier;
@@ -23263,6 +23491,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	kStream << m_bHasUsedDharma;
 #endif
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	kStream << m_bHasUsedUnityProphets;
+#endif
 #ifdef FREE_GREAT_PERSON
 	kStream << m_iGreatProphetsCreated;
 #endif
@@ -23282,6 +23513,16 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGeneralsFromFaith;
 	kStream << m_iAdmiralsFromFaith;
 	kStream << m_iEngineersFromFaith;
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	kStream << m_bMerchantsFromFaith;
+	kStream << m_bScientistsFromFaith;
+	kStream << m_bWritersFromFaith;
+	kStream << m_bArtistsFromFaith;
+	kStream << m_bMusiciansFromFaith;
+	kStream << m_bGeneralsFromFaith;
+	kStream << m_bAdmiralsFromFaith;
+	kStream << m_bEngineersFromFaith;
+#endif
 	kStream << m_iGreatPeopleThresholdModifier;
 	kStream << m_iGreatGeneralsThresholdModifier;
 	kStream << m_iGreatAdmiralsThresholdModifier;

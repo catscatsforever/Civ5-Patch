@@ -63,6 +63,10 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iSpyPressure(0),
 	m_iInquisitorPressureRetention(0),
 	m_iFaithBuildingTourism(0),
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	m_iGreatPeopleRateModifier(0),
+#endif
+
 
 	m_bPantheon(false),
 	m_bFounder(false),
@@ -352,6 +356,14 @@ int CvBeliefEntry::GetFaithBuildingTourism() const
 {
 	return m_iFaithBuildingTourism;
 }
+
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+int CvBeliefEntry::GetGreatPeopleRateModifier() const
+{
+	return m_iGreatPeopleRateModifier;
+}
+
+#endif
 
 /// Accessor: is this a belief a pantheon can adopt
 bool CvBeliefEntry::IsPantheonBelief() const
@@ -654,6 +666,10 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iSpyPressure					  = kResults.GetInt("SpyPressure");
 	m_iInquisitorPressureRetention    = kResults.GetInt("InquisitorPressureRetention");
 	m_iFaithBuildingTourism           = kResults.GetInt("FaithBuildingTourism");
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	m_iGreatPeopleRateModifier        = kResults.GetInt("GreatPeopleRateModifier");
+#endif
+
 
 	m_bPantheon						  = kResults.GetBool("Pantheon");
 	m_bFounder						  = kResults.GetBool("Founder");
@@ -902,6 +918,10 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_iSpyPressure = source.m_iSpyPressure;
 	m_iInquisitorPressureRetention = source.m_iInquisitorPressureRetention;
 	m_iFaithBuildingTourism = source.m_iFaithBuildingTourism;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	m_iGreatPeopleRateModifier = source.m_iGreatPeopleRateModifier;
+#endif
+
 
 	m_eObsoleteEra = source.m_eObsoleteEra;
 	m_eResourceRevealed = source.m_eResourceRevealed;
@@ -960,6 +980,10 @@ void CvReligionBeliefs::Reset()
 	m_iSpyPressure = 0;
 	m_iInquisitorPressureRetention = 0;
 	m_iFaithBuildingTourism = 0;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	m_iGreatPeopleRateModifier = 0;
+#endif
+
 
 	m_eObsoleteEra = NO_ERA;
 	m_eResourceRevealed = NO_RESOURCE;
@@ -1021,6 +1045,10 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iSpyPressure += belief->GetSpyPressure();
 	m_iInquisitorPressureRetention += belief->GetInquisitorPressureRetention();
 	m_iFaithBuildingTourism += belief->GetFaithBuildingTourism();
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	m_iGreatPeopleRateModifier += belief->GetGreatPeopleRateModifier();
+#endif
+
 
 	m_eObsoleteEra = belief->GetObsoleteEra();
 	m_eResourceRevealed = belief->GetResourceRevealed();
@@ -1720,6 +1748,10 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	{
 		m_iFaithBuildingTourism = 0;
 	}
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	kStream >> m_iGreatPeopleRateModifier;
+#endif
+
 
 	kStream >> m_eObsoleteEra;
 	kStream >> m_eResourceRevealed;
@@ -1773,6 +1805,10 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	kStream << m_iSpyPressure;
 	kStream << m_iInquisitorPressureRetention;
 	kStream << m_iFaithBuildingTourism;
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	kStream << m_iGreatPeopleRateModifier;
+#endif
+
 
 	kStream << m_eObsoleteEra;
 	kStream << m_eResourceRevealed;

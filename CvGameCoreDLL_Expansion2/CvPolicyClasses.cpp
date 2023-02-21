@@ -3137,7 +3137,11 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 		// Unlocked?
 		if (bNewValue)
 		{
+#ifdef NEW_IDEOLOGY_TRIGGER
+			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType, m_pPlayer->GetID());
+#else
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
+#endif
 
 			// Late-game tree so want to issue notification?
 			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
@@ -3860,10 +3864,20 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		return false;
 	}
 
+#ifdef NEW_IDEOLOGY_TRIGGER
+	if (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_BIOLOGY"))
+		|| GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_ELECTRICITY"))
+		|| GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_STEAM_POWER"))
+		|| GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_DYNAMITE")))
+	{
+		return true;
+	}
+#else
 	if (m_pPlayer->GetCurrentEra() > GC.getInfoTypeForString("ERA_INDUSTRIAL"))
 	{
 		return true;
 	}
+#endif
 
 	// Check for the right number of buildings of a certain type (3 factories)
 	else
@@ -4113,10 +4127,88 @@ int PolicyHelpers::GetNumPlayersWithBranchUnlocked(PolicyBranchTypes eBranch)
 	return iRtnValue;
 }
 
+#ifdef NEW_IDEOLOGY_TRIGGER
+int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch, PlayerTypes ePlayer)
+#else
 int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
+#endif
 {
 	int iFreePolicies = 0;
 
+#ifdef NEW_IDEOLOGY_TRIGGER
+	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+	if (!(kTeam.GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_BIOLOGY"))
+		|| kTeam.GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_ELECTRICITY"))
+		|| kTeam.GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_STEAM_POWER"))
+		|| kTeam.GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_DYNAMITE"))))
+	{
+		CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
+		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(kPlayer.getCivilizationType());
+		if(pkInfo)
+		{
+			// Find a building that triggers an ideology
+			// Loop through all building classes
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
+				CvBuildingEntry* pkBuildingInfo = NULL;
+				if(eBuilding != -1)
+				{
+					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
+					if (pkBuildingInfo)
+					{
+						int iIdeologyTriggerCount = pkBuildingInfo->GetXBuiltTriggersIdeologyChoice();
+						if (iIdeologyTriggerCount > 0)
+						{
+							if (kPlayer.getBuildingClassCount((BuildingClassTypes)iI) >= iIdeologyTriggerCount)
+							{
+								iFreePolicies = 2;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		iFreePolicies = 1;
+		CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
+		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(kPlayer.getCivilizationType());
+		if(pkInfo)
+		{
+			// Find a building that triggers an ideology
+			// Loop through all building classes
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
+				CvBuildingEntry* pkBuildingInfo = NULL;
+				if(eBuilding != -1)
+				{
+					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
+					if (pkBuildingInfo)
+					{
+						int iIdeologyTriggerCount = pkBuildingInfo->GetXBuiltTriggersIdeologyChoice();
+						if (iIdeologyTriggerCount > 0)
+						{
+							if (kPlayer.getBuildingClassCount((BuildingClassTypes)iI) >= iIdeologyTriggerCount)
+							{
+								iFreePolicies = 2;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (PolicyHelpers::GetNumPlayersWithBranchUnlocked(eBranch) > 1
+		|| eBranch != (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM() && eBranch != (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY() && eBranch != (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+	{
+		iFreePolicies = 0;
+	}
+#else
 	CvPolicyBranchEntry *pkEntry = GC.getPolicyBranchInfo(eBranch);
 	if (pkEntry)
 	{
@@ -4133,6 +4225,7 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 			}
 		}
 	}
+#endif
 
 	return iFreePolicies;
 }

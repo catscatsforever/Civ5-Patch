@@ -653,6 +653,24 @@ public:
 	void incrementAdmiralsFromFaith();
 	int getEngineersFromFaith() const;
 	void incrementEngineersFromFaith();
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	bool getbMerchantsFromFaith() const;
+	void setMerchantsFromFaith(bool bNewValue);
+	bool getbScientistsFromFaith() const;
+	void setScientistsFromFaith(bool bNewValue);
+	bool getbWritersFromFaith() const;
+	void setWritersFromFaith(bool bNewValue);
+	bool getbArtistsFromFaith() const;
+	void setArtistsFromFaith(bool bNewValue);
+	bool getbMusiciansFromFaith() const;
+	void setMusiciansFromFaith(bool bNewValue);
+	bool getbGeneralsFromFaith() const;
+	void setGeneralsFromFaith(bool bNewValue);
+	bool getbAdmiralsFromFaith() const;
+	void setAdmiralsFromFaith(bool bNewValue);
+	bool getbEngineersFromFaith() const;
+	void setEngineersFromFaith(bool bNewValue);
+#endif
 
 	int getGreatPeopleThresholdModifier() const;
 	void changeGreatPeopleThresholdModifier(int iChange);
@@ -1663,6 +1681,9 @@ protected:
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	bool m_bHasUsedDharma;
 #endif
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+	bool m_bHasUsedUnityProphets;
+#endif
 #ifdef FREE_GREAT_PERSON
 	int m_iGreatProphetsCreated;
 #endif
@@ -1682,6 +1703,16 @@ protected:
 	int m_iGeneralsFromFaith;
 	int m_iAdmiralsFromFaith;
 	int m_iEngineersFromFaith;
+#ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+	bool m_bMerchantsFromFaith;
+	bool m_bScientistsFromFaith;
+	bool m_bWritersFromFaith;
+	bool m_bArtistsFromFaith;
+	bool m_bMusiciansFromFaith;
+	bool m_bGeneralsFromFaith;
+	bool m_bAdmiralsFromFaith;
+	bool m_bEngineersFromFaith;
+#endif
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleThresholdModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsThresholdModifier;
 	int m_iGreatAdmiralsThresholdModifier;

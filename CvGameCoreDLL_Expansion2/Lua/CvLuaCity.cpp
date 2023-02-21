@@ -2420,7 +2420,32 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+			CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+			for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+			{
+				if(pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+				{
+					if(iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+					{
+						if(pBeliefs->GetEntry(i)->IsReformationBelief())
+						{
+							if(pReligion->m_eFounder == pkCity->getOwner())
+							{
+								iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+							}
+						}
+						else
+						{
+							iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+						}
+					}
+				}
+			}
+#else
 			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers);
+#endif
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

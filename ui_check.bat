@@ -13,6 +13,7 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.lua" "%cd%\%patc
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPList.lua" "%cd%\%patchfolder%\UI\MPList.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.lua" "%cd%\%patchfolder%\UI\MiniMapPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.xml" "%cd%\%patchfolder%\UI\MiniMapPanel.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ChooseIdeologyPopup.lua" "%cd%\%patchfolder%\UI\ChooseIdeologyPopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CCVotePopup.lua" "%cd%\%patchfolder%\UI\CCVotePopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CCVotePopup.xml" "%cd%\%patchfolder%\UI\CCVotePopup.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EndGameMenu.lua" "%cd%\%patchfolder%\UI\EndGameMenu.lua"
