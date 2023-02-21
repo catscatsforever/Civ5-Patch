@@ -10482,7 +10482,7 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	{
 		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
 		CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
-		if(pEntry && pEntry->IsPantheonBelief())
+		if(pEntry && pEntry->IsReformationBelief())
 		{
 			pBelief = eBelief;
 			break;
@@ -10497,8 +10497,11 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 		// also should be regular settlers, not uniques (like American Pioneer for example)
 		// for (int iFreeSettlerLoop = 0; iFreeSettlerLoop < pReligion->m_Beliefs.GetNumFreeSettlers(); iFreeSettlerLoop++)
 		// {
-			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
-			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
+			CvCity* pSpawnCity = getCapitalCity();
+			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"), false /*bIncrementCount*/, false);
+			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"), false /*bIncrementCount*/, false);
+			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
+			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
 		// }
 	}
 #endif
