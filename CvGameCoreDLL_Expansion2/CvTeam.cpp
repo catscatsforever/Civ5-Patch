@@ -6156,14 +6156,14 @@ void CvTeam::testCircumnavigated()
 				}
 			}
 
-			if(eTeamID == GC.getGame().getActiveTeam())
+			/*if(eTeamID == GC.getGame().getActiveTeam())
 			{
 				char text[256] = {0};
 				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
 				text[0] = NULL;
 				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GoldForCircumnavigate);
 				GC.GetEngineUserInterface()->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
-			}
+			}*/
 		}
 #endif
 

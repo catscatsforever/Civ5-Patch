@@ -529,6 +529,7 @@ function UpdateStreamerView()
 			local strBranchName = Locale.ConvertTextKey(pPolicyBranch.Description);
 			--local strBranchNameAbbrev = string.upper(string.sub(strBranchName, 1, 2));
 			local strBranchNameAbbrev = string.sub(strBranchName, 1, 3);
+			--local strBranchNameAbbrev = string.sub(strBranchName, 1, 1) .. string.sub(strBranchName, 2, 2) .. string.sub(strBranchName, 3, 3);
 
 			strPoliciesTextFull = strPoliciesTextFull .. strBranchName .. " " .. iCount;
 			strPoliciesTextAbbreviated = strPoliciesTextAbbreviated .. strBranchNameAbbrev .. " " .. iCount;
