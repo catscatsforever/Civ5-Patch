@@ -1690,6 +1690,16 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		if (pNewUnit == NULL)
 			return NULL;
 
+#ifdef STARTING_SETTLER_EXTRA_MOVE
+		if(!pCapital && pNewUnit->isFound())
+		{
+			// if(pBestPlot == getStartingPlot())
+			// {
+			pNewUnit->changeMoves(pNewUnit->getMoves()/2);
+			// }
+		}
+#endif
+
 		// Don't stack any units
 		if(pBestPlot->getNumUnits() > 1)
 		{
@@ -4286,6 +4296,9 @@ void CvPlayer::doTurn()
 	{
 		doTurnPostDiplomacy();
 	}
+
+#ifdef TradeRoutes_After_doTurnPostDiplomacy
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)

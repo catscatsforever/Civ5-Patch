@@ -12928,12 +12928,39 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 						{
 							const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 #ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
-							if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/) || GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/) && pReligion->m_eFounder == getOwner())
+							if(pReligion == NULL)
 							{
-								if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra()))
+								return false;
+							}
+							CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+							bool bIsFaithBuyingEnabled = false;
+
+							for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+							{
+								if(pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
 								{
-									return false;
+									if(pBeliefs->GetEntry(i)->IsReformationBelief())
+									{
+										if(pReligion->m_eFounder == getOwner())
+										{
+											if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra(pkTechInfo->GetEra()))
+											{
+												bIsFaithBuyingEnabled = true;
+											}
+										}
+									}
+									else
+									{
+										if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra(pkTechInfo->GetEra()))
+										{
+											bIsFaithBuyingEnabled = true;
+										}
+									}
 								}
+							}
+							if(!bIsFaithBuyingEnabled)
+							{
+								return false;
 							}
 #else
 							if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)pkTechInfo->GetEra()))

@@ -271,6 +271,8 @@
 #define DISABLE_AUTOMOVES
 ///
 #define REMOVE_PARADROP_ANIMATION
+///
+#define STARTING_SETTLER_EXTRA_MOVE
 /*UNITS CHANGES END*/
 
 
@@ -575,6 +577,8 @@
 #define NEW_IDEOLOGY_TRIGGER
 ///
 #define ASSIGN_SECOND_PROPOSAL_PRIVILEGE
+///
+// #define TradeRoutes_After_doTurnPostDiplomacy
 /*OTHER CHANGES END*/
 
 #endif
