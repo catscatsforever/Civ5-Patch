@@ -513,7 +513,6 @@ function UpdateStreamerView()
 
 	-- Policies
 	local strPoliciesTextFull = "";
-	local strPoliciesTextAbbreviated = "";
 	for pPolicyBranch in GameInfo.PolicyBranchTypes() do
 		local iPolicyBranch = pPolicyBranch.ID;
 					
@@ -533,24 +532,17 @@ function UpdateStreamerView()
 		if (iCount > 0 or bBranchOpened) then
 			if (strPoliciesTextFull ~= "") then
 				strPoliciesTextFull = strPoliciesTextFull .. ", ";
-				strPoliciesTextAbbreviated = strPoliciesTextAbbreviated .. ", ";
 			end
 
 			local strBranchName = Locale.ConvertTextKey(pPolicyBranch.Description);
-			--local strBranchNameAbbrev = string.upper(string.sub(strBranchName, 1, 2));
-			local strBranchNameAbbrev = string.sub(strBranchName, 1, 3);
 
 			strPoliciesTextFull = strPoliciesTextFull .. strBranchName .. " " .. iCount;
-			strPoliciesTextAbbreviated = strPoliciesTextAbbreviated .. strBranchNameAbbrev .. " " .. iCount;
 		end
 	end
 
 	-- if it's empty, make it look right and grey it out
 	if (strPoliciesTextFull == "") then
 		strPoliciesText = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_VP_POLICIES") .. ": " .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
-	-- otherwise, if it's too long, use the abbrivated version
-	elseif (string.len(strPoliciesTextFull) > 75) then
-		strPoliciesText = strPoliciesTextAbbreviated;
 	-- otherwise, use the full version
 	else
 		strPoliciesText = strPoliciesTextFull;
@@ -700,7 +692,7 @@ function OnUpdate(fTime)
 		g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesSecondsElapsed + fTime;
 		g_UpdateReligionSecondsElapsed = g_UpdateReligionSecondsElapsed + fTime;
 		g_UpdateWondersSecondsElapsed = g_UpdateWondersSecondsElapsed + fTime;
-		if g_bAnimatePolicies == true and g_UpdatePoliciesSecondsElapsed > g_UpdateReligionCycle then
+		if g_bAnimatePolicies == true and g_UpdatePoliciesSecondsElapsed > g_UpdatePoliciesCycle then
 			--print('Policies cycle time delta: ', g_UpdatePoliciesSecondsElapsed)
 			g_UpdatePoliciesSecondsElapsed = 0.0;
 			Controls.StreamerPoliciesSlide:SetToBeginning();
