@@ -43,6 +43,9 @@ enum CvSpyResult // what was the result of the last spy action
     SPY_RESULT_UNDETECTED, // spy was not detected
     SPY_RESULT_DETECTED,   // a spy was detected in the city, but the defensive player can't tell which player
     SPY_RESULT_IDENTIFIED, // a spy was detected and identified in the city
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	SPY_RESULT_SPOTTED,
+#endif
     SPY_RESULT_KILLED,     // a spy was detected, identified, and killed in the city
     NUM_SPY_RESULTS
 };
