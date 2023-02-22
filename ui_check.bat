@@ -121,4 +121,15 @@ IF EXIST "%cd%\UI_bc1\NotificationPanel\NotificationPanel.xml" (
   ECHO NotificationPanel.xml: no EUI, copying vanilla UI version
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NotificationPanel.xml" "%cd%\%patchfolder%\UI\NotificationPanel.xml"
 )
+REM -------------------------------------------------
+set text="CityBannerProductionBox = function( city )"
+IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
+  FIND %text% "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" && (
+    ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_1.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
+    ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_1.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
+  ) || (
+    ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
+    ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
+  )
+)
 EXIT

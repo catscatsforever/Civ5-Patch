@@ -668,12 +668,10 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					CvAssertMsg(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
 					if(iDefendingSpy >= 0)
 					{
-#ifdef ESPIONAGE_SYSTEM_REWORK
 						if(bCounterSpyUpgrade)
+						{
 							pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
-#else
-						pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
-#endif
+						}
 					}
 				}
 
@@ -701,7 +699,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 #ifdef ESPIONAGE_SYSTEM_REWORK
 				if (iSpyRankDifference > 1)
 				{
-					m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 2;
+					if(pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)))
+					{
+						m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 1;
+					}
+					else
+					{
+						m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 2;
+					}
 				}
 				else
 				{

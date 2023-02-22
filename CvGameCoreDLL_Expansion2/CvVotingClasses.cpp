@@ -5771,9 +5771,34 @@ void CvLeague::AssignProposalPrivileges()
 			iPrivileges--;
 		}
 	}
-#endif
 
-	CvAssert(iPrivileges == 1);
+	CvAssert(iPrivileges == 0);
+#else
+	if(GC.getGame().isGameMultiPlayer())
+	{
+		CvAssert(iPrivileges == 1);
+	}
+	else
+	{
+		for (int i = 0; i < vpPossibleProposers.size(); i++)
+		{
+			if (iPrivileges == 0)
+			{
+				break;
+			}
+		
+			// Only one privilege per player
+			if (!vpPossibleProposers.GetElement(i)->bMayPropose)
+			{
+				vpPossibleProposers.GetElement(i)->bMayPropose = true;
+				vpPossibleProposers.GetElement(i)->iProposals = GC.getLEAGUE_MEMBER_PROPOSALS_BASE();
+				iPrivileges--;
+			}
+		}
+
+		CvAssert(iPrivileges == 0);
+	}
+#endif
 }
 
 void CvLeague::CheckProposalsValid()
@@ -9902,8 +9927,9 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 			ResolutionTypes eResolution = vInactive[proposal.iIndex];
 			pLeague->DoProposeEnact(eResolution, GetPlayer()->GetID(), proposal.iChoice);
 #ifdef ASSIGN_SECOND_PROPOSAL_PRIVILEGE
-			if(GetPlayer()->GetID() == pLeague->GetHostMember()	|| pLeague->GetNumProposersPerSession() == 2)
-				pLeague->AssignSecondProposalPrivilege();
+			if(GC.getGame().isGameMultiPlayer())
+				if(GetPlayer()->GetID() == pLeague->GetHostMember()	&& pLeague->GetNumProposersPerSession() == 2)
+					pLeague->AssignSecondProposalPrivilege();
 #endif
 		}
 		else
@@ -9911,8 +9937,9 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 			int iID = vActive[proposal.iIndex].GetID();
 			pLeague->DoProposeRepeal(iID, GetPlayer()->GetID());
 #ifdef ASSIGN_SECOND_PROPOSAL_PRIVILEGE
-			if(GetPlayer()->GetID() == pLeague->GetHostMember() || pLeague->GetNumProposersPerSession() == 2)
-				pLeague->AssignSecondProposalPrivilege();
+			if(GC.getGame().isGameMultiPlayer())
+				if(GetPlayer()->GetID() == pLeague->GetHostMember() && pLeague->GetNumProposersPerSession() == 2)
+					pLeague->AssignSecondProposalPrivilege();
 #endif
 		}
 	}

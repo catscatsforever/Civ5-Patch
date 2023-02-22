@@ -445,11 +445,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				{
 					return false;
 				}
+			}
 #ifdef EXTENDED_PLAYER_EMBARGO_EFFECTS
+			if(eUsage == RESOURCEUSAGE_STRATEGIC)
+			{
 				if (!(GET_PLAYER(ePlayer).IsAllowedToTradeWith(eToPlayer)))
 					return false;
-#endif
 			}
+#endif
 
 			// Can't trade them something they're already giving us in the deal
 			if(IsResourceTrade(eToPlayer, eResource))
