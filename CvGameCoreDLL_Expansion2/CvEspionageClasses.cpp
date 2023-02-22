@@ -489,7 +489,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else if(iSpyRankDifference == 0)
 				{
-					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_IDENTIFIED);
+					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_SPOTTED);
 					bCounterSpyUpgrade = true;
 				}
 				else if(iSpyRankDifference < 0)
@@ -659,8 +659,22 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 			}
 #ifdef ESPIONAGE_SYSTEM_REWORK
-			else if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
+			else if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_SPOTTED)
 			{
+				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_SPOTTED_S");
+					strSummary << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_SPOTTED");
+					strNotification << GetSpyRankName(pSpy->m_eRank);
+					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+					strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
+					strNotification << pCity->getNameKey();
+					pNotifications->Add(NOTIFICATION_SPY_WAS_KILLED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+
+				}
+
 				// level up the defending spy
 				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
 				if(pDefendingPlayerEspionage)
@@ -675,12 +689,26 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 				}
 
-				CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-				CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-				if(pDefenderEspionageAI)
+				pCityEspionage->ResetProgress(ePlayer);
+				int iRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+				int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+				pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
+				pCityEspionage->SetLastProgress(ePlayer, iRate);
+
+				if(GC.getLogging())
 				{
-					pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-					pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
+					CvString strMsg;
+					strMsg.Format("Spotted, %d,", uiSpyIndex);
+					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+					strMsg += ",";
+					strMsg += ",";
+					strMsg += ",";
+					strMsg += GET_PLAYER(eCityOwner).getCivilizationShortDescription();
+					strMsg += ",";
+					strMsg += pCity->getName();
+					strMsg += ",";
+					strMsg += "Spotted";
+					LogEspionageMsg(strMsg);
 				}
 			}
 #endif
@@ -795,6 +823,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						strMsg += "Detected";
 						break;
 					case SPY_RESULT_IDENTIFIED:
+						strMsg += "Identified";
+						break;
+					case SPY_RESULT_IDENTIFIED_2:
 						strMsg += "Identified";
 						break;
 					}
@@ -4672,7 +4703,7 @@ void CvEspionageAI::StealTechnology()
 #ifdef ESPIONAGE_SYSTEM_REWORK
 			if(GET_TEAM(eTeam).GetTeamTechs())
 			{
-				GET_TEAM(eTeam).GetTeamTechs()->ChangeResearchProgressTimes100(eStolenTech, m_pPlayer->GetEspionage()->m_aiMaxTechCost[eDefendingPlayer], m_pPlayer->GetID());
+				GET_TEAM(eTeam).GetTeamTechs()->ChangeResearchProgress(eStolenTech, m_pPlayer->GetEspionage()->m_aiMaxTechCost[eDefendingPlayer], m_pPlayer->GetID());
 			}
 #else
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
