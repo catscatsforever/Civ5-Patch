@@ -498,6 +498,16 @@ UpdateStrategicViewToggleTT();
 --- STREAMER PANEL UI ---
 -------------------------
 
+g_UpdatePoliciesSecondsElapsed = 0.0;
+g_UpdateReligionSecondsElapsed = 0.0;
+g_UpdateWondersSecondsElapsed = 0.0;
+g_UpdatePoliciesCycle = 1.0;
+g_UpdateReligionCycle = 1.0;
+g_UpdateWondersCycle = 1.0;
+g_bAnimatePolicies = false;
+g_bAnimateReligion = false;
+g_bAnimateWonders = false;
+g_bShow = false;
 function UpdateStreamerView()
 	local pActivePlayer = Players[ Game.GetActivePlayer() ];
 
@@ -560,7 +570,7 @@ function UpdateStreamerView()
 					if (strReligion1Text ~= "") then
 						strReligion1Text = strReligion1Text .. ", ";
 					end
-					strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.ShortDescription);
+					strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.Description);
 				else
 					-- second religion line
 					if (strReligion2Text == "") then
@@ -568,7 +578,7 @@ function UpdateStreamerView()
 					else
 						strReligion2Text = strReligion2Text .. ", ";
 					end
-					strReligion2Text = strReligion2Text .. Locale.ConvertTextKey(belief.ShortDescription);
+					strReligion2Text = strReligion2Text .. Locale.ConvertTextKey(belief.Description);
 				end
 				beliefCount = beliefCount + 1;
 			end
@@ -576,7 +586,7 @@ function UpdateStreamerView()
 	elseif (pActivePlayer:HasCreatedPantheon()) then
 		local belief = GameInfo.Beliefs[pActivePlayer:GetBeliefInPantheon()];
 		if (belief ~= nil) then
-			strReligion1Text = Locale.ConvertTextKey("TXT_KEY_RELIGION_PANTHEON") .. ": " .. Locale.ConvertTextKey(belief.ShortDescription);
+			strReligion1Text = Locale.ConvertTextKey("TXT_KEY_RELIGION_PANTHEON") .. ": " .. Locale.ConvertTextKey(belief.Description);
 			strReligion2Text = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_RO_WR_RELIGION") .. ": " .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
 		end
 	else
@@ -584,12 +594,88 @@ function UpdateStreamerView()
 		strReligion2Text = "";
 	end
 
+	-- Wonders!
+	local strWondersText = '';
+	for pBuilding in GameInfo.Buildings() do
+
+		local iBuilding = pBuilding.ID;
+		
+		local pBuildingClass = GameInfo.BuildingClasses[pBuilding.BuildingClass];
+		if (pBuildingClass.MaxGlobalInstances > 0) then  -- certainly a wonder
+			if (Players[Game.GetActivePlayer()]:CountNumBuildings(iBuilding) > 0) then
+				strWondersText = strWondersText .. Locale.ConvertTextKey(pBuilding.Description) .. ', '
+			end
+		end
+	end
+	if strWondersText:len() > 0 then
+		strWondersText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WONDERS_TEXT") ..': ' .. strWondersText:sub(1, -3)
+	else
+		strWondersText = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WONDERS_TEXT") ..': ' .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
+	end
+
+
+	local strReligionText = strReligion1Text .. '    ' .. strReligion2Text;
 	Controls.StreamerPoliciesText:SetText(strPoliciesText);
-	Controls.StreamerBeliefs1Text:SetText(strReligion1Text);
-	Controls.StreamerBeliefs2Text:SetText(strReligion2Text);
+	Controls.StreamerBeliefs1Text:SetText(strReligionText);
+	Controls.StreamerWondersText:SetText(strWondersText);
+
+	-- adjust cycle time so it ends as soon as last character slides off the panel
+	-- individual for every slide!
+	local labelWidth = Controls.StreamerPoliciesText:GetSizeX();
+	if labelWidth ~= nil and labelWidth > 538 then
+		-- animate text if too long
+		Controls.StreamerPoliciesText:SetOffsetX(540);  -- put label at the right edge
+		Controls.StreamerPoliciesText:SetAnchor('L,T');
+		g_UpdatePoliciesCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_bAnimatePolicies = true;
+		Controls.StreamerPoliciesSlide:Play();
+	else
+		-- else
+		Controls.StreamerPoliciesText:SetOffsetX(0);
+		Controls.StreamerPoliciesText:SetAnchor('C,T');
+		g_bAnimatePolicies = false;
+		Controls.StreamerPoliciesSlide:SetToBeginning();
+	end
+
+	labelWidth = Controls.StreamerBeliefs1Text:GetSizeX();
+	if labelWidth ~= nil and labelWidth > 538 then
+		-- animate text if too long
+		Controls.StreamerBeliefs1Text:SetOffsetX(540);  -- put label at the right edge
+		Controls.StreamerBeliefs1Text:SetAnchor('L,T');
+		g_UpdateReligionCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_bAnimateReligion = true;
+		Controls.StreamerReligionSlide:Play();
+	else
+		-- else
+		Controls.StreamerBeliefs1Text:SetOffsetX(0);
+		Controls.StreamerBeliefs1Text:SetAnchor('C,T');
+		g_bAnimateReligion = false;
+		Controls.StreamerReligionSlide:SetToBeginning();
+	end
+
+	labelWidth = Controls.StreamerWondersText:GetSizeX();
+	if labelWidth ~= nil and labelWidth > 538 then
+		-- animate text if too long
+		Controls.StreamerWondersText:SetOffsetX(540);  -- put label at the right edge
+		Controls.StreamerWondersText:SetAnchor('L,T');
+		--g_UpdateWondersCycle = 10.0 + strWondersText:len() * 0.2
+		g_UpdateWondersCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_bAnimateWonders = true;
+		Controls.StreamerWondersSlide:Play();
+	else
+		-- else
+		Controls.StreamerWondersText:SetOffsetX(0);
+		Controls.StreamerWondersText:SetAnchor('C,T');
+		g_bAnimateWonders = false;
+		Controls.StreamerWondersSlide:SetToBeginning();
+	end
 end
 
-function OnStreamerViewShow()	
+function OnStreamerViewShow()
+	g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesCycle;
+	g_UpdateReligionSecondsElapsed = g_UpdateReligionCycle;
+	g_UpdateWondersSecondsElapsed = g_UpdateWondersCycle;
+	g_bShow = true;
     UpdateStreamerView();
 	Controls.StreamerPanel:SetHide(false);
 	Controls.StreamerViewButtonOpen:SetHide(true);
@@ -597,12 +683,43 @@ function OnStreamerViewShow()
 end
 Controls.StreamerViewButtonOpen:RegisterCallback( Mouse.eLClick, OnStreamerViewShow );
 
-function OnStreamerViewHide()	
+function OnStreamerViewHide()
+	g_bShow = false;
+	Controls.StreamerPoliciesSlide:SetToBeginning();
+	Controls.StreamerReligionSlide:SetToBeginning();
+	Controls.StreamerWondersSlide:SetToBeginning();
 	Controls.StreamerPanel:SetHide(true);
 	Controls.StreamerViewButtonOpen:SetHide(false);
 	Controls.StreamerViewButtonClose:SetHide(true);
 end
 Controls.StreamerViewButtonClose:RegisterCallback( Mouse.eLClick, OnStreamerViewHide );
+
+-- there is no API to change SlideAnim Start/End properties, so we reset animations manually based on labels width
+function OnUpdate(fTime)
+	if g_bShow == true then
+		g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesSecondsElapsed + fTime;
+		g_UpdateReligionSecondsElapsed = g_UpdateReligionSecondsElapsed + fTime;
+		g_UpdateWondersSecondsElapsed = g_UpdateWondersSecondsElapsed + fTime;
+		if g_bAnimatePolicies == true and g_UpdatePoliciesSecondsElapsed > g_UpdateReligionCycle then
+			--print('Policies cycle time delta: ', g_UpdatePoliciesSecondsElapsed)
+			g_UpdatePoliciesSecondsElapsed = 0.0;
+			Controls.StreamerPoliciesSlide:SetToBeginning();
+			Controls.StreamerPoliciesSlide:Play();
+		end
+		if g_bAnimateReligion == true and g_UpdateReligionSecondsElapsed > g_UpdateReligionCycle then
+			--print('Religion cycle time delta: ', g_UpdateReligionSecondsElapsed)
+			g_UpdateReligionSecondsElapsed = 0.0;
+			Controls.StreamerReligionSlide:SetToBeginning();
+			Controls.StreamerReligionSlide:Play();
+		end
+		if g_bAnimateWonders == true and g_UpdateWondersSecondsElapsed > g_UpdateWondersCycle then
+			--print('Wonders cycle time delta: ', g_UpdateWondersSecondsElapsed)
+			g_UpdateWondersSecondsElapsed = 0.0;
+			Controls.StreamerWondersSlide:SetToBeginning();
+			Controls.StreamerWondersSlide:Play();
+		end
+	end
+end
 
 GameEvents.PlayerAdoptPolicyBranch.Add(UpdateStreamerView);
 GameEvents.PlayerAdoptPolicy.Add(UpdateStreamerView);
@@ -610,4 +727,9 @@ GameEvents.PantheonFounded.Add(UpdateStreamerView);
 GameEvents.ReligionFounded.Add(UpdateStreamerView);
 GameEvents.ReligionEnhanced.Add(UpdateStreamerView);
 GameEvents.ReformationAdded.Add(UpdateStreamerView);
+GameEvents.CityCaptureComplete.Add(UpdateStreamerView);
+--GameEvents.CityCaptureComplete.Add(function() print('CityCaptureComplete'); end);
+Events.ActivePlayerTurnStart.Add(UpdateStreamerView);
+--Events.ActivePlayerTurnStart.Add(function() print('ActivePlayerTurnStart'); end);
 UpdateStreamerView();
+ContextPtr:SetUpdate(OnUpdate)

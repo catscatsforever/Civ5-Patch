@@ -93,9 +93,23 @@
 	</Button>
 
 	<Grid Anchor="C,B" Size="540,78" Padding="0,8" Offset="0,-6" Style="GridBlack8"  ID="StreamerPanel" ConsumeMouse="1" Hidden="true" >
-		<Label ID="StreamerPoliciesText" Anchor="C,T" Offset="0, 8" TruncateWidth="538" />
-		<Label ID="StreamerBeliefs1Text" Anchor="C,T" Offset="0, 30" TruncateWidth="538" />
-		<Label ID="StreamerBeliefs2Text" Anchor="C,T" Offset="0, 52" TruncateWidth="538" />
+		<ScrollPanel Anchor="C,B" Size="540,78" Vertical="0" ID="ScrollPanel" >
+		
+			
+			<SlideAnim Anchor="L,T" Start="0,0" End="-5540,0" Cycle="Repeat" Speed="0.01" ID="StreamerPoliciesSlide" >
+				<Label ID="StreamerPoliciesText" Anchor="L,T" Offset="0, 8"/>
+			</SlideAnim>
+			<SlideAnim Anchor="L,T" Start="0,0" End="-5540,0" Cycle="Repeat" Speed="0.01" ID="StreamerReligionSlide" >
+				<Label ID="StreamerBeliefs1Text" Anchor="L,T" Offset="0, 30" />
+			</SlideAnim>
+			
+			<SlideAnim Anchor="L,T" Start="0,0" End="-5540,0" Cycle="Repeat" Speed="0.01" ID="StreamerWondersSlide" >
+				<Label ID="StreamerWondersText" Anchor="L,T" Offset="540, 52"/>
+			</SlideAnim>
+			
+			
+		</ScrollPanel>
+		
 	</Grid>
 
 
