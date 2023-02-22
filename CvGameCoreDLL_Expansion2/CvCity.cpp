@@ -12943,7 +12943,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 									{
 										if(pReligion->m_eFounder == getOwner())
 										{
-											if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseErav(pkTechInfo->GetEra()))
+											if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra(pkTechInfo->GetEra()))
 											{
 												bIsFaithBuyingEnabled = true;
 											}
@@ -12951,7 +12951,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 									}
 									else
 									{
-										if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseErav(pkTechInfo->GetEra()))
+										if(pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra(pkTechInfo->GetEra()))
 										{
 											bIsFaithBuyingEnabled = true;
 										}

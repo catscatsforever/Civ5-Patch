@@ -825,9 +825,6 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					case SPY_RESULT_IDENTIFIED:
 						strMsg += "Identified";
 						break;
-					case SPY_RESULT_IDENTIFIED_2:
-						strMsg += "Identified";
-						break;
 					}
 					LogEspionageMsg(strMsg);
 				}
