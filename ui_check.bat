@@ -38,6 +38,12 @@ IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.xml" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\PlotHelpManager.xml" "%cd%\%patchfolder%\UI\PlotHelpManager.xml"
 )
 REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\ToolTips\TechButtonInclude.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TechButtonInclude.lua" "%cd%\%patchfolder%\UI\TechButtonInclude.lua"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechButtonInclude.lua" "%cd%\%patchfolder%\UI\TechButtonInclude.lua"
+)
+REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\CityView\ProductionPopup.lua" (
   ECHO ProductionPopup.lua exists on EUI, skipping
 ) ELSE (
