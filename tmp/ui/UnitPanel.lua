@@ -1645,10 +1645,15 @@ function TipHandler( control )
 			end
 			
 			local iFeatureProduction = pPlot:GetFeatureProduction(iBuildID, iActiveTeam);
+			local iFeatureFood = pPlot:GetFeatureFood(iBuildID, iActiveTeam);
 			if (iFeatureProduction > 0) then
 				strClearFeatureString = strClearFeatureString .. Locale.ConvertTextKey("TXT_KEY_BUILD_FEATURE_PRODUCTION", iFeatureProduction);
 				
 			-- Add period to end if we're not going to append info about feature production
+			elseif (iFeatureFood > 0) then
+				strClearFeatureString = strClearFeatureString .. Locale.ConvertTextKey("TXT_KEY_BUILD_FEATURE_FOOD", iFeatureFood);
+				
+			-- Add period to end if we're not going to append info about feature food
 			elseif (bFeatureRemoved) then
 				strClearFeatureString = strClearFeatureString .. ".";
 			end

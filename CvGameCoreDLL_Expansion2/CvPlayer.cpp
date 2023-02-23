@@ -6259,7 +6259,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		if(pBestCity != NULL)
 		{
+#ifdef PopRuinFoodNotPopulation
+			pBestCity->changeFood(10*kGoodyInfo.getPopulation());
+#else
 			pBestCity->changePopulation(kGoodyInfo.getPopulation());
+#endif
 		}
 	}
 

@@ -573,6 +573,10 @@
 #define ASSIGN_SECOND_PROPOSAL_PRIVILEGE
 ///
 // #define TradeRoutes_After_doTurnPostDiplomacy
+///
+// #define PopRuinFoodNotPopulation
+///
+#define GET_REMOVE_FEATURE_FOOD
 /*OTHER CHANGES END*/
 
 #endif

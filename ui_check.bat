@@ -53,7 +53,7 @@ IF EXIST "%cd%\UI_bc1\TechTree\TechPopup.lua" (
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\UnitPanel\UnitPanel.lua" (
-  ECHO UnitPanel.lua exists on EUI, skipping
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
 ) ELSE (
   ECHO UnitPanel.lua does not exists on EUI, copying to TM
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
