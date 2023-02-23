@@ -9543,6 +9543,20 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 				}
 			}
 		}
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+		for(int iTraitLoop = 0; iTraitLoop < GC.getNumTraitInfos(); iTraitLoop++)
+		{
+			TraitTypes eTrait = (TraitTypes)iTraitLoop;
+			CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+			if(pkTraitInfo)
+			{
+				if(pkPlayer->GetPlayerTraits()->HasTrait(eTrait))
+				{
+					iChange += pkTraitInfo->GetBuildingClassHappiness(eOtherBuildingClass);
+				}
+			}
+		}
+#endif
 
 		lua_pushinteger(L, iChange);
 

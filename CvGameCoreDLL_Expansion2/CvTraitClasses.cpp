@@ -115,7 +115,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_paiYieldChangePerTradePartner(NULL),
 	m_paiYieldChangeIncomingTradeRoute(NULL),
 	m_paiYieldModifier(NULL),
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 	m_paiBuildingClassHappiness(NULL),
 #endif
 #ifdef RUSSIA_UA_REWORK
@@ -125,7 +125,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiSpecialistYieldChanges(NULL),
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	m_ppiBuildingClassYieldChanges(NULL),
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -135,7 +135,7 @@ CvTraitEntry::CvTraitEntry() :
 /// Destructor
 CvTraitEntry::~CvTraitEntry()
 {
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 #endif
 #ifdef RUSSIA_UA_REWORK
@@ -144,7 +144,7 @@ CvTraitEntry::~CvTraitEntry()
 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChanges);
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
@@ -729,7 +729,7 @@ int CvTraitEntry::GetYieldModifier(int i) const
 	return m_paiYieldModifier ? m_paiYieldModifier[i] : -1;
 }
 
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 int CvTraitEntry::GetBuildingClassHappiness(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
@@ -780,7 +780,7 @@ int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes 
 	return m_ppiSpecialistYieldChanges ? m_ppiSpecialistYieldChanges[eIndex1][eIndex2] : 0;
 }
 
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 /// Yield change for a specific BuildingClass by yield type
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -1052,7 +1052,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiYieldChangePerTradePartner, "Trait_YieldChangesPerTradePartner", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeIncomingTradeRoute, "Trait_YieldChangesIncomingTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Trait_BuildingClassHappiness", "BuildingClassType", "TraitType", szTraitType, "Happiness");
 #endif
 #ifdef RUSSIA_UA_REWORK
@@ -1213,7 +1213,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	//BuildingClassYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppiBuildingClassYieldChanges, "BuildingClasses", "Yields");
