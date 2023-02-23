@@ -42,37 +42,34 @@ local g_ScoreList = {};
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnProposeIrr()
-	-- debug only -- uncomment before release!
-	--Controls.MPProposeIrrButton:SetDisabled(true)
-	--Controls.MPProposeCCButton:SetDisabled(true)
-	--Controls.MPProposeScrapButton:SetDisabled(true)
-	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	Controls.MPProposeIrrButton:SetDisabled(true)
+	Controls.MPProposeCCButton:SetDisabled(true)
+	Controls.MPProposeScrapButton:SetDisabled(true)
+	Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
 	Network.SendGiftUnit(-1, -2);
 end
 Controls.MPProposeIrrButton:RegisterCallback( Mouse.eLClick, OnProposeIrr );
 
 function OnProposeCC()
-	-- debug only -- uncomment before release!
-	--Controls.MPProposeIrrButton:SetDisabled(true)
-	--Controls.MPProposeCCButton:SetDisabled(true)
-	--Controls.MPProposeScrapButton:SetDisabled(true)
-	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	Controls.MPProposeIrrButton:SetDisabled(true)
+	Controls.MPProposeCCButton:SetDisabled(true)
+	Controls.MPProposeScrapButton:SetDisabled(true)
+	Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
 	LuaEvents.MPProposeCCButtonPress({ Type = 123 });
 end
 Controls.MPProposeCCButton:RegisterCallback( Mouse.eLClick, OnProposeCC );
 
 function OnProposeScrap()
-	-- debug only -- uncomment before release!
-	--Controls.MPProposeIrrButton:SetDisabled(true)
-	--Controls.MPProposeCCButton:SetDisabled(true)
-	--Controls.MPProposeScrapButton:SetDisabled(true)
-	--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
-	--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+	Controls.MPProposeIrrButton:SetDisabled(true)
+	Controls.MPProposeCCButton:SetDisabled(true)
+	Controls.MPProposeScrapButton:SetDisabled(true)
+	Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+	Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+	Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
 	Network.SendGiftUnit(-1, -4);
 end
 Controls.MPProposeScrapButton:RegisterCallback( Mouse.eLClick, OnProposeScrap );
@@ -736,9 +733,8 @@ function SetupScreen()
 			Controls.MPProposeIrrLabel:SetAlpha( 1 );
 		else
 			print('any active irr true')
-			-- debug only -- uncomment before release!
-			--Controls.MPProposeIrrButton:SetDisabled(true)
-			--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+			Controls.MPProposeIrrButton:SetDisabled(true)
+			Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
 		end
 
 		if Game.IsAnyActiveProposalType(1) == false then  -- cc
@@ -746,9 +742,8 @@ function SetupScreen()
 			Controls.MPProposeCCButton:SetDisabled(false)
 			Controls.MPProposeCCLabel:SetAlpha( 1 );
 		else
-			-- debug only -- uncomment before release!
-			--Controls.MPProposeCCButton:SetDisabled(true)
-			--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+			Controls.MPProposeCCButton:SetDisabled(true)
+			Controls.MPProposeCCLabel:SetAlpha( 0.5 );
 			print('any active cc true')
 		end
 
@@ -758,19 +753,17 @@ function SetupScreen()
 			Controls.MPProposeScrapLabel:SetAlpha( 1 );
 		else
 			print('any active scrap true')
-			-- debug only -- uncomment before release!
-			--Controls.MPProposeScrapButton:SetDisabled(true)
-			--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+			Controls.MPProposeScrapButton:SetDisabled(true)
+			Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
 		end
 	else
 		print('has active proposal true')
-		-- debug only -- uncomment before release!
-		--Controls.MPProposeIrrButton:SetDisabled(true)
-		--Controls.MPProposeCCButton:SetDisabled(true)
-		--Controls.MPProposeScrapButton:SetDisabled(true)
-		--Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
-		--Controls.MPProposeCCLabel:SetAlpha( 0.5 );
-		--Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
+		Controls.MPProposeIrrButton:SetDisabled(true)
+		Controls.MPProposeCCButton:SetDisabled(true)
+		Controls.MPProposeScrapButton:SetDisabled(true)
+		Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
+		Controls.MPProposeCCLabel:SetAlpha( 0.5 );
+		Controls.MPProposeScrapLabel:SetAlpha( 0.5 );
 	end
 
 	-- Populate Victories
