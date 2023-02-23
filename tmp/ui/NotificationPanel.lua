@@ -327,7 +327,7 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 				instance.StatusFrame:SetText('[ICON_FLOWER]')
 			end
 			LuaEvents.OnProposalCreated()
-			return CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+			CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
 		elseif type == NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT then
 			if iExtraGameData == 1 then
 				instance.MPVotingSystemResultCancelImage:SetHide(true)  -- hide cancel frame
