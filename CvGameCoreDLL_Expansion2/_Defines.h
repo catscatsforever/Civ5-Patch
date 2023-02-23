@@ -294,6 +294,8 @@
 #define CS_INFLUENCE_BOOST
 ///
 #define LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
+///
+#define NEW_IDEOLOGY_TRIGGER
 /*POLICIES CHANGES END*/
 
 
@@ -308,7 +310,7 @@
 ///
 #define NEW_OTTOMAN_UA
 ///
-#define NEW_FRANCE_UA
+#define TRAIT_GET_BUILDING_CLASS_HAPPINESS
 ///
 #define NEW_VENICE_UA
 ///
@@ -476,6 +478,8 @@
 #define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
 ///
 #define SPACESHIP_GRAPHICS
+///
+#define BUILDING_CLASS_YIELD_CHANGES
 /*CITIES CHANGES END*/
 
 
@@ -529,6 +533,20 @@
 /*WONDERS CHANGES END*/
 
 
+/*LEAGUE CHANGES START*/
+///
+#define DIPLO_VICTORY_VOTING
+///
+#define CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
+///
+#define FINISH_LEAGUE_SESSION_EVEN_IF_SOMEONE_HAS_VOTES
+///
+#define EXTENDED_PLAYER_EMBARGO_EFFECTS
+///
+#define ASSIGN_SECOND_PROPOSAL_PRIVILEGE
+/*LEAGUE CHANGES END*/
+
+
 /*OTHER CHANGES START*/
 /// Can't declare war for 20 turns before renaissance and for 10 turns else
 #define NEW_DEFENSIVE_PACT
@@ -537,19 +555,11 @@
 ///
 #define RES_AGR_COUNT
 ///
-#define DIPLO_VICTORY_VOTING
-///
-#define CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-///
-#define FINISH_LEAGUE_SESSION_EVEN_IF_SOMEONE_HAS_VOTES
-///
 #define CANT_STEAL_CLASSICAL_ERA_TECHS
 ///
 #define BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 ///
 #define ESPIONAGE_SYSTEM_REWORK
-///
-// #define BUILD_ADOPTABLE_POLICY_LIST
 ///
 // #define NO_PUPPET_TECH_COST_MOD
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
@@ -564,13 +574,7 @@
 ///
 // #define MP_PLAYERS_VOTING_SYSTEM
 ///
-#define EXTENDED_PLAYER_EMBARGO_EFFECTS
-///
 #define GOLD_FOR_CIRCUMNAVIGATE
-///
-#define NEW_IDEOLOGY_TRIGGER
-///
-#define ASSIGN_SECOND_PROPOSAL_PRIVILEGE
 ///
 // #define TradeRoutes_After_doTurnPostDiplomacy
 ///

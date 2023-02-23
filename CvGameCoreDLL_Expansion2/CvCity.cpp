@@ -8993,51 +8993,10 @@ int CvCity::GetLocalHappiness() const
 		iLocalHappiness += iHappinessFromReligion;
 	}
 
-#ifdef NEW_FRANCE_UA
-	// Trait Building Mods
-	int iSpecialTraitBuildingHappiness = 0;
-	int iBuildingClassLoop;
-	BuildingClassTypes eBuildingClass;
-	for(int iTraitLoop = 0; iTraitLoop < GC.getNumTraitInfos(); iTraitLoop++)
-	{
-		TraitTypes eTrait = (TraitTypes)iTraitLoop;
-		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
-		if(pkTraitInfo)
-		{
-			if(kPlayer.GetPlayerTraits()->HasTrait(eTrait)/* && !kPlayer.GetPlayerTraits()->IsPolicyBlocked(eTrait)*/)
-			{
-				for(iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
-				{
-					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-
-					BuildingTypes eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-					if(eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0) // slewis - added the NO_BUILDING check for the ConquestDLX scenario which has civ specific wonders
-					{
-						if(pkTraitInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
-						{
-							iSpecialTraitBuildingHappiness += pkTraitInfo->GetBuildingClassHappiness(eBuildingClass);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	iLocalHappiness += iSpecialTraitBuildingHappiness;
-#endif
-
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
-#ifndef NEW_FRANCE_UA
 	int iBuildingClassLoop;
 	BuildingClassTypes eBuildingClass;
-#endif
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;

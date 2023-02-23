@@ -8876,7 +8876,7 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 		}
 	}
 
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	CvTraitXMLEntries* pTraits = GC.GetGameTraits();
 	if(pTraits)
 	{
@@ -11550,6 +11550,37 @@ int CvPlayer::GetHappinessFromBuildings() const
 		}
 	}
 	iHappiness += iSpecialBuildingHappiness;
+
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+	// Trait Building Mods
+	int iSpecialTraitBuildingHappiness = 0;
+	for(int iTraitLoop = 0; iTraitLoop < GC.getNumTraitInfos(); iTraitLoop++)
+	{
+		TraitTypes eTrait = (TraitTypes)iTraitLoop;
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(GetPlayerTraits()->HasTrait(eTrait))
+			{
+				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+				{
+					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) iBuildingClassLoop;
+					int iHappinessPerBuilding = pkTraitInfo->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
+					if(iHappinessPerBuilding > 0)
+					{
+						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
+						if(eBuildingThatGivesHappiness != NO_BUILDING)
+						{
+							iSpecialTraitBuildingHappiness += iHappinessPerBuilding * countNumBuildings(eBuildingThatGivesHappiness);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	iHappiness += iSpecialTraitBuildingHappiness;
+#endif
 
 	const CvCity* pLoopCity;
 	int iLoop;
