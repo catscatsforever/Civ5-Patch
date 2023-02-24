@@ -208,7 +208,11 @@ function AddTechButton( tech, turnsLeft, iDiscover)
   			else
   				thisTechButtonInstance.FreeTurns:SetHide( true );
   			end
-			thisTechButtonInstance.TechQueueLabel:SetText( freeString );
+  			if stealingTechTargetPlayerID ~= -1 then
+				thisTechButtonInstance.TechQueueLabel:SetText( "[COLOR_MENU_BLUE]" .. tostring(player:ScienceToStealAmount( stealingTechTargetPlayerID, tech.ID ) ) .. "[END_COLOR]" );
+			else
+				thisTechButtonInstance.TechQueueLabel:SetText( freeString );
+			end
  			thisTechButtonInstance.TechQueue:SetHide( false );
 		else
  			thisTechButtonInstance.CurrentlyResearching:SetHide( false );
@@ -252,7 +256,11 @@ function AddTechButton( tech, turnsLeft, iDiscover)
   				thisTechButtonInstance.FreeTurns:SetHide( true );
   			end
 			-- update queue number
-			thisTechButtonInstance.TechQueueLabel:SetText( freeString );
+  			if stealingTechTargetPlayerID ~= -1 then
+				thisTechButtonInstance.TechQueueLabel:SetText( "[COLOR_MENU_BLUE]" .. tostring(player:ScienceToStealAmount( stealingTechTargetPlayerID, tech.ID ) ) .. "[END_COLOR]" );
+			else
+				thisTechButtonInstance.TechQueueLabel:SetText( freeString );
+			end
  			thisTechButtonInstance.TechQueue:SetHide( false );
 		else
  			thisTechButtonInstance.Available:SetHide( false );

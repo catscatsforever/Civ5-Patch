@@ -16626,7 +16626,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		}
 		else
 		{
-#ifdef DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
 				PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
@@ -24107,7 +24107,7 @@ bool CvPlayer::canStealTech(PlayerTypes eTarget, TechTypes eTech) const
 	if(GET_TEAM(GET_PLAYER(eTarget).getTeam()).GetTeamTechs()->HasTech(eTech))
 	{
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-		if(GetPlayerTechs()->CanResearch(eTech) && GetEspionage()->IsTechStealable(eTarget, eTech))
+		if(GetPlayerTechs()->CanResearch(eTech) && GetEspionage()->IsTechStealable(eTarget, eTech) && GetEspionage()->m_aiNumTechsToStealList[eTarget] < 1)
 #else
 		if(GetPlayerTechs()->CanResearch(eTech))
 #endif

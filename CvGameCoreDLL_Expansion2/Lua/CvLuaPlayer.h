@@ -944,6 +944,9 @@ protected:
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 	static int lcanStealTech(lua_State* L);
 #endif
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	static int lScienceToStealAmount(lua_State* L);
+#endif
 	static int lGetIntrigueMessages(lua_State* L);
 	static int lHasRecentIntrigueAbout(lua_State* L);
 	static int lGetRecentIntrigueInfo(lua_State* L);
