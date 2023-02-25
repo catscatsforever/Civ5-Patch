@@ -19,6 +19,8 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CCVotePopup.xml" "%cd%\%patchfol
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EndGameMenu.lua" "%cd%\%patchfolder%\UI\EndGameMenu.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.lua" "%cd%\%patchfolder%\UI\ProposalChartPopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.xml" "%cd%\%patchfolder%\UI\ProposalChartPopup.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\AdvancedSetup.lua" "%cd%\%patchfolder%\UI\AdvancedSetup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameOptions.lua" "%cd%\%patchfolder%\UI\MPGameOptions.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
@@ -43,6 +45,12 @@ IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.xml" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\PlotHelpManager.xml" "%cd%\%patchfolder%\UI\PlotHelpManager.xml"
 )
 REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\ToolTips\TechButtonInclude.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TechButtonInclude.lua" "%cd%\%patchfolder%\UI\TechButtonInclude.lua"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechButtonInclude.lua" "%cd%\%patchfolder%\UI\TechButtonInclude.lua"
+)
+REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\CityView\ProductionPopup.lua" (
   ECHO ProductionPopup.lua exists on EUI, skipping
 ) ELSE (
@@ -58,7 +66,7 @@ IF EXIST "%cd%\UI_bc1\TechTree\TechPopup.lua" (
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\UnitPanel\UnitPanel.lua" (
-  ECHO UnitPanel.lua exists on EUI, skipping
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
 ) ELSE (
   ECHO UnitPanel.lua does not exists on EUI, copying to TM
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"

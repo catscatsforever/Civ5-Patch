@@ -56,13 +56,6 @@ end
 GameEvents.MPVotingSystemVote.Add(onVoteReceived)
 GameEvents.MPVotingSystemProposalResult.Add(onProposalResult)
 
-local function onButtonVoteYesLeftClick(Id)
-	Network.SendGiftUnit(Id, -5); -- yes
-end
-
-local function onButtonVoteYesRightClick(Id)
-	Network.SendGiftUnit(Id, -6); -- no
-end
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -71,7 +64,7 @@ function IsActiveHuman( pPlayer )
 	-- This check handles the fact that pPlayer:IsHuman() returns true for unoccupied observer slots. DOH!
 	return (Network.IsPlayerConnected(pPlayer:GetID()) or (pPlayer:IsHuman() and not pPlayer:IsObserver()));
 end     
-     
+
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -448,5 +441,5 @@ ContextPtr:SetInputHandler( InputHandler );
 BuildStaticTeamsList();
 BuildControls();
 
-Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -5); end );  -- Yes
-Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -6); end );  -- No
+Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Game.GetProposalIDbyUIid(g_MPVotingSystemLastId), -5); end );  -- Yes
+Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Game.GetProposalIDbyUIid(g_MPVotingSystemLastId), -6); end );  -- No

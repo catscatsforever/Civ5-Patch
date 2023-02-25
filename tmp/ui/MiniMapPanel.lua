@@ -606,8 +606,10 @@ function UpdateStreamerView()
 		strWondersText = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WONDERS_TEXT") ..': ' .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
 	end
 
-
-	local strReligionText = strReligion1Text .. '    ' .. strReligion2Text;
+	local strReligionText = strReligion1Text
+	if strReligion2Text:len() > 0 then
+		strReligionText = strReligionText .. '    ' .. strReligion2Text;
+	end
 	Controls.StreamerPoliciesText:SetText(strPoliciesText);
 	Controls.StreamerBeliefs1Text:SetText(strReligionText);
 	Controls.StreamerWondersText:SetText(strWondersText);

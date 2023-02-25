@@ -158,7 +158,7 @@ public:
 	int GetYieldChangePerTradePartner(int i) const;
 	int GetYieldChangeIncomingTradeRoute(int i) const;
 	int GetYieldModifier(int i) const;
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 	int GetBuildingClassHappiness(int i) const;
 #endif
 #ifdef RUSSIA_UA_REWORK
@@ -172,7 +172,7 @@ public:
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
@@ -293,7 +293,7 @@ protected:
 	int* m_paiYieldChangePerTradePartner;
 	int* m_paiYieldChangeIncomingTradeRoute;
 	int* m_paiYieldModifier;
-#ifdef NEW_FRANCE_UA
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
 	int* m_paiBuildingClassHappiness;
 #endif
 #ifdef RUSSIA_UA_REWORK
@@ -305,7 +305,7 @@ protected:
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiSpecialistYieldChanges;
-#ifdef NEW_OTTOMAN_UA
+#ifdef BUILDING_CLASS_YIELD_CHANGES
 	int** m_ppiBuildingClassYieldChanges;
 #endif
 	int** m_ppiUnimprovedFeatureYieldChanges;

@@ -5771,10 +5771,8 @@ bool CvUnit::paradrop(int iX, int iY)
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitParadrop(pDllUnit.get());
 	}
-#endif
+
 	setXY(pPlot->getX(), pPlot->getY(), true, true, false);
-#ifdef QUICK_PARADROP
-	}
 #endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
