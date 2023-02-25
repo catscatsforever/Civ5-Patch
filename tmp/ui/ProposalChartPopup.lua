@@ -361,7 +361,8 @@ function UpdateAndSort(Id, iResult)
   		Controls.VoteNoButton:SetHide(false)
 		if (Id ~= nil) and (Controls.VoteYesButton ~= nil) and (Controls.VoteNoButton ~= nil) then
   			local bEligible = Game.GetProposalVoterEligibility(Id, Game.GetActivePlayer())
-  			if bEligible == true then
+  			local bHasVoted = Game.GetProposalVoterHasVoted(Id, Game.GetActivePlayer())
+  			if bEligible == true and bHasVoted == false then
   				Controls.VoteYesButton:SetDisabled(false)
   				Controls.VoteNoButton:SetDisabled(false)
 				Controls.VoteYesLabel:SetAlpha( 1 );
