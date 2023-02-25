@@ -985,16 +985,16 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 #ifdef ESPIONAGE_SYSTEM_REWORK
 				if(kTeam.GetTeamTechs())
 				{
-					int iMedianTechResearch = GET_PLAYER(ePlayerToStealFrom).GetPlayerTechs()->GetMedianTechResearch();
+					int iMedianTechToStealResearch = kPlayer.GetPlayerTechs()->GetMedianTechToStealResearch(ePlayerToStealFrom);
 
 					if(kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]/kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] < 2)
 					{
-						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch/2), ePlayer);
+						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechToStealResearch/2), ePlayer);
 						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
 					}
 					else
 					{
-						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch), ePlayer);
+						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), iMedianTechToStealResearch), ePlayer);
 						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
 						kPlayer.GetEspionage()->m_aiWeightTechsToStealList[ePlayerToStealFrom]--;
 					}
