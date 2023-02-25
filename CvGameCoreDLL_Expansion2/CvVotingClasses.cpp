@@ -11144,6 +11144,27 @@ void CvMPVotingSystem::DoVote(int iProposalID, PlayerTypes ePlayerID, bool bVote
 	}
 }
 
+void CvMPVotingSystem::ResendActiveProposals()
+{
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
+	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
+	{
+		if (!it->bComplete)
+		{
+			if (it->eType == PROPOSAL_IRR)  // create matching notification
+				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL"), -1, -1, it->eProposalOwner);
+			else if (it->eType == PROPOSAL_CC)
+				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(it->eProposalOwner).getName(), GET_PLAYER(it->eProposalSubject).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL"), -1, -1, it->eProposalOwner);
+			else if (it->eType == PROPOSAL_SCRAP)
+				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL"), -1, -1, it->eProposalOwner);
+
+			DoCheckVoters(it->iID);
+			DoUpdateProposalStatus(it->iID);
+		}
+	}
+}
+
 void CvMPVotingSystem::SetProposalUIid(int iProposalID, int iId)
 {
 	m_vProposals.at(iProposalID).iUIid = iId;
