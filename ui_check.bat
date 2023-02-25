@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V5.4
+set patchfolder=Tournament Mod V6.0
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -65,9 +65,10 @@ IF EXIST "%cd%\UI_bc1\TechTree\TechPopup.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TechPopup.lua" "%cd%\%patchfolder%\UI\TechPopup.lua"
 )
 REM -------------------------------------------------
-IF EXIST "%cd%\UI_bc1\UnitPanel\UnitPanel.lua" (
+set text="-- modified by bc1 from Civ V 1.0.3.276 code"
+FIND %text% "%cd%\UI_bc1\UnitPanel\UnitPanel.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
-) ELSE (
+) || (
   ECHO UnitPanel.lua does not exists on EUI, copying to TM
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitPanel.lua" "%cd%\%patchfolder%\UI\UnitPanel.lua"
 )

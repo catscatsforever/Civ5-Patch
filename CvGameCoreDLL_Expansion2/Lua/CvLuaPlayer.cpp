@@ -940,6 +940,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 	Method(canStealTech);
 #endif
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	Method(ScienceToStealAmount);
+#endif
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
 	Method(HasRecentIntrigueAbout);
@@ -10840,6 +10843,34 @@ int CvLuaPlayer::lcanStealTech(lua_State* L)
 
 	const bool bResult = pkPlayer->canStealTech(eTarget, eTech);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
+#ifdef ESPIONAGE_SYSTEM_REWORK
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lScienceToStealAmount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes eTarget = (PlayerTypes)luaL_checkinteger(L, 2);
+	const TechTypes eTech = (TechTypes)luaL_checkinteger(L, 3);
+	int iMedianTechResearch = GET_PLAYER(eTarget).GetPlayerTechs()->GetMedianTechResearch();
+
+	if(pkPlayer->GetEspionage()->m_aiNumTechsToStealList[eTarget] > 0)
+	{
+		if(pkPlayer->GetEspionage()->m_aiWeightTechsToStealList[eTarget]/pkPlayer->GetEspionage()->m_aiNumTechsToStealList[eTarget] < 2)
+		{
+			lua_pushinteger(L, std::min(pkPlayer->GetPlayerTechs()->GetResearchCost(eTech) - GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch/2));
+		}
+		else
+		{
+			lua_pushinteger(L, std::min(pkPlayer->GetPlayerTechs()->GetResearchCost(eTech) - GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech), iMedianTechResearch));
+		}
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+	}
+
 	return 1;
 }
 #endif

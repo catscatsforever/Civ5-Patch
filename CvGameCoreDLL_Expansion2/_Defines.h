@@ -277,6 +277,24 @@
 
 
 
+/*TECHNOLOGIES AND RESEARCH CHANGES START*/
+///
+#define RES_AGR_COUNT
+///
+// #define NO_PUPPET_TECH_COST_MOD
+/// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
+// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+#ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+// #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+#endif
+///
+#define HAS_TECH_BY_HUMAN
+/*TECHNOLOGIES AND RESEARCH CHANGES END*/
+
+
+
 /*POLICIES CHANGES START*/
 /// Free courthouses are no longer removed when puppeting a city
 #define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
@@ -364,8 +382,6 @@
 ///
 #define NO_AI_PROJECTS
 ///
-#define NO_STEALABLE_TECH_LIST_FROM_AI
-///
 #define NO_AI_TRADE_ROUTES
 ///
 #define NO_TRADE_ITEMS_WITH_AI
@@ -433,7 +449,7 @@
 // city states will no longer declare peace if influence is less than -50
 // #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 ///
-#define DEACREASE_INFLUENCE_IF_BULLING_SOMEONE_WE_ARE_PROTECTING
+#define DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 ///
 // #define NO_FAITH_FROM_MEETING_CS
 ///
@@ -523,6 +539,7 @@
 /*TURN AND TIMER CHANGES END*/
 
 
+
 /*WONDERS CHANGES START*/
 ///
 #define TEMPLE_ARTEMIS_NO_YIELD_MOD_BUT_GROWTH
@@ -531,6 +548,7 @@
 ///
 // #define PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
 /*WONDERS CHANGES END*/
+
 
 
 /*LEAGUE CHANGES START*/
@@ -547,19 +565,23 @@
 /*LEAGUE CHANGES END*/
 
 
-/*OTHER CHANGES START*/
-/// Can't declare war for 20 turns before renaissance and for 10 turns else
-#define NEW_DEFENSIVE_PACT
+
+/*ESPIONAGE CHANGES START*/
 ///
-#define DEF_PACT_COUNT
-///
-#define RES_AGR_COUNT
+#define NO_STEALABLE_TECH_LIST_FROM_AI
 ///
 #define CANT_STEAL_CLASSICAL_ERA_TECHS
 ///
 #define BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 ///
 #define ESPIONAGE_SYSTEM_REWORK
+/*ESPIONAGE CHANGES END*/
+
+
+
+/*OTHER CHANGES START*/
+/// Can't declare war for 20 turns before renaissance and for 10 turns else
+#define NEW_DEFENSIVE_PACT
 ///
 // #define NO_PUPPET_TECH_COST_MOD
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
