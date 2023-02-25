@@ -9570,6 +9570,9 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> *m_pGameCulture;
 	kStream >> *m_pGameLeagues;
 	kStream >> *m_pGameTrade;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	kStream >> *m_pMPVotingSystem;
+#endif
 
 	unsigned int lSize = 0;
 	kStream >> lSize;
@@ -9749,6 +9752,9 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << *m_pGameCulture;
 	kStream << *m_pGameLeagues;
 	kStream << *m_pGameTrade;
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	kStream << *m_pMPVotingSystem;
+#endif
 
 	//In Version 8, Serialize Saved Game database
 	CvString strPath = gDLL->GetCacheFolderPath();

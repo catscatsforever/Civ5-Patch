@@ -784,10 +784,10 @@ int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes 
 /// Yield change for a specific BuildingClass by yield type
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	/*CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");*/
 	return m_ppiBuildingClassYieldChanges[eIndex1][eIndex2];
 }
 

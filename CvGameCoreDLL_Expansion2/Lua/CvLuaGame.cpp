@@ -380,6 +380,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
 #ifdef MP_PLAYERS_VOTING_SYSTEM
+	Method(GetLastProposalID);
+	Method(GetProposalIDbyUIid);
 	Method(GetProposalExpirationCounter);
 	Method(GetProposalType);
 	Method(GetProposalStatus);
@@ -2900,6 +2902,19 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	return 1;
 }
 #ifdef MP_PLAYERS_VOTING_SYSTEM
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetLastProposalID(lua_State* L)
+{
+	lua_pushinteger(L, GC.getGame().GetMPVotingSystem()->GetLastProposalID());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetProposalIDbyUIid(lua_State* L)
+{
+	const int iUI_Id = luaL_checkint(L, 1);
+	lua_pushinteger(L, GC.getGame().GetMPVotingSystem()->GetProposalIDbyUIid(iUI_Id));
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetProposalExpirationCounter(lua_State* L)
 {

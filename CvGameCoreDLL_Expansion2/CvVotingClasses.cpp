@@ -10845,6 +10845,10 @@ CvResolutionEntry* CvResolutionXMLEntries::GetEntry(int index)
 }
 #ifdef MP_PLAYERS_VOTING_SYSTEM
 
+
+// ================================================================================
+//			CvMPVotingSystem
+// ================================================================================
 CvMPVotingSystem::CvMPVotingSystem(void)
 {
 	m_iLastProposalID = 0;
@@ -10965,7 +10969,7 @@ bool CvMPVotingSystem::GetVoterVote(int iProposalID, PlayerTypes ePlayerID)
 int CvMPVotingSystem::GetYesVotes(int iProposalID)
 {
 	int yesVotes = 0;
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	for (uint i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if (GetVoterEligibility(iProposalID, (PlayerTypes)i) && GetVoterHasVoted(iProposalID, (PlayerTypes)i) && GetVoterVote(iProposalID, (PlayerTypes)i))
 			yesVotes++;
@@ -10977,7 +10981,7 @@ int CvMPVotingSystem::GetNoVotes(int iProposalID)
 {
 	int noVotes = 0;
 	Proposal pProposal = *GetProposalByID(iProposalID);
-	for (uint i = 0; i < pProposal.vVotes.size(); i++)
+	for (uint i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if (pProposal.vIsEligible.at(i) && pProposal.vHasVoted.at(i) && !pProposal.vVotes.at(i))
 			noVotes++;
@@ -10989,7 +10993,7 @@ int CvMPVotingSystem::GetMaxVotes(int iProposalID)
 {
 	int iMaxVotes = 0;
 	Proposal pProposal = *GetProposalByID(iProposalID);
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	for (uint i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if (pProposal.vIsEligible.at(i))
 			iMaxVotes++;
@@ -11119,9 +11123,8 @@ void CvMPVotingSystem::AddProposal(MPVotingSystemProposalTypes eProposalType, Pl
 	DoUpdateProposalStatus(ID);
 }
 
-void CvMPVotingSystem::DoVote(int iProposalUIid, PlayerTypes ePlayerID, bool bVote)
+void CvMPVotingSystem::DoVote(int iProposalID, PlayerTypes ePlayerID, bool bVote)
 {
-	int iProposalID = GetProposalIDbyUIid(iProposalUIid);
 	if (!GetProposalByID(iProposalID)->bComplete && GetProposalByID(iProposalID)->vIsEligible.at((int)ePlayerID))
 	{
 		SetVoterHasVoted(iProposalID, ePlayerID, true);
@@ -11131,7 +11134,7 @@ void CvMPVotingSystem::DoVote(int iProposalUIid, PlayerTypes ePlayerID, bool bVo
 		bool bResult;
 		if (pkScriptSystem)
 		{
-			args->Push(iProposalUIid);  // proposal id
+			args->Push(GetProposalUIid(iProposalID));  // proposal id
 			args->Push((int)ePlayerID);  // voter id
 			args->Push(bVote);
 			LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemVote", args.get(), bResult);
@@ -11359,4 +11362,180 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 		m_vProposals.at(iProposalID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, (int)GetProposalOwner(iProposalID), (int)GetProposalStatus(iProposalID));
 	}
 }
+#ifndef CUSTOMLOG
+#define CUSTOMLOG(sFmt, ...) {  \
+  CvString sMsg;  \
+  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
+  LOGFILEMGR.GetLog("MPVS.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
+}
+#endif
+FDataStream& operator>>(FDataStream& loadFrom, MPVotingSystemProposalTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<MPVotingSystemProposalTypes>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const MPVotingSystemProposalTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+
+//------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, MPVotingSystemProposalStatus& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<MPVotingSystemProposalStatus>(v);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const MPVotingSystemProposalStatus& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+
+//------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem::Proposal& writeTo)
+{
+	CUSTOMLOG("--- proposal read invoked WTF ---");
+	loadFrom >> writeTo.iID;
+	loadFrom >> writeTo.iUIid;
+	loadFrom >> writeTo.iExpirationCounter;
+	loadFrom >> writeTo.eType;
+	loadFrom >> writeTo.eStatus;
+	loadFrom >> writeTo.eProposalOwner;
+	loadFrom >> writeTo.eProposalSubject;
+	loadFrom >> writeTo.bComplete;
+	for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
+	{
+		bool bTemp1;
+		bool bTemp2;
+		bool bTemp3;
+		loadFrom >> bTemp1;
+		loadFrom >> bTemp2;
+		loadFrom >> bTemp3;
+		writeTo.vIsEligible.push_back(bTemp1);
+		writeTo.vHasVoted.push_back(bTemp2);
+		writeTo.vVotes.push_back(bTemp3);
+	}
+
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvMPVotingSystem::Proposal& readFrom)
+{
+	CUSTOMLOG("--- proposal write invoked WTF ---");
+	saveTo << readFrom.iID;
+	saveTo << readFrom.iUIid;
+	saveTo << readFrom.iExpirationCounter;
+	saveTo << readFrom.eType;
+	saveTo << readFrom.eStatus;
+	saveTo << readFrom.eProposalOwner;
+	saveTo << readFrom.eProposalSubject;
+	saveTo << readFrom.bComplete;
+	for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
+	{
+		saveTo << readFrom.vIsEligible.at(j);
+		saveTo << readFrom.vHasVoted.at(j);
+		saveTo << readFrom.vVotes.at(j);
+	}
+
+	return saveTo;
+}
+
+//------------------------------------------------------------------------------
+// Serialization Read
+FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem& writeTo)
+{
+	uint uiNumProposals;
+	bool bTemp;
+	CvMPVotingSystem::Proposal temp;
+	CUSTOMLOG("--- SERIALIZATION READ STARTED ---");
+	loadFrom >> uiNumProposals;
+	CUSTOMLOG("m_iLastProposalID: %d", uiNumProposals);
+	writeTo.m_iLastProposalID = uiNumProposals;
+	writeTo.m_vProposals.clear();
+	for (uint i = 0; i < uiNumProposals; i++)
+	{
+		CUSTOMLOG("---------- proposal i: %d", i);
+		loadFrom >> temp.iID;
+		loadFrom >> temp.iUIid;
+		CUSTOMLOG("-- temp.iUIid: %d", temp.iUIid);
+		loadFrom >> temp.iExpirationCounter;
+		CUSTOMLOG("-- temp.iExpirationCounter: %d", temp.iExpirationCounter);
+		loadFrom >> temp.eType;
+		CUSTOMLOG("-- temp.eType: %d", (int)temp.eType);
+		loadFrom >> temp.eStatus;
+		CUSTOMLOG("-- temp.eStatus: %d", (int)temp.eStatus);
+		loadFrom >> temp.eProposalOwner;
+		CUSTOMLOG("-- temp.eProposalOwner: %d", (int)temp.eProposalOwner);
+		loadFrom >> temp.eProposalSubject;
+		CUSTOMLOG("-- temp.eProposalSubject: %d", (int)temp.eProposalSubject);
+		loadFrom >> temp.bComplete;
+		CUSTOMLOG("-- temp.bComplete: %d", temp.bComplete);
+		temp.vIsEligible.clear();
+		temp.vHasVoted.clear();
+		temp.vVotes.clear();
+		for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
+		{
+			CUSTOMLOG("-- vote props #%d", j);
+			loadFrom >> bTemp;
+			CUSTOMLOG("%d", bTemp);
+			temp.vIsEligible.push_back(bTemp);
+			loadFrom >> bTemp;
+			CUSTOMLOG("%d", bTemp);
+			temp.vHasVoted.push_back(bTemp);
+			loadFrom >> bTemp;
+			CUSTOMLOG("%d", bTemp);
+			temp.vVotes.push_back(bTemp);
+		}
+		writeTo.m_vProposals.push_back(temp);
+	}
+	CUSTOMLOG("--- END OF READ ---");
+
+	return loadFrom;
+}
+
+// Serialization Write
+FDataStream& operator<<(FDataStream& saveTo, const CvMPVotingSystem& readFrom)
+{
+	CUSTOMLOG("--- SERIALIZATION WRITE STARTED ---");
+	uint uiNumProposals = readFrom.m_iLastProposalID;
+	CUSTOMLOG("m_iLastProposalID: %d", uiNumProposals);
+	saveTo << uiNumProposals;
+	for (uint i = 0; i < uiNumProposals; i++)
+	{
+		CUSTOMLOG("---------- proposal i: %d", i);
+		saveTo << i;
+		CUSTOMLOG("-- ui_id set to: -1");
+		saveTo << -1;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).iExpirationCounter: %d", readFrom.m_vProposals.at(i).iExpirationCounter);
+		saveTo << readFrom.m_vProposals.at(i).iExpirationCounter;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eType: %d", (int)readFrom.m_vProposals.at(i).eType);
+		saveTo << readFrom.m_vProposals.at(i).eType;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eStatus: %d", (int)readFrom.m_vProposals.at(i).eStatus);
+		saveTo << readFrom.m_vProposals.at(i).eStatus;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eProposalOwner: %d", (int)readFrom.m_vProposals.at(i).eProposalOwner);
+		saveTo << readFrom.m_vProposals.at(i).eProposalOwner;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eProposalSubject: %d", (int)readFrom.m_vProposals.at(i).eProposalSubject);
+		saveTo << readFrom.m_vProposals.at(i).eProposalSubject;
+		CUSTOMLOG("-- readFrom.m_vProposals.at(i).bComplete: %d", readFrom.m_vProposals.at(i).bComplete);
+		saveTo << readFrom.m_vProposals.at(i).bComplete;
+		for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
+		{
+			CUSTOMLOG("-- vote props #%d: %d %d %d", j, readFrom.m_vProposals.at(i).vIsEligible.at(j), readFrom.m_vProposals.at(i).vHasVoted.at(j), readFrom.m_vProposals.at(i).vVotes.at(j));
+			saveTo << readFrom.m_vProposals.at(i).vIsEligible.at(j);
+			saveTo << readFrom.m_vProposals.at(i).vHasVoted.at(j);
+			saveTo << readFrom.m_vProposals.at(i).vVotes.at(j);
+		}
+	}
+	CUSTOMLOG("--- END OF WRITE ---");
+
+	return saveTo;
+}
+
 #endif

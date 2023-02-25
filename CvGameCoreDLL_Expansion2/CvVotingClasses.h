@@ -1374,6 +1374,9 @@ public:
 		HasVotedList vHasVoted;
 		VotesList vVotes;
 	};
+	typedef FStaticVector<Proposal, 100, false, c_eCiv5GameplayDLL> ProposalList;  // hope 100 is enough
+	ProposalList m_vProposals;
+	int m_iLastProposalID;
 
 	int GetLastProposalID();
 	Proposal* GetProposalByID(int iProposalID);
@@ -1411,10 +1414,20 @@ private:
 	const static int IRR_THRESHOLD_TIMES_100 = 80;  // 80% of total support is enough for irr
 	const static int MAX_ACTIVE_RESOLUTIONS = MAX_MAJOR_CIVS + 2;  // 1 irr x players, 1 cc and 1 scrap
 
-	typedef FStaticVector<Proposal, 100, false, c_eCiv5GameplayDLL> ProposalList;  // hope 100 is enough
-	ProposalList m_vProposals;
-	int m_iLastProposalID;
 	void DoCheckVoters(int iProposalID);
 	void DoUpdateProposalStatus(int iProposalID);
 };
+
+
+FDataStream& operator>>(FDataStream&, MPVotingSystemProposalTypes&);
+FDataStream& operator<<(FDataStream&, const MPVotingSystemProposalTypes&);
+
+FDataStream& operator>>(FDataStream&, MPVotingSystemProposalStatus&);
+FDataStream& operator<<(FDataStream&, const MPVotingSystemProposalStatus&);
+
+FDataStream& operator>>(FDataStream&, CvMPVotingSystem::Proposal&);
+FDataStream& operator<<(FDataStream&, const CvMPVotingSystem::Proposal&);
+
+FDataStream& operator>>(FDataStream&, CvMPVotingSystem&);
+FDataStream& operator<<(FDataStream&, const CvMPVotingSystem&);
 #endif

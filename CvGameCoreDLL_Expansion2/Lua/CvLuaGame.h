@@ -377,6 +377,8 @@ protected:
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
 #ifdef MP_PLAYERS_VOTING_SYSTEM
+	static int lGetLastProposalID(lua_State* L);
+	static int lGetProposalIDbyUIid(lua_State* L);
 	static int lGetProposalExpirationCounter(lua_State* L);
 	static int lGetProposalType(lua_State* L);
 	static int lGetProposalStatus(lua_State* L);
