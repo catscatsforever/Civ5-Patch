@@ -6,6 +6,9 @@ local g_LegendIM = InstanceManager:new( "LegendKey", "Item", Controls.LegendStac
 local g_Overlays = GetStrategicViewOverlays();
 local g_IconModes = GetStrategicViewIconSettings();
 
+local StreamerViewData = Modding.OpenUserData( "StreamerView", 1);
+local StreamerViewShowState = StreamerViewData.GetValue("DB_bShow") or 0;
+
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 function OnMinimapInfo( uiHandle, width, height, paddingX )
@@ -667,6 +670,7 @@ function UpdateStreamerView()
 end
 
 function OnStreamerViewShow()
+	StreamerViewData.SetValue('DB_bShow', 1);
 	g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesCycle;
 	g_UpdateReligionSecondsElapsed = g_UpdateReligionCycle;
 	g_UpdateWondersSecondsElapsed = g_UpdateWondersCycle;
@@ -677,8 +681,12 @@ function OnStreamerViewShow()
 	Controls.StreamerViewButtonClose:SetHide(false);
 end
 Controls.StreamerViewButtonOpen:RegisterCallback( Mouse.eLClick, OnStreamerViewShow );
+if StreamerViewShowState == 1 then
+	OnStreamerViewShow()	
+end
 
 function OnStreamerViewHide()
+	StreamerViewData.SetValue('DB_bShow', 0);
 	g_bShow = false;
 	Controls.StreamerPoliciesSlide:SetToBeginning();
 	Controls.StreamerReligionSlide:SetToBeginning();
