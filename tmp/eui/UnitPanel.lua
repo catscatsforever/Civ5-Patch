@@ -1809,7 +1809,6 @@ function ActionToolTipHandler( control )
 				if city then
 					toolTip:append( " (".. city:GetName()..")" )
 				end
-			end
 			elseif featureFood > 0 then
 				toolTip:append( L("TXT_KEY_BUILD_FEATURE_FOOD", featureFood) )
 				local city = plot:GetWorkingCity()

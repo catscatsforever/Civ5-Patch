@@ -471,7 +471,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					iCounterspyRank++;
 				iCounterspyRank++;
 			}
-			int iSpyRankDifference = (pSpy->m_eRank + GET_PLAYER(eCityOwner).GetReligions()->GetSpyPressure() + 1) - iCounterspyRank + 1;
+			int iSpyRankDifference = (pSpy->m_eRank + GET_PLAYER(ePlayer).GetReligions()->GetSpyPressure() + 1) - iCounterspyRank + 1;
 
 			bool bSpyUpgrade = false;
 			bool bCounterSpyUpgrade = false;
@@ -727,7 +727,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 #ifdef ESPIONAGE_SYSTEM_REWORK
 				if (iSpyRankDifference > 1)
 				{
-					if(pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)))
+					if(pCityEspionage->HasCounterSpy() && pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)))
 					{
 						m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 1;
 					}

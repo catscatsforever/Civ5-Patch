@@ -237,13 +237,18 @@ local function RefreshDisplayOfSpecificTech( tech )
 	elseif g_stealingTechTargetPlayer or g_activePlayer:GetNumFreeTechs() > 0 then
 	-- Stealing a tech or Choosing a free tech
 		if canResearchThisTech and ( 
-			-- ( g_stealingTechTargetPlayer and Teams[ g_stealingTechTargetPlayer:GetTeam() ]:IsHasTech( techID ) )
 			( g_stealingTechTargetPlayer and g_activePlayer:canStealTech ( g_stealingTechTargetPlayerID , techID ) )
 			or (not g_stealingTechTargetPlayer and (not gk_mode or g_activePlayer:CanResearchForFree( techID ))) )
 		then
 			showFreeTech = true
 			turnLabel = thisTechButton.FreeTurns
-			queueText = freeString	-- update queue number to say "FREE"
+			if g_stealingTechTargetPlayer and g_activePlayer:canStealTech ( g_stealingTechTargetPlayerID , techID ) then
+				queueText = string.format("[COLOR_MENU_BLUE]%i[ENDCOLOR]", g_activePlayer:ScienceToStealAmount( g_stealingTechTargetPlayerID, techID ))
+				--queueText = g_activePlayer:ScienceToStealAmount( g_stealingTechTargetPlayerID, techID )
+			else
+				queueText = freeString	-- update queue number to say "FREE"
+			end
+
 			isClickable = true
 		else
 			showLocked = true

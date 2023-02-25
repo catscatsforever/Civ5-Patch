@@ -664,7 +664,11 @@ function RefreshDisplayOfSpecificTech( tech )
   			else
   				thisTechButton.FreeTurns:SetHide( true );
   			end
-			thisTechButton.TechQueueLabel:SetText( freeString );
+  			if stealingTechTargetPlayerID ~= -1 and isAllowedToStealTech then
+				thisTechButton.TechQueueLabel:SetText( "[COLOR_MENU_BLUE]" .. tostring(player:ScienceToStealAmount( stealingTechTargetPlayerID, techID ) ) .. "[END_COLOR]" );
+			else
+				thisTechButton.TechQueueLabel:SetText( freeString );
+			end
 			thisTechButton.TechQueue:SetHide( false );
 		else
   			thisTechButton.FreeTech:SetHide( true );
@@ -711,7 +715,11 @@ function RefreshDisplayOfSpecificTech( tech )
   				thisTechButton.FreeTurns:SetHide( true );
   			end
 			-- update queue number to say "FREE"
-			thisTechButton.TechQueueLabel:SetText( freeString );
+  			if stealingTechTargetPlayerID ~= -1 and isAllowedToStealTech then
+				thisTechButton.TechQueueLabel:SetText( "[COLOR_MENU_BLUE]" .. tostring(player:ScienceToStealAmount( stealingTechTargetPlayerID, techID ) ) .. "[END_COLOR]" );
+			else
+				thisTechButton.TechQueueLabel:SetText( freeString );
+			end
 			thisTechButton.TechQueue:SetHide( false );
 		else
  			thisTechButton.FreeTech:SetHide( true );
