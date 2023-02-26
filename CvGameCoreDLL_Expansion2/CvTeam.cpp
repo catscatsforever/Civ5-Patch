@@ -6024,9 +6024,6 @@ void CvTeam::testCircumnavigated()
 	}
 
 	CvMap& kMap = GC.getMap();
-#ifdef GOLD_FOR_CIRCUMNAVIGATE
-	pPlot = kMap.plotUnchecked(kMap.getGridWidth(), kMap.getGridHeight());
-#endif
 
 	// Test one of the wrapping axises.  This is brute force and not exactly "correct".
 	// It does not test for continuity and is not able to test whether the plot was revealed by exploration or
@@ -6154,6 +6151,7 @@ void CvTeam::testCircumnavigated()
 				{
 					playerI.GetTreasury()->ChangeGold(iGoldPerTeamMember);
 				}
+				// pPlot = playerI.getCapitalCity()->plot();
 			}
 
 			/*if(eTeamID == GC.getGame().getActiveTeam())
