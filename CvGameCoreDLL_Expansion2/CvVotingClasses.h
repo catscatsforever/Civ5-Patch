@@ -244,11 +244,7 @@ class CvResolution
 {
 public:
 	CvResolution(void);
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague, bool bCanProposeEnact);
-#else
 	CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague);
-#endif
 	~CvResolution(void);
 
 	// Pure virtual functions
@@ -261,10 +257,6 @@ public:
 	CvVoterDecision* GetVoterDecision();
 	CvProposerDecision* GetProposerDecision();
 	CvString GetName();
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	void SetCanProposeEnact(bool bValue);
-	bool CanProposeEnact();
-#endif
 
 	int m_iID;
 	ResolutionTypes m_eType;
@@ -272,9 +264,6 @@ public:
 	CvResolutionEffects m_sEffects;
 	CvVoterDecision m_VoterDecision;
 	CvProposerDecision m_ProposerDecision;
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	bool m_bCanProposeEnact;
-#endif
 
 protected:
 };
@@ -295,11 +284,7 @@ class CvProposal : public CvResolution
 {
 public:
 	CvProposal(void);
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, bool bCanProposeEnact, PlayerTypes eProposalPlayer);
-#else
 	CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer);
-#endif
 	~CvProposal(void);
 
 	// Pure virtual functions
@@ -327,11 +312,7 @@ class CvEnactProposal : public CvProposal
 {
 public:
 	CvEnactProposal(void);
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, bool bCanProposeEnact, PlayerTypes eProposalPlayer, int iChoice = LeagueHelpers::CHOICE_NONE);
-#else
 	CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer, int iChoice = LeagueHelpers::CHOICE_NONE);
-#endif
 	~CvEnactProposal(void);
 
 	void Init();

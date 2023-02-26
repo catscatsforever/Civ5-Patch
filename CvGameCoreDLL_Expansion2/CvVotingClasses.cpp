@@ -929,24 +929,14 @@ CvResolution::CvResolution(void)
 	m_eType = NO_RESOLUTION;
 	m_eLeague = NO_LEAGUE;
 	m_sEffects = CvResolutionEffects();
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	m_bCanProposeEnact = false;
-#endif
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague, bool bCanProposeEnact)
-#else
 CvResolution::CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague)
-#endif
 {
 	m_iID = iID;
 	m_eType = eType;
 	m_eLeague = eLeague;
 	m_sEffects = CvResolutionEffects(m_eType);
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	m_bCanProposeEnact = bCanProposeEnact;
-#endif
 }
 
 CvResolution::~CvResolution(void)
@@ -1002,19 +992,6 @@ CvString CvResolution::GetName()
 	return s;
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-void CvResolution::SetCanProposeEnact(bool bValue)
-{
-	if (m_bCanProposeEnact != bValue)
-	{
-		m_bCanProposeEnact = bValue;
-	}
-}
-bool CvResolution::CanProposeEnact()
-{
-	return m_bCanProposeEnact;
-}
-#endif
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvResolution& writeTo)
 {
@@ -1034,9 +1011,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolution& writeTo)
 	loadFrom >> writeTo.m_sEffects;
 	loadFrom >> writeTo.m_VoterDecision;
 	loadFrom >> writeTo.m_ProposerDecision;
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	loadFrom >> writeTo.m_bCanProposeEnact;
-#endif
 
 	return loadFrom;
 }
@@ -1053,9 +1027,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolution& readFrom)
 	saveTo << readFrom.m_sEffects;
 	saveTo << readFrom.m_VoterDecision;
 	saveTo << readFrom.m_ProposerDecision;
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	saveTo << readFrom.m_bCanProposeEnact;
-#endif
 
 	return saveTo;
 }
@@ -1069,11 +1040,7 @@ CvProposal::CvProposal(void)
 	m_eProposalPlayer = NO_PLAYER;
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, bool bCanProposeEnact, PlayerTypes eProposalPlayer) : CvResolution(iID, eType, eLeague, bCanProposeEnact)
-#else
 CvProposal::CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer) : CvResolution(iID, eType, eLeague)
-#endif
 {
 	m_eProposalPlayer = eProposalPlayer;
 }
@@ -1121,11 +1088,7 @@ CvEnactProposal::CvEnactProposal(void)
 {
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-CvEnactProposal::CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague,  bool bCanProposeEnact, PlayerTypes eProposalPlayer, int iChoice) : CvProposal(iID, eType, eLeague, bCanProposeEnact, eProposalPlayer)
-#else
 CvEnactProposal::CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer, int iChoice) : CvProposal(iID, eType, eLeague, eProposalPlayer)
-#endif
 {
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eType);
 	CvAssertMsg(pInfo, "Resolution info is null. Please send Anton your save file and version.");
@@ -1241,11 +1204,7 @@ CvActiveResolution::CvActiveResolution(void)
 	m_iTurnEnacted = -1;
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-CvActiveResolution::CvActiveResolution(CvEnactProposal* pResolution) : CvResolution(pResolution->GetID(), pResolution->GetType(), pResolution->GetLeague(), false)
-#else
 CvActiveResolution::CvActiveResolution(CvEnactProposal* pResolution) : CvResolution(pResolution->GetID(), pResolution->GetType(), pResolution->GetLeague())
-#endif
 {
 	m_iTurnEnacted = -1;
 	m_VoterDecision = (*(pResolution->GetVoterDecision()));
@@ -1713,11 +1672,7 @@ CvRepealProposal::CvRepealProposal(void)
 	m_iTargetResolutionID = -1;
 }
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-CvRepealProposal::CvRepealProposal(CvActiveResolution* pResolution, PlayerTypes eProposalPlayer) : CvProposal(pResolution->GetID(), pResolution->GetType(), pResolution->GetLeague(), false, eProposalPlayer)
-#else
 CvRepealProposal::CvRepealProposal(CvActiveResolution* pResolution, PlayerTypes eProposalPlayer) : CvProposal(pResolution->GetID(), pResolution->GetType(), pResolution->GetLeague(), eProposalPlayer)
-#endif
 {
 	m_iTargetResolutionID = pResolution->GetID();
 	m_VoterDecision = (*(pResolution->GetVoterDecision()));
@@ -1912,6 +1867,9 @@ void CvLeague::Init(LeagueSpecialSessionTypes eGoverningSpecialSession)
 	CvAssert(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
 	m_eLastSpecialSession = eGoverningSpecialSession; // Fake the last special session so we have data to inform the World Congress's status
 	AssignProposalPrivileges();
+#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
+	UpdateCanProposeEnact();
+#endif
 	ResetTurnsUntilSession();
 }
 
@@ -2349,12 +2307,8 @@ void CvLeague::DoProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer
 			GET_PLAYER(*it).GetDiplomacyAI()->SetTurnsSinceWeDislikedTheirProposal(eProposer, 0);
 		}
 	}
-	
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	CvEnactProposal proposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), eResolution, GetID(), false, eProposer, iChoice);
-#else
+
 	CvEnactProposal proposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), eResolution, GetID(), eProposer, iChoice);
-#endif
 	m_vEnactProposals.push_back(proposal);
 	GC.GetEngineUserInterface()->setDirty(LeagueScreen_DIRTY_BIT, true);
 }
@@ -2557,11 +2511,11 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 	{
 		bool bMemberHasTech = false;
 #ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
+		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 		{
-			if (eResolution == it->GetType())
+			if (GET_TEAM(GET_PLAYER(it->ePlayer).getTeam()).GetTeamTechs()->HasTechForLeague(pInfo->GetTechPrereqAnyMember()))
 			{
-				bMemberHasTech = it->CanProposeEnact();
+				bMemberHasTech = true;
 				break;
 			}
 		}
@@ -3120,24 +3074,25 @@ int CvLeague::GetNumProposersPerSession() const
 #ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
 void CvLeague::UpdateCanProposeEnact()
 {
-	for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); it++)
+	for(int iResolutionLoop = 0; iResolutionLoop < GC.getNumResolutionInfos(); iResolutionLoop++)
 	{
-		ResolutionTypes eResolution = it->GetType();
-
-		// Prereq tech
-		CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
-		if (pInfo->GetTechPrereqAnyMember() != NO_TECH)
+		CvResolutionEntry* pInfo = GC.getResolutionInfo((ResolutionTypes)iResolutionLoop);
+		if (pInfo)
 		{
-			bool bMemberHasTech = false;
-			for (MemberList::iterator itt = m_vMembers.begin(); itt != m_vMembers.end(); itt++)
+			if (pInfo->GetTechPrereqAnyMember() != NO_TECH)
 			{
-				if (GET_TEAM(GET_PLAYER(itt->ePlayer).getTeam()).GetTeamTechs()->HasTech(pInfo->GetTechPrereqAnyMember()))
+				for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
 				{
-					bMemberHasTech = true;
-					break;
+					if(GET_PLAYER(it->ePlayer).isAlive())
+					{
+						if (GET_TEAM(GET_PLAYER(it->ePlayer).getTeam()).GetTeamTechs()->HasTechByHuman(pInfo->GetTechPrereqAnyMember()))
+						{
+							GET_TEAM(GET_PLAYER(it->ePlayer).getTeam()).GetTeamTechs()->SetHasTechForLeague(pInfo->GetTechPrereqAnyMember(), true);
+							break;
+						}
+					}
 				}
 			}
-			it->SetCanProposeEnact(bMemberHasTech);
 		}
 	}
 
@@ -5437,10 +5392,6 @@ void CvLeague::StartSession()
 	// Distribute Votes
 	AssignStartingVotes();
 
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	UpdateCanProposeEnact();
-#endif
-
 	CheckFinishSession();
 }
 
@@ -5695,6 +5646,9 @@ void CvLeague::FinishSession()
 			// Players get to make the proposals for next session
 			CvAssertMsg(!IsAnythingProposed(), "Assigning proposal privileges to players when something is already proposed. Please send Anton your save file and version.");
 			AssignProposalPrivileges();
+#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
+			UpdateCanProposeEnact();
+#endif
 		}
 
 		// Reset counter
@@ -9947,11 +9901,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 
 int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice)
 {
-#ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), false, /*eProposalPlayer*/NO_PLAYER, iChoice);
-#else
 	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), /*eProposalPlayer*/NO_PLAYER, iChoice);
-#endif
 
 	// How much do we like our YES vote on this proposal?
 	int iYesScore = 0;

@@ -1215,6 +1215,13 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 		return false;
 	}
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	if(!m_pPlayer->isHuman() && GET_PLAYER(pCity->getOwner()).isHuman())
+	{
+		return false;
+	}
+#endif
+
 	// check to see if the plot can be seen
 	if(!pPlot->isRevealed(m_pPlayer->getTeam()))
 	{
