@@ -1691,6 +1691,28 @@ local function OnOptionsChanged()
 	UpdateCivList()
 end
 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+local function InputHandler( uiMsg, wParam, lParam )
+	if uiMsg == KeyEvents.KeyDown then
+        if wParam == Keys["1"] then
+			bAnchorLeft = EUI_options.GetValue('DB_bAnchorLeft') or 0;
+			g_isShowCivList = not g_isShowCivList
+			EUI_options.SetValue( "CivRibbon", g_isShowCivList )
+			if bAnchorLeft == 0 then
+				Controls.CivPanel:SetHide( not g_isShowCivList );
+			elseif bAnchorLeft == 1 then
+				Controls.CivPanelL:SetHide( not g_isShowCivList );
+			end
+			UpdateCivList()
+        end
+	end
+end
+ContextPtr:SetInputHandler( InputHandler );
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 local diploChatPanel = LookUpControl( "/InGame/WorldView/DiploCorner/ChatPanel" )
 if diploChatPanel then
 	g_chatPanelHeight = diploChatPanel:GetSizeY()
