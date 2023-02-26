@@ -131,6 +131,20 @@ IF EXIST "%cd%\UI_bc1\NotificationPanel\NotificationPanel.xml" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NotificationPanel.xml" "%cd%\%patchfolder%\UI\NotificationPanel.xml"
 )
 REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.lua" (
+  ECHO OptionsMenu.lua: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.lua" "%cd%\%patchfolder%\UI\OptionsMenu.lua"
+) ELSE (
+  ECHO OptionsMenu.lua: no EUI, skipping
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.xml" (
+  ECHO OptionsMenu.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.xml" "%cd%\%patchfolder%\UI\OptionsMenu.xml"
+) ELSE (
+  ECHO OptionsMenu.xml: no EUI, skipping
+)
+REM -------------------------------------------------
 set text="CityBannerProductionBox = function( city )"
 IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
   FIND %text% "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" && (
