@@ -583,9 +583,24 @@
 /// Can't declare war for 20 turns before renaissance and for 10 turns else
 #define NEW_DEFENSIVE_PACT
 ///
-#define DEF_PACT_COUNT
+// #define NO_PUPPET_TECH_COST_MOD
+/// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
+// #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 ///
-// #define MP_PLAYERS_VOTING_SYSTEM
+#ifndef AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
+///
+// #define TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+#endif
+///
+#define MP_PLAYERS_VOTING_SYSTEM
+/// hashed pseudo-enums
+#define NOTIFICATION_MP_IRR_PROPOSAL -300693023
+#define NOTIFICATION_MP_CC_PROPOSAL -832529557
+#define NOTIFICATION_MP_SCRAP_PROPOSAL 1628401511
+#define NOTIFICATION_MP_PROPOSAL_RESULT -1076480691
+#define HAS_TECH_BY_HUMAN
+///
+#define MP_PLAYERS_VOTING_SYSTEM
 ///
 #define GOLD_FOR_CIRCUMNAVIGATE
 ///

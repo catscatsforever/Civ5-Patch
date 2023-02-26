@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<!-- edit: MP voting system for EUI & vanilla UI -->
 <Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow">
   <!-- Domination Victory Row Instance -->
   <Instance Name="DominationRow" Size="64,64">
@@ -179,6 +180,16 @@
           <Label ID="VPLabel4" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_SCENARIO4"/>
           <Image Offset="-6,0" Anchor="L,T" Texture="bar300x2.dds" Size="300.1"/>
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_SCORE"/>
+		  <!-- MP Voting System buttons -->
+		  <GridButton Anchor="L,T" Style="SmallButton" Size="210,32" Offset="36,18" StateOffsetIncrement="0,0" ID="MPProposeIrrButton">
+			<Label ID="MPProposeIrrLabel" Anchor="C,C" Offset="0,0" String="TXT_KEY_MP_PROPOSE_IRR_BUTTON" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+          </GridButton>
+	      <GridButton Anchor="L,T" Style="SmallButton" Size="210,32" Offset="36,0" StateOffsetIncrement="0,0" ID="MPProposeCCButton">
+			<Label ID="MPProposeCCLabel" Anchor="C,C" Offset="0,0" String="TXT_KEY_MP_PROPOSE_CC_BUTTON" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+          </GridButton>
+	      <GridButton Anchor="L,T" Style="SmallButton" Size="210,32" Offset="36,0" StateOffsetIncrement="0,0" ID="MPProposeScrapButton">
+			<Label ID="MPProposeScrapLabel" Anchor="C,C" Offset="0,0" String="TXT_KEY_MP_PROPOSE_SCRAP_BUTTON" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+          </GridButton>
         </Stack>
         <Stack ID="ScoreDetailsStack" Anchor="L,T" Offset="225,32" Padding="12" StackGrowth="Bottom">
           <Box Offset="0,0" Size="1,1" Color="255,255,255,0"/>
@@ -424,4 +435,5 @@
       </ScrollPanel>
     </Box>
   </Grid>
+  <LuaContext ID="CCVotePopup" FileName="Assets/UI/InGame/Popups/CCVotePopup" Hidden="1"/>
 </Context>

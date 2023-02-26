@@ -14,6 +14,13 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPList.lua" "%cd%\%patchfolder%\
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.lua" "%cd%\%patchfolder%\UI\MiniMapPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MiniMapPanel.xml" "%cd%\%patchfolder%\UI\MiniMapPanel.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ChooseIdeologyPopup.lua" "%cd%\%patchfolder%\UI\ChooseIdeologyPopup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CCVotePopup.lua" "%cd%\%patchfolder%\UI\CCVotePopup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CCVotePopup.xml" "%cd%\%patchfolder%\UI\CCVotePopup.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EndGameMenu.lua" "%cd%\%patchfolder%\UI\EndGameMenu.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.lua" "%cd%\%patchfolder%\UI\ProposalChartPopup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.xml" "%cd%\%patchfolder%\UI\ProposalChartPopup.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\AdvancedSetup.lua" "%cd%\%patchfolder%\UI\AdvancedSetup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameOptions.lua" "%cd%\%patchfolder%\UI\MPGameOptions.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
@@ -122,6 +129,20 @@ IF EXIST "%cd%\UI_bc1\NotificationPanel\NotificationPanel.xml" (
 ) ELSE (
   ECHO NotificationPanel.xml: no EUI, copying vanilla UI version
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NotificationPanel.xml" "%cd%\%patchfolder%\UI\NotificationPanel.xml"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.lua" (
+  ECHO OptionsMenu.lua: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.lua.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.lua"
+) ELSE (
+  ECHO OptionsMenu.lua: no EUI, skipping
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.xml" (
+  ECHO OptionsMenu.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.xml.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.xml"
+) ELSE (
+  ECHO OptionsMenu.xml: no EUI, skipping
 )
 REM -------------------------------------------------
 set text="CityBannerProductionBox = function( city )"
