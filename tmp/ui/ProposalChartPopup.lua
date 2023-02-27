@@ -175,14 +175,15 @@ function UpdatePlayerData( pPlayer, controlTable, Id )
     if bIsEligible == true then
     	local bHasVoted = Game.GetProposalVoterHasVoted(Id, playerID);
     	if bHasVoted == true then
-    		local bVote = Game.GetProposalVoterVote(Id, playerID);
+    		controlTable.Vote:SetText( "--" );
+    		--[[local bVote = Game.GetProposalVoterVote(Id, playerID);
     		if bVote == true then
     			controlTable.Vote:LocalizeAndSetText( "TXT_KEY_POSITIVE_VOTE_CHART_STATUS" );
     		else
     			controlTable.Vote:LocalizeAndSetText( "TXT_KEY_NEGATIVE_VOTE_CHART_STATUS" );
-    		end
+    		end]]--
     	else
-    		controlTable.Vote:SetText( "--" );
+    		controlTable.Vote:SetText( "[COLOR_GREY]--[ENDCOLOR]" );
     	end
     	controlTable.Name:SetAlpha( 1 );
     	controlTable.IconBox:SetAlpha( 1 );
