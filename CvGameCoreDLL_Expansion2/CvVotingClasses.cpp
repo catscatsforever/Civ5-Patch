@@ -11252,22 +11252,22 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 		SetProposalStatus(iProposalID, STATUS_INVALID);
 	}
 	else if (eType == PROPOSAL_IRR) {
-		if (yesVotes >= irrVotersThreshold)
+		if ((totalVotes < maxVoters) && (yesVotes < irrVotersThreshold))
+			SetProposalStatus(iProposalID, STATUS_ACTIVE);
+		else if (yesVotes >= irrVotersThreshold)
 			SetProposalStatus(iProposalID, STATUS_PASSED);
 		else if (noVotes > maxVoters - irrVotersThreshold)
 			SetProposalStatus(iProposalID, STATUS_FAILED);
-		else if (totalVotes < maxVoters)
-			SetProposalStatus(iProposalID, STATUS_ACTIVE);
 		else
 			SetProposalStatus(iProposalID, STATUS_INVALID);
 	}
 	else if (eType == PROPOSAL_CC || eType == PROPOSAL_SCRAP) {
-		if (yesVotes == maxVoters)
+		if (totalVotes < maxVoters)
+			SetProposalStatus(iProposalID, STATUS_ACTIVE);
+		else if (yesVotes == maxVoters)
 			SetProposalStatus(iProposalID, STATUS_PASSED);
 		else if (noVotes > 0)
 			SetProposalStatus(iProposalID, STATUS_FAILED);
-		else if (totalVotes < maxVoters)
-			SetProposalStatus(iProposalID, STATUS_ACTIVE);
 		else
 			SetProposalStatus(iProposalID, STATUS_INVALID);
 	}
