@@ -1659,8 +1659,10 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 				// Gold cost for Improvement construction
 				kUnitOwner.GetTreasury()->ChangeGold(-(kUnitOwner.getBuildCost(hUnit->plot(), (BuildTypes)(hUnit->HeadMissionQueueNode()->iData1))));
 
+// #ifndef REMOVE_BUILD_ANIMATION
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
 				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionQueueNode()->iData1));
+// #endif
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())

@@ -6266,8 +6266,10 @@ bool CvUnit::createGreatWork()
 
 		if(pPlot->isActiveVisible(false))
 		{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 		}
 
 		if(IsGreatPerson())
@@ -6937,8 +6939,10 @@ bool CvUnit::found()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 
 		//Achievement
 		if(eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
@@ -7037,8 +7041,10 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 
 	if(plot()->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	kill(true);
@@ -7466,8 +7472,10 @@ bool CvUnit::DoSpreadReligion()
 			bool bShow = plot()->isActiveVisible(false);
 			if(bShow)
 			{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 			}
 
 			if(GetReligionData()->GetSpreadsLeft() <= 0)
@@ -7487,9 +7495,11 @@ bool CvUnit::DoSpreadReligion()
 			{
 				if(bShow)
 				{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 					// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
+#endif
 				}
 
 				finishMoves();
@@ -7562,8 +7572,10 @@ bool CvUnit::DoRemoveHeresy()
 			bool bShow = plot()->isActiveVisible(false);
 			if(bShow)
 			{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 			}
 
 			pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
@@ -7789,8 +7801,10 @@ bool CvUnit::discover()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -7863,8 +7877,10 @@ bool CvUnit::DoRushBuilding()
 
 	if(plot()->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	kill(true);
@@ -8140,8 +8156,10 @@ bool CvUnit::trade()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -8247,8 +8265,10 @@ bool CvUnit::buyCityState()
 
 	if (pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if (IsGreatPerson())
@@ -8323,8 +8343,10 @@ bool CvUnit::repairFleet()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -8485,8 +8507,10 @@ bool CvUnit::DoCultureBomb()
 
 		if(pThisPlot->isActiveVisible(false))
 		{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 		}
 
 		if(IsGreatPerson())
@@ -8681,8 +8705,10 @@ bool CvUnit::goldenAge()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -8806,8 +8832,10 @@ bool CvUnit::givePolicies()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -8904,8 +8932,10 @@ bool CvUnit::blastTourism()
 
 	if(pPlot->isActiveVisible(false))
 	{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 	}
 
 	if(IsGreatPerson())
@@ -9159,8 +9189,10 @@ bool CvUnit::build(BuildTypes eBuild)
 			{
 				if (pPlot->isActiveVisible(false))
 				{
+#ifndef REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitActivate(pDllUnit.get());
+#endif
 				}
 
 				if(IsGreatPerson())
