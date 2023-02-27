@@ -848,6 +848,10 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
+#ifdef REMOVE_PARADROP_ANIMATION
+	if (eMission == CvTypes::getMISSION_PARADROP())
+		eMission = (MissionTypes)-2;
+#endif
 	if(pkUnit != NULL)
 	{
 		pkUnit->PushMission(eMission, iData1, iData2, iFlags, bShift, true);

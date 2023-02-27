@@ -1017,6 +1017,15 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 			return true;
 		}
 	}
+#ifdef REMOVE_PARADROP_ANIMATION
+	else if (iMission == (MissionTypes)-2)
+	{
+		if (hUnit->canParadropAt(pPlot, iData1, iData2))
+		{
+			return true;
+		}
+	}
+#endif
 	else if(iMission == CvTypes::getMISSION_PARADROP())
 	{
 		if(hUnit->canParadropAt(pPlot, iData1, iData2))
@@ -1406,6 +1415,16 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					bDelete = true;
 				}
 			}
+#ifdef REMOVE_PARADROP_ANIMATION
+
+			else if (pkQueueData->eMissionType == (MissionTypes)-2)
+			{
+				if (hUnit->paradrop(pkQueueData->iData1, pkQueueData->iData2))
+				{
+					bAction = true;
+				}
+			}
+#endif
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_PARADROP())
 			{
