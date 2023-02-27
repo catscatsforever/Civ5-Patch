@@ -5745,14 +5745,7 @@ bool CvUnit::paradrop(int iX, int iY)
 #ifdef REMOVE_PARADROP_ANIMATION
 	if (CvPreGame::quickMovement())
 	{
-		//play paradrop animation
-		if (pPlot->isActiveVisible(false))
-		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-			gDLL->GameplayUnitDestroyed(pDllUnit.get());
-		}
 		setXY(pPlot->getX(), pPlot->getY());
-		GC.getGame().selectUnit(this, true);
 	}
 	else
 	{
