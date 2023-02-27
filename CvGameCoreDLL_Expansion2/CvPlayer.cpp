@@ -4389,8 +4389,30 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 #ifdef AI_CULTURE_RESTRICTION
 		if(getJONSCulture() < getNextPolicyCost())
-			if(isHuman() || GetTotalJONSCulturePerTurn() < 1000)
+		{
+			if(isHuman() || getNextPolicyCost() < 1000)
+			{
 				changeJONSCulture(GetTotalJONSCulturePerTurn());
+			}
+		}
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+		else if(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
+		{
+			if(isHuman())
+			{
+				for (int iI = 0; iI < GC.GetGamePolicies()->GetNumPolicyBranches(); iI++)
+				{
+					PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iI;
+					if(!GetPlayerPolicies()->CanUnlockPolicyBranch(ePolicyBranch))
+					{
+						GetPlayerPolicies()->SetPolicyBranchNotificationLocked(ePolicyBranch, true);
+					}
+				}
+			}
+			// GetNumFreePolicies();
+			// SetPolicyBranchNotificationLocked();
+		}
+#endif
 #else
 		if(getJONSCulture() < getNextPolicyCost())
 			changeJONSCulture(GetTotalJONSCulturePerTurn());
@@ -6185,6 +6207,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 //	--------------------------------------------------------------------------------
 void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 {
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+		CvGame& kGame = GC.getGame();
+#endif
 	CvPlot* pLoopPlot;
 	CvPlot* pBestPlot = NULL;
 	CvString strBuffer;
@@ -6276,6 +6301,32 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iCulture /= 100;
 
 		changeJONSCulture(iCulture);
+
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+		// if this is the human player, have the popup come up so that he can choose a new policy
+		if(isAlive() && isHuman() && getNumCities() > 0)
+		{
+			if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+			{
+				if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				{
+					CvNotifications* pNotifications = GetNotifications();
+					if(pNotifications)
+					{
+						CvString strBuffer;
+
+						if(kGame.isOption(GAMEOPTION_POLICY_SAVING))
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+						else
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+						pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+					}
+				}
+			}
+		}
+#endif
 #ifdef AUI_PLAYER_FIX_RECEIVE_GOODY_MESSAGE
 		strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), iCulture);
 #endif
@@ -10280,6 +10331,9 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 /// If a bonus is applied, iNumBonuses must be incremented to stagger the UI text with other bonuses
 void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
 {
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+	CvGame& kGame = GC.getGame();
+#endif
 	int iValue = 0;
 
 	CvAssertMsg(eKilledUnitType != NO_UNIT, "Killed unit's type is NO_TYPE. Please send Anton your save file and version.");
@@ -10346,6 +10400,31 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					break;
 				case YIELD_CULTURE:
 					changeJONSCulture(iValue);
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+					// if this is the human player, have the popup come up so that he can choose a new policy
+					if(isAlive() && isHuman() && getNumCities() > 0)
+					{
+						if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+						{
+							if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+							{
+								CvNotifications* pNotifications = GetNotifications();
+								if(pNotifications)
+								{
+									CvString strBuffer;
+
+									if(kGame.isOption(GAMEOPTION_POLICY_SAVING))
+										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+									else
+										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+									pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+								}
+							}
+						}
+					}
+#endif
 					break;
 				case YIELD_FAITH:
 					ChangeFaith(iValue);
@@ -12840,6 +12919,17 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 
 	// Update cost if trying to buy another policy this turn
 	DoUpdateNextPolicyCost();
+
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	if(!(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0))
+	{
+		for (int iI = 0; iI < GC.GetGamePolicies()->GetNumPolicyBranches(); iI++)
+		{
+			PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iI;
+			GetPlayerPolicies()->SetPolicyBranchNotificationLocked(ePolicyBranch, false);
+		}
+	}
+#endif
 
 	// Branch unlocked
 	PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();

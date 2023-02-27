@@ -1980,6 +1980,9 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pabHaveOneShotFreeUnitsFired(NULL),
 	m_pabPolicyBranchUnlocked(NULL),
 	m_pabPolicyBranchBlocked(NULL),
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	m_pabPolicyBranchNotificationLocked(NULL),
+#endif
 	m_pabPolicyBranchFinished(NULL),
 	m_paePolicyBranchesChosen(NULL),
 	m_paePolicyBlockedBranchCheck(NULL),
@@ -2021,6 +2024,11 @@ void CvPlayerPolicies::Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bo
 	CvAssertMsg(m_pabPolicyBranchBlocked==NULL, "about to leak memory, CvPlayerPolicies::m_pabPolicyBranchBlocked");
 	m_pabPolicyBranchBlocked = FNEW(bool[m_pPolicies->GetNumPolicyBranches()], c_eCiv5GameplayDLL, 0);
 
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	CvAssertMsg(m_pabPolicyBranchNotificationLocked==NULL, "about to leak memory, CvPlayerPolicies::m_pabPolicyBranchNotificationLocked");
+	m_pabPolicyBranchNotificationLocked = FNEW(bool[m_pPolicies->GetNumPolicyBranches()], c_eCiv5GameplayDLL, 0);
+#endif
+
 	// Policy Branches finished
 	CvAssertMsg(m_pabPolicyBranchFinished==NULL, "about to leak memory, CvPlayerPolicies::m_pabPolicyBranchFinished");
 	m_pabPolicyBranchFinished = FNEW(bool[m_pPolicies->GetNumPolicyBranches()], c_eCiv5GameplayDLL, 0);
@@ -2048,6 +2056,9 @@ void CvPlayerPolicies::Uninit()
 	SAFE_DELETE_ARRAY(m_pabHaveOneShotFreeUnitsFired);
 	SAFE_DELETE_ARRAY(m_pabPolicyBranchUnlocked);
 	SAFE_DELETE_ARRAY(m_pabPolicyBranchBlocked);
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	SAFE_DELETE_ARRAY(m_pabPolicyBranchNotificationLocked);
+#endif
 	SAFE_DELETE_ARRAY(m_pabPolicyBranchFinished);
 	SAFE_DELETE_ARRAY(m_paePolicyBranchesChosen);
 	SAFE_DELETE(m_pPolicyAI);
@@ -2071,6 +2082,9 @@ void CvPlayerPolicies::Reset()
 	{
 		m_pabPolicyBranchUnlocked[iI] = false;
 		m_pabPolicyBranchBlocked[iI] = false;
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+		m_pabPolicyBranchNotificationLocked[iI] = false;
+#endif
 		m_pabPolicyBranchFinished[iI] = false;
 		m_paePolicyBranchesChosen[iI] = NO_POLICY_BRANCH_TYPE;
 	}
@@ -2148,6 +2162,9 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchNotificationLocked, uiPolicyBranchCount);
+#endif
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
 	CvInfosSerializationHelper::ReadHashedTypeArray(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
 
@@ -2197,6 +2214,9 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchNotificationLocked, uiPolicyBranchCount);
+#endif
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyBranchTypes>(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
 	CvInfosSerializationHelper::WriteHashedTypeArray<PolicyBranchTypes>(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
 
@@ -3069,6 +3089,13 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(eBranchType);
 	if(pkBranchEntry)
 	{
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+		if(IsPolicyBranchNotificationLocked(eBranchType))
+		{
+			return false;
+		}
+#endif
+
 		// Ideology branches unlocked through a direct call to SetPolicyBranchUnlocked()
 		if (pkBranchEntry->IsPurchaseByLevel())
 		{
@@ -3218,6 +3245,28 @@ int CvPlayerPolicies::GetNumPolicyBranchesUnlocked() const
 	return iCount;
 }
  
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+/// Accessor: has a player unlocked eBranchType to pick Policies from?
+bool CvPlayerPolicies::IsPolicyBranchNotificationLocked(PolicyBranchTypes eBranchType) const
+{
+	CvAssertMsg(eBranchType >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBranchType < m_pPolicies->GetNumPolicyBranches(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_pabPolicyBranchNotificationLocked[eBranchType];
+}
+
+/// Accessor: sets that a player has (or hasn't) unlocked eBranchType to pick Policies from
+void CvPlayerPolicies::SetPolicyBranchNotificationLocked(PolicyBranchTypes eBranchType, bool bNewValue)
+{
+	CvAssertMsg(eBranchType >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBranchType < m_pPolicies->GetNumPolicyBranches(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(IsPolicyBranchNotificationLocked(eBranchType) != bNewValue)
+	{
+		m_pabPolicyBranchNotificationLocked[eBranchType] = bNewValue;
+	}
+}
+
+#endif
 /// We're going to be using eBranchType now
 void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 {
@@ -3857,6 +3906,14 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	if (!m_pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return false;
+	}
+#endif
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	for (int iI = 0; iI < GC.GetGamePolicies()->GetNumPolicyBranches(); iI++)
+	{
+		PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iI;
+		if(m_pPlayer->GetPlayerPolicies()->IsPolicyBranchNotificationLocked(ePolicyBranch))
+			return false;
 	}
 #endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)

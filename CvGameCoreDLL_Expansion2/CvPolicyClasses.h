@@ -548,6 +548,8 @@ enum PolicyModifierType
 //!  - One instance for each civ (player or AI)
 //!  - Accessed by any class that needs to check policy state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+typedef FStaticVector<PolicyTypes, 1, false, c_eCiv5GameplayDLL> PolicyList;
+// typedef FStaticVector<PolicyList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerPolicyList;
 class CvPlayerPolicies: public CvFlavorRecipient
 {
 public:
@@ -597,6 +599,10 @@ public:
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);
 	int GetNumPolicyBranchesUnlocked() const;
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	bool IsPolicyBranchNotificationLocked(PolicyBranchTypes eBranchType) const;
+	void SetPolicyBranchNotificationLocked(PolicyBranchTypes eBranchType, bool bValue);
+#endif
 
 	// Blocked branches (because of other branch choices)
 	void DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType);
@@ -661,6 +667,9 @@ private:
 	bool* m_pabHaveOneShotFreeUnitsFired;
 	bool* m_pabPolicyBranchUnlocked;
 	bool* m_pabPolicyBranchBlocked;
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+	bool* m_pabPolicyBranchNotificationLocked;
+#endif
 	bool* m_pabPolicyBranchFinished;
 	int* m_paiPolicyBranchBlockedCount;
 	int* m_paiPolicyBlockedCount;
