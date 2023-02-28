@@ -4564,6 +4564,52 @@ void CvPlayer::doTurnPostDiplomacy()
 	}
 
 	// Science
+#ifdef AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
+	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
+	int iCheapestTechCost = MAX_INT;
+	while(GetNumFreeTechs() > 0)
+	{
+		for (int i = 0; i < GC.getNumTechInfos(); i++)
+		{
+			TechTypes e = (TechTypes) i;
+			CvTechEntry* pInfo = GC.getTechInfo(e);
+			if (pInfo)
+			{
+				// We don't
+				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
+				{
+					// But we could
+					if (GetPlayerTechs()->CanResearch(e))
+					{
+						if (pInfo->GetResearchCost() < iCheapestTechCost)
+						{
+							iCheapestTechCost = pInfo->GetResearchCost();
+							vePossibleTechs.clear();
+							vePossibleTechs.push_back(e);
+						}
+						else if (pInfo->GetResearchCost() == iCheapestTechCost)
+						{
+							vePossibleTechs.push_back(e);
+						}
+					}
+				}
+			}
+		}
+
+		if (!vePossibleTechs.empty())
+		{
+			int iRoll = GC.getGame().getJonRandNum((int)vePossibleTechs.size(), "Rolling to choose free tech from conquering a city");
+			TechTypes eFreeTech = vePossibleTechs[iRoll];
+			CvAssert(eFreeTech != NO_TECH)
+			if (eFreeTech != NO_TECH)
+			{
+				GET_TEAM(getTeam()).setHasTech(eFreeTech, true, GetID(), true, true);
+				GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eFreeTech, true);
+			}
+		}
+		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
+	}
+#endif
 	doResearch();
 
 	GetEspionage()->DoTurn();
