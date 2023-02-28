@@ -118,6 +118,10 @@ struct IntrigueNotificationMessage
 typedef FStaticVector<CvEspionageSpy, 8, false, c_eCiv5GameplayDLL > SpyList;
 typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
 typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
+#ifdef ESPIONAGE_SYSTEM_REWORK
+typedef FStaticVector<int, 1, false, c_eCiv5GameplayDLL> ScienceToStealList;
+typedef FStaticVector<ScienceToStealList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerScienceToStealList;
+#endif
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
 typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
@@ -202,10 +206,10 @@ public:
 	std::vector<int> m_aiSpyListNameOrder;
 	int m_iSpyListNameOrderIndex;
 	PlayerTechList m_aaPlayerStealableTechList;
-	NumTechsToStealList m_aiNumTechsToStealList;
 #ifdef ESPIONAGE_SYSTEM_REWORK
-	NumTechsToStealList m_aiWeightTechsToStealList;
+	PlayerScienceToStealList m_aaPlayerScienceToStealList;
 #endif
+	NumTechsToStealList m_aiNumTechsToStealList;
 	MaxTechCost m_aiMaxTechCost;
 	HeistLocationList m_aHeistLocations;
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player

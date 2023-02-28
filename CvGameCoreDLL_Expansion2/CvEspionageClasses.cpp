@@ -142,16 +142,18 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aaPlayerStealableTechList.push_back(aTechList);
 	}
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		ScienceToStealList aScienceToStealList;
+		m_aaPlayerScienceToStealList.push_back(aScienceToStealList);
+	}
+#endif
+
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		m_aiNumTechsToStealList.push_back(0);
 	}
-#ifdef ESPIONAGE_SYSTEM_REWORK
-	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		m_aiWeightTechsToStealList.push_back(0);
-	}
-#endif
 }
 
 /// Uninit
@@ -167,11 +169,11 @@ void CvPlayerEspionage::Reset()
 	m_aiSpyListNameOrder.clear();
 	m_iSpyListNameOrderIndex = -1;
 	m_aiNumTechsToStealList.clear();
-#ifdef ESPIONAGE_SYSTEM_REWORK
-	m_aiWeightTechsToStealList.clear();
-#endif
 	m_aIntrigueNotificationMessages.clear();
 	m_aaPlayerStealableTechList.clear();
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	m_aaPlayerScienceToStealList.clear();
+#endif
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		m_aiMaxTechCost[ui] = -1;
@@ -191,11 +193,49 @@ void CvPlayerEspionage::DoTurn()
 		m_aHeistLocations[ui].clear();
 	}
 
-#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+	CvTeam& kTeam = GET_TEAM(m_pPlayer->getTeam());
+	TechTypes eTech = NO_TECH;
+	for (uint uiDefendingPlayer = 0; uiDefendingPlayer < MAX_MAJOR_CIVS; uiDefendingPlayer++)
 	{
-		BuildStealableTechList((PlayerTypes)iI);
-		GET_PLAYER((PlayerTypes)iI).GetEspionage()->BuildStealableTechList(m_pPlayer->GetID());
+		PlayerTypes ePlayerToStealFrom = (PlayerTypes)uiDefendingPlayer;
+		while(pEspionage->GetNumTechsToSteal(ePlayerToStealFrom) > 0 && pEspionage->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)
+		{
+			for(uint uiTech = 0; uiTech < m_aaPlayerStealableTechList[ePlayerToStealFrom].size(); uiTech++)
+			{
+				eTech = m_aaPlayerStealableTechList[ePlayerToStealFrom][uiTech];
+				if (m_pPlayer->canStealTech(ePlayerToStealFrom, eTech))
+					break;
+			}
+			if(eTech != NO_TECH)
+			{
+				if (m_pPlayer->canStealTech(ePlayerToStealFrom, eTech))
+				{
+					if(kTeam.GetTeamTechs())
+					{
+						if(m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
+						{
+							kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+							m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
+						}
+					}
+					m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
+				}
+			}
+			else
+			{
+				m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
+				m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
+			}
+		}
+	}
+#endif
+#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		BuildStealableTechList((PlayerTypes)ui);
+		GET_PLAYER((PlayerTypes)ui).GetEspionage()->BuildStealableTechList(m_pPlayer->GetID());
 	}
 #endif
 
@@ -436,7 +476,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			// can't steal any techs from this civ
 			m_aiNumTechsToStealList[eCityOwner] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
-			m_aiWeightTechsToStealList[eCityOwner] = 0;
+			m_aaPlayerScienceToStealList[eCityOwner].clear();
 #endif
 
 			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
@@ -671,7 +711,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
 					strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 					strNotification << pCity->getNameKey();
-					pNotifications->Add(NOTIFICATION_SPY_WAS_KILLED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					pNotifications->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 
 				}
 
@@ -725,20 +765,21 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				int iCityOwner = (int)eCityOwner;
 				m_aiNumTechsToStealList[iCityOwner] = m_aiNumTechsToStealList[iCityOwner] + 1;
 #ifdef ESPIONAGE_SYSTEM_REWORK
+				int iMedianTechToStealResearch = m_pPlayer->GetPlayerTechs()->GetMedianTechToStealResearch(eCityOwner);
 				if (iSpyRankDifference > 1)
 				{
 					if(pCityEspionage->HasCounterSpy() && pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)))
 					{
-						m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 1;
+						m_aaPlayerScienceToStealList[eCityOwner].push_back(iMedianTechToStealResearch/2);
 					}
 					else
 					{
-						m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 2;
+						m_aaPlayerScienceToStealList[eCityOwner].push_back(iMedianTechToStealResearch);
 					}
 				}
 				else
 				{
-					m_aiWeightTechsToStealList[iCityOwner] = m_aiWeightTechsToStealList[iCityOwner] + 1;
+					m_aaPlayerScienceToStealList[eCityOwner].push_back(iMedianTechToStealResearch/2);
 				}
 #endif
 				pCityEspionage->ResetProgress(ePlayer);
@@ -785,7 +826,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					m_aiNumTechsToStealList[iCityOwner] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
-					m_aiWeightTechsToStealList[iCityOwner] = 0;
+					m_aaPlayerScienceToStealList[eCityOwner].clear();
 #endif
 				}
 
@@ -3868,6 +3909,23 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		}
 	}
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	loadFrom >> uiNumCivs;
+	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
+	{
+		ScienceToStealList aScienceToStealList;
+		writeTo.m_aaPlayerScienceToStealList.push_back(aScienceToStealList);
+
+		uint uiNumScience;
+		loadFrom >> uiNumScience;
+		for(uint uiScience = 0; uiScience < uiNumScience; uiScience++)
+		{
+			int iNumScienceToSteal;
+			loadFrom >> iNumScienceToSteal;
+			writeTo.m_aaPlayerScienceToStealList[uiCiv].push_back(iNumScienceToSteal);
+		}
+	}
+#endif
 
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
@@ -3876,15 +3934,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
-#ifdef ESPIONAGE_SYSTEM_REWORK
-	loadFrom >> uiNumCivs;
-	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
-	{
-		int iNumWeightToSteal;
-		loadFrom >> iNumWeightToSteal;
-		writeTo.m_aiWeightTechsToStealList.push_back(iNumWeightToSteal);
-	}
-#endif
 
 	int iMaxTechCostEntries;
 	loadFrom >> iMaxTechCostEntries;
@@ -3975,18 +4024,23 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 		}
 	}
 
+#ifdef ESPIONAGE_SYSTEM_REWORK
+	saveTo << readFrom.m_aaPlayerScienceToStealList.size();
+	for(uint uiCiv = 0; uiCiv < readFrom.m_aaPlayerScienceToStealList.size(); uiCiv++)
+	{
+		saveTo << readFrom.m_aaPlayerScienceToStealList[uiCiv].size();
+		for(uint uiScience = 0; uiScience < readFrom.m_aaPlayerScienceToStealList[uiCiv].size(); uiScience++)
+		{
+			saveTo << readFrom.m_aaPlayerScienceToStealList[uiCiv][uiScience];
+		}
+	}
+#endif
+
 	saveTo << readFrom.m_aiNumTechsToStealList.size();
 	for(uint uiCiv = 0; uiCiv < readFrom.m_aiNumTechsToStealList.size(); uiCiv++)
 	{
 		saveTo << readFrom.m_aiNumTechsToStealList[uiCiv];
 	}
-#ifdef ESPIONAGE_SYSTEM_REWORK
-	saveTo << readFrom.m_aiWeightTechsToStealList.size();
-	for(uint uiCiv = 0; uiCiv < readFrom.m_aiWeightTechsToStealList.size(); uiCiv++)
-	{
-		saveTo << readFrom.m_aiWeightTechsToStealList[uiCiv];
-	}
-#endif
 
 	saveTo << MAX_MAJOR_CIVS;
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
@@ -4693,9 +4747,6 @@ void CvEspionageAI::StealTechnology()
 		int iHeistLocationCounter = 0;
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
 		while(pEspionage->GetNumTechsToSteal((PlayerTypes)uiDefendingPlayer) > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
-#ifdef ESPIONAGE_SYSTEM_REWORK
-	NumTechsToStealList m_aiWeightTechsToStealList;
-#endif
 #else
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 #endif
@@ -4747,15 +4798,7 @@ void CvEspionageAI::StealTechnology()
 #endif
 			{
 #ifdef ESPIONAGE_SYSTEM_REWORK
-				if(pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]/pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] < 2)
-				{
-					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
-				}
-				else
-				{
-					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
-					pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer]--;
-				}
+				pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].pop_back();
 #endif
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
@@ -4763,7 +4806,7 @@ void CvEspionageAI::StealTechnology()
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
-				pEspionage->m_aiWeightTechsToStealList[uiDefendingPlayer] = 0;
+				pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].clear();
 #endif
 			}
 		}

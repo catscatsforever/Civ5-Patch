@@ -5801,7 +5801,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						{
 							pEspionage->m_aiNumTechsToStealList[ui] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
-							pEspionage->m_aiWeightTechsToStealList[ui] = 0;
+							pEspionage->m_aaPlayerScienceToStealList[ui].clear();
 #endif
 						}
 					}
