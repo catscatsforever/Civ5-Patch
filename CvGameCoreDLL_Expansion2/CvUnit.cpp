@@ -1756,6 +1756,8 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 
+#ifdef AUTOMATICALLY_SPEND_PROMOTIONS
+#endif
 	testPromotionReady();
 
 	FeatureTypes eFeature = plot()->getFeatureType();

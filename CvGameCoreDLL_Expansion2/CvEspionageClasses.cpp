@@ -216,7 +216,14 @@ void CvPlayerEspionage::DoTurn()
 					{
 						if(m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
 						{
-							kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+							if(m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1] >= m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech))
+							{
+								kTeam.setHasTech(eTech, true, m_pPlayer->GetID(), true, true);
+							}
+							else
+							{
+								kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+							}
 							m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
 						}
 					}

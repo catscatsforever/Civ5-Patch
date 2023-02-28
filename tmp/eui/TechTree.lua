@@ -243,7 +243,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 			showFreeTech = true
 			turnLabel = thisTechButton.FreeTurns
 			if g_stealingTechTargetPlayer and g_activePlayer:canStealTech ( g_stealingTechTargetPlayerID , techID ) then
-				queueText = string.format("   +[COLOR_MENU_BLUE]%i[ENDCOLOR][ICON_RESEARCH]", g_activePlayer:ScienceToStealAmount( g_stealingTechTargetPlayerID, techID ))
+				queueText = string.format("    [COLOR_MENU_BLUE]%i[ENDCOLOR][ICON_RESEARCH]", g_activePlayer:ScienceToStealAmount( g_stealingTechTargetPlayerID, techID ))
 			else
 				queueText = freeString	-- update queue number to say "FREE"
 			end
