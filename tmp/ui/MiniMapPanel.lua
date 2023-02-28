@@ -51,6 +51,20 @@ Controls.StrategicViewButton:RegisterCallback( Mouse.eLClick, OnStrategicView );
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
+function OnResetTurnTimer()
+	local bIsObserver = PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER;
+	if (not bIsObserver) then
+			Game.DoControl(GameInfoTypes.CONTROL_UNIT_ICONS);
+	end		
+end
+Controls.ResetTurnTimerButton:RegisterCallback( Mouse.eLClick, OnResetTurnTimer );
+
+if(not Game.IsOption("GAMEOPTION_END_TURN_TIMER_ENABLED")) then
+	Controls.ResetTurnTimerButton:SetHide(true);
+end
+
+----------------------------------------------------------------        
+----------------------------------------------------------------        
 function OnStrategicViewStateChanged(bStrategicView)
 	if bStrategicView then
 		Controls.ShowResources:SetDisabled( true );
