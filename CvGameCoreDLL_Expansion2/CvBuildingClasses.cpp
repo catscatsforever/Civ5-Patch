@@ -2271,6 +2271,27 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	}
 #endif
 
+#ifdef CANT_SELL_CHEAP_BUILDINGS_WITH_MODIFIER_FROM_POLICIES
+	BuildingClassTypes eShrine = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_SHRINE", true);
+	BuildingClassTypes eTemple = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_TEMPLE", true);
+	BuildingClassTypes eMonument = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MONUMENT", true);
+	BuildingClassTypes eBarracks = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_BARRACKS", true);
+
+	PolicyTypes ePiety = (PolicyTypes)GC.getInfoTypeForString("POLICY_PIETY", true);
+	PolicyTypes eCultualCenters = (PolicyTypes)GC.getInfoTypeForString("POLICY_CULTURAL_CENTERS", true);
+	PolicyTypes eSocialistRealism = (PolicyTypes)GC.getInfoTypeForString("POLICY_SOCIALIST_REALISM", true);
+	PolicyTypes eProfessionalArmy = (PolicyTypes)GC.getInfoTypeForString("POLICY_PROFESSIONAL_ARMY", true);
+
+	if(((BuildingClassTypes) kBuilding.GetBuildingClassType() == eShrine || (BuildingClassTypes) kBuilding.GetBuildingClassType() == eTemple) && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(ePiety))
+		return false;
+
+	if((BuildingClassTypes) kBuilding.GetBuildingClassType() == eMonument && (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eCultualCenters) || GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eSocialistRealism)))
+		return false;
+
+	if((BuildingClassTypes) kBuilding.GetBuildingClassType() == eBarracks && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eProfessionalArmy))
+		return false;
+#endif
+
 	// Can't sell more than one building per turn
 	if(IsSoldBuildingThisTurn())
 		return false;

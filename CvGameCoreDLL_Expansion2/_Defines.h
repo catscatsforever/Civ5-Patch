@@ -488,6 +488,8 @@
 /*CITIES CHANGES START*/
 /// Can't sell buildings before entering Info Era 
 #define CANT_SELL_BEFORE_INFO_ERA
+///
+#define CANT_SELL_CHEAP_BUILDINGS_WITH_MODIFIER_FROM_POLICIES
 /// Can't liberate cities for non-human players, can liberate city-states if only league leader
 #define NEW_CITIES_LIBERATION
 /// Recapturing a city originally owned by a player on the same team will properly no longer cause population losses or razed buildings
