@@ -277,6 +277,8 @@
 #define STARTING_SETTLER_EXTRA_MOVE
 ///
 #define PROMOTION_INSTA_HEAL_LOCKED
+/// Player can move only one unit while MP turn is loading
+#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 /*UNITS CHANGES END*/
 
 
@@ -508,6 +510,8 @@
 #define SPACESHIP_GRAPHICS
 ///
 #define BUILDING_CLASS_YIELD_CHANGES
+///
+#define TRADE_CITIES_ONLY_FULL_HP
 /*CITIES CHANGES END*/
 
 

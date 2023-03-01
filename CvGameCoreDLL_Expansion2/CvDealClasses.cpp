@@ -487,6 +487,19 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(pCity->isCapital())
 				return false;
 
+#ifdef TRADE_CITIES_ONLY_FULL_HP
+			if(pCity->getDamage() > 0)
+			{
+				if (!(IsPeaceTreatyTrade(eToPlayer) && IsPeaceTreatyTrade(ePlayer)))
+					return false;
+				/*if(!pFromTeam->isAtWar(eToTeam))
+					return false;
+
+				if(!pToTeam->isAtWar(eFromTeam))
+					return false;*/
+			}
+#endif
+
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
