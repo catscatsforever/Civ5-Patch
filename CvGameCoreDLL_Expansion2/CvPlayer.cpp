@@ -1929,6 +1929,32 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		if(iCaptureCulture > 0)
 		{
 			changeJONSCulture(iCaptureCulture);
+
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+			// if this is the human player, have the popup come up so that he can choose a new policy
+			if(isAlive() && isHuman() && getNumCities() > 0)
+			{
+				if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+				{
+					if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+					{
+						CvNotifications* pNotifications = GetNotifications();
+						if(pNotifications)
+						{
+							CvString strBuffer;
+
+							if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+							else
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+							pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -4365,6 +4391,52 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
+#ifdef AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
+	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
+	int iCheapestTechCost = MAX_INT;
+	while(GetNumFreeTechs() > 0)
+	{
+		for (int i = 0; i < GC.getNumTechInfos(); i++)
+		{
+			TechTypes e = (TechTypes) i;
+			CvTechEntry* pInfo = GC.getTechInfo(e);
+			if (pInfo)
+			{
+				// We don't
+				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
+				{
+					// But we could
+					if (GetPlayerTechs()->CanResearch(e))
+					{
+						if (pInfo->GetResearchCost() < iCheapestTechCost)
+						{
+							iCheapestTechCost = pInfo->GetResearchCost();
+							vePossibleTechs.clear();
+							vePossibleTechs.push_back(e);
+						}
+						else if (pInfo->GetResearchCost() == iCheapestTechCost)
+						{
+							vePossibleTechs.push_back(e);
+						}
+					}
+				}
+			}
+		}
+
+		if (!vePossibleTechs.empty())
+		{
+			int iRoll = GC.getGame().getJonRandNum((int)vePossibleTechs.size(), "Rolling to choose free tech from conquering a city");
+			TechTypes eFreeTech = vePossibleTechs[iRoll];
+			CvAssert(eFreeTech != NO_TECH)
+			if (eFreeTech != NO_TECH)
+			{
+				GET_TEAM(getTeam()).setHasTech(eFreeTech, true, GetID(), true, true);
+				GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eFreeTech, true);
+			}
+		}
+		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
+	}
+#endif
 	// Do turn for all Cities
 	{
 		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
@@ -4409,8 +4481,6 @@ void CvPlayer::doTurnPostDiplomacy()
 					}
 				}
 			}
-			// GetNumFreePolicies();
-			// SetPolicyBranchNotificationLocked();
 		}
 #endif
 #else
@@ -4564,52 +4634,6 @@ void CvPlayer::doTurnPostDiplomacy()
 	}
 
 	// Science
-#ifdef AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
-	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
-	int iCheapestTechCost = MAX_INT;
-	while(GetNumFreeTechs() > 0)
-	{
-		for (int i = 0; i < GC.getNumTechInfos(); i++)
-		{
-			TechTypes e = (TechTypes) i;
-			CvTechEntry* pInfo = GC.getTechInfo(e);
-			if (pInfo)
-			{
-				// We don't
-				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
-				{
-					// But we could
-					if (GetPlayerTechs()->CanResearch(e))
-					{
-						if (pInfo->GetResearchCost() < iCheapestTechCost)
-						{
-							iCheapestTechCost = pInfo->GetResearchCost();
-							vePossibleTechs.clear();
-							vePossibleTechs.push_back(e);
-						}
-						else if (pInfo->GetResearchCost() == iCheapestTechCost)
-						{
-							vePossibleTechs.push_back(e);
-						}
-					}
-				}
-			}
-		}
-
-		if (!vePossibleTechs.empty())
-		{
-			int iRoll = GC.getGame().getJonRandNum((int)vePossibleTechs.size(), "Rolling to choose free tech from conquering a city");
-			TechTypes eFreeTech = vePossibleTechs[iRoll];
-			CvAssert(eFreeTech != NO_TECH)
-			if (eFreeTech != NO_TECH)
-			{
-				GET_TEAM(getTeam()).setHasTech(eFreeTech, true, GetID(), true, true);
-				GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eFreeTech, true);
-			}
-		}
-		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
-	}
-#endif
 	doResearch();
 
 	GetEspionage()->DoTurn();
