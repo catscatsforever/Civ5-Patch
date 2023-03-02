@@ -79,7 +79,7 @@
 
 	</Grid>
 
-	<Button Anchor="R,B" Offset="346,136" Size="45.45" Texture="DC45_Generic.dds" ID="ResetTurnTimerButton" ToolTip="TXT_KEY_RESET_TURN_TIMER" >
+	<Button Anchor="R,B" Offset="346,136" Size="45.45" Texture="DC45_ResetTurnTimerButtonImage.dds" ID="ResetTurnTimerButton" ToolTip="TXT_KEY_RESET_TURN_TIMER" >
 	</Button>
 
 	<Button Anchor="R,B" Offset="346,91" Size="45.45" Texture="assets\UI\Art\Icons\MainClose.dds" ID="StreamerViewButtonOpen" ToolTip="TXT_KEY_TOGGLE_STREAMER_PANEL_OPEN" >

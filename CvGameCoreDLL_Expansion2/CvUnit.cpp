@@ -8839,6 +8839,31 @@ bool CvUnit::givePolicies()
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
 		// Refresh - we might get to pick a policy this turn
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+		// if this is the human player, have the popup come up so that he can choose a new policy
+		if(kPlayer.isAlive() && kPlayer.isHuman() && kPlayer.getNumCities() > 0)
+		{
+			if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+			{
+				if(kPlayer.getNextPolicyCost() <= kPlayer.getJONSCulture() && kPlayer.GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				{
+					CvNotifications* pNotifications = kPlayer.GetNotifications();
+					if(pNotifications)
+					{
+						CvString strBuffer;
+
+						if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+						else
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+						pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	// Free policies

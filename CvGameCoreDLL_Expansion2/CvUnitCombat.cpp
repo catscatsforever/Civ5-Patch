@@ -351,7 +351,14 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pkDefender->getNameKey(), iAttackerDamageInflicted, iAttackerFearDamageInflicted, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+			if(GET_PLAYER(pkDefender->getOwner()).isTurnActive())
+			{
+				pkDefender->testPromotionReady();
+			}
+#else
 			pkDefender->testPromotionReady();
+#endif
 
 			ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
 
@@ -414,7 +421,14 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+			if(GET_PLAYER(pkDefender->getOwner()).isTurnActive())
+			{
+				pkDefender->testPromotionReady();
+			}
+#else
 			pkDefender->testPromotionReady();
+#endif
 			pkAttacker->testPromotionReady();
 
 		}
@@ -1736,7 +1750,14 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pkDefender->getNameKey(), iAttackerDamageInflicted, 0, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
 						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+					if(GET_PLAYER(pkDefender->getOwner()).isTurnActive())
+					{
+						pkDefender->testPromotionReady();
+					}
+#else
 					pkDefender->testPromotionReady();
+#endif
 				}
 			}
 			// Air AA interceptor
@@ -1759,7 +1780,14 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+					if(GET_PLAYER(pkDefender->getOwner()).isTurnActive())
+					{
+						pkDefender->testPromotionReady();
+					}
+#else
 					pkDefender->testPromotionReady();
+#endif
 
 					ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
 				}
@@ -1820,7 +1848,14 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+					if(GET_PLAYER(pkDefender->getOwner()).isTurnActive())
+					{
+						pkDefender->testPromotionReady();
+					}
+#else
 					pkDefender->testPromotionReady();
+#endif
 					pkAttacker->testPromotionReady();
 				}
 			}

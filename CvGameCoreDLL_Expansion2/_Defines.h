@@ -277,8 +277,6 @@
 #define STARTING_SETTLER_EXTRA_MOVE
 ///
 #define PROMOTION_INSTA_HEAL_LOCKED
-/// Player can move only one unit while MP turn is loading
-#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 /*UNITS CHANGES END*/
 
 
@@ -552,6 +550,8 @@
 #define TURN_TIMER_RESET_BUTTON
 /// Prevent timer mid-turn fluctuations - update it once per turn
 #define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+/// Player can move only one unit while MP turn is loading
+// #define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 /*TURN AND TIMER CHANGES END*/
 
 
