@@ -517,6 +517,7 @@ UpdateStrategicViewToggleTT();
 --- STREAMER PANEL UI ---
 -------------------------
 
+g_SliderSecondsElapsed = 0;
 g_UpdatePoliciesSecondsElapsed = 0.0;
 g_UpdateReligionSecondsElapsed = 0.0;
 g_UpdateWondersSecondsElapsed = 0.0;
@@ -527,6 +528,7 @@ g_bAnimatePolicies = false;
 g_bAnimateReligion = false;
 g_bAnimateWonders = false;
 g_bShow = false;
+
 function UpdateStreamerView()
 	local pActivePlayer = Players[ Game.GetActivePlayer() ];
 
@@ -571,8 +573,8 @@ function UpdateStreamerView()
 	-- religion strings
 	local strReligion1Text = "";
 	local strReligion2Text = "";
+	local beliefCount = 0;
 	if (pActivePlayer:HasCreatedReligion()) then
-		local beliefCount = 0;
 		local eReligion = pActivePlayer:GetReligionCreatedByPlayer();
 		for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
 			local belief = GameInfo.Beliefs[v];
@@ -627,7 +629,11 @@ function UpdateStreamerView()
 
 	local strReligionText = strReligion1Text
 	if strReligion2Text:len() > 0 then
-		strReligionText = strReligionText .. '    ' .. strReligion2Text;
+		if beliefCount == 0 then
+			strReligionText = strReligionText .. '    ' .. strReligion2Text;
+		else
+			strReligionText = strReligionText .. ' ' .. strReligion2Text;
+		end
 	end
 	Controls.StreamerPoliciesText:SetText(strPoliciesText);
 	Controls.StreamerBeliefs1Text:SetText(strReligionText);
@@ -640,15 +646,15 @@ function UpdateStreamerView()
 		-- animate text if too long
 		Controls.StreamerPoliciesText:SetOffsetX(540);  -- put label at the right edge
 		Controls.StreamerPoliciesText:SetAnchor('L,T');
-		g_UpdatePoliciesCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_UpdatePoliciesCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
 		g_bAnimatePolicies = true;
-		Controls.StreamerPoliciesSlide:Play();
+		Controls.StreamerPoliciesText:ChangeParent( Controls.StreamerViewSlide );
 	else
 		-- else
 		Controls.StreamerPoliciesText:SetOffsetX(0);
 		Controls.StreamerPoliciesText:SetAnchor('C,T');
 		g_bAnimatePolicies = false;
-		Controls.StreamerPoliciesSlide:SetToBeginning();
+		Controls.StreamerPoliciesText:ChangeParent( Controls.ScrollPanel );
 	end
 
 	labelWidth = Controls.StreamerBeliefs1Text:GetSizeX();
@@ -656,15 +662,15 @@ function UpdateStreamerView()
 		-- animate text if too long
 		Controls.StreamerBeliefs1Text:SetOffsetX(540);  -- put label at the right edge
 		Controls.StreamerBeliefs1Text:SetAnchor('L,T');
-		g_UpdateReligionCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_UpdateReligionCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
 		g_bAnimateReligion = true;
-		Controls.StreamerReligionSlide:Play();
+		Controls.StreamerBeliefs1Text:ChangeParent( Controls.StreamerViewSlide );
 	else
 		-- else
 		Controls.StreamerBeliefs1Text:SetOffsetX(0);
 		Controls.StreamerBeliefs1Text:SetAnchor('C,T');
 		g_bAnimateReligion = false;
-		Controls.StreamerReligionSlide:SetToBeginning();
+		Controls.StreamerBeliefs1Text:ChangeParent( Controls.ScrollPanel );
 	end
 
 	labelWidth = Controls.StreamerWondersText:GetSizeX();
@@ -672,26 +678,46 @@ function UpdateStreamerView()
 		-- animate text if too long
 		Controls.StreamerWondersText:SetOffsetX(540);  -- put label at the right edge
 		Controls.StreamerWondersText:SetAnchor('L,T');
-		--g_UpdateWondersCycle = 10.0 + strWondersText:len() * 0.2
-		g_UpdateWondersCycle = 10.0 + labelWidth / 54  -- calculate time when last character hits left edge
+		g_UpdateWondersCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
 		g_bAnimateWonders = true;
-		Controls.StreamerWondersSlide:Play();
+		Controls.StreamerWondersText:ChangeParent( Controls.StreamerViewSlide );
 	else
 		-- else
 		Controls.StreamerWondersText:SetOffsetX(0);
 		Controls.StreamerWondersText:SetAnchor('C,T');
 		g_bAnimateWonders = false;
-		Controls.StreamerWondersSlide:SetToBeginning();
+		Controls.StreamerWondersText:ChangeParent( Controls.ScrollPanel );
 	end
 end
 
+function OnSlideFinish()
+	--print('TICK g_SliderSecondsElapsed:', g_SliderSecondsElapsed)
+	g_SliderSecondsElapsed = 0;
+	if g_bShow == true then
+		if g_bAnimatePolicies == true then
+			Controls.StreamerPoliciesText:SetOffsetX(Controls.StreamerPoliciesText:GetOffsetX() - 5540);
+		end
+		if g_bAnimateReligion == true then
+			Controls.StreamerBeliefs1Text:SetOffsetX(Controls.StreamerBeliefs1Text:GetOffsetX() - 5540);
+		end
+		if g_bAnimateWonders == true then
+			Controls.StreamerWondersText:SetOffsetX(Controls.StreamerWondersText:GetOffsetX() - 5540);
+		end
+	end
+end
+Controls.StreamerViewSlide:RegisterAnimCallback( OnSlideFinish );
+
 function OnStreamerViewShow()
 	StreamerViewData.SetValue('DB_bShow', 1);
+	g_SliderSecondsElapsed = 0;
 	g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesCycle;
 	g_UpdateReligionSecondsElapsed = g_UpdateReligionCycle;
 	g_UpdateWondersSecondsElapsed = g_UpdateWondersCycle;
 	g_bShow = true;
+
     UpdateStreamerView();
+	Controls.StreamerViewSlide:Play();
+
 	Controls.StreamerPanel:SetHide(false);
 	Controls.StreamerViewButtonOpen:SetHide(true);
 	Controls.StreamerViewButtonClose:SetHide(false);
@@ -704,9 +730,9 @@ end
 function OnStreamerViewHide()
 	StreamerViewData.SetValue('DB_bShow', 0);
 	g_bShow = false;
-	Controls.StreamerPoliciesSlide:SetToBeginning();
-	Controls.StreamerReligionSlide:SetToBeginning();
-	Controls.StreamerWondersSlide:SetToBeginning();
+
+	Controls.StreamerViewSlide:SetToBeginning();
+
 	Controls.StreamerPanel:SetHide(true);
 	Controls.StreamerViewButtonOpen:SetHide(false);
 	Controls.StreamerViewButtonClose:SetHide(true);
@@ -719,23 +745,24 @@ function OnUpdate(fTime)
 		g_UpdatePoliciesSecondsElapsed = g_UpdatePoliciesSecondsElapsed + fTime;
 		g_UpdateReligionSecondsElapsed = g_UpdateReligionSecondsElapsed + fTime;
 		g_UpdateWondersSecondsElapsed = g_UpdateWondersSecondsElapsed + fTime;
+		g_SliderSecondsElapsed = g_SliderSecondsElapsed + fTime;
 		if g_bAnimatePolicies == true and g_UpdatePoliciesSecondsElapsed > g_UpdatePoliciesCycle then
 			--print('Policies cycle time delta: ', g_UpdatePoliciesSecondsElapsed)
-			g_UpdatePoliciesSecondsElapsed = 0.0;
-			Controls.StreamerPoliciesSlide:SetToBeginning();
-			Controls.StreamerPoliciesSlide:Play();
+			--print('g_SliderSecondsElapsed:', g_SliderSecondsElapsed)
+			g_UpdatePoliciesSecondsElapsed = 0;
+			Controls.StreamerPoliciesText:SetOffsetX(540 + 5540 * g_SliderSecondsElapsed / 100);
 		end
 		if g_bAnimateReligion == true and g_UpdateReligionSecondsElapsed > g_UpdateReligionCycle then
 			--print('Religion cycle time delta: ', g_UpdateReligionSecondsElapsed)
-			g_UpdateReligionSecondsElapsed = 0.0;
-			Controls.StreamerReligionSlide:SetToBeginning();
-			Controls.StreamerReligionSlide:Play();
+			--print('g_SliderSecondsElapsed:', g_SliderSecondsElapsed)
+			g_UpdateReligionSecondsElapsed = 0;
+			Controls.StreamerBeliefs1Text:SetOffsetX(540 + 5540 * g_SliderSecondsElapsed / 100);
 		end
 		if g_bAnimateWonders == true and g_UpdateWondersSecondsElapsed > g_UpdateWondersCycle then
 			--print('Wonders cycle time delta: ', g_UpdateWondersSecondsElapsed)
-			g_UpdateWondersSecondsElapsed = 0.0;
-			Controls.StreamerWondersSlide:SetToBeginning();
-			Controls.StreamerWondersSlide:Play();
+			--print('g_SliderSecondsElapsed:', g_SliderSecondsElapsed)
+			g_UpdateWondersSecondsElapsed = 0;
+			Controls.StreamerWondersText:SetOffsetX(540 + 5540 * g_SliderSecondsElapsed / 100);
 		end
 	end
 end
@@ -752,3 +779,7 @@ Events.ActivePlayerTurnStart.Add(UpdateStreamerView);
 --Events.ActivePlayerTurnStart.Add(function() print('ActivePlayerTurnStart'); end);
 UpdateStreamerView();
 ContextPtr:SetUpdate(OnUpdate)
+
+--print('policies cycle:', g_UpdatePoliciesCycle)
+--print('religion cycle:', g_UpdateReligionCycle)
+--print('wonders cycle:', g_UpdateWondersCycle)
