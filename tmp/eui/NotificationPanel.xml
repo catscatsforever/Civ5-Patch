@@ -1594,7 +1594,7 @@ CivPanel
 	</Container>
 	
 	<Container ID="CivPanelL" Anchor="L,B" Offset="2,50" >
-		<ScrollPanel ID="CivScrollPanelL" Anchor="L,T" Offset="20,100" Vertical="1" AutoScrollBar="1" Size="150,700" ConsumeMouseOver="1" ConsumeMouseButton="1" >
+		<ScrollPanel ID="CivScrollPanelL" Anchor="L,B" Offset="20,0" Vertical="1" AutoScrollBar="1" Size="150,700" ConsumeMouseOver="1" ConsumeMouseButton="1" >
 
                         <!-- Scroll Controls -->
 			<ScrollBar Style="VertSlider" Anchor="L,C" Length="18" AnchorSide="o,i" />

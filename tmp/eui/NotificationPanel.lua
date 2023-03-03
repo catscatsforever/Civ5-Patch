@@ -355,7 +355,6 @@ local function ProcessStackSizes( resetCivPanelElevator )
 	end
 
 	if g_isShowCivList then
-		local g_civPanelLOffsetY = 500
 		Controls.MinorStack:CalculateSize()
 		Controls.MajorStack:CalculateSize()
 		Controls.CivStack:CalculateSize()
