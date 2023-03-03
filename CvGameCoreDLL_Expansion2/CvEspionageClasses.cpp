@@ -210,17 +210,30 @@ void CvPlayerEspionage::DoTurn()
 			}
 			if(eTech != NO_TECH)
 			{
-				if(kTeam.GetTeamTechs())
+				if (m_pPlayer->canStealTech(ePlayerToStealFrom, eTech))
 				{
-					kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+					if(kTeam.GetTeamTechs())
+					{
+						if(m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
+						{
+							if(m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1] >= m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech))
+							{
+								kTeam.setHasTech(eTech, true, m_pPlayer->GetID(), true, true);
+							}
+							else
+							{
+								kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+							}
+							m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
+						}
+					}
+					m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 				}
-				m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
-				m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 			}
 			else
 			{
-				m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
 				m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
+				m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
 			}
 		}
 	}
@@ -818,10 +831,10 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else
 				{
+					m_aiNumTechsToStealList[iCityOwner] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
 					m_aaPlayerScienceToStealList[eCityOwner].clear();
 #endif
-					m_aiNumTechsToStealList[iCityOwner] = 0;
 				}
 
 				//Achievements!
@@ -4791,10 +4804,10 @@ void CvEspionageAI::StealTechnology()
 			}
 			else
 			{
+				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
 #ifdef ESPIONAGE_SYSTEM_REWORK
 				pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].clear();
 #endif
-				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] = 0;
 			}
 		}
 	}
