@@ -991,10 +991,13 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 				{
 					kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), ePlayer);
 				}
+				if(kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
+				{
+					kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
+				}
 #else
 				kTeam.setHasTech(eTech, true, ePlayer, true, true);
 #endif
-				kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
 				kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 			}
 #else
@@ -1002,13 +1005,6 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 			kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
 #endif
 		}
-#ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
-		else
-		{
-			kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
-			kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
-		}
-#endif
 	}
 	// Normal tech
 	else

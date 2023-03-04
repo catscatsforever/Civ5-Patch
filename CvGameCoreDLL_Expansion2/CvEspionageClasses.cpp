@@ -4785,7 +4785,10 @@ void CvEspionageAI::StealTechnology()
 #endif
 			{
 #ifdef ESPIONAGE_SYSTEM_REWORK
-				pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].pop_back();
+				if(pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].size() > 0)
+				{
+					pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].pop_back();
+				}
 #endif
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
