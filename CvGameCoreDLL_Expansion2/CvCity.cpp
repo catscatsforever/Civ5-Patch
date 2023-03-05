@@ -6712,6 +6712,15 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						}
 					}
 				}
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+				int iGreatPeopleRateModifier = 0;
+				if(pReligion->m_eFounder == getOwner())
+				{
+					iGreatPeopleRateModifier += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+				}
+
+				changeGreatPeopleRateModifier(iGreatPeopleRateModifier);
+#endif
 			}
 		}
 	}

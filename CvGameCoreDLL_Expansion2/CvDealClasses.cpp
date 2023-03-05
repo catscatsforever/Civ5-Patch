@@ -492,11 +492,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			{
 				if (!(IsPeaceTreatyTrade(eToPlayer) && IsPeaceTreatyTrade(ePlayer)))
 					return false;
-				/*if(!pFromTeam->isAtWar(eToTeam))
-					return false;
-
-				if(!pToTeam->isAtWar(eFromTeam))
-					return false;*/
 			}
 #endif
 
