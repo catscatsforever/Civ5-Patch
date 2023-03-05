@@ -643,12 +643,14 @@ function UpdateStreamerView()
 	-- individual for every slide!
 	local labelWidth = Controls.StreamerPoliciesText:GetSizeX();
 	if labelWidth ~= nil and labelWidth > 538 then
-		-- animate text if too long
-		Controls.StreamerPoliciesText:SetOffsetX(540);  -- put label at the right edge
-		Controls.StreamerPoliciesText:SetAnchor('L,T');
 		g_UpdatePoliciesCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
-		g_bAnimatePolicies = true;
-		Controls.StreamerPoliciesText:ChangeParent( Controls.StreamerViewSlide );
+		if g_bAnimatePolicies == false then
+			-- animate text if too long
+			Controls.StreamerPoliciesText:SetOffsetX(540);  -- put label at the right edge
+			Controls.StreamerPoliciesText:SetAnchor('L,T');
+			g_bAnimatePolicies = true;
+			Controls.StreamerPoliciesText:ChangeParent( Controls.StreamerViewSlide );
+		end
 	else
 		-- else
 		Controls.StreamerPoliciesText:SetOffsetX(0);
@@ -659,12 +661,14 @@ function UpdateStreamerView()
 
 	labelWidth = Controls.StreamerBeliefs1Text:GetSizeX();
 	if labelWidth ~= nil and labelWidth > 538 then
-		-- animate text if too long
-		Controls.StreamerBeliefs1Text:SetOffsetX(540);  -- put label at the right edge
-		Controls.StreamerBeliefs1Text:SetAnchor('L,T');
 		g_UpdateReligionCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
-		g_bAnimateReligion = true;
-		Controls.StreamerBeliefs1Text:ChangeParent( Controls.StreamerViewSlide );
+		if g_bAnimateReligion == false then
+			-- animate text if too long
+			Controls.StreamerBeliefs1Text:SetOffsetX(540);  -- put label at the right edge
+			Controls.StreamerBeliefs1Text:SetAnchor('L,T');
+			g_bAnimateReligion = true;
+			Controls.StreamerBeliefs1Text:ChangeParent( Controls.StreamerViewSlide );
+		end
 	else
 		-- else
 		Controls.StreamerBeliefs1Text:SetOffsetX(0);
@@ -675,12 +679,14 @@ function UpdateStreamerView()
 
 	labelWidth = Controls.StreamerWondersText:GetSizeX();
 	if labelWidth ~= nil and labelWidth > 538 then
-		-- animate text if too long
-		Controls.StreamerWondersText:SetOffsetX(540);  -- put label at the right edge
-		Controls.StreamerWondersText:SetAnchor('L,T');
 		g_UpdateWondersCycle = 10 + labelWidth / 55.4  -- calculate time when last character hits left edge
-		g_bAnimateWonders = true;
-		Controls.StreamerWondersText:ChangeParent( Controls.StreamerViewSlide );
+		if g_bAnimateWonders == false then
+			-- animate text if too long
+			Controls.StreamerWondersText:SetOffsetX(540);  -- put label at the right edge
+			Controls.StreamerWondersText:SetAnchor('L,T');
+			g_bAnimateWonders = true;
+			Controls.StreamerWondersText:ChangeParent( Controls.StreamerViewSlide );
+		end
 	else
 		-- else
 		Controls.StreamerWondersText:SetOffsetX(0);
