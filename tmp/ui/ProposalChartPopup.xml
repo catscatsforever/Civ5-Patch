@@ -83,7 +83,7 @@
 	      <Image Offset="-6,0" Anchor="L,T" Texture="bar300x2.dds" Size="300.1"/>
 		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_EXPIRATION_TURN"/>
 		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_MAX_VOTERS"/>
-		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_YES_VOTES"/>
+		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_RECEIVED_VOTES"/>
 		  <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_MP_PROPOSAL_SCREEN_MISSING_VOTES"/>
 		  <Image Offset="-6,0" Anchor="L,T" Texture="bar300x2.dds" Size="300.1"/>
 		  <Label ID="ProposalResultLabel" Offset="-10,20" Anchor="C,T" Font="TwCenMT20"/>
@@ -103,7 +103,7 @@
 		    <Label ID="MaxVoters" Offset="0,0" Anchor="R,T"/>
 		  </Box>
 		  <Box Offset="0,0" Size="44,13" Color="0.0.0.0">
-		    <Label ID="YesVotes" Offset="0,0" Anchor="R,T"/>
+		    <Label ID="ReceivedVotes" Offset="0,0" Anchor="R,T"/>
 		  </Box>
 		  <Box Offset="0,0" Size="44,13" Color="0.0.0.0">
 		    <Label ID="MissingVotes" Offset="0,0" Anchor="R,T"/>

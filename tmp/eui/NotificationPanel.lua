@@ -343,14 +343,16 @@ end
 -------------------------------------------------
 local function ProcessStackSizes( resetCivPanelElevator )
 
-	local maxTotalStackHeight, smallStackHeight
+	local maxTotalStackHeight, smallStackHeight, maxLTotalStackHeight
 	if g_leaderMode then
 		maxTotalStackHeight = g_screenHeight
+		maxLTotalStackHeight = g_screenHeight
 		smallStackHeight = 0
 	else
 		Controls.BigStack:CalculateSize()
 		Controls_SmallStack:CalculateSize()
 		maxTotalStackHeight = g_maxTotalStackHeight - Controls.BigStack:GetSizeY()
+		maxLTotalStackHeight = g_screenHeight - g_civPanelLOffsetY - 150
 		smallStackHeight = Controls_SmallStack:GetSizeY()
 	end
 
@@ -377,20 +379,22 @@ local function ProcessStackSizes( resetCivPanelElevator )
 		end
 
 		Controls.CivScrollPanel:SetHide( not halfTotalStackHeight )
-		Controls.CivScrollPanelL:SetHide( not halfTotalStackHeight )
 		if halfTotalStackHeight then
 			Controls.CivStack:ChangeParent( Controls.CivScrollPanel )
-			Controls.CivStackL:ChangeParent( Controls.CivScrollPanelL )
 			Controls.CivScrollPanel:SetSizeY( civStackHeight )
 			Controls.CivScrollPanel:CalculateInternalSize()
-			Controls.CivScrollPanelL:SetSizeY( civStackHeight )
-			Controls.CivScrollPanelL:CalculateInternalSize()
 			if resetCivPanelElevator then
 				Controls.CivScrollPanel:SetScrollValue( 0 )
 			end
 		else
 			Controls.CivStack:ChangeParent( Controls.CivPanel )
-			Controls.CivStackL:ChangeParent( Controls.CivPanelL )
+		end
+		Controls.CivScrollPanelL:SetSizeY( maxLTotalStackHeight )
+		Controls.CivScrollPanelL:CalculateInternalSize()
+		if Controls.CivScrollPanelL:GetRatio() < 1 then
+			Controls.CivScrollPanelL:SetOffsetX(18)
+		else
+			Controls.CivScrollPanelL:SetOffsetX(0)
 		end
 		Controls.CivPanel:ReprocessAnchoring()
 		Controls.CivPanelL:ReprocessAnchoring()
