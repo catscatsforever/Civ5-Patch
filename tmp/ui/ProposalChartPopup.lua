@@ -325,9 +325,10 @@ function UpdateAndSort(Id, iResult)
 	local MaxVotes = Game.GetMaxVotes(Id)
 	local YesVotes = Game.GetYesVotes(Id)
 	local NoVotes = Game.GetNoVotes(Id)
+	local ReceivedVotes = YesVotes + NoVotes
 	local MissingVotes = MaxVotes - YesVotes - NoVotes
 	Controls.MaxVoters:SetText(MaxVotes)
-	Controls.YesVotes:SetText(YesVotes)
+	Controls.ReceivedVotes:SetText(ReceivedVotes)
 	Controls.MissingVotes:SetText(MissingVotes)
 
     for iPlayer, controlTable in pairs( g_PlayerEntries ) do
