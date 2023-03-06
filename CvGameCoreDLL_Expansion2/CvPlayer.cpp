@@ -5011,9 +5011,6 @@ void CvPlayer::UpdateNotifications()
 void CvPlayer::UpdateReligion()
 {
 	DoUpdateHappiness();
-#ifdef GP_RATE_MODIFIER_FROM_BELIEF
-	recomputeGreatPeopleModifiers();
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14047,19 +14044,6 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += m_pTraits->GetGreatPeopleRateModifier();
 	m_iGreatGeneralRateModifier += m_pTraits->GetGreatGeneralRateModifier();
 	m_iGreatScientistRateModifier += m_pTraits->GetGreatScientistRateModifier();
-
-#ifdef GP_RATE_MODIFIER_FROM_BELIEF
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
-	if(eFoundedReligion != NO_RELIGION)
-	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
-		if(pReligion)
-		{
-			m_iGreatPeopleRateModifier += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
-		}
-	}
-#endif
 
 	// Then get from current policies
 	m_iGreatPeopleRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_PERSON_RATE);

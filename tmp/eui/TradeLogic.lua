@@ -919,11 +919,19 @@ function ResetDisplay( diploMessage )
 	-- pocket resources for us
 	----------------------------------------------------------------------------------
 	for resourceID, instance in pairs( g_UsPocketResources ) do
-
-		if g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) then	-- 1 here is 1 quanity of the Resource, which is the minimum possible
+		if gk_mode and g_Deal:GetNumResource(g_iUs, resourceID) > 0 or g_pUs:GetNumResourceAvailable( resourceID, false ) > 0 then
 			instance.Button:SetHide( false )
+
 			local resource = GameInfo.Resources[resourceID]
 			instance.Button:SetText( resource.IconString .. Locale.ConvertTextKey(resource.Description) .. " (" .. ( gk_mode and g_Deal:GetNumResource(g_iUs, resourceID) or g_pUs:GetNumResourceAvailable( resourceID, false ) ) .. ")" )
+
+			local bCanTradeResource = not g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 );
+			instance.Button:SetDisabled( not bCanTradeResource )
+            if ( bCanTradeResource ) then
+	    		instance.Button:GetTextControl():SetColorByName("Gray_Black");
+            else
+	    		instance.Button:GetTextControl():SetColorByName("Beige_Black");
+            end
 		else
 			instance.Button:SetHide( true )
 		end
@@ -933,11 +941,19 @@ function ResetDisplay( diploMessage )
 	-- pocket resources for them
 	----------------------------------------------------------------------------------
 	for resourceID, instance in pairs( g_ThemPocketResources ) do
-		if g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) then -- 1 here is 1 quanity of the Resource, which is the minimum possible
+		if gk_mode and g_Deal:GetNumResource(g_iThem, resourceID) > 0 or g_pThem:GetNumResourceAvailable( resourceID, false ) > 0 then
 			instance.Button:SetHide( false )
-			local resource = GameInfo.Resources[resourceID]
 
-			instance.Button:SetText( resource.IconString .. " " .. Locale.ConvertTextKey(resource.Description) .. " (" .. (gk_mode and g_Deal:GetNumResource(g_iThem, resourceID) or g_pThem:GetNumResourceAvailable( resourceID, false )) .. ")" )
+			local resource = GameInfo.Resources[resourceID]
+			instance.Button:SetText( resource.IconString .. Locale.ConvertTextKey(resource.Description) .. " (" .. ( gk_mode and g_Deal:GetNumResource(g_iThem, resourceID) or g_pThem:GetNumResourceAvailable( resourceID, false ) ) .. ")" )
+
+			local bCanTradeResource = not g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 );
+			instance.Button:SetDisabled( not bCanTradeResource )
+            if ( bCanTradeResource ) then
+	    		instance.Button:GetTextControl():SetColorByName("Gray_Black");
+            else
+	    		instance.Button:GetTextControl():SetColorByName("Beige_Black");
+            end
 		else
 			instance.Button:SetHide( true )
 		end

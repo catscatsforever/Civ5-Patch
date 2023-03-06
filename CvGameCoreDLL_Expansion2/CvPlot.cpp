@@ -5956,7 +5956,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	int iI;
 	ImprovementTypes eOldImprovement = getImprovementType();
 	bool bGiftFromMajor = false;
-//#ifndef AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
 	if (eBuilder != NO_PLAYER)
 	{
 		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
@@ -5964,7 +5963,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			bGiftFromMajor = true;
 		}
 	}
-//#endif
 	bool bIgnoreResourceTechPrereq = bGiftFromMajor; // If it is a gift from a major civ, our tech limitations do not apply
 
 	if(eOldImprovement != eNewValue)
@@ -6145,7 +6143,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				// Add Resource Quantity to total
 				if(getResourceType() != NO_RESOURCE)
 				{
+#ifdef FIX_SET_IMPROVEMENT_TYPE
+					if(bIgnoreResourceTechPrereq && getImprovementTypeNeededToImproveResource(eBuilder) == eNewValue || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+#else
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+#endif
 					{
 						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
 						{

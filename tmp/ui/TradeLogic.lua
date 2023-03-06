@@ -1544,20 +1544,29 @@ function ResetDisplay()
 			
 			bCanTradeResource = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESOURCES, resType, 1);	-- 1 here is 1 quanity of the Resource, which is the minimum possible
 			
-            if (bCanTradeResource) then
-                if( g_LuxuryList[ resType ] == true ) then
-                    bFoundLux = true;
-                else
-                    bFoundStrat = true;
-                end
-                instance.Button:SetHide( false );
-                
-                pResource = GameInfo.Resources[resType];
-				iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
-			    strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-                instance.Button:SetText( strString );
+            if( g_LuxuryList[ resType ] == true ) then
+                bFoundLux = true;
             else
-                instance.Button:SetHide( true );
+                bFoundStrat = true;
+            end
+
+            pResource = GameInfo.Resources[resType];
+			iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
+
+			if iResourceCount > 0 then
+                instance.Button:SetHide( false );
+				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+
+            	instance.Button:SetDisabled( not bCanTradeResource );
+            	instance.Button:SetText( strString );
+
+            	if (not bCanTradeResource) then
+	    			instance.Button:GetTextControl():SetColorByName("Gray_Black");
+            	else
+	    			instance.Button:GetTextControl():SetColorByName("Beige_Black");
+            	end
+            else
+            	instance.Button:SetHide( true );
             end
         end
     end
@@ -1611,20 +1620,29 @@ function ResetDisplay()
 			
 			bCanTradeResource = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESOURCES, resType, 1);	-- 1 here is 1 quanity of the Resource, which is the minimum possible
 			
-            if (bCanTradeResource) then
-                if( g_LuxuryList[ resType ] == true ) then
-                    bFoundLux = true;
-                else
-                    bFoundStrat = true;
-                end
-                instance.Button:SetHide( false );
-                
-                pResource = GameInfo.Resources[resType];
-                iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
-			    strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-                instance.Button:SetText( strString );
+            if( g_LuxuryList[ resType ] == true ) then
+                bFoundLux = true;
             else
-                instance.Button:SetHide( true );
+                bFoundStrat = true;
+            end
+
+            pResource = GameInfo.Resources[resType];
+			iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
+
+			if iResourceCount > 0 then
+                instance.Button:SetHide( false );
+				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+
+            	instance.Button:SetDisabled( not bCanTradeResource );
+            	instance.Button:SetText( strString );
+
+            	if (not bCanTradeResource) then
+	    			instance.Button:GetTextControl():SetColorByName("Gray_Black");
+            	else
+	    			instance.Button:GetTextControl():SetColorByName("Beige_Black");
+            	end
+            else
+            	instance.Button:SetHide( true );
             end
         end
     end
