@@ -6712,15 +6712,6 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						}
 					}
 				}
-#ifdef GP_RATE_MODIFIER_FROM_BELIEF
-				int iGreatPeopleRateModifier = 0;
-				if(pReligion->m_eFounder == getOwner())
-				{
-					iGreatPeopleRateModifier += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
-				}
-
-				changeGreatPeopleRateModifier(iGreatPeopleRateModifier);
-#endif
 			}
 		}
 	}
@@ -7665,6 +7656,18 @@ int CvCity::getTotalGreatPeopleRateModifier() const
 	int iModifier;
 
 	iModifier = getGreatPeopleRateModifier();
+	
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+	if(pReligion)
+	{
+		if(pReligion->m_eFounder == getOwner())
+		{
+			iModifier += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+		}
+	}
+#endif
 
 	iModifier += GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
 

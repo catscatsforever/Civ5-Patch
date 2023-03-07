@@ -2958,6 +2958,18 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 					// City mod
 					iMod += pCity->getGreatPeopleRateModifier();
+	
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+					ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+					if(pReligion)
+					{
+						if(pReligion->m_eFounder == pCity->getOwner())
+						{
+							iMod += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+						}
+					}
+#endif
 
 					// Player mod
 					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();

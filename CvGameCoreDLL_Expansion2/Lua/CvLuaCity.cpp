@@ -1984,7 +1984,23 @@ int CvLuaCity::lChangeBaseGreatPeopleRate(lua_State* L)
 //int getGreatPeopleRateModifier();
 int CvLuaCity::lGetGreatPeopleRateModifier(lua_State* L)
 {
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+	CvCity* pkCity = GetInstance(L);
+	int iMod = pkCity->getGreatPeopleRateModifier();
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+	if(pReligion)
+	{
+		if(pReligion->m_eFounder == pkCity->getOwner())
+		{
+			iMod += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+		}
+	}
+	lua_pushinteger(L, iMod);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvCity::getGreatPeopleRateModifier);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCultureStored() const;

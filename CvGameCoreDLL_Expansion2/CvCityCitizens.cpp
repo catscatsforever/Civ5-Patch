@@ -1935,6 +1935,18 @@ void CvCityCitizens::DoSpecialists()
 
 					// City mod
 					iMod += GetCity()->getGreatPeopleRateModifier();
+	
+#ifdef GP_RATE_MODIFIER_FROM_BELIEF
+					ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
+					if(pReligion)
+					{
+						if(pReligion->m_eFounder == GetCity()->getOwner())
+						{
+							iMod += pReligion->m_Beliefs.GetGreatPeopleRateModifier();
+						}
+					}
+#endif
 
 					// Player mod
 					iMod += GetPlayer()->getGreatPeopleRateModifier();
