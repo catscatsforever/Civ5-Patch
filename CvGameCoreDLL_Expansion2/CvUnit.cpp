@@ -2620,41 +2620,40 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	if(bMoveFlags & MOVEFLAG_DESTINATION)
 	{
 		// Don't let another player's unit inside someone's city
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_CITY_ATTACK_BLOCKER
-		if (plot.isCity() && plot.isRevealed(getTeam()))
-		{
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-			if ((bMoveFlagAttack || (bMoveFlags & MOVEFLAG_DECLARE_WAR)) == (plot.getPlotCity()->getOwner() == getOwner()))
-#else
-			if (((bMoveFlags & MOVEFLAG_ATTACK) || (bMoveFlags & MOVEFLAG_DECLARE_WAR)) == (plot.getPlotCity()->getOwner() == getOwner()))
-#endif
-				return false;
-#else
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-		if (!bMoveFlagAttack && !(bMoveFlags & MOVEFLAG_DECLARE_WAR))
-#else
 		if(!(bMoveFlags & MOVEFLAG_ATTACK) && !(bMoveFlags & MOVEFLAG_DECLARE_WAR))
-#endif
 		{
 			if(plot.isCity() && plot.getPlotCity()->getOwner() != getOwner())
 				return false;
-#endif
 		}
 
 		// Check to see if any units are present at this full-turn move plot (borrowed from CvGameCoreUtils::pathDestValid())
 		if(!(bMoveFlags & MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
 		{
 			// pSelectionGroup has no Team but the HeadUnit does... ???
+#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
+			bool bContainsSubmarine = false;
+			bool bContainsNotSubmarine = false;
+			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+			{
+				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+			
+				if(loopUnit->getOwner() != getOwner() && (loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SUBMARINE", true /*bHideAssert*/) || loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_NUCLEAR_SUBMARINE", true /*bHideAssert*/)))
+					bContainsSubmarine = true;
+				else
+					bContainsNotSubmarine = true;
+			}
+			if(!plot.isAdjacent((this)->plot()))
+				bContainsSubmarine = false;
+			if((bContainsSubmarine || bContainsNotSubmarine) && plot.isVisible(getTeam())  && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+#else
 			if(plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+#endif
 			{
 				return FALSE;
 			}
 		}
 	}
 
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-	if (bMoveFlagAttack)
-#else
 	if(isNoCapture())
 	{
 		if(!(bMoveFlags & MOVEFLAG_ATTACK))
@@ -2667,7 +2666,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 
 	if(bMoveFlags & MOVEFLAG_ATTACK)
-#endif
 	{
 		if(isOutOfAttacks())
 		{
@@ -2680,46 +2678,26 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 			return false;
 		}
 	}
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-	else if (isNoCapture() && plot.isEnemyCity(*this))
-	{
-		return false;
-	}
-#endif
 
 	// Can't enter an enemy city until it's "defeated"
 	if(plot.isEnemyCity(*this))
 	{
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-		if (bMoveFlagAttack)
-#else
 		if(plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints() && !(bMoveFlags & MOVEFLAG_ATTACK))
 		{
 			return false;
 		}
 		if(bMoveFlags & MOVEFLAG_ATTACK)
-#endif
 		{
 			if(getDomainType() == DOMAIN_AIR)
 				return false;
 			if(isHasPromotion((PromotionTypes)GC.getPROMOTION_ONLY_DEFENSIVE()))
 				return false;	// Can't advance into an enemy city
 		}
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-		else if (plot.getPlotCity()->getDamage() < plot.getPlotCity()->GetMaxHitPoints())
-		{
-			return false;
-		}
-#endif
 	}
 
 	if(getDomainType() == DOMAIN_AIR)
 	{
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-		if (bMoveFlagAttack)
-#else
 		if(bMoveFlags & MOVEFLAG_ATTACK)
-#endif
 		{
 			if(!canRangeStrikeAt(plot.getX(), plot.getY()))
 			{
@@ -2729,22 +2707,14 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 	else
 	{
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-		if (bMoveFlagAttack)
-#else
 		if(bMoveFlags & MOVEFLAG_ATTACK)
-#endif
 		{
 			if(!IsCanAttack())  // trying to give an attack order to a unit that can't fight. That doesn't work!
 			{
 				return false;
 			}
 
-#ifdef AUI_UNIT_FIX_HOVERING_EMBARK
-			if (getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && (!IsHoveringUnit() || plot.getTerrainType() == GC.getDEEP_WATER_TERRAIN()) && !plot.IsAllowsWalkWater())
-#else
 			if (getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && !plot.IsAllowsWalkWater())
-#endif
 			{
 				return false;
 			}
@@ -2796,21 +2766,12 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 
 				if(!bCanAdvanceOnDeadUnit)
 				{
-#ifdef AUI_UNIT_FIX_CAN_MOVE_INTO_OPTIMIZED
-					if (!plot.isVisibleEnemyUnit(this))
-					{
-						// Prevent an attack from failing if a city is empty but still an "enemy" capable of being attacked (this wouldn't happen before in Civ 4)
-						if (!plot.isEnemyCity(*this))
-						{
-							if (plot.isVisibleOtherUnit(getOwner()) == (plot.getPlotCity() && !isNoCapture()))
-#else
 					if(plot.isVisibleEnemyUnit(this) != (bMoveFlags & MOVEFLAG_ATTACK))
 					{
 						// Prevent an attack from failing if a city is empty but still an "enemy" capable of being attacked (this wouldn't happen before in Civ 4)
 						if(!(bMoveFlags & MOVEFLAG_ATTACK) || !plot.isEnemyCity(*this))
 						{
 							if(!(bMoveFlags & MOVEFLAG_DECLARE_WAR) || (plot.isVisibleOtherUnit(getOwner()) != (bMoveFlags & MOVEFLAG_ATTACK) && !((bMoveFlags & MOVEFLAG_ATTACK) && plot.getPlotCity() && !isNoCapture())))
-#endif
 							{
 								return false;
 							}
@@ -2869,11 +2830,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 			if(plot.getNumUnits())
 			{
 #endif
-#ifdef AUI_WARNING_FIXES
-				for (uint iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
-#else
 				for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
-#endif
 				{
 					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
@@ -19499,6 +19456,12 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 		// In this case, we can't be sure about the state of the map, so do a full recalculate.
 		bGenerated = GeneratePath(pDestPlot, iFlags);
 	}
+#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
+	if((this)->plot()->isAdjacent(pDestPlot))
+	{
+		bGenerated = GeneratePath(pDestPlot, iFlags);
+	}
+#endif
 
 	return bGenerated;
 }
