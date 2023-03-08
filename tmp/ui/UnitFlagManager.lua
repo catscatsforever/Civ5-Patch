@@ -357,10 +357,10 @@ local g_UnitFlagClass =
     		self.m_Instance.Anchor:SetHide(not bVisible);
     		-- Set the escorted unit too.
     		-- Do not change this in relation to the 'invisible' flag, that is a state of only that unit.  i.e. A sub does not hide the escorted unit
-    		if( self.m_Escort ~= nil ) then
+    		--[[if( self.m_Escort ~= nil ) then
 				local bEscortVisible = self.m_IsCurrentlyVisible and not self.m_IsForceHide;
         		self.m_Escort.m_Instance.Anchor:SetHide(not bEscortVisible);
-        	end
+            end--]]
         	if( self.m_CargoControls ~= nil and bVisible) then
         		self:UpdateCargo();
     		end

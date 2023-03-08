@@ -3875,6 +3875,9 @@ void CvUnit::load()
 				if((iPass == 0) ? (pLoopUnit->getOwner() == getOwner()) : (pLoopUnit->getTeam() == getTeam()))
 				{
 					setTransportUnit(pLoopUnit);
+#ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
+					setInvisibleType(pLoopUnit->getInvisibleType());
+#endif
 					break;
 				}
 			}
@@ -3918,6 +3921,9 @@ void CvUnit::unload()
 	}
 
 	setTransportUnit(NULL);
+#ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
+	setInvisibleType(NO_INVISIBLE);
+#endif
 }
 
 
