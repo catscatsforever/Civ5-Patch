@@ -349,11 +349,15 @@ local g_UnitFlagClass =
     ------------------------------------------------------------
     ------------------------------------------------------------
     UpdateVisibility = function( self )
-		local bVisible = self.m_IsCurrentlyVisible and not self.m_IsInvisible and not self.m_IsForceHide;
+        local pUnit = Players[ self.m_PlayerID ]:GetUnitByID( self.m_UnitID );
+        local isInvisible = pUnit:IsInvisible( Game.GetActiveTeam(), true );
+		local bVisible = self.m_IsCurrentlyVisible and not (self.m_IsInvisible or isInvisible) and not self.m_IsForceHide;
     	if InStrategicView() then
     		local bShowInStrategicView = bVisible and g_GarrisonedUnitFlagsInStrategicView and self.m_IsGarrisoned;
     		self.m_Instance.Anchor:SetHide(not bShowInStrategicView);
+            -- print( "m_PlayerID: " .. tostring( self.m_PlayerID ) .. "m_UnitID: " .. tostring( self.m_UnitID ) .. "m_IsCurrentlyVisible: " .. tostring( self.m_IsCurrentlyVisible ) .. " m_IsInvisible: " .. tostring( self.m_IsInvisible ) .. " m_IsForceHide: " .. tostring( self.m_IsForceHide ) )
     	else
+            -- print( "m_PlayerID: " .. tostring( self.m_PlayerID ) .. "m_UnitID: " .. tostring( self.m_UnitID ) .. "m_IsCurrentlyVisible: " .. tostring( self.m_IsCurrentlyVisible ) .. " m_IsInvisible: " .. tostring( self.m_IsInvisible ) .. " m_IsForceHide: " .. tostring( self.m_IsForceHide ) )
     		self.m_Instance.Anchor:SetHide(not bVisible);
     		-- Set the escorted unit too.
     		-- Do not change this in relation to the 'invisible' flag, that is a state of only that unit.  i.e. A sub does not hide the escorted unit

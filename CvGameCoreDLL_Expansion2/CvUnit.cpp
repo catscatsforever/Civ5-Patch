@@ -2631,20 +2631,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 		{
 			// pSelectionGroup has no Team but the HeadUnit does... ???
 #ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-			bool bContainsSubmarine = false;
-			bool bContainsNotSubmarine = false;
-			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
-			{
-				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
-			
-				if(loopUnit->getOwner() != getOwner() && (loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SUBMARINE", true /*bHideAssert*/) || loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_NUCLEAR_SUBMARINE", true /*bHideAssert*/)))
-					bContainsSubmarine = true;
-				else
-					bContainsNotSubmarine = true;
-			}
-			if(!plot.isAdjacent((this)->plot()))
-				bContainsSubmarine = false;
-			if((bContainsSubmarine || bContainsNotSubmarine) && plot.isVisible(getTeam())  && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+			InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
+			if(plot.isInvisibleVisible(getTeam(), eInvisible) && plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #else
 			if(plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #endif

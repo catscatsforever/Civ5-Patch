@@ -1296,19 +1296,8 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 					{
 						// Check to see if any units are present at this full-turn move plot... if the player can see what's there
 #ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-						bool bContainsSubmarine = false;
-						bool bContainsNotSubmarine = false;
-						for(int iUnitLoop = 0; iUnitLoop < pToPlot->getNumUnits(); iUnitLoop++)
-						{
-							CvUnit* loopUnit = pToPlot->getUnitByIndex(iUnitLoop);
-							if(loopUnit->getOwner() != pUnit->getOwner() && (loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SUBMARINE", true /*bHideAssert*/) || loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_NUCLEAR_SUBMARINE", true /*bHideAssert*/)))
-								bContainsSubmarine = true;
-							else
-								bContainsNotSubmarine = true;
-						}
-						if(!pToPlot->isAdjacent(pUnit->plot()))
-							bContainsSubmarine = false;
-						if((bContainsSubmarine || bContainsNotSubmarine) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
+						InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
+						if(pToPlot->isInvisibleVisible(eUnitTeam, eInvisible) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
 #else
 						if(kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
 #endif
@@ -3436,19 +3425,8 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 					{
 						// Check to see if any units are present at this full-turn move plot... if the player can see what's there
 #ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-						bool bContainsSubmarine = false;
-						bool bContainsNotSubmarine = false;
-						for(int iUnitLoop = 0; iUnitLoop < pToPlot->getNumUnits(); iUnitLoop++)
-						{
-							CvUnit* loopUnit = pToPlot->getUnitByIndex(iUnitLoop);
-							if(loopUnit->getOwner() != pUnit->getOwner() && (loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SUBMARINE", true /*bHideAssert*/) || loopUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_NUCLEAR_SUBMARINE", true /*bHideAssert*/)))
-								bContainsSubmarine = true;
-							else
-								bContainsNotSubmarine = true;
-						}
-						if(!pToPlot->isAdjacent(pUnit->plot()))
-							bContainsSubmarine = false;
-						if((bContainsSubmarine || bContainsNotSubmarine) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
+						InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
+						if(pToPlot->isInvisibleVisible(eTeam, eInvisible) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
 #else
 						if(kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
 #endif
