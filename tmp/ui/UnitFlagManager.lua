@@ -351,7 +351,7 @@ local g_UnitFlagClass =
     UpdateVisibility = function( self )
         local isInvisible = false
         local pUnit = Players[ self.m_PlayerID ]:GetUnitByID( self.m_UnitID );
-        if unit ~= nil then
+        if pUnit ~= nil then
             isInvisible = pUnit:IsInvisible( Game.GetActiveTeam(), true );
         end
 		local bVisible = self.m_IsCurrentlyVisible and not (self.m_IsInvisible or isInvisible) and not self.m_IsForceHide;
