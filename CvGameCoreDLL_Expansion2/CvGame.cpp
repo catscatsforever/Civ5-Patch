@@ -2574,6 +2574,30 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 	{
 		if(pkSelectedUnit->getOwner() == getActivePlayer() && !pSelectedUnit->IsBusy())
 		{
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+			float t1;
+			float t2;
+			GetTurnTimerData(t1, t2);
+
+			if (isGameMultiPlayer())
+			{
+				// both is true means turn is about to end
+				// both is false means turn just started
+				if (gDLL->HasReceivedTurnAllComplete(getActivePlayer()) == getHasReceivedFirstMission()) {
+					if (isMPOrderedMoveOnTurnLoading()) {
+						SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
+						return;
+					}
+					else {
+						SLOG("--- first move order");
+						setMPOrderedMoveOnTurnLoading(true);
+					}
+				}
+			}
+
+			SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d timerexpired: %d", t1, t2, (int)getActivePlayer(), eMessage, hasTurnTimerExpired(getActivePlayer()) ? 1 : 0);
+			SLOG("HasReceivedTurnAllComplete: %d HasReceivedTurnAllCompleteFromAllPlayers: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, gDLL->HasReceivedTurnAllCompleteFromAllPlayers() ? 1 : 0);
+#endif
 			if(eMessage == GAMEMESSAGE_DO_COMMAND)
 			{
 				gDLL->sendDoCommand(pkSelectedUnit->GetID(), ((CommandTypes)iData2), iData3, iData4, bAlt);
@@ -2584,41 +2608,13 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 				{
 					MissionTypes eMission = (MissionTypes)iData2;
 					CvPlot* pPlot = GC.getMap().plot(iData3, iData4);
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-					bool bTurnActive = GET_PLAYER(getActivePlayer()).isTurnActive();
-					bool bAllAICivsProcessedThisTurn = gDLL->allAICivsProcessedThisTurn();
-					if (bTurnActive && bAllAICivsProcessedThisTurn && isMPOrderedMoveOnTurnLoading())
-					{
-						setMPOrderedMoveOnTurnLoading(false);  // Turn has already started; reset value
-					}
-#endif
 					if(pPlot && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
 					{
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-						// DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("isTurnActive: {1_Num}, allAICivsProcessedThisTurn: {2_Num}", bTurnActive, bAllAICivsProcessedThisTurn));
-						if (!isGameMultiPlayer() || !isMPOrderedMoveOnTurnLoading())  // First move allowed, all the following blocked
-						{
-#endif
 							gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-							if (!bTurnActive || !bAllAICivsProcessedThisTurn || !isMPOrderedMoveOnTurnLoading())
-								setMPOrderedMoveOnTurnLoading(true);
-						}
-#endif
 					}
 					else
 					{
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-						// DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("isTurnActive: {1_Num}, allAICivsProcessedThisTurn: {2_Num}", bTurnActive, bAllAICivsProcessedThisTurn));
-						if (!isGameMultiPlayer() || !isMPOrderedMoveOnTurnLoading())  // First move allowed, all the following blocked
-						{
-#endif
 							gDLL->sendPushMission(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-							if (!bTurnActive || !bAllAICivsProcessedThisTurn || !isMPOrderedMoveOnTurnLoading())
-								setMPOrderedMoveOnTurnLoading(true);
-						}
-#endif
 					}
 				}
 				else
@@ -2628,25 +2624,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 			}
 			else if((eMessage == GAMEMESSAGE_SWAP_UNITS))
 			{
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-				bool bTurnActive = GET_PLAYER(getActivePlayer()).isTurnActive();
-				bool bAllAICivsProcessedThisTurn = gDLL->allAICivsProcessedThisTurn();
-				if (bTurnActive && bAllAICivsProcessedThisTurn && isMPOrderedMoveOnTurnLoading())
-				{
-					setMPOrderedMoveOnTurnLoading(false);  // Turn has already started; reset value
-				}
-#endif
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-				// DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("isTurnActive: {1_Num}, allAICivsProcessedThisTurn: {2_Num}", bTurnActive, bAllAICivsProcessedThisTurn));
-				if (!isGameMultiPlayer() || !isMPOrderedMoveOnTurnLoading())  // First move allowed, all the following blocked
-				{
-#endif
 					gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
-#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-					if (!bTurnActive || !bAllAICivsProcessedThisTurn || !isMPOrderedMoveOnTurnLoading())
-						setMPOrderedMoveOnTurnLoading(true);
-				}
-#endif
 			}
 			else
 			{
@@ -4475,6 +4453,9 @@ void CvGame::setGameTurn(int iNewValue)
 {
 	if(getGameTurn() != iNewValue)
 	{
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+		SLOG("-----------NEW TURN (%d)-----------", iNewValue);
+#endif
 		std::string turnMessage = std::string("Game Turn ") + FSerialization::toString(iNewValue) + std::string("\n");
 		gDLL->netMessageDebugLog(turnMessage);
 
@@ -5129,6 +5110,20 @@ bool CvGame::isMPOrderedMoveOnTurnLoading() const
 void CvGame::setMPOrderedMoveOnTurnLoading(bool bNewValue)
 {
 	m_bMPOrderedMoveOnTurnLoading = bNewValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvGame::getHasReceivedFirstMission()
+{
+	return m_bReceivedFirstMission;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setHasReceivedFirstMission(bool bNewValue)
+{
+	m_bReceivedFirstMission = bNewValue;
 }
 
 
@@ -7740,6 +7735,10 @@ void CvGame::doTurn()
 			ReviveActivePlayer();
 		}
 	}
+
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+	setHasReceivedFirstMission(false);
+#endif
 
 	incrementGameTurn();
 	incrementElapsedGameTurns();

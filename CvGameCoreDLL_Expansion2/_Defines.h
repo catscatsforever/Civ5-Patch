@@ -557,7 +557,7 @@
 /// Prevent timer mid-turn fluctuations - update it once per turn
 #define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 /// Player can move only one unit while MP turn is loading
-// #define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 /*TURN AND TIMER CHANGES END*/
 
 
@@ -630,6 +630,20 @@
 #define GET_REMOVE_FEATURE_FOOD
 /*OTHER CHANGES END*/
 
+/*LOGGING START*/
+///
+#define CUSTOMLOG(sFmt, ...) {  \
+  CvString sMsg;  \
+  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
+  LOGFILEMGR.GetLog("MPVS.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
+}
+///
+#define SLOG(sFmt, ...) {  \
+  CvString sMsg;  \
+  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
+  LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
+}
+/*LOGGING END*/
 
 
 #endif
