@@ -1929,6 +1929,11 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
 	VALIDATE_OBJECT
 	CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
 
+#ifdef AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
+	if (isProductionAutomated() || IsPuppet())
+		return;
+#endif
+
 	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 	if(pNotifications)
 	{

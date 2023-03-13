@@ -3897,7 +3897,14 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 					if(!pLoopUnit->isCargo())
 					{
 						// Unit is the same domain & combat type, not allowed more than the limit
+#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
+						if(!pLoopUnit->isInvisible(pUnit->getTeam(), false))
+						{
+							iNumUnitsOfSameType++;
+						}
+#else
 						iNumUnitsOfSameType++;
+#endif
 					}
 				}
 
@@ -7018,15 +7025,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			for(int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
 			{
 				const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
-				CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
-				if(pEntry && pEntry->IsPantheonBelief())
+				if(eBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_DANCE_AURORA", true))
 				{
 					pBelief = eBelief;
 					break;
 				}
 			}
 			int iReligionChange = 0;
-			// if (GC.getGame().GetGameReligions()->GetBeliefInPantheon(pWorkingCity->getOwner()) == (BeliefTypes)GC.getInfoTypeForString("BELIEF_EARTH_MOTHER", true))
 			if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_DANCE_AURORA", true))
 			{
 				if(!isHills() || eYield == YIELD_FAITH)
@@ -7041,7 +7046,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #else
 				int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 #endif
-			//int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
 #ifdef BELIEF_DANCE_AURORA_NERF
@@ -7059,7 +7063,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #else
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 #endif
-				//iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 			}
 			iYield += iReligionChange;
 		}

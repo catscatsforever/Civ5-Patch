@@ -4293,7 +4293,9 @@ void CvPlayer::doTurn()
 		{
 			if(!isMinorCiv())
 			{
+#ifndef GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
 				GetTrade()->DoTurn();
+#endif
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 				if(GC.getGame().isHotSeat() && !isHuman())
@@ -4323,7 +4325,17 @@ void CvPlayer::doTurn()
 		doTurnPostDiplomacy();
 	}
 
-#ifdef TradeRoutes_After_doTurnPostDiplomacy
+#ifdef GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
+	if(isAlive())
+	{
+		if(!isBarbarian())
+		{
+			if(!isMinorCiv())
+			{
+				GetTrade()->DoTurn();
+			}
+		}
+	}
 #endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -4462,9 +4474,22 @@ void CvPlayer::doTurnPostDiplomacy()
 #ifdef AI_CULTURE_RESTRICTION
 		if(getJONSCulture() < getNextPolicyCost())
 		{
-			if(isHuman() || getNextPolicyCost() < 1000)
+			if(isHuman() || getNextPolicyCost() < 1000 || !GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			{
 				changeJONSCulture(GetTotalJONSCulturePerTurn());
+#ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
+				if(GetNumFreePolicies() <= 0)
+				{
+					for (int iI = 0; iI < GC.GetGamePolicies()->GetNumPolicyBranches(); iI++)
+					{
+						PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iI;
+						if(!GetPlayerPolicies()->CanUnlockPolicyBranch(ePolicyBranch))
+						{
+							GetPlayerPolicies()->SetPolicyBranchNotificationLocked(ePolicyBranch, false);
+						}
+					}
+				}
+#endif
 			}
 		}
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
@@ -6351,7 +6376,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		if(pBestCity != NULL)
 		{
-#ifdef PopRuinFoodNotPopulation
+#ifdef POP_RUIN_FOOD_NOT_POPULATION
 			pBestCity->changeFood(10*kGoodyInfo.getPopulation());
 #else
 			pBestCity->changePopulation(kGoodyInfo.getPopulation());
@@ -16657,7 +16682,6 @@ void CvPlayer::sendTurnReminder()
 	}
 	*/
 }
-
 
 //	--------------------------------------------------------------------------------
 uint CvPlayer::getStartTime() const

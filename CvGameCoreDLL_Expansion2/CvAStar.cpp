@@ -1294,13 +1294,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 				{
 					if(kNodeCacheData.bPlotVisibleToTeam)
 					{
-						// Check to see if any units are present at this full-turn move plot... if the player can see what's there
-#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-						InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
-						if(pToPlot->isInvisibleVisible(eUnitTeam, eInvisible) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
-#else
 						if(kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
-#endif
 						{
 							return FALSE;
 						}
@@ -3424,12 +3418,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 					if(kNodeCacheData.bPlotVisibleToTeam)
 					{
 						// Check to see if any units are present at this full-turn move plot... if the player can see what's there
-#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-						InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
-						if(pToPlot->isInvisibleVisible(eTeam, eInvisible) && kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
-#else
 						if(kNodeCacheData.iNumFriendlyUnitsOfType >= iUnitPlotLimit && !(iFinderIgnoreStacking))
-#endif
 						{
 							return FALSE;
 						}

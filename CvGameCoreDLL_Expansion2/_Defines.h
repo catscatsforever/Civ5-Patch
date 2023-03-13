@@ -95,10 +95,6 @@
 /// Fixes the discrepancy where culture is not stored and calculated with hundredths in mind, which greatly messes up modifiers applied to it
 #define AUI_PLAYER_FIX_JONS_CULTURE_IS_T100
 
-/// Puppet cities and cities with automated production will no longer accidentally trigger the production notification
-#define AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
-/// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
-#define AUI_NOFITICATIONS_FIX_PRODUCTION_NOTIFICATION_REMOVAL_EXTRA_CHECKS
 /// Firaxis' original database-handling code had a weird way of allocating and destructing 2D arrays. It was not standard-compliant and possibly caused memory leaks. This has been rectified.
 #define AUI_DATABASE_UTILITY_PROPER_2D_ALLOCATION_AND_DESTRUCTION
 /// Makes UI combat prediction more representative of the actual combat that will take place when combat would tie
@@ -403,6 +399,8 @@
 #define DO_CANCEL_DEALS_WITH_AI
 ///
 #define AI_CULTURE_RESTRICTION
+///
+#define NO_STEALABLE_TECH_LIST_FROM_AI
 /*AI CHANGES END*/
 
 
@@ -481,6 +479,8 @@
 // #define AUI_PLAYER_RECEIVE_GOODY_PLOT_MESSAGE_FOR_YIELD
 ///
 #define INCREASE_NUM_GOODIES_REMEMBERED
+///
+// #define POP_RUIN_FOOD_NOT_POPULATION
 /*GOODIES CHANGES END*/
 
 
@@ -510,6 +510,10 @@
 #define BUILDING_CLASS_YIELD_CHANGES
 ///
 #define TRADE_CITIES_ONLY_FULL_HP
+/// Puppet cities and cities with automated production will no longer accidentally trigger the production notification
+#define AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
+/// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
+#define AUI_NOFITICATIONS_FIX_PRODUCTION_NOTIFICATION_REMOVAL_EXTRA_CHECKS
 /*CITIES CHANGES END*/
 
 
@@ -557,7 +561,9 @@
 /// Prevent timer mid-turn fluctuations - update it once per turn
 #define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 /// Player can move only one unit while MP turn is loading
-#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+// #define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+///
+// #define GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
 /*TURN AND TIMER CHANGES END*/
 
 
@@ -590,8 +596,6 @@
 
 /*ESPIONAGE CHANGES START*/
 ///
-#define NO_STEALABLE_TECH_LIST_FROM_AI
-///
 #define CANT_STEAL_CLASSICAL_ERA_TECHS
 ///
 #define BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
@@ -623,12 +627,10 @@
 ///
 #define GOLD_FOR_CIRCUMNAVIGATE
 ///
-// #define TradeRoutes_After_doTurnPostDiplomacy
-///
-// #define PopRuinFoodNotPopulation
-///
 #define GET_REMOVE_FEATURE_FOOD
 /*OTHER CHANGES END*/
+
+
 
 /*LOGGING START*/
 ///
@@ -644,6 +646,7 @@
   LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
 }
 /*LOGGING END*/
+
 
 
 #endif

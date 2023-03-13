@@ -2630,12 +2630,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 		if(!(bMoveFlags & MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
 		{
 			// pSelectionGroup has no Team but the HeadUnit does... ???
-#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-			InvisibleTypes eInvisible = (InvisibleTypes)GC.getInfoTypeForString("INVISIBLE_SUBMARINE", true);
-			if(plot.isInvisibleVisible(getTeam(), eInvisible) && plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
-#else
 			if(plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
-#endif
 			{
 				return FALSE;
 			}

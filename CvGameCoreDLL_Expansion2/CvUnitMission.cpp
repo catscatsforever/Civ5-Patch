@@ -489,20 +489,10 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						}
 					}
 
-#ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-					if(!(GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2)->isWater() && (hUnit->isEmbarked() || hUnit->isRanged() || hUnit->isOnlyDefensive())))
-					{
-						if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags, iSteps))
-						{
-							bDone = true;
-						}
-					}
-#else
 					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags, iSteps))
 					{
 						bDone = true;
 					}
-#endif
 				}
 			}
 		}
