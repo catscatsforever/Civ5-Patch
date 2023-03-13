@@ -239,6 +239,8 @@ public:
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool isMPOrderedMoveOnTurnLoading() const;
 	void setMPOrderedMoveOnTurnLoading(bool bNewValue);
+	bool getHasReceivedFirstMission();
+	void setHasReceivedFirstMission(bool bNewValue);
 #endif
 
 	bool isScoreDirty() const;
@@ -641,6 +643,7 @@ protected:
 #endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool m_bMPOrderedMoveOnTurnLoading;
+	bool m_bReceivedFirstMission;
 #endif
 
 	bool m_bScoreDirty;

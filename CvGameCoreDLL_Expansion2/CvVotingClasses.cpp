@@ -11333,13 +11333,6 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 		m_vProposals.at(iProposalID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, (int)GetProposalOwner(iProposalID), (int)GetProposalStatus(iProposalID));
 	}
 }
-#ifndef CUSTOMLOG
-#define CUSTOMLOG(sFmt, ...) {  \
-  CvString sMsg;  \
-  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
-  LOGFILEMGR.GetLog("MPVS.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
-}
-#endif
 FDataStream& operator>>(FDataStream& loadFrom, MPVotingSystemProposalTypes& writeTo)
 {
 	int v;
