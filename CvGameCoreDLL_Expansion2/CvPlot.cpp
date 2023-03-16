@@ -4891,7 +4891,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 				GC.getMap().changeOwnedPlots(-1);
 
+#ifndef INCLUDE_WATER_IN_LAND_SCORE
 				if(!isWater())
+#endif
 				{
 					GET_PLAYER(getOwner()).changeTotalLand(-1);
 					GET_TEAM(getTeam()).changeTotalLand(-1);
@@ -5056,7 +5058,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 				GC.getMap().changeOwnedPlots(1);
 
+#ifndef INCLUDE_WATER_IN_LAND_SCORE
 				if(!isWater())
+#endif
 				{
 					GET_PLAYER(getOwner()).changeTotalLand(1);
 					GET_TEAM(getTeam()).changeTotalLand(1);
@@ -5430,11 +5434,13 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				GC.getMap().changeNumResourcesOnLand(getResourceType(), ((isWater()) ? -1 : 1));
 			}
 
+#ifndef INCLUDE_WATER_IN_LAND_SCORE
 			if(isOwned())
 			{
 				GET_PLAYER(getOwner()).changeTotalLand((isWater()) ? -1 : 1);
 				GET_TEAM(getTeam()).changeTotalLand((isWater()) ? -1 : 1);
 			}
+#endif
 
 			if(bRecalculate)
 			{
