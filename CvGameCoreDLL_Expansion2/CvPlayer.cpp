@@ -4293,6 +4293,29 @@ void CvPlayer::doTurn()
 		{
 			if(!isMinorCiv())
 			{
+#ifdef DO_CANCEL_DEALS_WITH_AI
+				if(!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+				{
+					GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+					for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+					{
+						TeamTypes eTeam = (TeamTypes)iLoopTeam;
+						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+						{
+							GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+							GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+							GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+							GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+
+							// Bump Units out of places they shouldn't be
+							GC.getMap().verifyUnitValidPlot();
+						}
+					}
+				}
+#endif
 #ifndef GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
 				GetTrade()->DoTurn();
 #endif
@@ -25913,7 +25936,7 @@ void CvPlayer::disconnected()
 			for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 			{
 				TeamTypes eTeam = (TeamTypes)iLoopTeam;
-				if (getTeam() != eTeam)
+				if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 				{
 					GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
 					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
