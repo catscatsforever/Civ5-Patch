@@ -630,6 +630,8 @@
 #define GOLD_FOR_CIRCUMNAVIGATE
 ///
 #define GET_REMOVE_FEATURE_FOOD
+///
+// #define INCLUDE_WATER_IN_LAND_SCORE
 /*OTHER CHANGES END*/
 
 
@@ -648,8 +650,6 @@
   LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
 }
 /*LOGGING END*/
-
-
 
 #endif
 
