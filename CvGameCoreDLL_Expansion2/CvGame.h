@@ -405,6 +405,10 @@ public:
 	int getBuildingClassCreatedCount(BuildingClassTypes eIndex);
 	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0);
 	void incrementBuildingClassCreatedCount(BuildingClassTypes eIndex);
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	int getBuildingClassCreationTurn(BuildingClassTypes eIndex);
+	void setBuildingClassCreationTurn(BuildingClassTypes eIndex, int iValue);
+#endif
 
 	int getProjectCreatedCount(ProjectTypes eIndex);
 	bool isProjectMaxedOut(ProjectTypes eIndex, int iExtra = 0);
@@ -698,6 +702,9 @@ protected:
 	int* m_paiUnitCreatedCount;
 	int* m_paiUnitClassCreatedCount;
 	int* m_paiBuildingClassCreatedCount;
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	int* m_paiBuildingClassCreationTurn;
+#endif
 	int* m_paiProjectCreatedCount;
 	PlayerVoteTypes* m_paiVoteOutcome;
 	int* m_aiSecretaryGeneralTimer;
