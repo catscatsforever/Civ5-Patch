@@ -2575,17 +2575,28 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 		if(pkSelectedUnit->getOwner() == getActivePlayer() && !pSelectedUnit->IsBusy())
 		{
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-			float t1;
-			float t2;
-			GetTurnTimerData(t1, t2);
-
 			if (isGameMultiPlayer())
 			{
+				float t1;
+				float t2;
+				GetTurnTimerData(t1, t2);
+
+				bool bAllComplete = true;  // replace gDLL->HasReceivedTurnAllComplete as it breaks after hj
+				for (uint i = 0; i < MAX_CIV_PLAYERS; i++)
+				{
+					CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+					if (kPlayer.isHuman() && kPlayer.isAlive()) {
+						if (!gDLL->HasReceivedTurnComplete((PlayerTypes)i))
+							bAllComplete = false;
+					}
+				}
+
 				// both is true means turn is about to end
 				// both is false means turn just started
-				if (gDLL->HasReceivedTurnAllComplete(getActivePlayer()) == getHasReceivedFirstMission()) {
+				if (bAllComplete == getHasReceivedFirstMission()) {
 					if (isMPOrderedMoveOnTurnLoading()) {
 						SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
+						SLOG("HasReceivedTurnAllComplete %d bAllComplete %d getHasReceivedFirstMission %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0, getHasReceivedFirstMission() ? 1 : 0);
 						return;
 					}
 					else {
@@ -2593,10 +2604,11 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 						setMPOrderedMoveOnTurnLoading(true);
 					}
 				}
+
+				SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d", t1, t2, (int)getActivePlayer(), eMessage);
+				SLOG("HasReceivedTurnAllComplete: %d bAllComplete: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0);
 			}
 
-			SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d timerexpired: %d", t1, t2, (int)getActivePlayer(), eMessage, hasTurnTimerExpired(getActivePlayer()) ? 1 : 0);
-			SLOG("HasReceivedTurnAllComplete: %d HasReceivedTurnAllCompleteFromAllPlayers: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, gDLL->HasReceivedTurnAllCompleteFromAllPlayers() ? 1 : 0);
 #endif
 			if(eMessage == GAMEMESSAGE_DO_COMMAND)
 			{
