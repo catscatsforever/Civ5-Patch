@@ -651,6 +651,12 @@
 }
 /*LOGGING END*/
 
+
+
+/*WEEVEE START*/
+// #define WEEVEE_WORLD_WONDERS_SAME_TURN
+/*WEEVEE END*/
+
 #endif
 
 // SHOW MATCH

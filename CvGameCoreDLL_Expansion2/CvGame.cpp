@@ -109,6 +109,9 @@ CvGame::CvGame() :
 	m_paiUnitCreatedCount = NULL;
 	m_paiUnitClassCreatedCount = NULL;
 	m_paiBuildingClassCreatedCount = NULL;
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	m_paiBuildingClassCreationTurn = NULL;
+#endif
 	m_paiProjectCreatedCount = NULL;
 	m_paiVoteOutcome = NULL;
 	m_aiSecretaryGeneralTimer = NULL;
@@ -938,6 +941,9 @@ void CvGame::uninit()
 	SAFE_DELETE_ARRAY(m_paiUnitCreatedCount);
 	SAFE_DELETE_ARRAY(m_paiUnitClassCreatedCount);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCreatedCount);
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	SAFE_DELETE_ARRAY(m_paiBuildingClassCreationTurn);
+#endif
 	SAFE_DELETE_ARRAY(m_paiProjectCreatedCount);
 	SAFE_DELETE_ARRAY(m_paiVoteOutcome);
 	SAFE_DELETE_ARRAY(m_aiSecretaryGeneralTimer);
@@ -1160,6 +1166,21 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 			m_paiBuildingClassCreatedCount[iI] = 0;
 		}
+
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+		CvAssertMsg(m_paiBuildingClassCreationTurn==NULL, "about to leak memory, CvGame::m_paiBuildingClassCreationTurn");
+		m_paiBuildingClassCreationTurn = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+			if(!pkBuildingClassInfo)
+			{
+				continue;
+			}
+
+			m_paiBuildingClassCreationTurn[iI] = -1;
+		}
+#endif
 
 		CvAssertMsg(m_paiProjectCreatedCount==NULL, "about to leak memory, CvGame::m_paiProjectCreatedCount");
 		m_paiProjectCreatedCount = FNEW(int[GC.getNumProjectInfos()], c_eCiv5GameplayDLL, 0);
@@ -7471,7 +7492,13 @@ bool CvGame::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra)
 	{
 		return false;
 	}
-
+	
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	if(isWorldWonderClass(*pkBuildingClassInfo) && getBuildingClassCreationTurn(eIndex) > 0 && getBuildingClassCreationTurn(eIndex) == getGameTurn())
+	{
+		return false;
+	}
+#endif
 	CvAssertMsg(getBuildingClassCreatedCount(eIndex) <= pkBuildingClassInfo->getMaxGlobalInstances(), "Index is expected to be within maximum bounds (invalid Index)");
 
 	return ((getBuildingClassCreatedCount(eIndex) + iExtra) >= pkBuildingClassInfo->getMaxGlobalInstances());
@@ -7487,6 +7514,26 @@ void CvGame::incrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 }
 
 
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+//	--------------------------------------------------------------------------------
+int CvGame::getBuildingClassCreationTurn(BuildingClassTypes eIndex)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiBuildingClassCreationTurn[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setBuildingClassCreationTurn(BuildingClassTypes eIndex, int iValue)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiBuildingClassCreationTurn[eIndex] = iValue;
+}
+
+
+#endif
 //	--------------------------------------------------------------------------------
 int CvGame::getProjectCreatedCount(ProjectTypes eIndex)
 {
@@ -9555,6 +9602,9 @@ void CvGame::Read(FDataStream& kStream)
 	UnitArrayHelpers::Read(kStream, m_paiUnitCreatedCount);
 	UnitClassArrayHelpers::Read(kStream, m_paiUnitClassCreatedCount);
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreatedCount);
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreationTurn);
+#endif
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectCreatedCount, GC.getNumProjectInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiVoteOutcome, GC.getNumVoteInfos());
@@ -9781,6 +9831,9 @@ void CvGame::Write(FDataStream& kStream) const
 
 	UnitClassArrayHelpers::Write(kStream, m_paiUnitClassCreatedCount, GC.getNumUnitClassInfos());
 	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCreatedCount, GC.getNumBuildingClassInfos());
+#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCreationTurn, GC.getNumBuildingClassInfos());
+#endif
 
 	CvInfosSerializationHelper::WriteHashedDataArray<ProjectTypes, int>(kStream, m_paiProjectCreatedCount, GC.getNumProjectInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<VoteTypes, PlayerVoteTypes>(kStream, m_paiVoteOutcome, GC.getNumVoteInfos());
