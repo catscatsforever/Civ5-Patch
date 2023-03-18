@@ -3859,6 +3859,10 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 		m_abEmbassy[eIndex] = bNewValue;
 		bool bRevealPlots = false;
 
+#ifdef FIX_CLOSE_EMBASSY_AT_TEAM_REVEALING_PLOTS
+		if(bNewValue == true)
+		{
+#endif
 		// find capital of team
 		// reveal hexes around capital
 		for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
@@ -3892,6 +3896,9 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 				}
 			}
 		}
+#ifdef FIX_CLOSE_EMBASSY_AT_TEAM_REVEALING_PLOTS
+		}
+#endif
 
 		if(bRevealPlots)
 		{

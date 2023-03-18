@@ -539,6 +539,8 @@
 #define INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
 /// Don't draw other players notification dots on the minimap
 #define MINIMAP_FIX_DRAW_ONLY_SUITABLE_NOTIFICATIONS
+///
+#define FIX_CLOSE_EMBASSY_AT_TEAM_REVEALING_PLOTS
 /*BUGS FIXES END*/
 
 
