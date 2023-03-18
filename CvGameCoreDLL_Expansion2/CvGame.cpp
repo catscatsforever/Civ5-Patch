@@ -91,6 +91,9 @@ CvGame::CvGame() :
 	, m_curTurnTimer()
 	, m_timeSinceGameTurnStart()
 	, m_fCurrentTurnTimerPauseDelta(0.f)
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	, m_bIsPaused(false)
+#endif
 	, m_sentAutoMoves(false)
 	, m_bForceEndingTurn(false)
 	, m_pDiploResponseQuery(NULL)
@@ -1033,6 +1036,9 @@ void CvGame::uninit()
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	m_fPreviousTurnLen = 0.0f;
 #endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	m_fTimeElapsed = 0.0f;
+#endif
 
 	m_bScoreDirty = false;
 	m_bCircumnavigated = false;
@@ -1901,7 +1907,11 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 	if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
 	{
 		ICvUserInterface2* iface = GC.GetEngineUserInterface();
+#ifdef TURN_TIMER_PAUSE_BUTTON
+		if(getElapsedGameTurns() > 0 && !GC.getGame().m_bIsPaused)
+#else
 		if(getElapsedGameTurns() > 0)
+#endif
 		{
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 			PlayerTypes ePausePlayer = NO_PLAYER;
@@ -1946,7 +1956,12 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
 				float timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
 				
+#ifdef TURN_TIMER_PAUSE_BUTTON
+				setTimeElapsed((curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart));
+				float timeElapsed = getTimeElapsed();
+#else
 				float timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
+#endif
 				if(curPlayer.isTurnActive())
 				{//The timer is ticking for our turn
 					if(timeElapsed > gameTurnEnd)
@@ -2002,6 +2017,29 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				}
 			}
 		}
+#ifdef TURN_TIMER_PAUSE_BUTTON
+		else if(getElapsedGameTurns() > 0 && GC.getGame().m_bIsPaused)
+		{
+			if(!(isLocalPlayer && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed())))
+			{
+				
+				// Has the turn expired?
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+				float gameTurnEnd = getPreviousTurnLen();
+#else
+				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
+#endif
+				
+				float timeElapsed = getTimeElapsed();
+
+				if(isLocalPlayer)
+				{//update the local end turn timer.
+					CvPreGame::setEndTurnTimerLength(gameTurnEnd);
+					iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
+				}
+			}
+		}
+#endif
 		else if(isLocalPlayer){
 			//hold the turn timer at 0 seconds with 0% completion
 			CvPreGame::setEndTurnTimerLength(0.0f);
@@ -3590,6 +3628,20 @@ void CvGame::doControl(ControlTypes eControl)
 		break;
 
 	case CONTROL_SCORES:
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	{
+		if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
+		{
+			if ((getElapsedGameTurns() > 0) && GET_PLAYER(getActivePlayer()).isTurnActive())
+			{
+				// as there is no netcode for timer reset,
+				// this function will act as one, if called with special agreed upon arguments
+				// resetTurnTimer(true);
+				gDLL->sendGiftUnit(NO_PLAYER, -7);
+			}
+		}
+	}
+#endif
 		break;
 
 	case CONTROL_LOAD_GAME:
@@ -4693,6 +4745,9 @@ void CvGame::resetTurnTimer(bool resetGameTurnStart)
 	{
 		m_timeSinceGameTurnStart.Start();
 	}
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	m_bIsPaused = false;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -5127,6 +5182,22 @@ float CvGame::getPreviousTurnLen()
 void CvGame::setPreviousTurnLen(float fNewValue)
 {
 	m_fPreviousTurnLen = fNewValue;
+}
+
+
+#endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+//	--------------------------------------------------------------------------------
+float CvGame::getTimeElapsed()
+{
+	return m_fTimeElapsed;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setTimeElapsed(float fNewValue)
+{
+	m_fTimeElapsed = fNewValue;
 }
 
 
@@ -7732,6 +7803,9 @@ void CvGame::doTurn()
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	setPreviousTurnLen(static_cast<float>(getMaxTurnLen()));
 #endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	GC.getGame().m_bIsPaused = false;
+#endif
 	//We reset the turn timer now so that we know that the turn timer has been reset at least once for
 	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
 	resetTurnTimer(true);
@@ -9544,6 +9618,10 @@ void CvGame::Read(FDataStream& kStream)
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	kStream >> m_fPreviousTurnLen;
 #endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	kStream >> m_fTimeElapsed;
+	kStream >> m_bIsPaused;
+#endif
 
 	kStream >> m_bScoreDirty;
 	kStream >> m_bCircumnavigated;
@@ -9787,6 +9865,10 @@ void CvGame::Write(FDataStream& kStream) const
 	// m_uiInitialTime not saved
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	kStream << m_fPreviousTurnLen;
+#endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	kStream << m_fTimeElapsed;
+	kStream << m_bIsPaused;
 #endif
 
 	kStream << m_bScoreDirty;

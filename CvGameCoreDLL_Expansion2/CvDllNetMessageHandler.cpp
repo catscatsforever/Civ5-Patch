@@ -727,6 +727,28 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 		GC.getGame().resetTurnTimer(true);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", GET_PLAYER(ePlayer).getName()).GetCString());
 	}
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	else if (iUnitID == -7) {
+		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+		{
+			if(!GC.getGame().m_bIsPaused)
+			{
+				GC.getGame().m_fCurrentTurnTimerPauseDelta += GC.getGame().m_curTurnTimer.Stop();
+				GC.getGame().m_timeSinceGameTurnStart.Stop();
+				GC.getGame().m_bIsPaused = true;
+				DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_PAUSE", GET_PLAYER(ePlayer).getName()).GetCString());
+			}
+			else
+			{
+				GC.getGame().resetTurnTimer(true);
+				GC.getGame().m_timeSinceGameTurnStart.StartWithOffset(GC.getGame().getTimeElapsed());
+				GC.getGame().m_curTurnTimer.StartWithOffset(GC.getGame().getTimeElapsed());
+				GC.getGame().m_bIsPaused = false;
+				DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_UNPAUSE", GET_PLAYER(ePlayer).getName()).GetCString());
+			}
+		}
+	}
+#endif
 	else
 	{
 #endif

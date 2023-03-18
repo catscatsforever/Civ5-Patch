@@ -560,10 +560,12 @@
 #define AUI_GAME_RELATIVE_TURN_TIMERS
 ///
 #define TURN_TIMER_RESET_BUTTON
+///
+#define TURN_TIMER_PAUSE_BUTTON
 /// Prevent timer mid-turn fluctuations - update it once per turn
 #define GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 /// Player can move only one unit while MP turn is loading
-// #define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+#define GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 ///
 // #define GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
 /*TURN AND TIMER CHANGES END*/

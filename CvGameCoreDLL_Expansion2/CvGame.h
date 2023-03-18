@@ -236,6 +236,10 @@ public:
 	float getPreviousTurnLen();
 	void setPreviousTurnLen(float fNewValue);
 #endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	float getTimeElapsed();
+	void setTimeElapsed(float fNewValue);
+#endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool isMPOrderedMoveOnTurnLoading() const;
 	void setMPOrderedMoveOnTurnLoading(bool bNewValue);
@@ -593,6 +597,9 @@ public:
 	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
 	float	m_fCurrentTurnTimerPauseDelta;
 #endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	bool m_bIsPaused;
+#endif
 
 public:
 
@@ -644,6 +651,9 @@ protected:
 	unsigned int m_uiInitialTime;
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 	float m_fPreviousTurnLen;
+#endif
+#ifdef TURN_TIMER_PAUSE_BUTTON
+	float m_fTimeElapsed;
 #endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool m_bMPOrderedMoveOnTurnLoading;

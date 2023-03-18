@@ -1756,11 +1756,12 @@
 			<Type>CONTROL_SCORES</Type> 
 			<Description>TXT_KEY_ACTION_SCORES</Description> 
 			<Help>TXT_KEY_ACTION_SCORES_HELP</Help> 
+			<HotKey>KB_U</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
 			<AltDown>false</AltDown> 
 			<AltDownAlt>false</AltDownAlt> 
-			<ShiftDown>false</ShiftDown> 
+			<ShiftDown>true</ShiftDown> 
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
