@@ -461,9 +461,14 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 
 			}
 			m_aNotifications[m_iNotificationsEndIndex].m_bNeedsBroadcast = false;
+#ifdef MINIMAP_FIX_DRAW_ONLY_SUITABLE_NOTIFICATIONS
+				gDLL->GameplayMinimapNotification(iX, iY, m_iCurrentLookupIndex + 1);	// The index is used to uniquely identify each flashing dot on the minimap. We're adding 1 since the selected unit is always 0. It ain't pretty, but it'll work
+#endif
 		}
 
-		gDLL->GameplayMinimapNotification(iX, iY, m_iCurrentLookupIndex+1);	// The index is used to uniquely identify each flashing dot on the minimap. We're adding 1 since the selected unit is always 0. It ain't pretty, but it'll work
+#ifndef MINIMAP_FIX_DRAW_ONLY_SUITABLE_NOTIFICATIONS
+		gDLL->GameplayMinimapNotification(iX, iY, m_iCurrentLookupIndex + 1);	// The index is used to uniquely identify each flashing dot on the minimap. We're adding 1 since the selected unit is always 0. It ain't pretty, but it'll work
+#endif
 	}
 
 	IncrementEndIndex();
