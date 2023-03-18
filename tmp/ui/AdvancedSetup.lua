@@ -415,7 +415,7 @@ ScreenOptions = {
 				});
 			end
 			
-			table.sort(civs, function(a,b) return Locale.Compare(a.LeaderDescription, b.LeaderDescription) == -1; end);
+			table.sort(civs, function(a,b) return Locale.Compare(a.ShortDescription, b.ShortDescription) == -1; end);
 			
 			return civs;
 		end
