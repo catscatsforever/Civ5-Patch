@@ -3277,7 +3277,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	// Is there actually anything in our vector? - 0 can be valid if we already have everything, for example
 	if(veValidLuxuryResources.size() == 0)
 	{
-#ifdef WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
+#ifdef WLKTD_STARTS_IF_NO_VALID_RESOURCES_TO_DEMAND
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			eResource = (ResourceTypes) iResourceLoop;
@@ -3309,12 +3309,22 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	int iVectorIndex;
 	bool bResourceValid;
 
+#ifdef WLKTD_STARTS_IF_NO_VALID_RESOURCES_TO_DEMAND
+	if(veValidLuxuryResources.size() == 0)
+	{
+		return;
+	}
+#endif
+
 	do
 	{
 		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
+#ifdef WLKTD_STARTS_IF_NO_VALID_RESOURCES_TO_DEMAND
+		if(iNumAttempts < 50)
+#endif
 		// Look at all invalid Resources found to see if our randomly-picked Resource matches any
 		for(iVectorLoop = 0; iVectorLoop < (int) veInvalidLuxuryResources.size(); iVectorLoop++)
 		{
@@ -3330,10 +3340,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		{
 			SetResourceDemanded(eResource);
 #ifdef NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
-			// after doing so, reset the timer so that this demand expires and a new one
-			// will replace it if it isn't fulfilled. The duration is 2x the length of the WTLKD
 			int iNumTurns = GC.getCITY_RESOURCE_WLTKD_TURNS();
-			// iNumTurns = iNumTurns * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
 			ChangeResourceDemandedCountdown(iNumTurns);
 #endif
 
@@ -3353,7 +3360,11 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 		iNumAttempts++;
 	}
+#ifdef WLKTD_STARTS_IF_NO_VALID_RESOURCES_TO_DEMAND
+	while(iNumAttempts <= 50);
+#else
 	while(iNumAttempts < 500);
+#endif
 
 	// If we're on the debug map it's too small for us to care
 	if(GC.getMap().getWorldSize() != WORLDSIZE_DEBUG)

@@ -1905,6 +1905,7 @@ local function UpdateCityViewNow()
 			local iNumTotal = g_activePlayer:GetNumResourceTotal(city:GetResourceDemanded(true), true);
 			local resourceInfo = GameInfo.Resources[ city:GetResourceDemanded() ]
 			local weLoveTheKingDayCounter = city:GetResourceDemandedCountdown()
+--	WLTKD REWORK
 			if weLoveTheKingDayCounter > 0 then
 				-- Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
 				-- Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" )
@@ -1918,7 +1919,12 @@ local function UpdateCityViewNow()
 			end
 
 			Controls.ResourceDemandedBox:SetSizeX(Controls.ResourceDemandedString:GetSizeX() + 10)
-			Controls.ResourceDemandedBox:SetHide(false)
+			if weLoveTheKingDayCounter > 0 then
+				Controls.ResourceDemandedBox:SetHide(false)
+			else
+				Controls.ResourceDemandedBox:SetHide(true)
+			end
+--	WLTKD REWORK END
 		else
 			Controls.ResourceDemandedBox:SetHide(true)
 		end

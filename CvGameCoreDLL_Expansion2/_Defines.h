@@ -359,7 +359,7 @@
 
 /*WLTKD CHANGES START*/
 ///
-#define WLKTD_STARTS_IF_NO_RESOURCES_TO_DEMAND
+#define WLKTD_STARTS_IF_NO_VALID_RESOURCES_TO_DEMAND
 /// We Love The King Day resource requested changes if it takes too long to fulfill
 #define NQ_WLTKD_RESOURCE_DEMAND_EXPIRES
 ///

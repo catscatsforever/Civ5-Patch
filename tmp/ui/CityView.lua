@@ -1560,7 +1560,8 @@ function OnCityViewUpdate()
 		else
 			Controls.ResourceDemandedBox:SetHide(true);
 		end
-				
+			
+--	WLTKD REWORK	
 		local iNumTurns = pCity:GetResourceDemandedCountdown();
 		if (iNumTurns > 0) then
 			-- szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", tostring(iNumTurns) );
@@ -1569,7 +1570,10 @@ function OnCityViewUpdate()
 			szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", szResourceDemanded );
 			szText = szText .. " (" .. string.format( "%i", iNumTurns ) .. ")";
 			Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" ) );
+		else
+			Controls.ResourceDemandedBox:SetHide(true);
 		end
+--	WLTKD REWORK END
 		
 		Controls.ResourceDemandedString:SetText(szText);
 		Controls.ResourceDemandedBox:SetSizeX(Controls.ResourceDemandedString:GetSizeX() + 10);
