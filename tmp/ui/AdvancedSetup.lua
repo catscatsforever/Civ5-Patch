@@ -415,7 +415,24 @@ ScreenOptions = {
 				});
 			end
 			
-			table.sort(civs, function(a,b) return Locale.Compare(a.ShortDescription, b.ShortDescription) == -1; end);
+-- Sorting Civs by Short Description
+			table.sort(civs, function(a,b)
+				local astr = Locale.ConvertTextKey(a.ShortDescription);
+				local bstr = Locale.ConvertTextKey(b.ShortDescription);
+				local a0, b0
+				if astr:match("The") then
+					a0 = astr:sub(5)
+				else
+					a0 = astr
+				end
+				if bstr:match("The") then
+					b0 = bstr:sub(5)
+				else
+					b0 = bstr
+				end
+				return a0 < b0
+			end);
+-- Sorting Civs by Short Description END
 			
 			return civs;
 		end
