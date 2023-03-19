@@ -727,8 +727,10 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 		GC.getGame().resetTurnTimer(true);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", GET_PLAYER(ePlayer).getName()).GetCString());
 	}
+	else
+#endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
-	else if (iUnitID == -7) {
+	if (iUnitID == -7) {
 		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if(!GC.getGame().m_bIsPaused)
@@ -748,14 +750,15 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 			}
 		}
 	}
-#endif
 	else
+#endif
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON)
 	{
 #endif
 		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
 
-#ifdef TURN_TIMER_RESET_BUTTON
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON)
 	}
 #endif
 }
