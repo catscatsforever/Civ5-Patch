@@ -1,6 +1,8 @@
 -------------------------------------------------
 -- Tech Tree Popup
 -------------------------------------------------
+-- edit: fix possible Free Tech dupe for vanilla UI
+-------------------------------------------------
 include( "InstanceManager" );
 
 g_UseSmallIcons = true;
@@ -439,7 +441,11 @@ function TechSelected( eTech, iDiscover)
 		if (stealingTechTargetPlayerID ~= -1) then
 			Network.SendResearch(eTech, 0, stealingTechTargetPlayerID, UIManager:GetShift());
 		else
-	   		Network.SendResearch(eTech, player:GetNumFreeTechs(), -1, UIManager:GetShift());
+			-- disable freetech choice while net message is pending
+			local numFreeTechs = player:GetNumFreeTechs()
+			player:SetNumFreeTechs(0)
+			-- actual freetechs number will be numFreeTechs-1 once the message is broadcasted
+	   		Network.SendResearch(eTech, numFreeTechs, -1, UIManager:GetShift());
 		end
    	end
 end
