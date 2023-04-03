@@ -220,14 +220,14 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE destroy unit player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE destroy unit player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 
 	if(pkUnit)
@@ -257,14 +257,14 @@ void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID,
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 
 	if(pkUnit != NULL)
@@ -903,14 +903,14 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 #ifdef REMOVE_PARADROP_ANIMATION
 	if (eMission == CvTypes::getMISSION_PARADROP())
@@ -1172,14 +1172,14 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 					CvGame& game = GC.getGame();
 					if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 					{
-						SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+						//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 						game.setHasReceivedFirstMission(true);
 						game.setMPOrderedMoveOnTurnLoading(false);
 					}
 					float t1;
 					float t2;
 					game.GetTurnTimerData(t1, t2);
-					SLOG("%f %f RESPONSE swap units player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+					//SLOG("%f %f RESPONSE swap units player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 					// Start the swap
 					pkUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iData1, iData2, MOVE_IGNORE_STACKING, bShift, true);
