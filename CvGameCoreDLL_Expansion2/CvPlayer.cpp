@@ -18661,6 +18661,13 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		return;
 	}
 
+#ifdef UNIT_FIX_SINGLE_USE_ABILITY_DUPE
+	if (pUnit->isDelayedDeath())
+	{
+		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, pUnit->GetID());
+		return;
+	}
+#endif
 	// Also add any units this guy is transporting
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)

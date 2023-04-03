@@ -541,6 +541,8 @@
 #define MINIMAP_FIX_DRAW_ONLY_SUITABLE_NOTIFICATIONS
 ///
 #define FIX_CLOSE_EMBASSY_AT_TEAM_REVEALING_PLOTS
+/// Adds missing sanity checks; prevents unit/resource duping inside laggy game tick
+#define UNIT_FIX_SINGLE_USE_ABILITY_DUPE
 /*BUGS FIXES END*/
 
 
