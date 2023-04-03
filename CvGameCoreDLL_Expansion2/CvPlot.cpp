@@ -6199,8 +6199,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				// Remove Resource Quantity from total
 				if(getResourceType() != NO_RESOURCE)
 				{
+#ifdef FIX_SET_IMPROVEMENT_TYPE
+					if(IsImprovedByGiftFromMajor() && getImprovementTypeNeededToImproveResource(eBuilder) == eOldImprovement || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+#else
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+#endif
 					{
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
 						{
