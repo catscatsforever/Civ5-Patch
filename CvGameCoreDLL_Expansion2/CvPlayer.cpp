@@ -18661,7 +18661,7 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		return;
 	}
 
-#ifdef UNIT_FIX_SINGLE_USE_ABILITY_DUPE
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
 	if (pUnit->isDelayedDeath())
 	{
 		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, pUnit->GetID());

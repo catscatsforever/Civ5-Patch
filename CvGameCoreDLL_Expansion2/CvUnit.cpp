@@ -8734,7 +8734,7 @@ int CvUnit::GetGoldenAgeTurns() const
 bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) const
 {
 	VALIDATE_OBJECT
-#ifdef UNIT_FIX_SINGLE_USE_ABILITY_DUPE
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
 	if (isDelayedDeath())
 	{
 		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, GetID());
@@ -8859,7 +8859,7 @@ bool CvUnit::givePolicies()
 bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-#ifdef UNIT_FIX_SINGLE_USE_ABILITY_DUPE
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
 	if (isDelayedDeath())
 	{
 		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, GetID());
@@ -9560,7 +9560,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT
 
-#ifdef UNIT_FIX_SINGLE_USE_ABILITY_DUPE
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
 	if (isDelayedDeath())
 	{
 		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, GetID());
