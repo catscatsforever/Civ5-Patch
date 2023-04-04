@@ -7,6 +7,8 @@
 -- code is common except for vanila gk_mode needs to be set false
 -- decreased code size by over 1/3 and still do more :lol:
 -------------------------------------------------
+-- edit: fix possible Free Tech dupe for EUI
+-------------------------------------------------
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI tech tree",ContextPtr,os.clock(),[[ 
  _____         _   _____              
@@ -192,7 +194,11 @@ local function TechSelected( techID )
 				CloseTechTree()
 			end
 		else
-			Network_SendResearch( techID, g_activePlayer:GetNumFreeTechs(), -1, shift )
+			-- disable freetech choice while net message is pending
+			local numFreeTechs = g_activePlayer:GetNumFreeTechs()
+			g_activePlayer:SetNumFreeTechs(0)
+			-- actual freetechs number will be numFreeTechs-1 once the message is broadcasted
+			Network_SendResearch( techID, numFreeTechs, -1, shift )
 			if g_isAutoClose and not shift and g_popupInfoType == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH then
 				CloseTechTree()
 			end

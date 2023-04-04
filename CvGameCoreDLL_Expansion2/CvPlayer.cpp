@@ -16995,7 +16995,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	float t2;
 	GC.getGame().GetTurnTimerData(t1, t2);
 	if (isHuman() && isAlive())
-		SLOG("%f %f setTurnActive player: %d bNewValue: %d bDoTurn: %d", t1, t2, GetID(), bNewValue ? 1 : 0, bDoTurn ? 1 : 0);
+	{
+		//SLOG("%f %f setTurnActive player: %d bNewValue: %d bDoTurn: %d", t1, t2, GetID(), bNewValue ? 1 : 0, bDoTurn ? 1 : 0);
+	}
 #endif
 	if(isTurnActive() != bNewValue)
 	{
@@ -18659,6 +18661,13 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		return;
 	}
 
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
+	if (pUnit->isDelayedDeath())
+	{
+		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, pUnit->GetID());
+		return;
+	}
+#endif
 	// Also add any units this guy is transporting
 	IDInfo* pUnitNode = pPlot->headUnitNode();
 	while(pUnitNode != NULL)

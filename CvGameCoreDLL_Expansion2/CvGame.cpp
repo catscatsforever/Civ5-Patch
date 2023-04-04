@@ -2654,18 +2654,18 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 				// both is false means turn just started
 				if (bAllComplete == getHasReceivedFirstMission()) {
 					if (isMPOrderedMoveOnTurnLoading()) {
-						SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
-						SLOG("HasReceivedTurnAllComplete %d bAllComplete %d getHasReceivedFirstMission %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0, getHasReceivedFirstMission() ? 1 : 0);
+						//SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
+						//SLOG("HasReceivedTurnAllComplete %d bAllComplete %d getHasReceivedFirstMission %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0, getHasReceivedFirstMission() ? 1 : 0);
 						return;
 					}
 					else {
-						SLOG("--- first move order");
+						//SLOG("--- first move order");
 						setMPOrderedMoveOnTurnLoading(true);
 					}
 				}
 
-				SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d", t1, t2, (int)getActivePlayer(), eMessage);
-				SLOG("HasReceivedTurnAllComplete: %d bAllComplete: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0);
+				//SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d", t1, t2, (int)getActivePlayer(), eMessage);
+				//SLOG("HasReceivedTurnAllComplete: %d bAllComplete: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0);
 			}
 
 #endif
@@ -4539,7 +4539,7 @@ void CvGame::setGameTurn(int iNewValue)
 	if(getGameTurn() != iNewValue)
 	{
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-		SLOG("-----------NEW TURN (%d)-----------", iNewValue);
+		//SLOG("-----------NEW TURN (%d)-----------", iNewValue);
 #endif
 		std::string turnMessage = std::string("Game Turn ") + FSerialization::toString(iNewValue) + std::string("\n");
 		gDLL->netMessageDebugLog(turnMessage);

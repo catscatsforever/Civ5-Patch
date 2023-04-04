@@ -220,14 +220,14 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE destroy unit player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE destroy unit player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 
 	if(pkUnit)
@@ -257,14 +257,14 @@ void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID,
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 
 	if(pkUnit != NULL)
@@ -903,14 +903,14 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 	{
-		SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+		//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 		game.setHasReceivedFirstMission(true);
 		game.setMPOrderedMoveOnTurnLoading(false);
 	}
 	float t1;
 	float t2;
 	game.GetTurnTimerData(t1, t2);
-	SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+	//SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 #ifdef REMOVE_PARADROP_ANIMATION
 	if (eMission == CvTypes::getMISSION_PARADROP())
@@ -928,7 +928,16 @@ void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, Unit
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
+	if (pCity && (kPlayer.GetNumFreeGreatPeople() <= 0))
+	{
+		SLOG("[%s:%d]: GetNumFreeGreatPeople is non-positive: %d", __FUNCTION__, __LINE__, kPlayer.GetNumFreeGreatPeople());
+	}
+
+	if (pCity && (kPlayer.GetNumFreeGreatPeople() > 0))
+#else
 	if(pCity)
+#endif
 	{
 #ifdef FREE_GREAT_PERSON
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, false, false);
@@ -943,7 +952,16 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
+	if (pCity && (kPlayer.GetNumMayaBoosts() <= 0))
+	{
+		SLOG("[%s:%d]: GetNumMayaBoosts is non-positive: %d", __FUNCTION__, __LINE__, kPlayer.GetNumMayaBoosts());
+	}
+
+	if (pCity && (kPlayer.GetNumMayaBoosts() > 0))
+#else
 	if(pCity)
+#endif
 	{
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
 	}
@@ -1172,14 +1190,14 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 					CvGame& game = GC.getGame();
 					if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
 					{
-						SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+						//SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
 						game.setHasReceivedFirstMission(true);
 						game.setMPOrderedMoveOnTurnLoading(false);
 					}
 					float t1;
 					float t2;
 					game.GetTurnTimerData(t1, t2);
-					SLOG("%f %f RESPONSE swap units player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+					//SLOG("%f %f RESPONSE swap units player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
 #endif
 					// Start the swap
 					pkUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iData1, iData2, MOVE_IGNORE_STACKING, bShift, true);
