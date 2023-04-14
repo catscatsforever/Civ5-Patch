@@ -6161,8 +6161,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 #ifdef FIX_SET_IMPROVEMENT_TYPE
-					// if(bIgnoreResourceTechPrereq && getImprovementTypeNeededToImproveResource(eBuilder) == eNewValue || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
-					if(bIgnoreResourceTechPrereq && GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					bool bBuilderHasTech = false;
+					if(eBuilder != NO_PLAYER)
+					{
+						bBuilderHasTech = GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade());
+					}
+					if(bIgnoreResourceTechPrereq && bBuilderHasTech || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #else
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #endif
@@ -6205,7 +6209,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 #ifdef FIX_SET_IMPROVEMENT_TYPE
-					if(IsImprovedByGiftFromMajor() && GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					bool bBuilderHasTech = false;
+					if(eBuilder != NO_PLAYER)
+					{
+						bBuilderHasTech = GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade());
+					}
+					if(IsImprovedByGiftFromMajor() && bBuilderHasTech || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #else
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
