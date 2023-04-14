@@ -689,11 +689,11 @@ private:
 namespace PolicyHelpers
 {
 	int GetNumPlayersWithBranchUnlocked(PolicyBranchTypes eBranch);
-#ifdef NEW_IDEOLOGY_TRIGGER
+/*#ifdef NEW_IDEOLOGY_TRIGGER
 	int GetNumFreePolicies(PolicyBranchTypes eBranch, PlayerTypes ePlayer);
-#else
+#else*/
 	int GetNumFreePolicies(PolicyBranchTypes eBranch);
-#endif
+// #endif
 }
 
 #endif //CIV5_POLICY_CLASSES_H

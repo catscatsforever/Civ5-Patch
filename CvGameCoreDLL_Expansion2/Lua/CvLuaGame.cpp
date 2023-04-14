@@ -2753,12 +2753,12 @@ int CvLuaGame::lGetArtifactName(lua_State* L)
 int CvLuaGame::lGetNumFreePolicies(lua_State* L)
 {
 	const PolicyBranchTypes eBranch = static_cast<PolicyBranchTypes>(luaL_checkint(L, 1));
-#ifdef NEW_IDEOLOGY_TRIGGER
+/*#ifdef NEW_IDEOLOGY_TRIGGER
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 2));
 	lua_pushinteger(L, PolicyHelpers::GetNumFreePolicies(eBranch, ePlayer));
-#else
+#else*/
 	lua_pushinteger(L, PolicyHelpers::GetNumFreePolicies(eBranch));
-#endif
+// #endif
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -3164,11 +3164,11 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 		// Unlocked?
 		if (bNewValue)
 		{
-#ifdef NEW_IDEOLOGY_TRIGGER
+/*#ifdef NEW_IDEOLOGY_TRIGGER
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType, m_pPlayer->GetID());
-#else
+#else*/
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
-#endif
+// #endif
 
 			// Late-game tree so want to issue notification?
 			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
@@ -4184,15 +4184,15 @@ int PolicyHelpers::GetNumPlayersWithBranchUnlocked(PolicyBranchTypes eBranch)
 	return iRtnValue;
 }
 
-#ifdef NEW_IDEOLOGY_TRIGGER
+/*#ifdef NEW_IDEOLOGY_TRIGGER
 int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch, PlayerTypes ePlayer)
-#else
+#else*/
 int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
-#endif
+// #endif
 {
 	int iFreePolicies = 0;
 
-#ifdef NEW_IDEOLOGY_TRIGGER
+/*#ifdef NEW_IDEOLOGY_TRIGGER
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 	if (!(kTeam.GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_BIOLOGY"))
@@ -4265,7 +4265,7 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 	{
 		iFreePolicies = 0;
 	}
-#else
+#else*/
 	CvPolicyBranchEntry *pkEntry = GC.getPolicyBranchInfo(eBranch);
 	if (pkEntry)
 	{
@@ -4282,7 +4282,7 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 			}
 		}
 	}
-#endif
+// #endif
 
 	return iFreePolicies;
 }
