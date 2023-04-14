@@ -110,21 +110,12 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		int iMovementCost = (pRouteInfo != NULL)? pRouteInfo->getMovementCost() : 0;
 		int iFlatMovementCost = (pRouteInfo != NULL)? pRouteInfo->getFlatMovementCost() : 0;
 
-#ifdef NQM_FAST_COMP
-#ifdef AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
-		iRouteCost = MAX(iFromMovementCost + kUnitTeam.getRouteChange(eFromPlotRoute), iMovementCost + kUnitTeam.getRouteChange(eToPlotRoute));
-#else
-		iRouteCost = MAX(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
-#endif
-		iRouteFlatCost = MAX(iFromFlatMovementCost * iBaseMoves, iFlatMovementCost * iBaseMoves);
-#else
 #ifdef AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
 		iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromPlotRoute), iMovementCost + kUnitTeam.getRouteChange(eToPlotRoute));
 #else
 		iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
 #endif
 		iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iFlatMovementCost * iBaseMoves);
-#endif
 	}
 #ifdef AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
 	else if (pTraits->IsMoveFriendlyWoodsAsRoad() && pUnit->getOwner() == pToPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))

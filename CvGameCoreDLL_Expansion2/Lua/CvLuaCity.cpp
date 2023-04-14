@@ -3946,7 +3946,25 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 
 	const PlayerTypes ePlayer = pkCity->getOwner();
 
-	const int iValue = GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield);
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	int iYieldMultiplier = 0;
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	if(eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+		if(pReligion)
+		{
+			int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
+			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
+			}
+			iYieldMultiplier += iReligionChange;
+		}
+	}
+#endif
+	const int iValue = iYieldMultiplier + GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield);
 
 	lua_pushinteger(L, iValue);
 

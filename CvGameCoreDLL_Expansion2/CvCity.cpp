@@ -236,9 +236,6 @@ CvCity::CvCity() :
 	, m_aaiBuildingSpecialistUpgradeProgresses(0)
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	, m_ppaiSpecialistYieldChange(0)
-#endif
 	, m_ppaiTerrainYieldChange(0)
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
@@ -621,17 +618,6 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange);
 
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	if(m_ppaiSpecialistYieldChange)
-	{
-		for(int i=0; i < GC.getNumSpecialistInfos(); i++)
-		{
-			SAFE_DELETE_ARRAY(m_ppaiSpecialistYieldChange[i]);
-		}
-	}
-	SAFE_DELETE_ARRAY(m_ppaiSpecialistYieldChange);
-#endif
-
 	if(m_ppaiTerrainYieldChange)
 	{
 		for(int i=0; i < GC.getNumTerrainInfos(); i++)
@@ -965,20 +951,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiFeatureYieldChange[iI][iJ] = 0;
 			}
 		}
-
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-		iNumSpecialistInfos = GC.getNumSpecialistInfos();
-		CvAssertMsg(m_ppaiSpecialistYieldChange==NULL, "about to leak memory, CvCity::m_ppaiSpecialistYieldChange");
-		m_ppaiSpecialistYieldChange = FNEW(int*[iNumSpecialistInfos], c_eCiv5GameplayDLL, 0);
-		for(iI = 0; iI < iNumSpecialistInfos; iI++)
-		{
-			m_ppaiSpecialistYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
-			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				m_ppaiSpecialistYieldChange[iI][iJ] = 0;
-			}
-		}
-#endif
 
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
 		CvAssertMsg(m_ppaiTerrainYieldChange==NULL, "about to leak memory, CvCity::m_ppaiTerrainYieldChange");
@@ -1764,6 +1736,12 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{
+#ifdef AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
+		if (plot() && plot()->getRouteType() == GC.getGame().GetIndustrialRoute())
+			SetIndustrialRouteToCapital(true);
+		else
+			SetIndustrialRouteToCapital(false);
+#endif
 	}
 	// Non-capital city
 	else
@@ -1772,6 +1750,10 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 		{
 			SetIndustrialRouteToCapital(true);
 		}
+#ifdef AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
+		else
+			SetIndustrialRouteToCapital(false);
+#endif
 	}
 }
 
@@ -2923,34 +2905,6 @@ void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, i
 	}
 }
 
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-
-//	--------------------------------------------------------------------------------
-/// Extra yield for a Specialist this city is working?
-int CvCity::GetSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield) const
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eSpecialist > -1 && eSpecialist < GC.getNumSpecialistInfos(), "Invalid Specialist index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-	return m_ppaiSpecialistYieldChange[eSpecialist][eYield];
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange)
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eSpecialist > -1 && eSpecialist < GC.getNumSpecialistInfos(), "Invalid Specialist index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-	if(iChange != 0)
-	{
-		m_ppaiSpecialistYieldChange[eSpecialist][eYield] += iChange;
-
-		updateYield();
-	}
-}
-#endif
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
 int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
@@ -4678,6 +4632,13 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		iCost /= 100;
 	}
 #endif
+#ifdef FOREIGN_LEGION_COST_PURCHASE
+	if(eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_FRENCH_FOREIGNLEGION"))
+	{
+		iCost *= 81;
+		iCost /= 100;
+	}
+#endif
 
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
@@ -4953,6 +4914,26 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	// Cost of purchasing buildings modified?
 	iCost *= (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_BUILDING_PURCHASE_COST_MODIFIER));
 	iCost /= 100;
+
+#ifdef BELIEF_HURRY_MODIFIERS
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if(eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if(pReligion)
+		{
+			HurryTypes eHurry = (HurryTypes) GC.getInfoTypeForString("HURRY_GOLD");
+			int iReligionChange = pReligion->m_Beliefs.GetHurryModifier(eHurry);
+			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHurryModifier(eHurry);
+			}
+			iCost *= (100 + iReligionChange);
+			iCost /= 100;
+		}
+	}
+#endif
 
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
@@ -5413,7 +5394,26 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	}
 
 	// From traits
+#ifdef ROME_UA_REWORK
+	if(!isCapital())
+	{
+		if(m_bRouteToCapitalConnectedThisTurn)
+		{
+			if(!(::isWorldWonderClass(kBuildingClassInfo) ||
+	        ::isTeamWonderClass(kBuildingClassInfo) ||
+	        ::isNationalWonderClass(kBuildingClassInfo)))
+			{
+				iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalBuildingDiscount();
+			}
+		}
+	}
+	else
+	{
+		iTempMod = 0;
+	}
+#else
 	iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding);
+#endif
 	if(iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
@@ -6406,19 +6406,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeFeatureExtraYield(((FeatureTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetFeatureYieldChange(iJ, eYield) * iChange));
 			}
 
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-			for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
-			{
-				const char* szWonderTypeChar = GC.getBuildingInfo(eBuilding)->GetType();
-				CvString szWonderType = szWonderTypeChar;
-
-				if(szWonderType == "BUILDING_PORCELAIN_TOWER")
-				{
-					ChangeSpecialistExtraYield(((SpecialistTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetSpecialistYieldChange(iJ, eYield) * iChange));
-				}
-			}
-#endif
-
 			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
@@ -6623,7 +6610,11 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					break;
 				}
 
+#ifdef BELIEF_MESSENGER_OF_GODS_FIX
+				if(IsRouteToCapitalConnected() && !isCapital())
+#else
 				if(IsRouteToCapitalConnected())
+#endif
 				{
 					int iReligionChange = pReligion->m_Beliefs.GetYieldChangeTradeRoute((YieldTypes)iYield);
 					//BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -8051,6 +8042,31 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetFaithPerTurnFromPolicies();
 	iFaith += GetFaithPerTurnFromTraits();
 	iFaith += GetFaithPerTurnFromReligion();
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	iFaith += GetFaithPerTurnFromGreatWorks();
+#endif
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	CvAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if(eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if(pReligion)
+		{
+			for(int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
+			{
+				int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange((SpecialistTypes)iSpecialist, YIELD_FAITH);
+				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange((SpecialistTypes)iSpecialist, YIELD_FAITH);
+				}
+				iFaith += GetCityCitizens()->GetSpecialistCount((SpecialistTypes)iSpecialist) * iReligionChange;
+			}
+		}
+	}
+#endif
 
 	// Puppet?
 	int iModifier = 0;
@@ -8153,6 +8169,14 @@ void CvCity::ChangeFaithPerTurnFromReligion(int iChange)
 	}
 }
 
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+//	--------------------------------------------------------------------------------
+int CvCity::GetFaithPerTurnFromGreatWorks() const
+{
+	return GetCityBuildings()->GetFaithFromGreatWorks();
+}
+
+#endif
 //	--------------------------------------------------------------------------------
 int CvCity::getCultureRateModifier() const
 {
@@ -10126,8 +10150,22 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
 	                       GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
 	                       GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	iYieldMultiplier += GetSpecialistExtraYield(eSpecialist, eIndex);
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if(eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if(pReligion)
+		{
+			int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eIndex);
+			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eIndex);
+			}
+			iYieldMultiplier += iReligionChange;
+		}
+	}
 #endif
 	int iExtraYield = GetCityCitizens()->GetSpecialistCount(eSpecialist) * iYieldMultiplier;
 
@@ -14357,10 +14395,6 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiSpecialistYieldChange, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
-#endif
-
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
 	kStream >> m_iPopulationRank;
@@ -14615,10 +14649,6 @@ void CvCity::write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiResourceYieldChange, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
-
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes>(kStream, m_ppaiSpecialistYieldChange, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
-#endif
 
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 

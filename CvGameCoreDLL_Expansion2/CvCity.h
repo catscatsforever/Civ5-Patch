@@ -115,11 +115,6 @@ public:
 	int GetFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield) const;
 	void ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, int iChange);
 
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	int GetSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;
-	void ChangeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange);
-#endif
-
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
@@ -386,6 +381,10 @@ public:
 
 	int GetFaithPerTurnFromReligion() const;
 	void ChangeFaithPerTurnFromReligion(int iChange);
+
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int GetFaithPerTurnFromGreatWorks() const;
+#endif
 
 	int getNumWorldWonders() const;
 	void changeNumWorldWonders(int iChange);
@@ -961,9 +960,6 @@ protected:
 	int** m_aaiBuildingSpecialistUpgradeProgresses;
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-	int** m_ppaiSpecialistYieldChange;
-#endif
 	int** m_ppaiTerrainYieldChange;
 
 	CvCityBuildings* m_pCityBuildings;

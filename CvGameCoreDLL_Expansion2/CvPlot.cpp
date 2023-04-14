@@ -4051,7 +4051,11 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
+#ifdef CHINA_UA_REWORK
+		if(!pUnit->isEnemy(getTeam(), this) || GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralRateModifier() > 0 || pUnit->isEnemyRoute())
+#else
 		if(!pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
+#endif
 		{
 			return true;
 		}
@@ -6157,7 +6161,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 #ifdef FIX_SET_IMPROVEMENT_TYPE
-					if(bIgnoreResourceTechPrereq && getImprovementTypeNeededToImproveResource(eBuilder) == eNewValue || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					// if(bIgnoreResourceTechPrereq && getImprovementTypeNeededToImproveResource(eBuilder) == eNewValue || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					if(bIgnoreResourceTechPrereq && GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #else
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #endif
@@ -6200,7 +6205,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 #ifdef FIX_SET_IMPROVEMENT_TYPE
-					if(IsImprovedByGiftFromMajor() && getImprovementTypeNeededToImproveResource(eBuilder) == eOldImprovement || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					if(IsImprovedByGiftFromMajor() && GET_TEAM(GET_PLAYER(eBuilder).getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()) || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 #else
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
@@ -7091,6 +7096,20 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	if(isLake())
 	{
 		iYield += kYield.getLakeChange();
+#ifdef NQ_LAKE_BELIEF_BONUSES
+		if (pWorkingCity != NULL)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
+			if (pReligion)
+			{
+				iYield += pReligion->m_Beliefs.GetFeatureYieldChange(FEATURE_ICE, eYield);
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(FEATURE_ICE, eYield);
+				}
+			}
+		}
+#endif
 	}
 
 	if(!bIgnoreFeature)
@@ -7118,7 +7137,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			if(pWorkingCity != NULL && eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
+#ifdef NQ_LAKE_BELIEF_BONUSES
+				if(pReligion && getFeatureType() != FEATURE_ICE)
+#else
 				if(pReligion)
+#endif
 				{
 					int iReligionChange = pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
 					if (eSecondaryPantheon != NO_BELIEF)

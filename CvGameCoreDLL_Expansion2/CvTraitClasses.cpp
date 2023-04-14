@@ -2177,6 +2177,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 }
 
 /// Discounted cost if building already present in capital
+#ifndef ROME_UA_REWORK
 int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 {
 	if(m_iCapitalBuildingModifier > 0)
@@ -2192,6 +2193,11 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 		}
 	}
 	return 0;
+#else
+int CvPlayerTraits::GetCapitalBuildingDiscount()
+{
+	return m_iCapitalBuildingModifier;
+#endif
 }
 
 /// First free unit received through traits
@@ -2240,7 +2246,11 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountains() const
 {
+#ifdef CARTHAGE_UA_REWORK
+	return m_bCrossesMountainsAfterGreatGeneral;
+#else
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
+#endif
 }
 
 bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)

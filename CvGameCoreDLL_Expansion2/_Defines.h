@@ -178,8 +178,6 @@
 
 /// Fixed the fact that some player-based modifiers to research costs are all only aesthetic, i.e. their only effect before would be to increase the number the UI displays for tech cost (they didn't actually modify tech cost)
 #define AUI_TECH_FIX_PLAYER_BASED_RESEARCH_COST_ONLY_AESTHETIC
-/// Fixed the bug where the production bonus from having a railroad connecting a city to the capital is not removed if the railroad connection is broken (credits to Wr4ith pointing this out after having researched the "weirdness" behind harbors, railroads, and the railroad bonus)
-#define AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
 
 /// Civilian units won't even start attempting to path to attack a tile. This should hopefully also fix the occasional problem of civilian units not wanting to move to a specific tile
 #define AUI_UNIT_MISSION_FIX_CONTINUE_MISSION_CIVILIANS_DONT_ATTEMPT_ATTACK
@@ -273,6 +271,8 @@
 #define STARTING_SETTLER_EXTRA_MOVE
 ///
 #define PROMOTION_INSTA_HEAL_LOCKED
+///
+#define FOREIGN_LEGION_COST_PURCHASE
 /*UNITS CHANGES END*/
 
 
@@ -320,6 +320,8 @@
 #define POLICY_BRANCH_NOTIFICATION_LOCKED
 ///
 #define UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+///
+#define PATRONAGE_FINISHER_REWORK
 /*POLICIES CHANGES END*/
 
 
@@ -328,7 +330,7 @@
 /// Fixes Iroquois' UA so friendly forest tiles will now connect with road tiles!
 #define AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
 ///
-#define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
+// #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
 ///
 #define INDIA_HAPPINESS_BONUS
 ///
@@ -349,6 +351,12 @@
 #define DENMARK_UA_REWORK
 ///
 #define INDONESIA_UA_REWORK
+///
+#define CARTHAGE_UA_REWORK
+///
+#define ROME_UA_REWORK
+///
+#define CHINA_UA_REWORK
 ///
 #define MONGOL_CS_BULLY
 ///
@@ -406,6 +414,9 @@
 
 
 /*RELIGION CHANGES START*/
+// Allow lake feature yield boosts from religion - this is a huge cheat so I don't have to code a whole new table for "fake features" which 
+// is what lakes are categorized under. In NQMod, ice has no belief bonuses, and so I'm overriding FEATURE_ICE to be used for lakes instead.
+#define NQ_LAKE_BELIEF_BONUSES
 ///
 #define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
 ///
@@ -434,6 +445,14 @@
 #define UNDERGROUND_SECT_REWORK
 ///
 #define BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+///
+#define BELIEF_GREAT_WORK_YIELD_CHANGES
+///
+#define BELIEF_SPECIALIST_YIELD_CHANGES
+///
+#define BELIEF_HURRY_MODIFIERS
+///
+#define BELIEF_MESSENGER_OF_GODS_FIX
 /*RELIGION CHANGES END*/
 
 
@@ -514,6 +533,8 @@
 #define AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
 /// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
 #define AUI_NOFITICATIONS_FIX_PRODUCTION_NOTIFICATION_REMOVAL_EXTRA_CHECKS
+///
+#define RECYLING_CENTER_DOES_NOT_COUNT_AS_NATIONAL_WONDER
 /*CITIES CHANGES END*/
 
 
@@ -543,6 +564,8 @@
 #define FIX_CLOSE_EMBASSY_AT_TEAM_REVEALING_PLOTS
 /// Adds missing sanity checks; prevents unit/resource duping inside laggy game tick
 #define NET_FIX_SINGLE_USE_ABILITY_DUPE
+/// Fixed the bug where the production bonus from having a railroad connecting a city to the capital is not removed if the railroad connection is broken (credits to Wr4ith pointing this out after having researched the "weirdness" behind harbors, railroads, and the railroad bonus)
+#define AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
 /*BUGS FIXES END*/
 
 
@@ -581,8 +604,6 @@
 #define TEMPLE_ARTEMIS_NO_YIELD_MOD_BUT_GROWTH
 ///
 // #define HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
-///
-// #define PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
 /*WONDERS CHANGES END*/
 
 
@@ -637,7 +658,7 @@
 ///
 #define GET_REMOVE_FEATURE_FOOD
 ///
-// #define INCLUDE_WATER_IN_LAND_SCORE
+#define INCLUDE_WATER_IN_LAND_SCORE
 /*OTHER CHANGES END*/
 
 
@@ -1095,9 +1116,6 @@
 #define NQ_ART_OF_WAR_PROMOTION
 // Civ-specific luxuries (Indonesia) disallowed from being required for City State quests an WLtKD requests
 #define NQ_NO_UNIQUE_LUX_REQUESTS
-// Allow lake feature yield boosts from religion - this is a huge cheat so I don't have to code a whole new table for "fake features" which 
-// is what lakes are categorized under. In NQMod, ice has no belief bonuses, and so I'm overriding FEATURE_ICE to be used for lakes instead.
-#define NQ_LAKE_BELIEF_BONUSES
 // extra missionary spreads from religious belief
 #define NQ_BELIEF_EXTRA_MISSIONARY_SPREADS
 

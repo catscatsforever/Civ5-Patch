@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V6.1b
+set patchfolder=Tournament Mod V6.2
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -20,6 +20,7 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EndGameMenu.lua" "%cd%\%patchfol
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.lua" "%cd%\%patchfolder%\UI\ProposalChartPopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.xml" "%cd%\%patchfolder%\UI\ProposalChartPopup.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\AdvancedSetup.lua" "%cd%\%patchfolder%\UI\AdvancedSetup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\StagingRoom.lua" "%cd%\%patchfolder%\UI\StagingRoom.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameOptions.lua" "%cd%\%patchfolder%\UI\MPGameOptions.lua"
 
 REM -------------------------------------------------

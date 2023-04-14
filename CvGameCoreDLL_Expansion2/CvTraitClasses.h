@@ -770,7 +770,11 @@ public:
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
+#ifdef ROME_UA_REWORK
+	int GetCapitalBuildingDiscount();
+#else
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
+#endif
 	BuildingTypes GetFreeBuilding() const;
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)

@@ -197,7 +197,66 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	iCulturePerWork += GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_CULTURE);
 	int iTourismPerWork = GC.getBASE_TOURISM_PER_GREAT_WORK();
 
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int iFaithPerWork = 0;
+	int iCityLoop;
+	CvCity* pCity = NULL;
+
+	for (pCity = GET_PLAYER(eOwner).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(eOwner).nextCity(&iCityLoop))
+	{
+		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+		{
+			CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(eOwner).getCivilizationInfo();
+			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+				if (pkBuilding)
+				{
+					if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						int iNumSlots = pkBuilding->GetGreatWorkCount();
+						for (int iI = 0; iI < iNumSlots; iI++)
+						{
+							int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+							if (iGreatWorkIndex == iIndex)
+							{
+								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+								if(eMajority != NO_RELIGION)
+								{
+									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+									if(pReligion)
+									{
+										int iReligionChange = pReligion->m_Beliefs.GetGreatWorkYieldChange(YIELD_FAITH);
+										BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+										if (eSecondaryPantheon != NO_BELIEF)
+										{
+											iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(YIELD_FAITH);
+										}
+										iFaithPerWork += iReligionChange;
+									}
+								}
+
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(iFaithPerWork > 0)
+	{
+		cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM], +%d [ICON_PEACE]", iCulturePerWork, iTourismPerWork, iFaithPerWork);
+	}
+	else
+	{
+		cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM]", iCulturePerWork, iTourismPerWork);
+	}
+#else
 	cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM]", iCulturePerWork, iTourismPerWork);
+#endif
 	szTooltip += cultureString;
 
 	return szTooltip;

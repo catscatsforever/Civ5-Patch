@@ -96,6 +96,9 @@ public:
 	// Arrays
 	int GetCityYieldChange(int i) const;
 	int GetHolyCityYieldChange(int i) const;
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int GetGreatWorkYieldChange(int i) const;
+#endif
 	int GetYieldChangePerForeignCity(int i) const;
 	int GetYieldChangePerXForeignFollowers(int i) const;
 	int GetResourceQuantityModifier(int i) const;
@@ -106,6 +109,12 @@ public:
 	int GetFeatureYieldChange(int i, int j) const;
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	int GetSpecialistYieldChange(int i, int j) const;
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+	int GetHurryModifier(int i) const;
+#endif
 	int GetResourceHappiness(int i) const;
 	int GetYieldChangeAnySpecialist(int i) const;
 	int GetYieldChangeTradeRoute(int i) const;
@@ -188,6 +197,9 @@ protected:
 	// Arrays
 	int* m_paiCityYieldChange;
 	int* m_paiHolyCityYieldChange;
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int* m_paiYieldChangeGreatWork;
+#endif
 	int* m_paiYieldChangePerForeignCity;
 	int* m_paiYieldChangePerXForeignFollowers;
 	int* m_piResourceQuantityModifiers;
@@ -198,6 +210,12 @@ protected:
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	int** m_ppaiSpecialistYieldChange;
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+	int* m_paiHurryModifier;
+#endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
 	int* m_piYieldChangeTradeRoute;
@@ -405,6 +423,9 @@ public:
 
 	int GetCityYieldChange(int iPopulation, YieldTypes eYield) const;
 	int GetHolyCityYieldChange(YieldTypes eYield) const;
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int GetGreatWorkYieldChange(YieldTypes eYield) const;
+#endif
 	int GetYieldChangePerForeignCity(YieldTypes eYield) const;
 	int GetYieldChangePerXForeignFollowers(YieldTypes eYield) const;
 	int GetResourceQuantityModifier(ResourceTypes eResource) const;
@@ -415,6 +436,12 @@ public:
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const;
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+	int GetHurryModifier(HurryTypes eHurry) const;
+#endif
 	int GetResourceHappiness(ResourceTypes eResource) const;
 	int GetYieldChangeAnySpecialist(YieldTypes eYieldType) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYieldType) const;

@@ -19475,7 +19475,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 		bGenerated = GeneratePath(pDestPlot, iFlags);
 	}
 #ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
-	if((this)->plot()->isAdjacent(pDestPlot))
+	if(plot()->getNumFriendlyUnitsOfType(this) <= GC.getPLOT_UNIT_LIMIT() && (this)->plot()->isAdjacent(pDestPlot))
 	{
 		bGenerated = GeneratePath(pDestPlot, iFlags);
 	}

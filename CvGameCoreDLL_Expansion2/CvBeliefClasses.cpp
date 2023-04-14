@@ -83,6 +83,9 @@ CvBeliefEntry::CvBeliefEntry() :
 
 	m_paiCityYieldChange(NULL),
 	m_paiHolyCityYieldChange(NULL),
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	m_paiYieldChangeGreatWork(NULL),
+#endif
 	m_paiYieldChangePerForeignCity(NULL),
 	m_paiYieldChangePerXForeignFollowers(NULL),
 	m_piResourceQuantityModifiers(NULL),
@@ -93,6 +96,12 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppaiFeatureYieldChange(NULL),
 	m_ppaiResourceYieldChange(NULL),
 	m_ppaiTerrainYieldChange(NULL),
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	m_ppaiSpecialistYieldChange(NULL),
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+	m_paiHurryModifier(NULL),
+#endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
@@ -113,6 +122,9 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
+#endif
 }
 
 /// Accessor:: Minimum population in this city for belief to be active (0 = no such requirement)
@@ -455,6 +467,14 @@ int CvBeliefEntry::GetHolyCityYieldChange(int i) const
 	return m_paiHolyCityYieldChange ? m_paiHolyCityYieldChange[i] : -1;
 }
 
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+///
+int CvBeliefEntry::GetGreatWorkYieldChange(int i) const
+{
+	return m_paiYieldChangeGreatWork ? m_paiYieldChangeGreatWork[i] : -1;
+}
+
+#endif
 /// Accessor:: Additional player-level yield for each foreign city converted
 int CvBeliefEntry::GetYieldChangePerForeignCity(int i) const
 {
@@ -541,6 +561,28 @@ int CvBeliefEntry::GetTerrainYieldChange(int i, int j) const
 	return m_ppaiTerrainYieldChange ? m_ppaiTerrainYieldChange[i][j] : -1;
 }
 
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+/// Change to yield by spesialist
+int CvBeliefEntry::GetSpecialistYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldChange ? m_ppaiSpecialistYieldChange[i][j] : -1;
+}
+
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+/// Modifier to Hurry cost
+int CvBeliefEntry::GetHurryModifier(int i) const
+{
+	CvAssertMsg(i < GC.getNumHurryInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiHurryModifier ? m_paiHurryModifier[i] : -1;
+}
+
+#endif
 /// Happiness from a resource
 int CvBeliefEntry::GetResourceHappiness(int i) const
 {
@@ -693,11 +735,17 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	const char* szBeliefType = GetType();
 	kUtility.SetYields(m_paiCityYieldChange, "Belief_CityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_paiHolyCityYieldChange, "Belief_HolyCityYieldChanges", "BeliefType", szBeliefType);
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	kUtility.SetYields(m_paiYieldChangeGreatWork, "Belief_GreatWorkYieldChanges", "BeliefType", szBeliefType);
+#endif
 	kUtility.SetYields(m_piYieldChangeAnySpecialist, "Belief_YieldChangeAnySpecialist", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeTradeRoute, "Belief_YieldChangeTradeRoute", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeNaturalWonder, "Belief_YieldChangeNaturalWonder", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Belief_YieldChangeWorldWonder", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldModifierNaturalWonder, "Belief_YieldModifierNaturalWonder", "BeliefType", szBeliefType);
+#ifdef BELIEF_HURRY_MODIFIERS
+	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Belief_HurryModifiers", "HurryType", "BeliefType", szBeliefType, "HurryCostModifier");
+#endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Belief_ResourceQuantityModifiers", "ResourceType", "BeliefType", szBeliefType, "ResourceQuantityModifier");
@@ -822,6 +870,31 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
+
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+	//SpecialistYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiSpecialistYieldChange, "Specialists", "Yields");
+
+		std::string strKey("Belief_SpecialistYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Belief_SpecialistYieldChanges inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiSpecialistYieldChange[SpecialistID][YieldID] = yield;
+		}
+	}
+#endif
 
 	return true;
 }
@@ -1347,6 +1420,25 @@ int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield) const
 	return rtnValue;
 }
 
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+///
+int CvReligionBeliefs::GetGreatWorkYieldChange (YieldTypes eYield) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+				rtnValue += pBeliefs->GetEntry(i)->GetGreatWorkYieldChange(eYield);
+		}
+	}
+
+	return rtnValue;
+}
+
+#endif
 /// Extra yield for foreign cities following religion
 int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield) const
 {
@@ -1523,6 +1615,44 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 	return rtnValue;
 }
 
+#ifdef BELIEF_SPECIALIST_YIELD_CHANGES
+/// Get yield change from beliefs for a specific Specialist
+int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetSpecialistYieldChange(eSpecialist, eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+
+#endif
+#ifdef BELIEF_HURRY_MODIFIERS
+///
+int CvReligionBeliefs::GetHurryModifier(HurryTypes eHurry) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetHurryModifier(eHurry);
+		}
+	}
+
+	return rtnValue;
+}
+
+#endif
 // Get happiness boost from a resource
 int CvReligionBeliefs::GetResourceHappiness(ResourceTypes eResource) const
 {

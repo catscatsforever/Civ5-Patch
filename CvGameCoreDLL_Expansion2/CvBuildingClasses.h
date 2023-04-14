@@ -597,6 +597,9 @@ public:
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
 	int GetCultureFromGreatWorks() const;
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+	int GetFaithFromGreatWorks() const;
+#endif
 	int GetNumGreatWorks() const;
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
 

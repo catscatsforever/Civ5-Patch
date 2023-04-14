@@ -3128,6 +3128,36 @@ int CvCityBuildings::GetCultureFromGreatWorks() const
 	return iRtnValue;
 }
 
+#ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
+/// Accessor: How much faith are we generating from Great Works in our buildings?
+int CvCityBuildings::GetFaithFromGreatWorks() const
+{
+	int iFaithPerWork = 0;
+	if(m_pCity)
+	{
+		ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+			if(pReligion)
+			{
+				int iReligionChange = pReligion->m_Beliefs.GetGreatWorkYieldChange(YIELD_FAITH);
+				BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(YIELD_FAITH);
+				}
+				iFaithPerWork += iReligionChange;
+			}
+		}
+	}
+
+	int iRtnValue = iFaithPerWork * m_aBuildingGreatWork.size();
+
+	return iRtnValue;
+}
+
+#endif
 /// Accessor: How many Great Works of specific slot type present in this city?
 int CvCityBuildings::GetNumGreatWorks() const
 {
