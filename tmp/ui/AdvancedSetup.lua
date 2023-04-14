@@ -420,12 +420,12 @@ ScreenOptions = {
 				local astr = Locale.ConvertTextKey(a.ShortDescription);
 				local bstr = Locale.ConvertTextKey(b.ShortDescription);
 				local a0, b0
-				if astr:match("The") then
+				if astr:match("The ") then
 					a0 = astr:sub(5)
 				else
 					a0 = astr
 				end
-				if bstr:match("The") then
+				if bstr:match("The ") then
 					b0 = bstr:sub(5)
 				else
 					b0 = bstr
