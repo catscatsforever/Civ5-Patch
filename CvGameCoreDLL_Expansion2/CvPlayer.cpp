@@ -8922,17 +8922,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
-#ifdef PORCELAIN_TOWER_SPECIALIST_YIELD_CHANGE
-			const char* szWonderTypeChar = pBuildingInfo->GetType();
-			CvString szWonderType = szWonderTypeChar;
-
-			if(szWonderType != "BUILDING_PORCELAIN_TOWER")
-			{
-				changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChange(iI, iJ) * iChange));
-			}
-#else
 			changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChange(iI, iJ) * iChange));
-#endif
 		}
 	}
 
@@ -14215,7 +14205,11 @@ void CvPlayer::DoSeedGreatPeopleSpawnCounter()
 	int iNumTurns = /*37*/ GC.getMINOR_TURNS_GREAT_PEOPLE_SPAWN_BASE();
 
 	// Start at -1 since if we only have one ally we don't want to add any more
+#ifdef PATRONAGE_FINISHER_REWORK
+	int iExtraAllies = 0;
+#else
 	int iExtraAllies = -1;
+#endif
 
 	PlayerTypes eMinor;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -14228,19 +14222,30 @@ void CvPlayer::DoSeedGreatPeopleSpawnCounter()
 
 		if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
 			iExtraAllies++;
+		
+#ifdef PATRONAGE_FINISHER_REWORK
+		iExtraAllies /= 2;
+
+		iExtraAllies *= 3;
+		iExtraAllies /= 2;
+#endif
 	}
 
 	if(iExtraAllies > 0)
 	{
 		int iExtraAlliesChange = iExtraAllies* /*-1*/ GC.getMINOR_ADDITIONAL_ALLIES_GP_CHANGE();
 
+#ifndef PATRONAGE_FINISHER_REWORK
 		iExtraAlliesChange = max(/*-10*/ GC.getMAX_MINOR_ADDITIONAL_ALLIES_GP_CHANGE(), iExtraAlliesChange);
+#endif
 
 		iNumTurns += iExtraAlliesChange;
 	}
 
+#ifndef PATRONAGE_FINISHER_REWORK
 	int iRand = /*7*/ GC.getMINOR_TURNS_GREAT_PEOPLE_SPAWN_RAND();
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "Rand turns for Friendly Minor GreatPeople spawn");
+#endif
 
 	// If we're biasing the result then decrease the number of turns
 	if(!IsAlliesGreatPersonBiasApplied())
