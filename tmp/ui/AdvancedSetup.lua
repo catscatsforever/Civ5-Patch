@@ -1,6 +1,9 @@
 -------------------------------------------------
 -- edit: MP voting system for EUI & vanilla UI
 -------------------------------------------------
+-- edit: Sorting Civs by Short Description
+-- for EUI & vanilla UI
+-------------------------------------------------
 -- Advanced Settings Screen
 -------------------------------------------------
 --[[
@@ -430,7 +433,7 @@ ScreenOptions = {
 				else
 					b0 = bstr
 				end
-				return a0 < b0
+				return Locale.Compare(a0, b0) == -1;
 			end);
 -- Sorting Civs by Short Description END
 			
