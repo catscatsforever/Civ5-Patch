@@ -672,9 +672,12 @@
 }
 ///
 #define SLOG(sFmt, ...) {  \
+  CvString sRef;  \
+  CvString::format(sRef, "[%s:%d]: ", __FUNCTION__, __LINE__);  \
   CvString sMsg;  \
   CvString::format(sMsg, sFmt, __VA_ARGS__);  \
-  LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
+  sRef+= sMsg; \
+  LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sRef.c_str());  \
 }
 /*LOGGING END*/
 
