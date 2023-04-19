@@ -7604,6 +7604,25 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 	CvBuildingEntry& pBuildingInfo = *pkBuildingInfo;
 
+#ifdef DUEL_BAN_WORLD_WONDERS
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		if(GC.getGame().isOption("GAMEOPTION_BAN_WORLD_WONDERS"))
+		{
+			int i1 = -1;
+			CvPreGame::GetGameOption("GAMEOPTION_BAN_WONDER1", i1);
+			int i2 = -1;
+			CvPreGame::GetGameOption("GAMEOPTION_BAN_WONDER2", i2);
+			int i3 = -1;
+			CvPreGame::GetGameOption("GAMEOPTION_BAN_WONDER3", i3);
+			if(pkBuildingInfo->GetID() == i1 || pkBuildingInfo->GetID() == i2 || pkBuildingInfo->GetID() == i3)
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
 	int iI;
 	CvTeam& currentTeam = GET_TEAM(getTeam());
 

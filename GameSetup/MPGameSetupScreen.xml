@@ -22,7 +22,7 @@
       <Box Style="MenuTopTreatment"/>
 
 			<!-- Game Options -->
-        <ScrollPanel Anchor="L,T" ID="OptionsScrollPanel" Vertical="1" Offset="40, 106" Size="884,344" AutoScrollBar="1">
+        <ScrollPanel Anchor="L,T" ID="OptionsScrollPanel" Vertical="1" Offset="18, 106" Size="906,344" AutoScrollBar="1">
 
           <!-- Scroll Controls -->
           <ScrollBar  Style="VertSlider"      Anchor="R,T" Offset="0,18" AnchorSide="O,I" Length="344"  />
@@ -135,9 +135,9 @@
                 <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
                   <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_BAN_WORLD_WONDERS_ENABLED" ToolTip="TXT_KEY_GAME_OPTION_BAN_WORLD_WONDERS_ENABLED_HELP" IsChecked="0" ID="BanWorldWonderCheck" ConsumeMouse="1" />
                 </Box>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanWorldWonderPull_1"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanWorldWonderPull_2"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanWorldWonderPull_3"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,25" SpaceForScroll="0" ID="BanWorldWonderPull_1"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanWorldWonderPull_2"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanWorldWonderPull_3"/>
               </Stack>
             </Box>
 
@@ -148,9 +148,9 @@
                 <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
                   <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_BAN_PANTHEONS_ENABLED" ToolTip="TXT_KEY_GAME_OPTION_BAN_PANTHEONS_ENABLED_HELP" IsChecked="0" ID="BanPantheonCheck" ConsumeMouse="1" />
                 </Box>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanPantheonPull_1"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanPantheonPull_2"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanPantheonPull_3"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,25" SpaceForScroll="0" ID="BanPantheonPull_1"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanPantheonPull_2"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanPantheonPull_3"/>
               </Stack>
             </Box>
 
@@ -161,9 +161,9 @@
                 <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
                   <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_BAN_RELIGION_BELIEFS_ENABLED" ToolTip="TXT_KEY_GAME_OPTION_BAN_RELIGION_BELIEFS_ENABLED_HELP" IsChecked="0" ID="BanReligionBeliefCheck" ConsumeMouse="1" />
                 </Box>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanReligionBeliefPull_1"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanReligionBeliefPull_2"/>
-                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,27" SpaceForScroll="0" ID="BanReligionBeliefPull_3"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="5,0" Size="220,25" SpaceForScroll="0" ID="BanReligionBeliefPull_1"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanReligionBeliefPull_2"/>
+                <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanReligionBeliefPull_3"/>
               </Stack>
             </Box>
 

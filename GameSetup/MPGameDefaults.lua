@@ -20,7 +20,7 @@ function ResetMultiplayerOptions()
 	-- Default Map Type
 	PreGame.SetLoadWBScenario(false);
 	PreGame.SetRandomMapScript(false);
-	local mapScript = GameInfo.MapScripts{FileName = "Assets\\Maps\\Continents.lua"}();
+	local mapScript = GameInfo.MapScripts{FileName = "Assets\\Maps\\Pangaea.lua"}();
 	if(mapScript ~= nil) then
 		PreGame.SetMapScript(mapScript.FileName);
 	else
@@ -48,8 +48,8 @@ function ResetMultiplayerOptions()
 		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", false);
 		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", false);
 	else
-		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", true);
-		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", false);
+		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", false);
+		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", true);
 	end
 end
 

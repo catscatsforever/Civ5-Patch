@@ -325,7 +325,65 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 
 	-- Update Duel Mode
 
-	-- UpdateDuelModePull();
+	Controls.DuelModeCheck:SetDisabled( not bCanEdit );
+
+	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") <= 0 then
+		Controls.DuelModeCheck:SetCheck( false );
+		Controls.BanWorldWondersBox:SetHide( true );
+		Controls.BanPantheonsBox:SetHide( true );
+		Controls.BanReligionBeliefsBox:SetHide( true );
+	else
+		Controls.DuelModeCheck:SetCheck( true );
+		Controls.BanWorldWondersBox:SetHide( false );
+		Controls.BanPantheonsBox:SetHide( false );
+		Controls.BanReligionBeliefsBox:SetHide( false );
+	end
+	
+	Controls.BanWorldWonderCheck:SetDisabled( not bCanEdit );
+	Controls.BanPantheonCheck:SetDisabled( not bCanEdit );
+	Controls.BanReligionBeliefCheck:SetDisabled( not bCanEdit );
+
+	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
+		if PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") <= 0 then
+			Controls.BanWorldWonderCheck:SetCheck( false );
+			Controls.BanWorldWonderPull_1:SetHide( true );
+			Controls.BanWorldWonderPull_2:SetHide( true );
+			Controls.BanWorldWonderPull_3:SetHide( true );
+		else
+			Controls.BanWorldWonderCheck:SetCheck( true );
+			Controls.BanWorldWonderPull_1:SetHide( false );
+			Controls.BanWorldWonderPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1 );
+			Controls.BanWorldWonderPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1 );
+		end
+	end
+
+	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
+		if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") <= 0 then
+			Controls.BanPantheonCheck:SetCheck( false );
+			Controls.BanPantheonPull_1:SetHide( true );
+			Controls.BanPantheonPull_2:SetHide( true );
+			Controls.BanPantheonPull_3:SetHide( true );
+		else
+			Controls.BanPantheonCheck:SetCheck( true );
+			Controls.BanPantheonPull_1:SetHide( false );
+			Controls.BanPantheonPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1 );
+			Controls.BanPantheonPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1 );
+		end
+	end
+
+	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
+		if PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") <= 0 then
+			Controls.BanReligionBeliefCheck:SetCheck( false );
+			Controls.BanReligionBeliefPull_1:SetHide( true );
+			Controls.BanReligionBeliefPull_2:SetHide( true );
+			Controls.BanReligionBeliefPull_3:SetHide( true );
+		else
+			Controls.BanReligionBeliefCheck:SetCheck( true );
+			Controls.BanReligionBeliefPull_1:SetHide( false );
+			Controls.BanReligionBeliefPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1 );
+			Controls.BanReligionBeliefPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1 );
+		end
+	end
 
 	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1 then
 		PreGame.SetGameOption("GAMEOPTION_BAN_WONDER1", PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2"));
@@ -1229,10 +1287,12 @@ Controls.MaxTurnsCheck:RegisterCallback( Mouse.eLClick, OnMaxTurnsChecked );
 -- Duel Mode
 function SetDuelModeOption()
 	local isChecked = Controls.DuelModeCheck:IsChecked();
-	-- PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
+	PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
 	Controls.BanWorldWondersBox:SetHide(not isChecked);
 	Controls.BanPantheonsBox:SetHide(not isChecked);
 	Controls.BanReligionBeliefsBox:SetHide(not isChecked);
+
+	UpdateGameOptionsDisplay();
 end
 
 -------------------------------------------------
@@ -1247,9 +1307,12 @@ Controls.DuelModeCheck:RegisterCallback( Mouse.eLClick, OnDuelModeChecked );
 -------------------------------------------------
 function SetBanWorldWonderOption()
 	local isChecked = Controls.BanWorldWonderCheck:IsChecked();
+	PreGame.SetGameOption("GAMEOPTION_BAN_WORLD_WONDERS", isChecked);
 	Controls.BanWorldWonderPull_1:SetHide(not isChecked);
 	Controls.BanWorldWonderPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1);
 	Controls.BanWorldWonderPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1);
+
+	UpdateGameOptionsDisplay();
 end
 
 -------------------------------------------------
@@ -1264,9 +1327,12 @@ Controls.BanWorldWonderCheck:RegisterCallback( Mouse.eLClick, OnBanWorldWonderCh
 -------------------------------------------------
 function SetBanPantheonOption()
 	local isChecked = Controls.BanPantheonCheck:IsChecked();
+	PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEONS", isChecked);
 	Controls.BanPantheonPull_1:SetHide(not isChecked);
 	Controls.BanPantheonPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1);
 	Controls.BanPantheonPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1);
+
+	UpdateGameOptionsDisplay();
 end
 
 -------------------------------------------------
@@ -1281,9 +1347,12 @@ Controls.BanPantheonCheck:RegisterCallback( Mouse.eLClick, OnBanPantheonChecked 
 -------------------------------------------------
 function SetBanReligionBeliefOption()
 	local isChecked = Controls.BanReligionBeliefCheck:IsChecked();
+	PreGame.SetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS", isChecked);
 	Controls.BanReligionBeliefPull_1:SetHide(not isChecked);
 	Controls.BanReligionBeliefPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1);
 	Controls.BanReligionBeliefPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1);
+
+	UpdateGameOptionsDisplay();
 end
 
 -------------------------------------------------

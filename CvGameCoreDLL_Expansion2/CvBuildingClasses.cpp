@@ -1566,7 +1566,28 @@ int CvBuildingEntry::GetYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
+#ifdef DUEL_GREAT_LIBRAY_CHANGE
+	const char* szWonderTypeChar = GetType();
+	CvString szWonderType = szWonderTypeChar;
+
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && szWonderType == "BUILDING_GREAT_LIBRARY")
+	{
+		if (i == YIELD_CULTURE)
+		{
+			return m_piYieldChange ? (m_piYieldChange[i] + 2) : -1;
+		}
+		else
+		{
+			return m_piYieldChange ? m_piYieldChange[i] : -1;
+		}
+	}
+	else
+	{
+		return m_piYieldChange ? m_piYieldChange[i] : -1;
+	}
+#else
 	return m_piYieldChange ? m_piYieldChange[i] : -1;
+#endif
 }
 
 /// Array of yield changes

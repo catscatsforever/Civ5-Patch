@@ -663,6 +663,19 @@
 
 
 
+/*DUEL STUFF START*/
+///
+#define DUEL_GREAT_LIBRAY_CHANGE
+///
+#define DUEL_BAN_WORLD_WONDERS
+///
+#define DUEL_BAN_PANTHEONS
+///
+#define DUEL_BAN_RELIGION_BELIEFS
+/*DUEL STUFF END*/
+
+
+
 /*LOGGING START*/
 ///
 #define CUSTOMLOG(sFmt, ...) {  \
@@ -672,12 +685,9 @@
 }
 ///
 #define SLOG(sFmt, ...) {  \
-  CvString sRef;  \
-  CvString::format(sRef, "[%s:%d]: ", __FUNCTION__, __LINE__);  \
   CvString sMsg;  \
   CvString::format(sMsg, sFmt, __VA_ARGS__);  \
-  sRef+= sMsg; \
-  LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sRef.c_str());  \
+  LOGFILEMGR.GetLog("PATCH.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
 }
 /*LOGGING END*/
 

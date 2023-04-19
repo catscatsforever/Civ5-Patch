@@ -1422,7 +1422,27 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && pEntry->IsPantheonBelief())
 			{
+#ifdef DUEL_BAN_PANTHEONS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_PANTHEONS"))
+					{
+						CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON3", i3);
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						{
+							availableBeliefs.push_back(eBelief);
+						}
+					}
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
@@ -1679,7 +1699,27 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && pEntry->IsFounderBelief())
 			{
+#ifdef DUEL_BAN_RELIGION_BELIEFS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_RELIGION_BELIEFS"))
+					{
+						CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i3);
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						{
+							availableBeliefs.push_back(eBelief);
+						}
+					}
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
@@ -1704,7 +1744,27 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && pEntry->IsFollowerBelief())
 			{
+#ifdef DUEL_BAN_RELIGION_BELIEFS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_RELIGION_BELIEFS"))
+					{
+						CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i3);
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						{
+							availableBeliefs.push_back(eBelief);
+						}
+					}
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
@@ -1729,7 +1789,27 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && pEntry->IsEnhancerBelief())
 			{
+#ifdef DUEL_BAN_RELIGION_BELIEFS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_RELIGION_BELIEFS"))
+					{
+						CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i3);
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						{
+							availableBeliefs.push_back(eBelief);
+						}
+					}
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
@@ -1754,7 +1834,52 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && (pEntry->IsEnhancerBelief() || pEntry->IsFollowerBelief() || pEntry->IsFounderBelief() || pEntry->IsPantheonBelief()))
 			{
+#if defined(DUEL_BAN_PANTHEONS) || defined(DUEL_BAN_RELIGION_BELIEFS)
+				CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+				bool bAvailable = true;
+#ifdef DUEL_BAN_PANTHEONS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_PANTHEONS"))
+					{
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_PANTHEON3", i3);
+						if(pkBelief->GetID() == i1 || pkBelief->GetID() == i2 || pkBelief->GetID() == i3)
+						{
+							bAvailable = false;
+						}
+					}
+				}
+#endif
+#ifdef DUEL_BAN_RELIGION_BELIEFS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_RELIGION_BELIEFS"))
+					{
+						int i4 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF1", i4);
+						int i5 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i5);
+						int i6 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i6);
+						if(pkBelief->GetID() == i4 || pkBelief->GetID() == i5 || pkBelief->GetID() == i6)
+						{
+							bAvailable = false;
+						}
+					}
+				}
+#endif
+				if(bAvailable)
+				{
+					availableBeliefs.push_back(eBelief);
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
@@ -1779,7 +1904,27 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 			if(pEntry && pEntry->IsReformationBelief())
 			{
+#ifdef DUEL_BAN_RELIGION_BELIEFS
+				if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					if(GC.getGame().isOption("GAMEOPTION_BAN_RELIGION_BELIEFS"))
+					{
+						CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+						int i1 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF1", i1);
+						int i2 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i2);
+						int i3 = -1;
+						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i3);
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						{
+							availableBeliefs.push_back(eBelief);
+						}
+					}
+				}
+#else
 				availableBeliefs.push_back(eBelief);
+#endif
 			}
 		}
 	}
