@@ -323,6 +323,144 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 	Controls.TurnModePull:SetDisabled( not bCanEdit );
 	Controls.TurnModeRoot:SetHide(PreGame.IsHotSeatGame());	
 
+	-- Update Duel Mode
+
+	-- UpdateDuelModePull();
+
+	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_WONDER1", PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_WONDER2", -1);
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_WONDER2", PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_WONDER3", -1);
+	end
+	local isChecked = Controls.BanWorldWonderCheck:IsChecked();
+	Controls.BanWorldWonderPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1);
+	Controls.BanWorldWonderPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1);
+	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1 then
+		Controls.BanWorldWonderPull_1:GetButton():LocalizeAndSetText( "TXT_KEY_NO_WONDER" );
+		Controls.BanWorldWonderPull_1:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_WONDER_HELP" );
+		Controls.BanWorldWonderPull_1:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Buildings[ PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") ];
+		Controls.BanWorldWonderPull_1:GetButton():LocalizeAndSetText( info.Description );
+		Controls.BanWorldWonderPull_1:GetButton():LocalizeAndSetToolTip( info.Help );
+		Controls.BanWorldWonderPull_1:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1 then
+		Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetText( "TXT_KEY_NO_WONDER" );
+		Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_WONDER_HELP" );
+		Controls.BanWorldWonderPull_2:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Buildings[ PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") ];
+		Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetText( info.Description );
+		Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetToolTip( info.Help );
+		Controls.BanWorldWonderPull_2:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == -1 then
+		Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetText( "TXT_KEY_NO_WONDER" );
+		Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_WONDER_HELP" );
+		Controls.BanWorldWonderPull_3:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Buildings[ PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") ];
+		Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetText( info.Description );
+		Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetToolTip( info.Help );
+		Controls.BanWorldWonderPull_3:SetDisabled( not bCanEdit );
+	end
+
+------------------------------------------------------------
+------------------------------------------------------------
+
+	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON1", PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON2", -1);
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON2", PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON3", -1);
+	end
+	local isChecked = Controls.BanPantheonCheck:IsChecked();
+	Controls.BanPantheonPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1);
+	Controls.BanPantheonPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1);
+	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1 then
+		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetText( "TXT_KEY_NO_PANTHEON" );
+		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_PANTHEON_HELP" );
+		Controls.BanPantheonPull_1:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") ];
+		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanPantheonPull_1:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1 then
+		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetText( "TXT_KEY_NO_PANTHEON" );
+		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_PANTHEON_HELP" );
+		Controls.BanPantheonPull_2:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") ];
+		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanPantheonPull_2:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") == -1 then
+		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetText( "TXT_KEY_NO_PANTHEON" );
+		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_PANTHEON_HELP" );
+		Controls.BanPantheonPull_3:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") ];
+		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanPantheonPull_3:SetDisabled( not bCanEdit );
+	end
+
+------------------------------------------------------------
+------------------------------------------------------------
+
+	if PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF1", PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF2", -1);
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1 then
+		PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF2", PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3"));
+		PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF3", -1);
+	end
+	local isChecked = Controls.BanReligionBeliefCheck:IsChecked();
+	Controls.BanReligionBeliefPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1);
+	Controls.BanReligionBeliefPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1);
+	if PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1 then
+		Controls.BanReligionBeliefPull_1:GetButton():LocalizeAndSetText( "TXT_KEY_NO_BELIEF" );
+		Controls.BanReligionBeliefPull_1:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_BELIEF_HELP" );
+		Controls.BanReligionBeliefPull_1:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") ];
+		Controls.BanReligionBeliefPull_1:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanReligionBeliefPull_1:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanReligionBeliefPull_1:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1 then
+		Controls.BanReligionBeliefPull_2:GetButton():LocalizeAndSetText( "TXT_KEY_NO_BELIEF" );
+		Controls.BanReligionBeliefPull_2:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_BELIEF_HELP" );
+		Controls.BanReligionBeliefPull_2:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") ];
+		Controls.BanReligionBeliefPull_2:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanReligionBeliefPull_2:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanReligionBeliefPull_2:SetDisabled( not bCanEdit );
+	end
+	if PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3") == -1 then
+		Controls.BanReligionBeliefPull_3:GetButton():LocalizeAndSetText( "TXT_KEY_NO_BELIEF" );
+		Controls.BanReligionBeliefPull_3:GetButton():LocalizeAndSetToolTip( "TXT_KEY_NO_BELIEF_HELP" );
+		Controls.BanReligionBeliefPull_3:SetDisabled( not bCanEdit );
+	else
+		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3") ];
+		Controls.BanReligionBeliefPull_3:GetButton():LocalizeAndSetText( info.ShortDescription );
+		Controls.BanReligionBeliefPull_3:GetButton():LocalizeAndSetToolTip( info.Description );
+		Controls.BanReligionBeliefPull_3:SetDisabled( not bCanEdit );
+	end
+
+	UpdateDuelModePull();
+
 	-- Update the options panel
 	RefreshGameOptions();
 	RefreshDropDownOptions();		
@@ -821,6 +959,233 @@ function OnTurnModePull( id )
 end
 Controls.TurnModePull:RegisterSelectionCallback( OnTurnModePull );
 
+----------------------------------------------------------------
+-- DUEL MODE
+
+function UpdateDuelModePull()
+	Controls.BanWorldWonderPull_1:ClearEntries();
+	local controlTable = {};
+	Controls.BanWorldWonderPull_1:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_WONDER");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_WONDER_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Buildings("ID >= 0 ORDER BY Description") do
+		local thisBuildingClass = GameInfo.BuildingClasses[info.BuildingClass];
+		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 161 then
+			if(PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") ~= info.ID) then
+				local controlTable = {};
+				Controls.BanWorldWonderPull_1:BuildEntry( "InstanceOne", controlTable );
+
+				controlTable.Button:LocalizeAndSetText(info.Description);
+				controlTable.Button:LocalizeAndSetToolTip(info.Help);
+				controlTable.Button:SetVoid1( info.ID );
+			end
+		end
+	end
+	Controls.BanWorldWonderPull_1:CalculateInternals();
+
+	Controls.BanWorldWonderPull_2:ClearEntries();
+	local controlTable = {};
+	Controls.BanWorldWonderPull_2:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_WONDER");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_WONDER_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Buildings("ID >= 0 ORDER BY Description") do
+		local thisBuildingClass = GameInfo.BuildingClasses[info.BuildingClass];
+		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 161  then
+			if(PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") ~= info.ID) then
+				local controlTable = {};
+				Controls.BanWorldWonderPull_2:BuildEntry( "InstanceOne", controlTable );
+
+				controlTable.Button:LocalizeAndSetText(info.Description);
+				controlTable.Button:LocalizeAndSetToolTip(info.Help);
+				controlTable.Button:SetVoid1( info.ID );
+			end
+		end
+	end
+	Controls.BanWorldWonderPull_2:CalculateInternals();
+
+	Controls.BanWorldWonderPull_3:ClearEntries();
+	local controlTable = {};
+	Controls.BanWorldWonderPull_3:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_WONDER");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_WONDER_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Buildings("ID >= 0 ORDER BY Description") do
+		local thisBuildingClass = GameInfo.BuildingClasses[info.BuildingClass];
+		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 161  then
+			if(PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") ~= info.ID) then
+				local controlTable = {};
+				Controls.BanWorldWonderPull_3:BuildEntry( "InstanceOne", controlTable );
+
+				controlTable.Button:LocalizeAndSetText(info.Description);
+				controlTable.Button:LocalizeAndSetToolTip(info.Help);
+				controlTable.Button:SetVoid1( info.ID );
+			end
+		end
+	end   
+	Controls.BanWorldWonderPull_3:CalculateInternals();
+
+----------------------------------------------------------------
+
+	Controls.BanPantheonPull_1:ClearEntries();
+	local controlTable = {};
+	Controls.BanPantheonPull_1:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Pantheon = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanPantheonPull_1:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanPantheonPull_1:CalculateInternals();
+
+	Controls.BanPantheonPull_2:ClearEntries();
+	local controlTable = {};
+	Controls.BanPantheonPull_2:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Pantheon = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanPantheonPull_2:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanPantheonPull_2:CalculateInternals();
+
+	Controls.BanPantheonPull_3:ClearEntries();
+	local controlTable = {};
+	Controls.BanPantheonPull_3:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Pantheon = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanPantheonPull_3:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanPantheonPull_3:CalculateInternals();
+
+----------------------------------------------------------------
+
+	Controls.BanReligionBeliefPull_1:ClearEntries();
+	local controlTable = {};
+	Controls.BanReligionBeliefPull_1:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanReligionBeliefPull_1:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanReligionBeliefPull_1:CalculateInternals();
+
+	Controls.BanReligionBeliefPull_2:ClearEntries();
+	local controlTable = {};
+	Controls.BanReligionBeliefPull_2:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanReligionBeliefPull_2:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanReligionBeliefPull_2:CalculateInternals();
+
+	Controls.BanReligionBeliefPull_3:ClearEntries();
+	local controlTable = {};
+	Controls.BanReligionBeliefPull_3:BuildEntry( "InstanceOne", controlTable );
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:SetVoid1( -1 );
+
+	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
+		if(PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") ~= info.ID) then
+			local controlTable = {};
+			Controls.BanReligionBeliefPull_3:BuildEntry( "InstanceOne", controlTable );
+
+			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
+			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			controlTable.Button:SetVoid1( info.ID );
+		end
+	end   
+	Controls.BanReligionBeliefPull_3:CalculateInternals();
+
+end
+
+Controls.BanWorldWonderPull_1:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_WONDER1", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanWorldWonderPull_2:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_WONDER2", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanWorldWonderPull_3:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_WONDER3", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanPantheonPull_1:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON1", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanPantheonPull_2:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON2", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanPantheonPull_3:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_PANTHEON3", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanReligionBeliefPull_1:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF1", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanReligionBeliefPull_2:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF2", id);
+	UpdateGameOptionsDisplay();
+end);
+Controls.BanReligionBeliefPull_3:RegisterSelectionCallback(function( id )
+	PreGame.SetGameOption("GAMEOPTION_BAN_BELIEF3", id);
+	UpdateGameOptionsDisplay();
+end);
+
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
@@ -858,6 +1223,76 @@ function OnMaxTurnsChecked()
 	SendGameOptionChanged();
 end
 Controls.MaxTurnsCheck:RegisterCallback( Mouse.eLClick, OnMaxTurnsChecked );
+
+-------------------------------------------------
+-------------------------------------------------
+-- Duel Mode
+function SetDuelModeOption()
+	local isChecked = Controls.DuelModeCheck:IsChecked();
+	-- PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
+	Controls.BanWorldWondersBox:SetHide(not isChecked);
+	Controls.BanPantheonsBox:SetHide(not isChecked);
+	Controls.BanReligionBeliefsBox:SetHide(not isChecked);
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnDuelModeChecked()
+	SetDuelModeOption();
+	SendGameOptionChanged();
+end
+Controls.DuelModeCheck:RegisterCallback( Mouse.eLClick, OnDuelModeChecked );
+
+-------------------------------------------------
+-------------------------------------------------
+function SetBanWorldWonderOption()
+	local isChecked = Controls.BanWorldWonderCheck:IsChecked();
+	Controls.BanWorldWonderPull_1:SetHide(not isChecked);
+	Controls.BanWorldWonderPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1);
+	Controls.BanWorldWonderPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1);
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnBanWorldWonderChecked()
+	SetBanWorldWonderOption();
+	SendGameOptionChanged();
+end
+Controls.BanWorldWonderCheck:RegisterCallback( Mouse.eLClick, OnBanWorldWonderChecked );
+
+-------------------------------------------------
+-------------------------------------------------
+function SetBanPantheonOption()
+	local isChecked = Controls.BanPantheonCheck:IsChecked();
+	Controls.BanPantheonPull_1:SetHide(not isChecked);
+	Controls.BanPantheonPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1);
+	Controls.BanPantheonPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1);
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnBanPantheonChecked()
+	SetBanPantheonOption();
+	SendGameOptionChanged();
+end
+Controls.BanPantheonCheck:RegisterCallback( Mouse.eLClick, OnBanPantheonChecked );
+
+-------------------------------------------------
+-------------------------------------------------
+function SetBanReligionBeliefOption()
+	local isChecked = Controls.BanReligionBeliefCheck:IsChecked();
+	Controls.BanReligionBeliefPull_1:SetHide(not isChecked);
+	Controls.BanReligionBeliefPull_2:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1);
+	Controls.BanReligionBeliefPull_3:SetHide(not isChecked or PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1);
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnBanReligionBeliefChecked()
+	SetBanReligionBeliefOption();
+	SendGameOptionChanged();
+end
+Controls.BanReligionBeliefCheck:RegisterCallback( Mouse.eLClick, OnBanReligionBeliefChecked );
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------
