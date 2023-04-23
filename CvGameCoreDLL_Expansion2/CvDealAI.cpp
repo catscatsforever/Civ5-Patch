@@ -549,7 +549,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	{
 #ifdef NQM_AI_GIMP_ALWAYS_WHITE_PEACE
 		int iPeaceValueRequired = GetCachedValueOfPeaceWithHuman();
-		if (GC.getGame().isOption("GAMEOPTION_AI_GIMP_ALWAYS_WHITE_PEACE") && iPeaceValueRequired > 0 && GET_PLAYER(eOtherPlayer).isHuman())
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS") && iPeaceValueRequired > 0 && GET_PLAYER(eOtherPlayer).isHuman())
 			iPeaceValueRequired = 0;
 		if (iTotalValueToMe >= iPeaceValueRequired)
 #else

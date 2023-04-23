@@ -7318,7 +7318,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 	{
 #ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
-		if ((isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
+		if ((isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS")))
 #else
 		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
 #endif
@@ -7712,10 +7712,14 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		}
 	}
 
-	if(GC.getGame().isBuildingClassMaxedOut(eBuildingClass))
+#ifdef NQM_AI_GIMP_NO_WORLD_WONDERS
+	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+	if(GC.getGame().isBuildingClassMaxedOut(eBuildingClass) ||
+		isWorldWonderClass(*pkBuildingClassInfo) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS") && !isHuman())
 	{
 		return false;
 	}
+#endif
 
 	if(currentTeam.isBuildingClassMaxedOut(eBuildingClass))
 	{

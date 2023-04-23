@@ -7054,7 +7054,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	}
 
 #ifdef CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
-	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_RELIGION_SPREAD"))
+	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 #else
 	if(GET_TEAM(getTeam()).isMinorCiv())
 #endif
@@ -7217,7 +7217,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 	}
 
 #ifdef CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
-	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_RELIGION_SPREAD"))
+	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 #else
 	if(GET_TEAM(getTeam()).isMinorCiv())
 #endif
@@ -7328,7 +7328,7 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 	}
 
 #ifdef CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
-	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_RELIGION_SPREAD"))
+	if(!GET_TEAM(getTeam()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return false;
 	}
@@ -8163,7 +8163,7 @@ bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 #ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
-	if ((GET_PLAYER(getOwner()).isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!GET_PLAYER(getOwner()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
+	if ((GET_PLAYER(getOwner()).isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!GET_PLAYER(getOwner()).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS")))
 #else
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(getOwner()).isHuman())
 #endif
