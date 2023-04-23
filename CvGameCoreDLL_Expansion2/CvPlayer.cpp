@@ -1690,6 +1690,22 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		if (pNewUnit == NULL)
 			return NULL;
 
+#ifdef NEW_BYZANTIUM_UA
+		// Setup prophet properly
+		if(pNewUnit->getUnitInfo().IsFoundReligion())
+		{
+			ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+			int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
+			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
+			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
+			{
+				pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+				pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
+				pNewUnit->GetReligionData()->SetReligion(eReligion);
+			}
+		}
+#endif
+
 #ifdef STARTING_SETTLER_EXTRA_MOVE
 		if(!pCapital && pNewUnit->isFound())
 		{

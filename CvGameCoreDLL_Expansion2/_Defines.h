@@ -334,8 +334,9 @@
 ///
 #define INDIA_HAPPINESS_BONUS
 ///
-#define NEW_OTTOMAN_UA
+#define NEW_BYZANTIUM_UA
 ///
+#define NEW_OTTOMAN_UA
 #define TRAIT_GET_BUILDING_CLASS_HAPPINESS
 ///
 #define NEW_VENICE_UA
