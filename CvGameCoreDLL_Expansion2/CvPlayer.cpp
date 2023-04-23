@@ -1709,10 +1709,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #ifdef STARTING_SETTLER_EXTRA_MOVE
 		if(!pCapital && pNewUnit->isFound())
 		{
-			// if(pBestPlot == getStartingPlot())
-			// {
 			pNewUnit->changeMoves(pNewUnit->getMoves()/2);
-			// }
 		}
 #endif
 

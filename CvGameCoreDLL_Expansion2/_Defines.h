@@ -223,7 +223,7 @@
 /*GP CHANGES START*/
 ///
 // #define GREAT_SCIENTISTS_NERF
-///
+/// Increasing faith purchase cost of first Great Scientist
 #define FAITH_FOR_THE_FIRST_SCIENTIST
 /// Separating great scientists, engineers, merchants and prophets
 // #define SEPARATE_GREAT_PEOPLE
@@ -231,16 +231,16 @@
 #define FREE_GREAT_PERSON
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
-///
+/// After second turn of Great Scientist appearance bulb amount slowly decrease to 0 every turn
 #define DECREASE_BULB_AMOUNT_OVER_TIME
-///
+/// Increasing hurry production while engineering SS Parts
 #define SPACESHIP_ENGINEERING
-///
+/// Separating Great People Counts
 #ifndef SEPARATE_GREAT_PEOPLE
-///
+/// Separating Great Merchant Count
 // #define SEPARATE_MERCHANTS
 #endif
-/// 
+/// Restriction on Great People gifts
 #define CANT_GIFT_GP
 /*GP CHAGES END*/
 
@@ -251,27 +251,27 @@
 #define GIFTED_UNITS_ATTACK
 /// Can nuke only if Mobile Tactics researched
 #define MOBILE_TACTICS_NUKING
-///
+/// Players can't gain more than 60 exp from combat with AI or Minors
 #define LIMITATION_COMBAT_EXPERIENCE
-///
+/// Restriction on paradroping in the second half of timer
 #define CAN_PARADROP_HALF_TIMER
-///
+/// Restriction on setting interseption in the second half of timer
 #define CAN_SET_INTERCEPT_HALF_TIMER
 ///
 #define MARINE_DISEMBARK_FOR_1_MP
-///
+/// Civilians haven't defense while embarked like Work Boats
 #define NO_EMBARKED_CIVILIAN_DEFENSE
-///
+/// Disabling autoexploring and autoworking tiles
 #define DISABLE_AUTOMOVES
-///
+/// Removing paradrop animation for better UI expirience
 #define REMOVE_PARADROP_ANIMATION
-///
+/// Removing some civilans animations for better UI expirience
 #define REMOVE_GAMEPLAY_UNIT_ACTIVATE_ANIMATION
-///
+/// Staring settler have extra move on turn 0
 #define STARTING_SETTLER_EXTRA_MOVE
 ///
 #define PROMOTION_INSTA_HEAL_LOCKED
-///
+/// Decreasing Foreign Legion curchase cost
 #define FOREIGN_LEGION_COST_PURCHASE
 /*UNITS CHANGES END*/
 
@@ -284,9 +284,9 @@
 // #define NO_PUPPET_TECH_COST_MOD
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
 // #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
-///
+/// AI does not increase already known tech cost discount
 #define HAS_TECH_BY_HUMAN
-///
+/// Autospending free technologies that was not spent during turn transition
 #define AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
 /*TECHNOLOGIES AND RESEARCH CHANGES END*/
 
@@ -295,25 +295,25 @@
 /*POLICIES CHANGES START*/
 /// Free courthouses are no longer removed when puppeting a city
 #define AUI_CITY_FIX_DO_CREATE_PUPPET_FREE_COURTHOUSES_KEPT
-///
+/// Fixing double aqueduct bug
 #define AQUEDUCT_FIX
 ///
 // #define OWED_FOOD_BUILDING
-///
+/// Freedom players can purcahse SS Parts only in cities with 5+ population
 #define SS_PART_PURCHASE_RESTRICTION
 ///
 #define SHARED_IDEOLOGY_TRADE_CHANGE
-///
+/// Gunboat Diplomacy Grants 1 additional Delegate in the World Congress for every allied City-State (up to 6 additional Delegates)
 #define AUTOCRACY_EXTRA_VOTES
-///
+/// Treaty Organization One time increase of 45 Influence with City-States
 #define CS_INFLUENCE_BOOST
-///
+/// Adopting all policies in the Liberty tree will decrease Unhappiness from each city by 1.
 #define LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
-///
+/// Biology, Electrisity, Steam Power and Dynamite triggers ideology choise
 #define NEW_IDEOLOGY_TRIGGER
 ///
 #define POLICY_BRANCH_NOTIFICATION_LOCKED
-///
+/// The game will now send a “can adopt policy” notification if you get enough culture for a policy mid-turn
 #define UPDATE_CULTURE_NOTIFICATION_DURING_TURN
 ///
 #define PATRONAGE_FINISHER_REWORK
@@ -326,12 +326,13 @@
 #define AUI_UNIT_MOVEMENT_IROQUOIS_ROAD_TRANSITION_FIX
 ///
 // #define BYZANTIUM_CAN_ALWAYS_FOUND_RELIGION
-///
+/// India have 2 extra Happiness
 #define INDIA_HAPPINESS_BONUS
 ///
 #define NEW_BYZANTIUM_UA
 ///
 #define NEW_OTTOMAN_UA
+/// Adding source for Trait_BuildingClassHappiness table
 #define TRAIT_GET_BUILDING_CLASS_HAPPINESS
 ///
 #define NEW_VENICE_UA
@@ -355,7 +356,7 @@
 #define CHINA_UA_REWORK
 ///
 #define MONGOL_CS_BULLY
-///
+/// Golden age combat bonus modifier now applies only during attack
 #define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 /*UA CHANGES END*/
 
