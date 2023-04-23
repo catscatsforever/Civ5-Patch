@@ -151,6 +151,10 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 				if(eUnitTeam != eTeam && !pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
 				{
 					iRegularCost += iMoveDenominator;
+#ifdef CHINA_UA_REWORK
+					iRouteCost += iMoveDenominator;
+					iRouteFlatCost += iMoveDenominator;
+#endif
 				}
 			}
 		}
