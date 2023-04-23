@@ -10808,7 +10808,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				iModifier += iTempModifier;
 			}
 
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+			if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+#else
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+#endif
 			{
 				iModifier += 25;
 			}
@@ -11310,7 +11314,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += iTempModifier;
 			}
 
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+			if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+#else
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+#endif
 			{
 				iModifier += 25;
 			}

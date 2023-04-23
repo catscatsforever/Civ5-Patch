@@ -112,7 +112,7 @@ CvGame::CvGame() :
 	m_paiUnitCreatedCount = NULL;
 	m_paiUnitClassCreatedCount = NULL;
 	m_paiBuildingClassCreatedCount = NULL;
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 	m_paiBuildingClassCreationTurn = NULL;
 #endif
 	m_paiProjectCreatedCount = NULL;
@@ -944,7 +944,7 @@ void CvGame::uninit()
 	SAFE_DELETE_ARRAY(m_paiUnitCreatedCount);
 	SAFE_DELETE_ARRAY(m_paiUnitClassCreatedCount);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCreatedCount);
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCreationTurn);
 #endif
 	SAFE_DELETE_ARRAY(m_paiProjectCreatedCount);
@@ -1173,7 +1173,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 			m_paiBuildingClassCreatedCount[iI] = 0;
 		}
 
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 		CvAssertMsg(m_paiBuildingClassCreationTurn==NULL, "about to leak memory, CvGame::m_paiBuildingClassCreationTurn");
 		m_paiBuildingClassCreationTurn = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -7564,8 +7564,8 @@ bool CvGame::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra)
 		return false;
 	}
 	
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
-	if(isWorldWonderClass(*pkBuildingClassInfo) && getBuildingClassCreationTurn(eIndex) > 0 && getBuildingClassCreationTurn(eIndex) == getGameTurn())
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
+	if(isOption("GAMEOPTION_DUEL_STUFF") && isWorldWonderClass(*pkBuildingClassInfo) && getBuildingClassCreationTurn(eIndex) > 0 && getBuildingClassCreationTurn(eIndex) == getGameTurn())
 	{
 		return false;
 	}
@@ -7585,7 +7585,7 @@ void CvGame::incrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 }
 
 
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 //	--------------------------------------------------------------------------------
 int CvGame::getBuildingClassCreationTurn(BuildingClassTypes eIndex)
 {
@@ -9680,7 +9680,7 @@ void CvGame::Read(FDataStream& kStream)
 	UnitArrayHelpers::Read(kStream, m_paiUnitCreatedCount);
 	UnitClassArrayHelpers::Read(kStream, m_paiUnitClassCreatedCount);
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreatedCount);
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreationTurn);
 #endif
 
@@ -9913,7 +9913,7 @@ void CvGame::Write(FDataStream& kStream) const
 
 	UnitClassArrayHelpers::Write(kStream, m_paiUnitClassCreatedCount, GC.getNumUnitClassInfos());
 	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCreatedCount, GC.getNumBuildingClassInfos());
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassCreationTurn, GC.getNumBuildingClassInfos());
 #endif
 

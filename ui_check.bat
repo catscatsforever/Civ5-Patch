@@ -22,7 +22,10 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ProposalChartPopup.xml" "%cd%\%p
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\AdvancedSetup.lua" "%cd%\%patchfolder%\UI\AdvancedSetup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\StagingRoom.lua" "%cd%\%patchfolder%\UI\StagingRoom.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\StagingRoom.xml" "%cd%\%patchfolder%\UI\StagingRoom.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameDefaults.lua" "%cd%\%patchfolder%\UI\MPGameDefaults.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameOptions.lua" "%cd%\%patchfolder%\UI\MPGameOptions.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPGameSetupScreen.xml" "%cd%\%patchfolder%\UI\MPGameSetupScreen.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CivilopediaScreen.lua" "%cd%\%patchfolder%\UI\CivilopediaScreen.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
@@ -36,6 +39,12 @@ IF EXIST "%cd%\UI_bc1\LeaderHead\TradeLogic.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TradeLogic.lua" "%cd%\%patchfolder%\UI\TradeLogic.lua"
 ) ELSE (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TradeLogic.lua" "%cd%\%patchfolder%\UI\TradeLogic.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\ToolTips\InfoTooltipInclude.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\EUI_tooltip_library.lua" "%cd%\%patchfolder%\UI\EUI_tooltip_library.lua"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\InfoTooltipInclude.lua" "%cd%\%patchfolder%\UI\InfoTooltipInclude.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.lua" (

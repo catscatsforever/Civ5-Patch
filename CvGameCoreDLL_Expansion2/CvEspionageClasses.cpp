@@ -243,7 +243,11 @@ void CvPlayerEspionage::DoTurn()
 void CvPlayerEspionage::CreateSpy()
 {
 	// don't create spies if espionage is disabled
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+#else
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+#endif
 	{
 		return;
 	}

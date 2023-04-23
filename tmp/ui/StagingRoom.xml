@@ -1,3 +1,5 @@
+<!-- edit: Duel Mode for EUI and vanilla UI -->
+
 <?xml version="1.0" encoding="utf-8"?>
 <Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" >
 
@@ -371,6 +373,72 @@
               <Stack ID="DuelModeStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
                 <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
                   <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_DUEL_MODE" ToolTip="TXT_KEY_GAME_OPTION_DUEL_MODE_HELP" IsChecked="0" ID="DuelModeCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- Ban Oxford University -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="BanOxfordUniversityBox" >
+
+              <Stack ID="BanOxfordUniversityStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_DISABLE_OXFORD_UNIVERSITY" ToolTip="TXT_KEY_GAME_OPTION_DISABLE_OXFORD_UNIVERSITY_HELP" IsChecked="0" ID="BanOxfordUniversityCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- Disable World Congress -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="DisableWorldCongressBox" >
+
+              <Stack ID="DisableWorldCongressStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_NO_LEAGUES" ToolTip="TXT_KEY_GAME_OPTION_NO_LEAGUES_HELP" IsChecked="0" ID="DisableWorldCongressCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- No Ancient Ruins -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="NoAncientRuinsBox" >
+
+              <Stack ID="NoAncientRuinsStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_NO_GOODY_HUTS" ToolTip="TXT_KEY_GAME_OPTION_NO_GOODY_HUTS_HELP" IsChecked="0" ID="NoAncientRuinsCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- No Espionage -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="NoEspionageBox" >
+
+              <Stack ID="NoEspionageStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_NO_ESPIONAGE" ToolTip="TXT_KEY_GAME_OPTION_NO_ESPIONAGE_HELP" IsChecked="0" ID="NoEspionageCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- No Barbarians -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="NoBarbariansBox" >
+
+              <Stack ID="NoBarbariansStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_NO_BARBARIANS" ToolTip="TXT_KEY_GAME_OPTION_NO_BARBARIANS_HELP" IsChecked="0" ID="NoBarbariansCheck" ConsumeMouse="1" />
+                </Box>
+              </Stack>
+            </Box>
+
+
+            <!-- Raging Barbarians -->
+            <Box Hidden="1" Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="RagingBarbariansBox" >
+
+              <Stack ID="RagingBarbariansStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+                <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+                  <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_RAGING_BARBARIANS" ToolTip="TXT_KEY_GAME_OPTION_RAGING_BARBARIANS_HELP" IsChecked="0" ID="RagingBarbariansCheck" ConsumeMouse="1" />
                 </Box>
               </Stack>
             </Box>

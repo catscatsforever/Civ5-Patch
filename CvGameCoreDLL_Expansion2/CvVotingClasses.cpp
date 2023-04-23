@@ -6824,7 +6824,11 @@ void CvGameLeagues::Init()
 
 void CvGameLeagues::DoTurn()
 {
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") || !GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#else
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#endif
 	{
 		GC.getGame().DoUpdateDiploVictory();
 
@@ -6962,7 +6966,11 @@ void CvGameLeagues::DoTurn()
 
 void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 {
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") || !GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#else
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#endif
 	{
 		AI_PERF_FORMAT("AI-perf.csv", ("CvGameLeagues::DoPlayerTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), kPlayer.getCivilizationShortDescription()) );
 		for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
@@ -7034,7 +7042,11 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 
 void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 {
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") || !GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#else
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
+#endif
 	{
 		CvAssertMsg(GetNumActiveLeagues() == 0, "Trying to found a second league when one is already active. Please send Anton your save file and version.");
 		if (GetNumActiveLeagues() == 0)

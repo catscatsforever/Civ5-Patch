@@ -6307,7 +6307,11 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Barbarians
 	if(kGoodyInfo.getBarbarianUnitClass() != NO_UNITCLASS)
 	{
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+		if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+#else
 		if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+#endif
 		{
 			return false;
 		}
@@ -7611,9 +7615,24 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		if(isNationalIntelligenceAgencyWasEverBuilt())
 			return false;
 #endif
+#ifdef DUEL_TOGGLE_OXFORD_UNIVERSITY
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_OXFORD_UNIVERSITY"))
+		if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+			if(GC.getGame().isOption("GAMEOPTION_DISABLE_OXFORD_UNIVERSITY"))
+				return false;
+#endif
+#ifdef DUEL_DISABLE_GREAT_WALL
+	if(eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_GREAT_WALL"))
+		if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+			return false;
+#endif
 
 	// Don't allow a city to consider an espionage building if they are playing a non-espionage game
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
+#else
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
+#endif
 	{
 		return false;
 	}
@@ -9483,8 +9502,8 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 	}
 	if(iPossibleKnownCount > 0)
 	{
-#ifdef TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
-		if (GC.getGame().isOption("GAMEOPTION_LESS_TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"))
+#ifdef DUEL_TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
+		if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 		{
 			iModifier += (10 * iKnownCount) / iPossibleKnownCount;
 		} else
@@ -14024,8 +14043,16 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 {
 	// Gold gained
-#ifdef HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
-	int iExpendGold =  GetGreatPersonExpendGold() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+#ifdef DUEL_HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
+	int iExpendGold;
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		iExpendGold =  GetGreatPersonExpendGold() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+	}
+	else
+	{
+		iExpendGold = GetGreatPersonExpendGold();
+	}
 #else
 	int iExpendGold = GetGreatPersonExpendGold();
 #endif

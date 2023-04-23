@@ -93,7 +93,11 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 
 	// Raging
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if (kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
+#else
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
+#endif
 		iNumTurnsToSpawn /= 2;
 
 	// Num Units Spawned
@@ -258,7 +262,11 @@ void CvBarbarians::DoCamps()
 {
 	CvGame& kGame = GC.getGame();
 
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if(kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+#else
 	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+#endif
 	{
 		return;
 	}
@@ -624,7 +632,11 @@ void CvBarbarians::DoUnits()
 {
 	CvGame& kGame = GC.getGame();
 
+#ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
+	if(kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+#else
 	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+#endif
 	{
 		return;
 	}

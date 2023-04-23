@@ -1434,7 +1434,7 @@ function UpdateOptions()
 				turnTimerStr = turnTimerStr .. " " .. secondsStr;
 			end
 		end
-		Controls.TurnTimer:SetText(turnTimerStr);	
+		Controls.TurnTimer:SetText(turnTimerStr);
 	else
 		Controls.TurnTimer:SetHide(true);
 	end

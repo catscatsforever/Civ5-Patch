@@ -1121,7 +1121,21 @@ int CvBuildingEntry::GetTechShare() const
 /// Number of free techs granted by this building
 int CvBuildingEntry::GetFreeTechs() const
 {
+#ifdef DUEL_GREAT_LIBRAY_CHANGE
+	const char* szWonderTypeChar = GetType();
+	CvString szWonderType = szWonderTypeChar;
+
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && szWonderType == "BUILDING_GREAT_LIBRARY")
+	{
+		return 0;
+	}
+	else
+	{
+		return m_iFreeTechs;
+	}
+#else
 	return m_iFreeTechs;
+#endif
 }
 
 /// Number of free Policies granted by this building
@@ -1572,9 +1586,13 @@ int CvBuildingEntry::GetYieldChange(int i) const
 
 	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && szWonderType == "BUILDING_GREAT_LIBRARY")
 	{
-		if (i == YIELD_CULTURE)
+		if(i == YIELD_CULTURE)
 		{
 			return m_piYieldChange ? (m_piYieldChange[i] + 2) : -1;
+		}
+		else if(i == YIELD_SCIENCE)
+		{
+			return m_piYieldChange ? (m_piYieldChange[i] - 1) : -1;
 		}
 		else
 		{
@@ -2776,7 +2794,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 				}
 
 				GC.getGame().incrementBuildingClassCreatedCount(buildingClassType);
-#ifdef WEEVEE_WORLD_WONDERS_SAME_TURN
+#ifdef DUEL_WORLD_WONDERS_SAME_TURN
 				if(!(GC.getGame().getBuildingClassCreationTurn(buildingClassType) > 0))
 				{
 					GC.getGame().setBuildingClassCreationTurn(buildingClassType, GC.getGame().getGameTurn());

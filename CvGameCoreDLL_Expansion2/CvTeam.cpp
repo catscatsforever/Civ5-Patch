@@ -6142,6 +6142,14 @@ void CvTeam::testCircumnavigated()
 #ifdef GOLD_FOR_CIRCUMNAVIGATE
 		// Compute gold per team member
 		int GoldForCircumnavigate = 200;
+		if(!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+		{
+			GoldForCircumnavigate = 200;
+		}
+		else
+		{
+			GoldForCircumnavigate = 0;
+		}
 		int iGoldPerTeamMember = GoldForCircumnavigate;
 
 		if(getNumMembers() > 0)

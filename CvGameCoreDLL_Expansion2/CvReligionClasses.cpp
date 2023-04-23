@@ -1439,6 +1439,14 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 							availableBeliefs.push_back(eBelief);
 						}
 					}
+					else
+					{
+						availableBeliefs.push_back(eBelief);
+					}
+				}
+				else
+				{
+					availableBeliefs.push_back(eBelief);
 				}
 #else
 				availableBeliefs.push_back(eBelief);
@@ -1716,6 +1724,14 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs()
 							availableBeliefs.push_back(eBelief);
 						}
 					}
+					else
+					{
+						availableBeliefs.push_back(eBelief);
+					}
+				}
+				else
+				{
+					availableBeliefs.push_back(eBelief);
 				}
 #else
 				availableBeliefs.push_back(eBelief);
@@ -1761,6 +1777,14 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs()
 							availableBeliefs.push_back(eBelief);
 						}
 					}
+					else
+					{
+						availableBeliefs.push_back(eBelief);
+					}
+				}
+				else
+				{
+					availableBeliefs.push_back(eBelief);
 				}
 #else
 				availableBeliefs.push_back(eBelief);
@@ -1806,6 +1830,14 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs()
 							availableBeliefs.push_back(eBelief);
 						}
 					}
+					else
+					{
+						availableBeliefs.push_back(eBelief);
+					}
+				}
+				else
+				{
+					availableBeliefs.push_back(eBelief);
 				}
 #else
 				availableBeliefs.push_back(eBelief);
@@ -1866,7 +1898,8 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs()
 						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i5);
 						int i6 = -1;
 						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i6);
-						if(pkBelief->GetID() == i4 || pkBelief->GetID() == i5 || pkBelief->GetID() == i6)
+						int i7 = 58;
+						if(pkBelief->GetID() == i4 || pkBelief->GetID() == i5 || pkBelief->GetID() == i6 || pkBelief->GetID() == i7)
 						{
 							bAvailable = false;
 						}
@@ -1916,11 +1949,20 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF2", i2);
 						int i3 = -1;
 						CvPreGame::GetGameOption("GAMEOPTION_BAN_BELIEF3", i3);
-						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3)
+						int i4 = 58;
+						if(pkBelief->GetID() != i1 && pkBelief->GetID() != i2 && pkBelief->GetID() != i3 && pkBelief->GetID() != i4)
 						{
 							availableBeliefs.push_back(eBelief);
 						}
 					}
+					else
+					{
+						availableBeliefs.push_back(eBelief);
+					}
+				}
+				else
+				{
+					availableBeliefs.push_back(eBelief);
 				}
 #else
 				availableBeliefs.push_back(eBelief);

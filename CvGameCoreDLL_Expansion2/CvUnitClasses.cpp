@@ -426,7 +426,18 @@ int CvUnitEntry::GetProductionCost() const
 /// Faith to construct the unit (as a percentage of cost of next Great Prophet)
 int CvUnitEntry::GetFaithCost() const
 {
+#ifdef DUEL_DOUBLE_UNIT_FAITH_COST
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		return 2*m_iFaithCost;
+	}
+	else
+	{
+		return m_iFaithCost;
+	}
+#else
 	return m_iFaithCost;
+#endif
 }
 
 /// Do we need a belief to unlock faith purchasing of this unit?
