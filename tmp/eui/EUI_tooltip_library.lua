@@ -186,11 +186,10 @@ end
 
 local function AddPreWrittenHelpTextAndConcat( tips, row ) -- assumes tips is custom EUI table object
 	-- Duel Mode
-	local tip = nil
+	local tip
 	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
-		tip = row and row.DuelHelp and L( row.DuelHelp ) or ""
-	end
-	if tip == nil then
+		tip = row and row.DuelHelp and L( row.DuelHelp ) or row and row.Help and L( row.Help ) or ""
+	else
 		tip = row and row.Help and L( row.Help ) or ""
 	end
 	if tip ~= "" then
