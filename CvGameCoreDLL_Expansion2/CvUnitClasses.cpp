@@ -429,7 +429,14 @@ int CvUnitEntry::GetFaithCost() const
 #ifdef DUEL_DOUBLE_UNIT_FAITH_COST
 	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 	{
-		return 2*m_iFaithCost;
+		if(GetCombat() > 0)
+		{
+			return 2*m_iFaithCost;
+		}
+		else
+		{
+			return m_iFaithCost;
+		}
 	}
 	else
 	{
