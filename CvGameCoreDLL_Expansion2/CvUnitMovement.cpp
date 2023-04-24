@@ -152,8 +152,14 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 				{
 					iRegularCost += iMoveDenominator;
 #ifdef CHINA_UA_REWORK
-					iRouteCost += iMoveDenominator;
-					iRouteFlatCost += iMoveDenominator;
+					if(iRouteCost < INT_MAX)
+					{
+						iRouteCost += iMoveDenominator;
+					}
+					if(iRouteFlatCost != INT_MAX)
+					{
+						iRouteFlatCost += iMoveDenominator;
+					}
 #endif
 				}
 			}
