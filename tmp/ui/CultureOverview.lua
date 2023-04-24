@@ -1,3 +1,10 @@
+
+-------------------------------------------------
+-- edit: keep great work selection despite global events
+-- (unless selected slot properties were changed)
+-- for EUI & vanilla UI
+-------------------------------------------------
+g_CachedGreatWorkSlot = nil;
 -------------------------------------------------
 -- Religion Overview Popup
 -------------------------------------------------
@@ -483,7 +490,19 @@ Controls.TabButtonPlayerInfluence:RegisterCallback( Mouse.eLClick, function() Ta
 
 function RefreshYourCulture()
 	g_YourCulture = nil;
-	g_CurrentGreatWorkSlot = nil;
+	local Checksum = 0;
+	-- NEW: keep GW selection if it matches cached one
+	if g_CachedGreatWorkSlot == nil then
+		g_CurrentGreatWorkSlot = nil;
+	elseif g_CurrentGreatWorkSlot then
+		if (g_CurrentGreatWorkSlot.CityID ~= g_CachedGreatWorkSlot.CityID or
+			g_CurrentGreatWorkSlot.BuildingClassID ~= g_CachedGreatWorkSlot.BuildingClassID or
+			g_CurrentGreatWorkSlot.GreatWorkSlotIndex ~= g_CachedGreatWorkSlot.GreatWorkSlotIndex) then
+
+		   	g_CurrentGreatWorkSlot = nil;
+		   	g_CachedGreatWorkSlot = nil;
+		end
+	end
 	
 	local pPlayer = Players[Game.GetActivePlayer()];
 	
@@ -911,6 +930,7 @@ function SortAndDisplayYourCulture()
 						previousGreatWorkSelection.BuildingClassID == selectionPoint.BuildingClassID and
 						previousGreatWorkSelection.GreatWorkSlotIndex == selectionPoint.GreatWorkSlotIndex) then
 						g_CurrentGreatWorkSlot = selectionPoint;	
+						g_CachedGreatWorkSlot = selectionPoint;
 					end
 					
 					icon:SetHide(false);
@@ -1051,6 +1071,7 @@ function SortAndDisplayYourCulture()
 			previousGreatWorkSelection.BuildingClassID == selectionPoint.BuildingClassID and
 			previousGreatWorkSelection.GreatWorkSlotIndex == selectionPoint.GreatWorkSlotIndex) then
 			g_CurrentGreatWorkSlot = selectionPoint;	
+			g_CachedGreatWorkSlot = selectionPoint;
 		end
 		
 		local greatWorksIndex = selectionPoint.GreatWorkIndex;
@@ -1092,9 +1113,11 @@ function SortAndDisplayYourCulture()
 													selectionPoint.CityID, selectionPoint.BuildingClassID, selectionPoint.GreatWorkSlotIndex);
 					end												
 					-- Clear Selection
-					g_CurrentGreatWorkSlot = nil;	
+					g_CurrentGreatWorkSlot = nil;
+					g_CachedGreatWorkSlot = nil;
 				else
 					g_CurrentGreatWorkSlot = selectionPoint;
+					g_CachedGreatWorkSlot = selectionPoint;
 				end
 				
 				--Update Highlights	
@@ -2195,6 +2218,8 @@ function ShowHideHandler( bIsHide, bInitState )
         	TabSelect(g_CurrentTab);
         else
 		    UI.decTurnTimerSemaphore();
+		    g_CurrentGreatWorkSlot = nil;
+		    g_CachedGreatWorkSlot = nil;
         end
     end
 end
