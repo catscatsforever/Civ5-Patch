@@ -502,10 +502,11 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 		Controls.BanWorldWonderPull_3:SetDisabled( not bCanEdit );
 	else
 		local info = GameInfo.Buildings[ PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") ];
+		Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetText( info.Description );
 		if info.DuelHelp then
-			Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetToolTip( info.DuelHelp );
+			Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetToolTip( info.DuelHelp );
 		else
-			Controls.BanWorldWonderPull_2:GetButton():LocalizeAndSetToolTip( info.Help );
+			Controls.BanWorldWonderPull_3:GetButton():LocalizeAndSetToolTip( info.Help );
 		end
 		Controls.BanWorldWonderPull_3:SetDisabled( not bCanEdit );
 	end
@@ -1139,7 +1140,7 @@ function UpdateDuelModePulls()
 
 	for info in GameInfo.Buildings("ID >= 0 ORDER BY Description") do
 		local thisBuildingClass = GameInfo.BuildingClasses[info.BuildingClass];
-		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 161  then
+		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 70 and info.ID ~= 161  then
 			if(PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") ~= info.ID) then
 				local controlTable = {};
 				Controls.BanWorldWonderPull_2:BuildEntry( "InstanceOne", controlTable );
@@ -1165,7 +1166,7 @@ function UpdateDuelModePulls()
 
 	for info in GameInfo.Buildings("ID >= 0 ORDER BY Description") do
 		local thisBuildingClass = GameInfo.BuildingClasses[info.BuildingClass];
-		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 161  then
+		if thisBuildingClass.MaxGlobalInstances == 1 and info.ID ~= 70 and info.ID ~= 161  then
 			if(PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") ~= info.ID and PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") ~= info.ID) then
 				local controlTable = {};
 				Controls.BanWorldWonderPull_3:BuildEntry( "InstanceOne", controlTable );
@@ -1246,8 +1247,8 @@ function UpdateDuelModePulls()
 	Controls.BanReligionBeliefPull_1:ClearEntries();
 	local controlTable = {};
 	Controls.BanReligionBeliefPull_1:BuildEntry( "InstanceOne", controlTable );
-	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
-	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_BELIEF");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_BELIEF_HELP");
 	controlTable.Button:SetVoid1( -1 );
 
 	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
@@ -1267,8 +1268,8 @@ function UpdateDuelModePulls()
 	Controls.BanReligionBeliefPull_2:ClearEntries();
 	local controlTable = {};
 	Controls.BanReligionBeliefPull_2:BuildEntry( "InstanceOne", controlTable );
-	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
-	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_BELIEF");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_BELIEF_HELP");
 	controlTable.Button:SetVoid1( -1 );
 
 	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
@@ -1288,8 +1289,8 @@ function UpdateDuelModePulls()
 	Controls.BanReligionBeliefPull_3:ClearEntries();
 	local controlTable = {};
 	Controls.BanReligionBeliefPull_3:BuildEntry( "InstanceOne", controlTable );
-	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_PANTHEON");
-	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_PANTHEON_HELP");
+	controlTable.Button:LocalizeAndSetText("TXT_KEY_NO_BELIEF");
+	controlTable.Button:LocalizeAndSetToolTip("TXT_KEY_NO_BELIEF_HELP");
 	controlTable.Button:SetVoid1( -1 );
 
 	for info in GameInfo.Beliefs("Founder = 1 OR Follower = 1 OR Enhancer = 1 OR Reformation = 1 ORDER BY ShortDescription") do
@@ -1389,6 +1390,7 @@ Controls.MaxTurnsCheck:RegisterCallback( Mouse.eLClick, OnMaxTurnsChecked );
 function SetDuelModeOption()
 	local isChecked = Controls.DuelModeCheck:IsChecked();
 	PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
+	PreGame.SetGameOption("GAMEOPTION_ALWAYS_WAR", isChecked);
 	if isChecked and Controls.NoAncientRuinsCheck:IsChecked() then
 		PreGame.SetGameOption("GAMEOPTION_NO_GOODY_HUTS", true);
 	else

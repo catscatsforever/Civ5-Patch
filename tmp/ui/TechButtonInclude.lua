@@ -1,6 +1,8 @@
 -------------------------------------------------
 -- Include file that has handy stuff for the tech tree and other screens that need to show a tech button
 -------------------------------------------------
+-- edit: Duel Mode for EUI and vanilla UI
+-------------------------------------------------
 include( "IconSupport" );
 include( "InfoTooltipInclude" );
 
@@ -102,12 +104,16 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  	
  	for thisBuildingInfo in GameInfo.Buildings(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to construct this building
+ -- Duel Mode
 		if validBuildingBuilds[thisBuildingInfo.BuildingClass] == thisBuildingInfo.Type then
-			local buttonName = "B"..tostring(buttonNum);
-			local thisButton = thisTechButtonInstance[buttonName];
-			if thisButton then
-				AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, textureSize );
-				buttonNum = buttonNum + 1;
+			if not (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
+				and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == thisBuildingInfo.ID) or 70 == thisBuildingInfo.ID)) then
+				local buttonName = "B"..tostring(buttonNum);
+				local thisButton = thisTechButtonInstance[buttonName];
+				if thisButton then
+					AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, textureSize );
+					buttonNum = buttonNum + 1;
+				end
 			end
 		end
  	end
