@@ -1121,7 +1121,7 @@ int CvBuildingEntry::GetTechShare() const
 /// Number of free techs granted by this building
 int CvBuildingEntry::GetFreeTechs() const
 {
-#ifdef DUEL_GREAT_LIBRAY_CHANGE
+#ifdef DUEL_GREAT_LIBRARY_CHANGE
 	const char* szWonderTypeChar = GetType();
 	CvString szWonderType = szWonderTypeChar;
 
@@ -1580,7 +1580,7 @@ int CvBuildingEntry::GetYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-#ifdef DUEL_GREAT_LIBRAY_CHANGE
+#ifdef DUEL_GREAT_LIBRARY_CHANGE
 	const char* szWonderTypeChar = GetType();
 	CvString szWonderType = szWonderTypeChar;
 

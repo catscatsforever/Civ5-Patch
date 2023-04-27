@@ -512,26 +512,26 @@
 #define AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
 /// Adds a new field for minimum city yield that adjust said yield when the city is on hills (currently -1)
 #define NQM_YIELD_MIN_CITY_ON_HILLS_ADJUST
-///
+/// Time resistance of cities is half than normal
 #define REDUCE_RESISTANCE_TIME
-///
+/// Oxford University is available before entering Atomic Era
 #define NO_OXFORD_AFTER_ATOM
-///
+/// Oxford University and National Intelligence Agency can be build once per game
 #define CAN_BUILD_OU_AND_NIA_ONLY_ONCE
 ///
 #define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-///
+/// Removed grapics of Spaceship Parts
 #define SPACESHIP_GRAPHICS
 ///
 #define BUILDING_CLASS_YIELD_CHANGES
-///
+/// Can't trade damaged cities
 #define TRADE_CITIES_ONLY_FULL_HP
 /// Puppet cities and cities with automated production will no longer accidentally trigger the production notification
 #define AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
 /// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
 #define AUI_NOFITICATIONS_FIX_PRODUCTION_NOTIFICATION_REMOVAL_EXTRA_CHECKS
 ///
-#define RECYLING_CENTER_DOES_NOT_COUNT_AS_NATIONAL_WONDER
+#define DO_NOT_COUNT_RECYLING_CENTER_AS_NATIONAL_WONDER
 /*CITIES CHANGES END*/
 
 
@@ -545,11 +545,11 @@
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
 /// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
 // #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-///
+/// Planes will take damage and Guided Missiles will dissapear when war is declaring by Air Strike
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
 // Fixes incorrect plot distance calculation for wrapped maps
 #define GAMECOREUTILS_FIX_PLOT_DISTANCE
-///
+/// Fix bug of SetImprovementType when caused by placing Citadels on hided resource on enemy's territory
 #define FIX_SET_IMPROVEMENT_TYPE
 ///
 #define FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
@@ -666,9 +666,9 @@
 ///
 #define DUEL_DOUBLE_UNIT_FAITH_COST
 ///
-#define DUEL_GREAT_LIBRAY_CHANGE
 #define DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
 ///
+#define DUEL_GREAT_LIBRARY_CHANGE
 ///
 #define DUEL_DISABLE_GREAT_WALL
 ///
