@@ -1,6 +1,8 @@
 ------------------------------------------------- 
 -- Staging Room Screen
 -------------------------------------------------
+-- edit: Duel Mode for EUI and vanilla UI
+-------------------------------------------------
 include( "IconSupport" );
 include( "SupportFunctions"  );
 include( "InstanceManager" );
@@ -1533,7 +1535,8 @@ function UpdateOptions()
 		count = count + 1;
     end
     
-    for option in GameInfo.GameOptions{Visible = 1} do	
+    for option in GameInfo.GameOptions{Visible = 1} do
+    	if option.SupportsMultiplayer then
 			if( option.Type ~= "GAMEOPTION_END_TURN_TIMER_ENABLED" 
 					and option.Type ~= "GAMEOPTION_SIMULTANEOUS_TURNS"
 					and option.Type ~= "GAMEOPTION_DYNAMIC_TURNS") then 
@@ -1546,6 +1549,176 @@ function UpdateOptions()
 				end
 			end
 		end
+	end
+
+-- Duel Mode
+	for dueloption in GameInfo.GameOptions{Type = "GAMEOPTION_DUEL_STUFF"} do
+		local savedValue = PreGame.GetGameOption(dueloption.Type);
+		if(savedValue ~= nil and savedValue == 1) then
+			local controlTable = g_AdvancedOptionIM:GetInstance();
+			g_AdvancedOptionsList[count] = controlTable;
+			controlTable.Text:LocalizeAndSetText(dueloption.Description);
+			count = count + 1;
+		end
+
+		if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_DISABLE_OXFORD_UNIVERSITY"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					count = count + 1;
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_NO_LEAGUES"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					count = count + 1;
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_NO_GOODY_HUTS"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					count = count + 1;
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_NO_ESPIONAGE"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					count = count + 1;
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_NO_BARBARIANS"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					count = count + 1;
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_RAGING_BARBARIANS"} do
+				if PreGame.GetGameOption("GAMEOPTION_NO_BARBARIANS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue == 1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:LocalizeAndSetText(option.Description);
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_WONDER1"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_WONDER2"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_WONDER3"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_PANTHEON1"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_PANTHEON2"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_PANTHEON3"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_BELIEF1"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_BELIEF2"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_BAN_BELIEF3"} do
+				if PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") > 0 then
+					local savedValue = PreGame.GetGameOption(option.Type);
+					if(savedValue ~= nil and savedValue > -1) then
+						local controlTable = g_AdvancedOptionIM:GetInstance();
+						g_AdvancedOptionsList[count] = controlTable;
+						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						count = count + 1;
+					end
+				end
+			end
+		end
+	end
 		
 		-- Update scrollable panel
 		Controls.AdvancedOptions:CalculateSize();

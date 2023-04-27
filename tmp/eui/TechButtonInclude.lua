@@ -1,6 +1,8 @@
 -------------------------------------------------
 -- Include file that has handy stuff for the tech tree and other screens that need to show a tech button
 -------------------------------------------------
+-- edit: Duel Mode for EUI and vanilla UI
+-------------------------------------------------
 include( "FLuaVector" ) --compatibility with Firaxis scripts
 include( "EUI_utilities" )
 IconLookup = EUI.IconLookup
@@ -421,8 +423,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- buildings and wonders unlocked by this tech
 	for row in GameInfo.Buildings( thisPrereqTech ) do
-		if validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
-			break
+-- Duel Mode
+		if not (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
+			and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == row.ID) or 70 == row.ID)) then
+			if validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
+				break
+			end
 		end
 	end
 

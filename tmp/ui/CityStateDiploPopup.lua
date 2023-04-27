@@ -549,9 +549,9 @@ function OnDisplay()
 		Controls.RevokePledgeButton:SetToolTipString(strRevokeProtectTT);
 	end
 	
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR)) then
-		Controls.PeaceButton:SetHide(true);
-	end
+	--if (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR)) then
+	--	Controls.PeaceButton:SetHide(true);
+	--end
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_PEACE)) then
 		Controls.WarButton:SetHide(true);
 	end

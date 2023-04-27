@@ -22,7 +22,7 @@ bool isTeamWonderClass(const CvBuildingClassInfo& kBuildingClass)
 //------------------------------------------------------------------------------
 bool isNationalWonderClass(const CvBuildingClassInfo& kBuildingClass)
 {
-#ifdef RECYLING_CENTER_DOES_NOT_COUNT_AS_NATIONAL_WONDER
+#ifdef DO_NOT_COUNT_AS_RECYLING_CENTER_NATIONAL_WONDER
 	return (kBuildingClass.getMaxPlayerInstances() != -1) && (kBuildingClass.getMaxPlayerInstances() != 5);
 #else
 	return kBuildingClass.getMaxPlayerInstances() != -1;
