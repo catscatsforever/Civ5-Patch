@@ -1737,21 +1737,6 @@
 			<CtrlDownAlt>false</CtrlDownAlt> 
 		</Row>
 		<Row> 
-			<ID>20</ID> 
-			<Type>CONTROL_UNIT_ICONS</Type> 
-			<Description>TXT_KEY_ACTION_UNIT_ICONS</Description> 
-			<Help>TXT_KEY_GLOBELAYER_UNITS</Help> 
-			<HotKey>KB_U</HotKey> 
-			<HotKeyPriority>0</HotKeyPriority> 
-			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
-			<AltDown>true</AltDown> 
-			<AltDownAlt>false</AltDownAlt> 
-			<ShiftDown>false</ShiftDown> 
-			<ShiftDownAlt>false</ShiftDownAlt> 
-			<CtrlDown>false</CtrlDown> 
-			<CtrlDownAlt>false</CtrlDownAlt> 
-		</Row>
-		<Row> 
 			<ID>21</ID> 
 			<Type>CONTROL_SCORES</Type> 
 			<Description>TXT_KEY_ACTION_SCORES</Description> 
@@ -1872,6 +1857,7 @@
 		<Row> 
 			<ID>29</ID> 
 			<Type>CONTROL_CIVILOPEDIA</Type> 
+			<Description>TXT_KEY_CIVILOPEDIA</Description> 
 			<HotKey>KB_F1</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1899,7 +1885,7 @@
 		<Row> 
 			<ID>31</ID> 
 			<Type>CONTROL_FOREIGN_SCREEN</Type> 
-			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description> 
+			<Description>TXT_KEY_ADVISOR_FOREIGN_TITLE</Description> 
 			<HotKey>KB_F4</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1913,7 +1899,7 @@
 		<Row> 
 			<ID>32</ID> 
 			<Type>CONTROL_MILITARY_SCREEN</Type> 
-			<Description>TXT_KEY_MILITARY_ADVISOR_TITLE</Description> 
+			<Description>TXT_KEY_ADVISOR_MILITARY_TITLE</Description> 
 			<HotKey>KB_F3</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1927,7 +1913,7 @@
 		<Row> 
 			<ID>33</ID> 
 			<Type>CONTROL_TECH_CHOOSER</Type> 
-			<Description>TXT_KEY_TECH_CHOOSER_TITLE</Description> 
+			<Description>TXT_KEY_ADVISOR_SCREEN_TECH_CHOOSER_DISPLAY</Description> 
 			<HotKey>KB_F6</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1941,7 +1927,8 @@
 		<Row> 
 			<ID>34</ID> 
 			<Type>CONTROL_TURN_LOG</Type> 
-			<Description>TXT_KEY_EVENT_LOG</Description> 
+			<Description>TXT_KEY_POP_NOTIFICATION_LOG</Description> 
+			<Help>TXT_KEY_CIVILOPEDIA_TOOLTIP</Help>
 			<HotKey>KB_F7</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1955,7 +1942,7 @@
 		<Row> 
 			<ID>35</ID> 
 			<Type>CONTROL_DOMESTIC_SCREEN</Type> 
-			<Description>TXT_KEY_DOMESTIC_ADVISOR_TITLE</Description> 
+			<Description>TXT_KEY_ADVISOR_ECON_TITLE</Description> 
 			<HotKey>KB_F2</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1969,7 +1956,7 @@
 		<Row> 
 			<ID>36</ID> 
 			<Type>CONTROL_VICTORY_SCREEN</Type> 
-			<Description>TXT_KEY_VICTORY_SCREEN_TITLE</Description> 
+			<Description>TXT_KEY_VP_TT</Description> 
 			<HotKey>KB_F8</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1997,7 +1984,7 @@
 		<Row> 
 			<ID>38</ID> 
 			<Type>CONTROL_SELECT_HEALTHY</Type> 
-			<Description>TXT_KEY_MAIN_MENU_HALL_OF_FAME</Description> 
+			<Description>TXT_KEY_HALL_OF_FAME</Description> 
 			<HotKey>KB_H</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -3131,7 +3118,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Visible>true</Visible> 
+			<Visible>false</Visible> 
 			<Time>25</Time> 
 			<Target>false</Target> 
 			<Build>false</Build> 
@@ -3482,7 +3469,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Visible>true</Visible> 
+			<Visible>false</Visible> 
 			<Time>40</Time> 
 			<Target>false</Target> 
 			<Build>false</Build> 
@@ -3504,7 +3491,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Visible>true</Visible> 
+			<Visible>false</Visible> 
 			<Time>40</Time> 
 			<Target>false</Target> 
 			<Build>false</Build> 
