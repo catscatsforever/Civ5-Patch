@@ -3,6 +3,9 @@
 -- modified by bc1 from Civ V 1.0.3.276 code
 -- code is common using gk_mode and bnw_mode switches
 ------------------------------------------------------
+-- edit: NEW: Ingame Hotkey Manager for EUI
+------------------------------------------------------
+g_needsUpdate = true;
 
 include( "EUI_tooltips" )
 Events.SequenceGameInitComplete.Add(function()
@@ -59,7 +62,8 @@ local DomainTypes = DomainTypes
 local Events = Events
 local Game = Game
 local GameDefines = GameDefines
-local GameInfoActions = GameInfoActions
+-- NEW: actually we need direct access to this global now
+--local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
 local GameInfo_Automates = GameInfo.Automates
 local GameInfo_Builds = GameInfo.Builds
@@ -1437,6 +1441,12 @@ function ActionToolTipHandler( control )
 		return
 	end
 
+	-- NEW: update GameInfoActions now?
+	if g_needsUpdate == true then
+		Game.UpdateActions();
+		g_needsUpdate = false;
+	end
+
 	local actionID = control:GetVoid1()
 	local action = GameInfoActions[actionID]
 	local plot = unit:GetPlot()
@@ -2309,6 +2319,11 @@ Events.EndCombatSim.Add( function(
 	end
 end)
 --]]
+
+-- NEW update GameInfoActions for this context explicitly
+-- check g_needsUpdate before any call to GameInfoActions[].HotKey property
+LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end)
+
 -- Process request to hide enemy panel
 LuaEvents.EnemyPanelHide.Add(
 	function( isEnemyPanelHide )

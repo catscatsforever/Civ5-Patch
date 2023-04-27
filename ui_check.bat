@@ -152,14 +152,16 @@ IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.lua" (
   ECHO OptionsMenu.lua: EUI version detected
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.lua.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.lua"
 ) ELSE (
-  ECHO OptionsMenu.lua: no EUI, skipping
+  ECHO OptionsMenu.lua: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\OptionsMenu.lua.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\Options\OptionsMenu.xml" (
   ECHO OptionsMenu.xml: EUI version detected
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\OptionsMenu.xml.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.xml"
 ) ELSE (
-  ECHO OptionsMenu.xml: no EUI, skipping
+  ECHO OptionsMenu.xml: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\OptionsMenu.xml.ignore" "%cd%\%patchfolder%\UI\OptionsMenu.xml"
 )
 REM -------------------------------------------------
 set text="CityBannerProductionBox = function( city )"
