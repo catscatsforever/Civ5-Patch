@@ -641,6 +641,11 @@
 #define NOTIFICATION_MP_PROPOSAL_RESULT -1076480691
 /*MP VOTING SYSTEM END*/
 
+/*INGAME HOTKEY MANAGER START*/
+// Adds UI options screen and internal methods to customize units/interface hotkeys
+// Note: on lua side, GameInfo table still holds the original hotkeys, and GameInfoactions data is updated as soon as Game.UpdateActions() is called;
+#define INGAME_HOTKEY_MANAGER
+/*INGAME HOTKEY MANAGER END*/
 
 
 /*OTHER CHANGES START*/

@@ -1,6 +1,10 @@
-------------------------------------------------
+--------------------------------------------------
 -- Unit Panel Screen 
--------------------------------------------------
+--------------------------------------------------
+-- edit: NEW: Ingame Hotkey Manager for vanilla UI
+--------------------------------------------------
+g_needsUpdate = true;
+
 include( "IconSupport" );
 include( "InstanceManager" );
 
@@ -931,7 +935,13 @@ function TipHandler( control )
 	if not unit then
 		return
 	end
-	
+
+	-- NEW: update GameInfoActions now?
+	if g_needsUpdate == true then
+		Game.UpdateActions();
+		g_needsUpdate = false;
+	end
+
 	local iAction = control:GetVoid1();
     local action = GameInfoActions[iAction];
     
@@ -1709,6 +1719,10 @@ function OnActivePlayerChanged(iActivePlayer, iPrevActivePlayer)
 	OnInfoPaneDirty();
 end
 Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
+
+-- NEW update GameInfoActions for this context explicitly
+-- check g_needsUpdate before any call to GameInfoActions[].HotKey property
+LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end)
 
 function OnEnemyPanelHide( bIsEnemyPanelHide )
     if( g_bWorkerActionPanelOpen ) then
