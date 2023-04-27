@@ -1168,7 +1168,22 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			// Old unit has the promotion
 			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
 			{
+#ifdef DUEL_BLOCK_BATTLESHIP_RANGE_PROMOTION_ON_DUEL_SIZED_WVE
+				if(CvPreGame::mapScriptName() == "Assets\\Maps\\West_vs_East.lua" &&
+					GC.getMap().getWorldSize() == WORLDSIZE_DUEL &&
+					getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_BATTLESHIP") &&
+					ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RANGE"))
+				{
+					bGivePromotion = false;
+				}
+				else
+				{
+					bGivePromotion = true;
+				}
+					
+#else
 				bGivePromotion = true;
+#endif
 			}
 
 			// New unit gets promotion for free (as per XML)
@@ -9309,6 +9324,15 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 	if(isInstaHealLocked() && ePromotion == 0)
+	{
+		return false;
+	}
+#endif
+#ifdef DUEL_BLOCK_BATTLESHIP_RANGE_PROMOTION_ON_DUEL_SIZED_WVE
+	if(CvPreGame::mapScriptName() == "Assets\\Maps\\West_vs_East.lua" &&
+		GC.getMap().getWorldSize() == WORLDSIZE_DUEL &&
+		getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_BATTLESHIP") &&
+		ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RANGE"))
 	{
 		return false;
 	}
