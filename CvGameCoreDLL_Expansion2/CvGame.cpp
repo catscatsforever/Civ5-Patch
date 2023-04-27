@@ -8371,7 +8371,14 @@ void CvGame::updateWar()
 									{
 										if(!atWar(((TeamTypes)iI), ((TeamTypes)iJ)))
 										{
+#ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
+											if (!teamJ.isMinorCiv())
+											{
+												teamI.declareWar(((TeamTypes)iJ));
+											}
+#else
 											teamI.declareWar(((TeamTypes)iJ));
+#endif
 										}
 									}
 								}
