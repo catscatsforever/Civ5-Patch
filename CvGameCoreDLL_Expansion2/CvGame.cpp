@@ -8349,7 +8349,11 @@ void CvGame::updateWar()
 {
 	int iI, iJ;
 
+#ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
+	if(isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+#else
 	if(isOption(GAMEOPTION_ALWAYS_WAR))
+#endif
 	{
 		for(iI = 0; iI < MAX_TEAMS; iI++)
 		{

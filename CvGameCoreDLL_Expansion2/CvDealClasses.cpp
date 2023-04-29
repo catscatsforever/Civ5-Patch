@@ -314,6 +314,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
+#ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
+	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && pFromTeam->isAtWar(eToTeam) && pToTeam->isAtWar(eFromTeam))
+		return false;
+#endif
+
 	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew();
 	if (!pRenewDeal)
 	{

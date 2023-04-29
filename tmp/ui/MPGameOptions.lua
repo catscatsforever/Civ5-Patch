@@ -1390,7 +1390,6 @@ Controls.MaxTurnsCheck:RegisterCallback( Mouse.eLClick, OnMaxTurnsChecked );
 function SetDuelModeOption()
 	local isChecked = Controls.DuelModeCheck:IsChecked();
 	PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
-	PreGame.SetGameOption("GAMEOPTION_ALWAYS_WAR", isChecked);
 	if isChecked and Controls.NoAncientRuinsCheck:IsChecked() then
 		PreGame.SetGameOption("GAMEOPTION_NO_GOODY_HUTS", true);
 	else

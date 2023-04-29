@@ -954,7 +954,11 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 		return false;
 	}
 
+#ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
+	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+#else
 	if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+#endif
 	{
 #ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
 		if(!GET_TEAM(eTeam).isMinorCiv())
@@ -3450,7 +3454,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		}
 #endif
 
+#ifdef DUEL_ALWAYS_WAR_ONLY_WITH_MAJORS
+		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+#else
 		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+#endif
 		{
 			if(isHuman())
 			{
