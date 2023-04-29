@@ -26029,6 +26029,17 @@ void CvPlayer::disconnected()
 				}
 			}
 #endif
+#ifdef CHANGE_HOST_IF_DISCONNECTED
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
+			{
+				// Check host
+				if (pLeague->IsHostMember(GetID()))
+				{
+					pLeague->AssignNewHost();
+				}
+			}
+#endif
 		}
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() &&

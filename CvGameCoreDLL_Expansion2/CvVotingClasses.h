@@ -542,6 +542,9 @@ public:
 	void ChangeConsecutiveHostedSessions(int iChange);
 	bool HasMemberEverBeenHost(PlayerTypes ePlayer);
 	bool HasMemberAlwaysBeenHost(PlayerTypes ePlayer);
+#ifdef CHANGE_HOST_IF_DISCONNECTED
+	void AssignNewHost();
+#endif
 
 	// Projects
 	bool IsProjectActive(LeagueProjectTypes eLeagueProject) const;
@@ -628,7 +631,9 @@ private:
 
 	void CheckProposalsValid();
 	void CheckResolutionsValid();
+#ifndef CHANGE_HOST_IF_DISCONNECTED
 	void AssignNewHost();
+#endif
 	
 	void DoEnactResolution(CvEnactProposal* pProposal);
 	void DoRepealResolution(CvRepealProposal* pProposal);
