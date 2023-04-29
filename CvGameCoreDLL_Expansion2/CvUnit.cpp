@@ -5743,7 +5743,11 @@ bool CvUnit::paradrop(int iX, int iY)
 	//JON: CHECK FOR INTERCEPTION HERE
 
 #ifdef REMOVE_PARADROP_ANIMATION
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	if (CvPreGame::quickMovement() || GC.getGame().isNetworkMultiPlayer())
+#else
 	if (CvPreGame::quickMovement())
+#endif
 	{
 		setXY(pPlot->getX(), pPlot->getY());
 	}
@@ -6617,7 +6621,11 @@ bool CvUnit::rebase(int iX, int iY)
 
 	bool bShow = true;
 	// Do the rebase first to keep the visualization in sequence
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	if ((plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman()) && !CvPreGame::quickMovement() && !GC.getGame().isNetworkMultiPlayer())
+#else
 	if ((plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman()) && !CvPreGame::quickMovement())
+#endif
 	{
 		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
 		if(getSpecialUnitType() == eSpecialUnitPlane)
@@ -13991,7 +13999,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if(bCheckPlotVisible && (pNewPlot->isVisibleToWatchingHuman() || pOldPlot->isVisibleToWatchingHuman()))
 				bShow = true;
 
-			if(CvPreGame::quickMovement())
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+			if (CvPreGame::quickMovement() || GC.getGame().isNetworkMultiPlayer())
+#else
+			if (CvPreGame::quickMovement())
+#endif
 			{
 				bShow = false;
 			}
@@ -19301,7 +19313,11 @@ bool CvUnit::SentryAlert() const
 bool CvUnit::ShowMoves() const
 {
 	VALIDATE_OBJECT
-	if(CvPreGame::quickMovement())
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	if (CvPreGame::quickMovement() || GC.getGame().isNetworkMultiPlayer())
+#else
+	if (CvPreGame::quickMovement())
+#endif
 	{
 		return false;
 	}
@@ -19750,7 +19766,11 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 		bExecuteMove = true;
 	}
 
-	if(CvPreGame::quickMovement())
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	if (CvPreGame::quickMovement() || GC.getGame().isNetworkMultiPlayer())
+#else
+	if (CvPreGame::quickMovement())
+#endif
 	{
 		bExecuteMove = false;
 	}

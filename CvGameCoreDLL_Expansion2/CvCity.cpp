@@ -15086,7 +15086,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 		CvUnitCombat::GenerateRangedCombatInfo(*this, pDefender, *pPlot, &kCombatInfo);
 
 		uint uiParentEventID = 0;
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+		if(!CvPreGame::quickCombat() && !GC.getGame().isNetworkMultiPlayer())
+#else
 		if(!CvPreGame::quickCombat())
+#endif
 		{
 			// Center camera here!
 			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible(false);

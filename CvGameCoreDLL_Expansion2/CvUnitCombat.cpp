@@ -2639,7 +2639,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			uint uiParentEventID = 0;
 			// Send the combat message if the target plot is visible.
 			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible(false);
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+			bool quickCombat = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 			bool quickCombat = CvPreGame::quickCombat();
+#endif
 			if(!quickCombat)
 			{
 				// Center camera here!
@@ -2711,7 +2715,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	bool bDoImmediate = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 	bool bDoImmediate = CvPreGame::quickCombat();
+#endif
 	// Range-striking a Unit
 	if(!pPlot->isCity())
 	{
@@ -2807,7 +2815,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		return eResult;
 	}
 
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	bool bDoImmediate = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 	bool bDoImmediate = CvPreGame::quickCombat();
+#endif
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 	kAttacker.setMadeAttack(true);
 
@@ -2921,7 +2933,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pkDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
 		uint uiParentEventID = 0;
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+		bool bDoImmediate = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 		bool bDoImmediate = CvPreGame::quickCombat();
+#endif
 		if(!bDoImmediate)
 		{
 			// Center camera here!
@@ -3018,7 +3034,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 		bool isTargetVisibleToActivePlayer = plot.isActiveVisible(false);
 
 		uint uiParentEventID = 0;
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+		bool bDoImmediate = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 		bool bDoImmediate = CvPreGame::quickCombat();
+#endif
 		if(!bDoImmediate)
 		{
 			// Center camera here!
@@ -3094,7 +3114,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 	if(NULL == pPlot)
 		return eResult;
 
+#ifdef MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+	bool bDoImmediate = (CvPreGame::quickCombat() || GC.getGame().isNetworkMultiPlayer());
+#else
 	bool bDoImmediate = CvPreGame::quickCombat();
+#endif
 	CvCombatInfo kCombatInfo;
 	CvUnitCombat::GenerateNuclearCombatInfo(kAttacker, *pPlot, &kCombatInfo);
 	CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
