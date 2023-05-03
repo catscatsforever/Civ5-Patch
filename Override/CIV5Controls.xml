@@ -1540,7 +1540,6 @@
 			<ID>5</ID> 
 			<Type>CONTROL_NEXTCITY</Type> 
 			<Description>TXT_KEY_ACTION_NEXT_CITY</Description> 
-			<Help>TXT_KEY_ACTION_NEXT_CITY_HELP</Help> 
 			<HotKey>KB_HOME</HotKey> 
 			<HotKeyAlt>KB_NUMPADPLUS</HotKeyAlt> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -1556,7 +1555,6 @@
 			<ID>6</ID> 
 			<Type>CONTROL_PREVCITY</Type> 
 			<Description>TXT_KEY_ACTION_PREVIOUS_CITY</Description> 
-			<Help>TXT_KEY_ACTION_PREVIOUS_CITY_HELP</Help> 
 			<HotKey>KB_END</HotKey> 
 			<HotKeyAlt>KB_NUMPADMINUS</HotKeyAlt> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -1572,7 +1570,6 @@
 			<ID>9</ID> 
 			<Type>CONTROL_CYCLEUNIT</Type> 
 			<Description>TXT_KEY_ACTION_CYCLE_UNITS</Description> 
-			<Help>TXT_KEY_ACTION_CYCLE_UNITS_HELP</Help> 
 			<HotKey>KB_W</HotKey> 
 			<HotKeyAlt>KB_NUMPADENTER</HotKeyAlt> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -1588,7 +1585,6 @@
 			<ID>10</ID> 
 			<Type>CONTROL_CYCLEUNIT_ALT</Type> 
 			<Description>TXT_KEY_ACTION_CYCLE_UNITS_ALT</Description> 
-			<Help>TXT_KEY_ACTION_CYCLE_UNITS_ALT_HELP</Help> 
 			<HotKey>KB_PERIOD</HotKey> 
 			<HotKeyAlt>KB_NUMPAD5</HotKeyAlt> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -1604,7 +1600,6 @@
 			<ID>11</ID> 
 			<Type>CONTROL_CYCLEWORKER</Type> 
 			<Description>TXT_KEY_ACTION_CYCLE_WORKERS</Description> 
-			<Help>TXT_KEY_ACTION_CYCLE_WORKERS_HELP</Help> 
 			<HotKey>KB_SLASH</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1619,7 +1614,6 @@
 			<ID>12</ID> 
 			<Type>CONTROL_LASTUNIT</Type> 
 			<Description>TXT_KEY_ACTION_LASTUNIT</Description> 
-			<Help>TXT_KEY_ACTION_LASTUNIT_HELP</Help> 
 			<HotKey>KB_COMMA</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1634,7 +1628,6 @@
 			<ID>13</ID> 
 			<Type>CONTROL_ENDTURN</Type> 
 			<Description>TXT_KEY_ACTION_ENDTURN</Description> 
-			<Help>TXT_KEY_ACTION_ENDTURN_HELP</Help> 
 			<HotKey>KB_RETURN</HotKey> 
 			<HotKeyAlt>KB_NUMPADENTER</HotKeyAlt> 
 			<HotKeyPriority>1</HotKeyPriority> 
@@ -1650,7 +1643,6 @@
 			<ID>14</ID> 
 			<Type>CONTROL_ENDTURN_ALT</Type> 
 			<Description>TXT_KEY_ACTION_ENDTURN_ALT</Description> 
-			<Help>TXT_KEY_ACTION_ENDTURN_ALT_HELP</Help> 
 			<HotKey>KB_SPACE</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1665,7 +1657,6 @@
 			<ID>15</ID> 
 			<Type>CONTROL_FORCEENDTURN</Type> 
 			<Description>TXT_KEY_ACTION_FORCE_ENDTURN</Description> 
-			<Help>TXT_KEY_ACTION_FORCE_ENDTURN_HELP</Help> 
 			<HotKey>KB_RETURN</HotKey> 
 			<HotKeyAlt>KB_NUMPADENTER</HotKeyAlt> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -1681,7 +1672,6 @@
 			<ID>16</ID> 
 			<Type>CONTROL_AUTOMOVES</Type> 
 			<Description>TXT_KEY_ACTION_AUTOMOVES</Description> 
-			<Help>TXT_KEY_ACTION_AUTOMOVES_HELP</Help> 
 			<HotKey>KB_A</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1696,7 +1686,6 @@
 			<ID>17</ID> 
 			<Type>CONTROL_PING</Type> 
 			<Description>TXT_KEY_ACTION_PING</Description> 
-			<Help>TXT_KEY_ACTION_PING_HELP</Help> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
 			<AltDown>false</AltDown> 
@@ -1710,7 +1699,6 @@
 			<ID>18</ID> 
 			<Type>CONTROL_YIELDS</Type> 
 			<Description>TXT_KEY_ACTION_YIELDS</Description> 
-			<Help>TXT_KEY_ACTION_YIELDS_HELP</Help> 
 			<HotKey>KB_Y</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1725,7 +1713,6 @@
 			<ID>19</ID> 
 			<Type>CONTROL_RESOURCE_ALL</Type> 
 			<Description>TXT_KEY_ACTION_RESOURCE_ALL</Description> 
-			<Help>TXT_KEY_GLOBELAYER_RESOURCES</Help> 
 			<HotKey>KB_R</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1768,7 +1755,6 @@
 			<ID>22</ID> 
 			<Type>CONTROL_LOAD_GAME</Type> 
 			<Description>TXT_KEY_ACTION_LOAD_GAME</Description> 
-			<Help>TXT_KEY_ACTION_LOAD_GAME_HELP</Help> 
 			<HotKey>KB_L</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1783,7 +1769,6 @@
 			<ID>23</ID> 
 			<Type>CONTROL_OPTIONS_SCREEN</Type> 
 			<Description>TXT_KEY_ACTION_OPTIONS_SCREEN</Description> 
-			<Help>TXT_KEY_ACTION_OPTIONS_SCREEN_HELP</Help> 
 			<HotKey>KB_O</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1798,7 +1783,6 @@
 			<ID>24</ID> 
 			<Type>CONTROL_RETIRE</Type> 
 			<Description>TXT_KEY_ACTION_RETIRE</Description> 
-			<Help>TXT_KEY_ACTION_RETIRE_HELP</Help> 
 			<HotKey>KB_Q</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1813,7 +1797,6 @@
 			<ID>25</ID> 
 			<Type>CONTROL_SAVE_GROUP</Type> 
 			<Description>TXT_KEY_ACTION_SAVE_GROUP</Description> 
-			<Help>TXT_KEY_ACTION_SAVE_GROUP_HELP</Help> 
 			<HotKey>KB_S</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1828,7 +1811,6 @@
 			<ID>26</ID> 
 			<Type>CONTROL_SAVE_NORMAL</Type> 
 			<Description>TXT_KEY_ACTION_SAVE_NORMAL</Description> 
-			<Help>TXT_KEY_ACTION_SAVE_GAME_HELP</Help> 
 			<HotKey>KB_S</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1871,6 +1853,7 @@
 			<ID>29</ID> 
 			<Type>CONTROL_CIVILOPEDIA</Type> 
 			<Description>TXT_KEY_CIVILOPEDIA</Description> 
+			<Help>TXT_KEY_CIVILOPEDIA_TOOLTIP</Help>
 			<HotKey>KB_F1</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -1941,7 +1924,6 @@
 			<ID>34</ID> 
 			<Type>CONTROL_TURN_LOG</Type> 
 			<Description>TXT_KEY_POP_NOTIFICATION_LOG</Description> 
-			<Help>TXT_KEY_CIVILOPEDIA_TOOLTIP</Help>
 			<HotKey>KB_F7</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
