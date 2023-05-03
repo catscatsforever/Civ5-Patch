@@ -748,6 +748,14 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 				GC.getGame().m_bIsPaused = false;
 				DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_UNPAUSE", GET_PLAYER(ePlayer).getName()).GetCString());
 			}
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			CvLuaArgsHandle args;
+			bool bResult;
+			if (pkScriptSystem)
+			{
+				args->Push(GC.getGame().m_bIsPaused);
+				LuaSupport::CallHook(pkScriptSystem, "EndTurnTimerPause", args.get(), bResult);
+			}
 		}
 	}
 	else
