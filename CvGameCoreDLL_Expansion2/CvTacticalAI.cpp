@@ -5995,7 +5995,11 @@ void CvTacticalAI::ExecuteParadropPillage(CvPlot* pTargetPlot)
 	UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 	if(pUnit)
 	{
+#ifdef REMOVE_PARADROP_ANIMATION
+		pUnit->PushMission((MissionTypes)-2, pTargetPlot->getX(), pTargetPlot->getY());
+#else
 		pUnit->PushMission(CvTypes::getMISSION_PARADROP(), pTargetPlot->getX(), pTargetPlot->getY());
+#endif
 		pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		pUnit->finishMoves();
 

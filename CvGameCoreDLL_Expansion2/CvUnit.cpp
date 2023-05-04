@@ -5574,12 +5574,6 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 	{
 		return false;
 	}
-#ifdef REMOVE_PARADROP_ANIMATION
-	if(GET_PLAYER(getOwner()).isMinorCiv())
-	{
-		return false;
-	}
-#endif
 
 	// Things we check when we want to know if the unit can actually drop RIGHT NOW
 	if(!bOnlyTestVisibility)
