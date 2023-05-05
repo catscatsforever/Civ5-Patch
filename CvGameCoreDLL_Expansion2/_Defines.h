@@ -273,6 +273,8 @@
 #define PROMOTION_INSTA_HEAL_LOCKED
 /// Decreasing Foreign Legion curchase cost
 #define FOREIGN_LEGION_COST_PURCHASE
+/// Stop centering camera on turn start or selected unit's death
+#define REMOVE_EXCESS_CAMERA_CANTERING
 /*UNITS CHANGES END*/
 
 
