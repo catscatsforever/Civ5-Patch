@@ -17181,7 +17181,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 					DLLUI->setCycleSelectionCounter(1);
 				}
 
+#ifndef REMOVE_EXCESS_CAMERA_CANTERING
 				DLLUI->setDirty(SelectionCamera_DIRTY_BIT, true);
+#endif
 
 				// slewis - added this so the tutorial knows when a turn begins
 				DLLUI->PublishActivePlayerTurnStart();
