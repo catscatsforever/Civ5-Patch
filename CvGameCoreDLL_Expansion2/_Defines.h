@@ -275,6 +275,8 @@
 #define FOREIGN_LEGION_COST_PURCHASE
 /// Stop centering camera on turn start or selected unit's death
 #define REMOVE_EXCESS_CAMERA_CANTERING
+///
+#define DISABLE_BUILD_REPAIR_ON_NON_FRIENDLY_TERRITORY
 /*UNITS CHANGES END*/
 
 
