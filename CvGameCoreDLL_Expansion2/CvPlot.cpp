@@ -2189,7 +2189,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
+#ifdef DISABLE_BUILD_REPAIR_ON_NON_FRIENDLY_TERRITORY
+		if((IsImprovementPillaged() || IsRoutePillaged()) && IsFriendlyTerritory(ePlayer))
+#else
 		if(IsImprovementPillaged() || IsRoutePillaged())
+#endif
 		{
 			bValid = true;
 		}
