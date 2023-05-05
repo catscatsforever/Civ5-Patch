@@ -1169,7 +1169,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
 			{
 #ifdef DUEL_BLOCK_BATTLESHIP_RANGE_PROMOTION_ON_DUEL_SIZED_WVE
-				if(CvPreGame::mapScriptName() == "Assets\\Maps\\West_vs_East.lua" &&
+				if(CvPreGame::mapScriptName() == "Assets\\Maps\\Duel Championship 2023 Maps\\Championship_2023_West_vs_East.lua" &&
 					GC.getMap().getWorldSize() == WORLDSIZE_DUEL &&
 					getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_BATTLESHIP") &&
 					ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RANGE"))
@@ -9338,7 +9338,7 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 	}
 #endif
 #ifdef DUEL_BLOCK_BATTLESHIP_RANGE_PROMOTION_ON_DUEL_SIZED_WVE
-	if(CvPreGame::mapScriptName() == "Assets\\Maps\\West_vs_East.lua" &&
+	if(CvPreGame::mapScriptName() == "Assets\\Maps\\Duel Championship 2023 Maps\\Championship_2023_West_vs_East.lua" &&
 		GC.getMap().getWorldSize() == WORLDSIZE_DUEL &&
 		getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_BATTLESHIP") &&
 		ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RANGE"))
