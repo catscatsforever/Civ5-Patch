@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<!-- edit: Ingame Hotkey Manager for vanilla UI -->
 <Context ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Font="TwCenMT16">
 	<Stack Offset="0,30" Padding="0" Anchor="R,T" StackGrowth="Bottom">
 		<!-- CHAT PANEL    GridGlass16 Max Size="505,520" -->
@@ -20,7 +21,8 @@
 					<Label ID="LengthTest" Anchor="L,C" Offset="0,0" Font="TwCenMT20" FontStyle="SoftShadow" Hidden="1"/>
 					<Box Anchor="R,C" AnchorSide="O,I" Offset="4,0" Size="366,18" Color="255,255,200,255">
 						<Box Anchor="C,C" Offset="0,0" Size="364,16" Color="0,0,0,255">
-							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry"/>
+							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry" FocusStop="1"/>
+							<Stack ID="DummyStack" />
 						</Box>
 					</Box>
 				</PullDown>
@@ -131,6 +133,11 @@
 	<Instance Name="ChatEntry">
 		<Box Anchor="L,T" Size="490,32" Color="0,0,0,164" ID="Box">
 			<Label Anchor="L,C" Offset="3,0" WrapWidth="465" LeadingOffset="-4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="String"/>
+		</Box>
+	</Instance>
+	<Instance Name="DummyInstance">
+		<Box ID="Root" Anchor="R,C" AnchorSide="O,I" Offset="1000,0" Size="1,1" ConsumeMouse="1">
+			<EditBox MaxLength="255" Size="1,1" Anchor="C,C" Font="TwCenMT14" ID="Dummy" FocusStop="2" EditMode="1" />
 		</Box>
 	</Instance>
 </Context>

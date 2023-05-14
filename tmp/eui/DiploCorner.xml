@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<!-- edit: Ingame Hotkey Manager for EUI -->
 <Context ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Font="TwCenMT16">
 	<Stack Offset="0,30" Anchor="R,T" StackGrowth="Bottom">
 		<!-- CHAT PANEL    GridGlass16 Max Size="505,520" -->
@@ -20,7 +21,8 @@
 					<Label ID="LengthTest" Anchor="L,C" Font="TwCenMT20" FontStyle="SoftShadow" Hidden="1"/>
 					<Box Anchor="R,C" AnchorSide="O,I" Offset="4,0" Size="366,18" Color="255,255,200,255">
 						<Box Anchor="C,C" Size="364,16" Color="0,0,0,255">
-							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry"/>
+							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry" FocusStop="1"/>
+							<Stack ID="DummyStack" />
 						</Box>
 					</Box>
 				</PullDown>
@@ -34,12 +36,6 @@
 			<Box Anchor="R,T" Size="512,128" Color="0,0,0,0">
 				<!-- Info Buttons Stack -->
 				<Stack Anchor="R,T" StackGrowth="Left" ID="DiploCornerStack" Padding="0" >
-                                        <!--=======================================================================================================================-->
-					<!-- Espionage Button -->
-					<!--=======================================================================================================================-->
-					<Button ID="EspionageButton" ConsumeMouse="1" Anchor="C,T" Size="60,60" Texture="DC45_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
-						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
-					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Diplo Button -->
 					<!--=======================================================================================================================-->
@@ -62,6 +58,12 @@
 						<!--=======================================================================================================================-->
 						<Button ID="SocialPoliciesButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_Culture.dds" ToolTip="TXT_KEY_DIPLO_OPEN_SOCIAL_POLICY_TT" />
 					</Container>
+					<!--=======================================================================================================================-->
+					<!-- Espionage Button -->
+					<!--=======================================================================================================================-->
+					<Button ID="EspionageButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
+					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Notification Log DropDownButtons -->
 					<!--=======================================================================================================================-->
@@ -124,6 +126,11 @@
 	<!-- Extra Diplo Corner Buttons -->
 	<Instance Name="DiploCornerButton" >
 		<Button ID="Button" ConsumeMouseOver="1" Anchor="R,T" Size="45.45" Texture="DC45_Generic.dds" />
+	</Instance>
+	<Instance Name="DummyInstance">
+		<Box ID="Root" Anchor="R,C" AnchorSide="O,I" Offset="1000,0" Size="1,1" ConsumeMouse="1">
+			<EditBox MaxLength="255" Size="1,1" Anchor="C,C" Font="TwCenMT14" ID="Dummy" FocusStop="2" EditMode="1" />
+		</Box>
 	</Instance>
 
 </Context>
