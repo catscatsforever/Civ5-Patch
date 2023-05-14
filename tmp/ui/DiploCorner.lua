@@ -4,6 +4,7 @@
 -- edit: Ingame Hotkey Manager – extended controls
 -------------------------------------------------
 g_needsUpdate = true;
+g_bWaitForKeyUp = false;
 -- NEW: simple map from legacy KB to VK keycodes
 g_KeyMap = { 27, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 189, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
     81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 187, 8, 9, 219, 220, 13, 162, 186, 222, 192, 160, 220, 188, 190, 191, 161, 106,
@@ -283,13 +284,18 @@ function InputHandler( uiMsg, wParam, lParam )
         g_needsUpdate = false;
     end
     if ( uiMsg == KeyEvents.KeyDown and wParam == g_KeyMap[GameInfoActions[ToggleChat].HotKeyVal] ) then
-        if( m_bChatOpen ) then
+        if( m_bChatOpen and not g_bWaitForKeyUp ) then
+            g_bWaitForKeyUp = true;
             ContextPtr:SetUpdate(ChatFocus);
         -- show chat if hidden
-        else
+        elseif not g_bWaitForKeyUp then
+            g_bWaitForKeyUp = true;
             OnChatToggle();
         end
         return true;
+    end
+    if ( uiMsg == KeyEvents.KeyUp and wParam == g_KeyMap[GameInfoActions[ToggleChat].HotKeyVal] ) then
+        g_bWaitForKeyUp = false;
     end
 end
 ContextPtr:SetInputHandler( InputHandler );
