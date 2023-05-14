@@ -1939,8 +1939,6 @@ function OnHotkeyEditMode( Cat, Id )
 
     g_StackChildren[Cat][Id].HotkeyEditFrontLabel:LocalizeAndSetText('TXT_KEY_OPSCREEN_EDIT_HOTKEY_MODE');
     g_StackChildren[Cat][Id].HotkeyEditButtonsBox:SetHide(false);
-    g_StackChildren[Cat][Id].HotkeyEditConfirmButton:SetDisabled(true);
-    g_StackChildren[Cat][Id].HotkeyEditConfirmButton:SetAlpha(0.5);
     g_StackChildren[Cat][Id].HotkeyOuterBox:SetColorVal(231/255, 213/255, 0/255, 255/255);  -- COLOR_YIELD_GOLD
 
     g_CurrentEditable = g_StackChildren[Cat][Id];
@@ -1958,7 +1956,7 @@ function OnConfirmEditClick( Cat, Id )
         local bShift = g_InputSeqStr[3] ~= '';
         local key = g_InputSeqStr[4] or '';
 
-        g_CurrentEditable.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[key][3], bCtrl, bAlt, bShift));
+        g_CurrentEditable.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[key] and g_KeyMap[key][3], bCtrl, bAlt, bShift));
         g_CurrentEditable.HotkeyEditButtonsBox:SetHide(true);
         g_CurrentEditable.HotkeyOuterBox:SetColorVal(255/255, 255/255, 200/255, 255/255);  -- COLOR_BEIGE
 
@@ -2231,11 +2229,6 @@ function InputHandler( uiMsg, wParam, lParam )
                    end
             else
                 g_InputSeqStr[4] = (g_InputSeqStr[4] ~= '' and g_InputSeqStr[4]) or '...';
-            end
-
-            if g_InputSeqStr[4] ~= '...' then
-                g_CurrentEditable.HotkeyEditConfirmButton:SetDisabled(false);
-                g_CurrentEditable.HotkeyEditConfirmButton:SetAlpha(1.0);
             end
 
             g_CurrentEditable.HotkeyEditFrontLabel:SetText(g_InputSeqStr[1] .. g_InputSeqStr[2] .. g_InputSeqStr[3] .. (g_InputSeqStr[4] ~= '...' and g_KeyMap[g_InputSeqStr[4]] and g_KeyMap[g_InputSeqStr[4]][3] or '...'));
