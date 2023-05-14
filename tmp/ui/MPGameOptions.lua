@@ -1390,6 +1390,17 @@ Controls.MaxTurnsCheck:RegisterCallback( Mouse.eLClick, OnMaxTurnsChecked );
 function SetDuelModeOption()
 	local isChecked = Controls.DuelModeCheck:IsChecked();
 	PreGame.SetGameOption("GAMEOPTION_DUEL_STUFF", isChecked);
+	for row in GameInfo.Victories() do
+		if(row.Type == "VICTORY_DIPLOMATIC") then
+			PreGame.SetVictory(row.ID, not isChecked);
+			SendGameOptionChanged();
+		end;
+		
+	end
+
+	PreGame.SetGameOption("GAMEOPTION_CANT_SELL_BEFORE_INFO_ERA", not isChecked);
+	SendGameOptionChanged();
+
 	if isChecked and Controls.NoAncientRuinsCheck:IsChecked() then
 		PreGame.SetGameOption("GAMEOPTION_NO_GOODY_HUTS", true);
 	else
