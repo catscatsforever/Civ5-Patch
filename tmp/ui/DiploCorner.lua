@@ -33,6 +33,7 @@ function RefreshAdditionalInformationEntries()
 	end
 
 	local additionalEntries = {
+		{ text = Locale.Lookup("TXT_KEY_ADVISOR_COUNSEL"),					call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_ADVISOR_COUNSEL); end};
 		{ text = Locale.Lookup("TXT_KEY_ADVISOR_SCREEN_TECH_TREE_DISPLAY"), call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_TECH_TREE, nil, -1); end };
 		{ text = Locale.Lookup("TXT_KEY_DIPLOMACY_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_DIPLOMATIC_OVERVIEW); end };
 		{ text = Locale.Lookup("TXT_KEY_MILITARY_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW); end };
@@ -40,6 +41,7 @@ function RefreshAdditionalInformationEntries()
 		{ text = Locale.Lookup("TXT_KEY_VP_TT"),							call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_VICTORY_INFO); end };
 		{ text = Locale.Lookup("TXT_KEY_DEMOGRAPHICS"),						call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_DEMOGRAPHICS); end };
 		{ text = Locale.Lookup("TXT_KEY_POP_NOTIFICATION_LOG"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG,Game.GetActivePlayer()); end };
+		{ text = Locale.Lookup("TXT_KEY_TRADE_ROUTE_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_TRADE_ROUTE_OVERVIEW); end };
 	};
 
 	-- Obtain any modder/dlc entries.
@@ -86,23 +88,21 @@ LuaEvents.AdditionalInformationDropdownSortEntries.Add(SortAdditionalInformation
 
 -------------------------------------------------
 -------------------------------------------------
-function OnAdvisorButton()
+function OnCultureOverview()
     local popupInfo = {
-        Type = ButtonPopupTypes.BUTTONPOPUP_ADVISOR_COUNSEL,
+        Type = ButtonPopupTypes.BUTTONPOPUP_CULTURE_OVERVIEW,
     }
     Events.SerialEventGameMessagePopup(popupInfo);
 
 end
-Controls.AdvisorButton:RegisterCallback( Mouse.eLClick, OnAdvisorButton );
+Controls.CultureOverviewButton:RegisterCallback( Mouse.eLClick, OnCultureOverview );
 
-
--------------------------------------------------
--------------------------------------------------
-function OnAdvisorButtonR()
-    LuaEvents.AdvisorButtonEvent( Mouse.eRClick );
+function OnEspionageButton()
+	Events.SerialEventGameMessagePopup{ 
+		Type = ButtonPopupTypes.BUTTONPOPUP_ESPIONAGE_OVERVIEW,
+	};
 end
-Controls.AdvisorButton:RegisterCallback( Mouse.eRClick, OnAdvisorButtonR );
-
+Controls.EspionageButton:RegisterCallback(Mouse.eLClick, OnEspionageButton);
 
 -------------------------------------------------
 -- On ChatToggle
@@ -231,7 +231,6 @@ function ShowHideHandler( bIsHide )
     end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
-
 
 -------------------------------------------------
 -------------------------------------------------
@@ -366,24 +365,75 @@ Events.MultiplayerGamePlayerUpdated.Add(PopulateChatPull);
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function DoUpdateUNCountdown()
-	
-	local iUNCountdown = Game.GetUnitedNationsCountdown();
-	
-	if (iUNCountdown ~= 0 and Game.GetGameState() == GameplayGameStateTypes.GAMESTATE_ON ) then
-		Controls.UNTurnsLabel:SetText(iUNCountdown);
-		Controls.UNTurnsLabel:SetHide(false);
-		Controls.DiploButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY_AND_UN_VOTE", iUNCountdown));
-	else
-		Controls.UNTurnsLabel:SetHide(true)
-		Controls.DiploButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY"));
+function DoUpdateLeagueCountdown()
+	local bHide = true;
+	local sTooltip = Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY");
+				
+	if (Game.GetNumActiveLeagues() > 0) then
+		local pLeague = Game.GetActiveLeague();
+		if (pLeague ~= nil) then
+			local iCountdown = pLeague:GetTurnsUntilSession();
+			if (iCountdown ~= 0 and not pLeague:IsInSession()) then
+				bHide = false;
+				if (PreGame.IsVictory(GameInfo.Victories["VICTORY_DIPLOMATIC"].ID) and Game.IsUnitedNationsActive() and Game.GetGameState() == GameplayGameStateTypes.GAMESTATE_ON) then
+					local iCountdownToVictorySession = pLeague:GetTurnsUntilVictorySession();
+					if (iCountdownToVictorySession <= iCountdown) then
+						Controls.UNTurnsLabel:SetText("[COLOR_POSITIVE_TEXT]" .. iCountdownToVictorySession .. "[ENDCOLOR]");
+					else
+						Controls.UNTurnsLabel:SetText(iCountdown);
+					end
+					sTooltip = Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY_AND_VICTORY_SESSION", iCountdown, iCountdownToVictorySession);
+				else
+					Controls.UNTurnsLabel:SetText(iCountdown);
+					sTooltip = Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY_AND_LEAGUE_SESSION", iCountdown);
+				end
+			end
+		end
 	end
+	
+	Controls.UNTurnsLabel:SetHide(bHide);
+	Controls.DiploButton:SetToolTipString(sTooltip);
 end
-Events.SerialEventGameDataDirty.Add(DoUpdateUNCountdown);
+Events.SerialEventGameDataDirty.Add(DoUpdateLeagueCountdown);
 
 -- Also call it once so it starts correct - surprisingly enough, GameData isn't dirtied as we're loading a game
-DoUpdateUNCountdown();
+DoUpdateLeagueCountdown();
 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function DoUpdateEspionageButton()
+	local iLocalPlayer = Game.GetActivePlayer();
+	local pLocalPlayer = Players[iLocalPlayer];
+	local iNumUnassignedSpies = pLocalPlayer:GetNumUnassignedSpies();
+	
+	local strToolTip = Locale.ConvertTextKey("TXT_KEY_EO_TITLE");
+	
+	if (iNumUnassignedSpies > 0) then
+		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+		strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_EO_UNASSIGNED_SPIES_TT", iNumUnassignedSpies);
+		Controls.UnassignedSpiesLabel:SetHide(false);
+		Controls.UnassignedSpiesLabel:SetText(iNumUnassignedSpies);
+	else
+		Controls.UnassignedSpiesLabel:SetHide(true);
+	end
+	
+	Controls.EspionageButton:SetToolTipString(strToolTip);
+end
+Events.SerialEventEspionageScreenDirty.Add(DoUpdateEspionageButton);
+
+--------------------------------------------------------------------
+function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
+	
+	-- In the event we receive a new spy, make sure the large button is displayed.
+	if(ContextPtr:IsHidden() == false) then
+		if(notificationType == NotificationTypes.NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER) then
+			CheckEspionageStarted();
+		end
+	end
+end
+Events.NotificationAdded.Add(HandleNotificationAdded);
+
+DoUpdateEspionageButton();
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -418,7 +468,6 @@ local g_PerPlayerState = {};
 -- 'Active' (local human) player has changed
 ----------------------------------------------------------------
 function OnDiploCornerActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
-
 	-- Restore the state per player
 	local bIsHidden = Controls.DiploList:IsHidden() == true;
 	-- Save the state per player
@@ -444,3 +493,33 @@ function OnDiploCornerActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	PopulateChatPull();
 end
 Events.GameplaySetActivePlayer.Add(OnDiploCornerActivePlayerChanged);
+
+
+function CheckEspionageStarted()
+	function TestEspionageStarted()
+		local player = Players[Game.GetActivePlayer()];
+		return player:GetNumSpies() > 0;
+	end
+
+	local bEspionageStarted = TestEspionageStarted();
+	Controls.CornerAnchor:SetHide(bEspionageStarted);
+	Controls.CornerAnchor_Espionage:SetHide(not bEspionageStarted);
+	Controls.EspionageButton:SetHide(not bEspionageStarted);
+	if(bEspionageStarted) then
+		DoUpdateEspionageButton();
+	end
+end
+
+function OnActivePlayerTurnStart()
+	CheckEspionageStarted();
+	
+end
+Events.ActivePlayerTurnStart.Add(OnActivePlayerTurnStart);
+
+
+OnActivePlayerTurnStart();
+
+--Hide CultureOverview, if disabled.
+if(Game.IsOption("GAMEOPTION_NO_CULTURE_OVERVIEW_UI")) then
+	Controls.CultureOverviewButton:SetHide(true);
+end
