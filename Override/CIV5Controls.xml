@@ -1852,7 +1852,7 @@
 		<Row> 
 			<ID>29</ID> 
 			<Type>CONTROL_CIVILOPEDIA</Type> 
-			<Description>TXT_KEY_CIVILOPEDIA</Description> 
+			<Description>TXT_KEY_PEDIA_HOME_PAGE_HELP_LABEL</Description> 
 			<Help>TXT_KEY_CIVILOPEDIA_TOOLTIP</Help>
 			<HotKey>KB_F1</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -2044,6 +2044,148 @@
 			<ShiftDown>false</ShiftDown> 
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>true</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>44</ID> 
+			<Type>CONTROL_CAMERA_MOVE_LEFT</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_LEFT</Description> 
+			<HotKey>KB_LEFT</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>45</ID> 
+			<Type>CONTROL_CAMERA_MOVE_RIGHT</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_RIGHT</Description> 
+			<HotKey>KB_RIGHT</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>46</ID> 
+			<Type>CONTROL_CAMERA_MOVE_FORWARD</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_FORWARD</Description> 
+			<HotKey>KB_UP</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>47</ID> 
+			<Type>CONTROL_CAMERA_MOVE_BACK</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_BACK</Description> 
+			<HotKey>KB_DOWN</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>48</ID> 
+			<Type>CONTROL_CAMERA_MOVE_OUT</Type> 
+			<Description>TXT_KEY_ZOOM_OUT</Description> 
+			<HotKey>KB_MINUS</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>49</ID> 
+			<Type>CONTROL_CAMERA_MOVE_OUT_ALT</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_OUT_ALT</Description> 
+			<HotKey>KB_PGDN</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>50</ID> 
+			<Type>CONTROL_CAMERA_MOVE_IN</Type> 
+			<Description>TXT_KEY_ZOOM_IN</Description> 
+			<HotKey>KB_EQUALS</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>51</ID> 
+			<Type>CONTROL_CAMERA_MOVE_IN_ALT</Type> 
+			<Description>TXT_KEY_CONTROL_CAMERA_MOVE_IN_ALT</Description> 
+			<HotKey>KB_PGUP</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>52</ID> 
+			<Type>CONTROL_TOGGLE_HEX_GRID</Type> 
+			<Description>TXT_KEY_ACTION_GRID</Description> 
+			<Help>TXT_KEY_MAP_OPTIONS_HEX_GRID_TT</Help> 
+			<HotKey>KB_G</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+		</Row>
+		<Row> 
+			<ID>53</ID> 
+			<Type>CONTROL_TOGGLE_CHAT</Type> 
+			<Description>TXT_KEY_CONTROL_TOGGLE_CHAT</Description> 
+			<Help>TXT_KEY_DIPLO_CLOSE_CHAT_TT</Help> 
+			<HotKey>KB_TAB</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
 		</Row>
 	</Controls> 
@@ -3063,6 +3205,7 @@
 		<Row> 
 			<ID>17</ID> 
 			<Type>MISSION_AIR_SWEEP</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_AIR_SWEEP</Description>
 			<HotKey>KB_S</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -3083,6 +3226,7 @@
 		<Row> 
 			<ID>18</ID> 
 			<Type>MISSION_REBASE</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_REBASE</Description>
 			<HotKey>KB_R</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -3103,6 +3247,7 @@
 		<Row> 
 			<ID>19</ID> 
 			<Type>MISSION_RANGE_ATTACK</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_RANGE_ATTACK</Description>
 			<HotKey>KB_B</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
