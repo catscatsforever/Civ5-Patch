@@ -1852,7 +1852,7 @@
 		<Row> 
 			<ID>29</ID> 
 			<Type>CONTROL_CIVILOPEDIA</Type> 
-			<Description>TXT_KEY_CIVILOPEDIA</Description> 
+			<Description>TXT_KEY_PEDIA_HOME_PAGE_HELP_LABEL</Description> 
 			<Help>TXT_KEY_CIVILOPEDIA_TOOLTIP</Help>
 			<HotKey>KB_F1</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -3063,6 +3063,7 @@
 		<Row> 
 			<ID>17</ID> 
 			<Type>MISSION_AIR_SWEEP</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_AIR_SWEEP</Description>
 			<HotKey>KB_S</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -3083,6 +3084,7 @@
 		<Row> 
 			<ID>18</ID> 
 			<Type>MISSION_REBASE</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_REBASE</Description>
 			<HotKey>KB_R</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
@@ -3103,6 +3105,7 @@
 		<Row> 
 			<ID>19</ID> 
 			<Type>MISSION_RANGE_ATTACK</Type> 
+			<Description>TXT_KEY_INTERFACEMODE_RANGE_ATTACK</Description>
 			<HotKey>KB_B</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
 			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
