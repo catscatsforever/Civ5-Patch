@@ -21,7 +21,7 @@
 					<Label ID="LengthTest" Anchor="L,C" Offset="0,0" Font="TwCenMT20" FontStyle="SoftShadow" Hidden="1"/>
 					<Box Anchor="R,C" AnchorSide="O,I" Offset="4,0" Size="366,18" Color="255,255,200,255">
 						<Box Anchor="C,C" Offset="0,0" Size="364,16" Color="0,0,0,255">
-							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry" FocusStop="1"/>
+							<EditBox Offset="1,0" MaxLength="255" Size="364,16" Anchor="C,C" Font="TwCenMT14" ID="ChatEntry" FocusStop="1" KeepFocus="1" />
 							<Stack ID="DummyStack" />
 						</Box>
 					</Box>
