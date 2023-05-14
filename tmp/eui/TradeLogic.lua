@@ -525,15 +525,22 @@ local function SetPocketCities( InstanceManager, fromPlayer, fromPlayerID, toPla
 	InstanceManager:ResetInstances()
 	if fromPlayer then
 		for city in fromPlayer:Cities() do
-			if g_Deal:IsPossibleToTradeItem( fromPlayerID, toPlayerID, TradeableItems.TRADE_ITEM_CITIES, city:GetX(), city:GetY() ) then
+			-- if g_Deal:IsPossibleToTradeItem( fromPlayerID, toPlayerID, TradeableItems.TRADE_ITEM_CITIES, city:GetX(), city:GetY() ) then
 				local instance = InstanceManager:GetInstance()
 				local cityID = city:GetID()
-				instance.CityName:SetText( city:GetName() )
-				instance.CityPop:SetText( city:GetPopulation().."[ICON_CITIZEN]" )
+            	if ( not g_Deal:IsPossibleToTradeItem( fromPlayerID, toPlayerID, TradeableItems.TRADE_ITEM_CITIES, city:GetX(), city:GetY() )) then
+					instance.CityName:SetText( "[COLOR_GREY]"..city:GetName().."[ENDCOLOR]" )
+					instance.CityPop:SetText( "[COLOR_GREY]"..city:GetPopulation().."[ENDCOLOR]".."[ICON_CITIZEN]" )
+            	else
+					instance.CityName:SetText( city:GetName() )
+					instance.CityPop:SetText( city:GetPopulation().."[ICON_CITIZEN]" )
+				end
 				local button = instance.Button
 				button:SetVoids( fromPlayerID, cityID )
 				button:RegisterCallback( Mouse.eLClick, AddCityTrade )
-			end
+
+            button:SetDisabled( not g_Deal:IsPossibleToTradeItem( fromPlayerID, toPlayerID, TradeableItems.TRADE_ITEM_CITIES, city:GetX(), city:GetY() ) );
+            -- end
 		end
 	end
 end
