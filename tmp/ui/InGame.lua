@@ -7,6 +7,25 @@
 -- processed in the processing chain, after this is 
 -- it is in engine side C++
 -------------------------------------------------
+-- edit: Ingame Hotkey Manager – extended controls
+-------------------------------------------------
+g_needsUpdate = true;
+-- NEW: simple map from legacy KB to VK keycodes
+g_KeyMap = { 27, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 189, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+	81, 82, 83, 84, 85, 86, 87, 88, 89, 90,	187, 8, 9, 219, 220, 13, 162, 186, 222, 192, 160, 220, 188, 190, 191, 161, 106,
+	164, 32, 20, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 144, 145, 103, 104, 105, 109, 100, 101, 102, 107, 97, 98,
+	99, 96, 110, 122, 123, -1, -1, -1, -1, -1, 163, 174, 175, -1, 111, -1, 165, 19, 36, 38, 33, 37, 39, 35, 40,	34, 45, 46 };
+-- NEW update GameInfoActions for this context explicitly
+-- check g_needsUpdate before any call to GameInfoActions[].HotKey property
+LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end);
+-- NEW: search for hex grid control index
+local ToggleGrid;
+for actionID, action in next, GameInfoActions do
+    if action.Type == 'CONTROL_TOGGLE_HEX_GRID' then
+    	ToggleGrid = actionID;
+    end
+end
+-------------------------------------------------
 include( "FLuaVector" );
 include( "InstanceManager" );
 include( "Bombardment");
@@ -69,6 +88,7 @@ function( wParam, lParam )
 end
 
 
+-- NEW: replace input handles with configurable variables
 DefaultMessageHandler[KeyEvents.KeyUp] =
 function( wParam, lParam )
 
@@ -99,7 +119,7 @@ function( wParam, lParam )
 			pPlot:SetRevealed(team, bIsDebug);
 		end       
 		return true;
-    elseif ( wParam == Keys.G ) then
+    elseif ( wParam == g_KeyMap[GameInfoActions[ToggleGrid].HotKeyVal] ) then
 		UI.ToggleGridVisibleMode();
 		return true;
     end
@@ -294,6 +314,11 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEME
 -- Input handling
 ----------------------------------------------------------------        
 function InputHandler( uiMsg, wParam, lParam )
+	-- NEW: update GameInfoActions now?
+	if g_needsUpdate == true then
+		Game.UpdateActions();
+		g_needsUpdate = false;
+	end
 	local interfaceMode = UI.GetInterfaceMode();
 	local currentInterfaceModeHandler = InterfaceModeMessageHandler[interfaceMode];
 	if currentInterfaceModeHandler and currentInterfaceModeHandler[uiMsg] then

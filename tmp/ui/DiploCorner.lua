@@ -1,6 +1,25 @@
 -------------------------------------------------
 -- Diplomacy and Advisors Buttons that float out in the screen
 -------------------------------------------------
+-- edit: Ingame Hotkey Manager – extended controls
+-------------------------------------------------
+g_needsUpdate = true;
+-- NEW: simple map from legacy KB to VK keycodes
+g_KeyMap = { 27, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 189, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+    81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 187, 8, 9, 219, 220, 13, 162, 186, 222, 192, 160, 220, 188, 190, 191, 161, 106,
+    164, 32, 20, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 144, 145, 103, 104, 105, 109, 100, 101, 102, 107, 97, 98,
+    99, 96, 110, 122, 123, -1, -1, -1, -1, -1, 163, 174, 175, -1, 111, -1, 165, 19, 36, 38, 33, 37, 39, 35, 40, 34, 45, 46 };
+-- NEW update GameInfoActions for this context explicitly
+-- check g_needsUpdate before any call to GameInfoActions[].HotKey property
+LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end);
+-- NEW: search for chat control index
+local ToggleChat = -1;
+for actionID, action in next, GameInfoActions do
+    if action.Type == 'CONTROL_TOGGLE_CHAT' then
+        ToggleChat = actionID;
+    end
+end
+-------------------------------------------------
 include( "IconSupport" );
 include( "SupportFunctions"  );
 include( "InstanceManager" );
@@ -196,6 +215,28 @@ function SendChat( text )
 end
 Controls.ChatEntry:RegisterCallback( SendChat );
 
+function onDummyFocus(text, control, focus)
+    ContextPtr:SetUpdate(KillDummy)
+end
+local m_dummy = InstanceManager:new( "DummyInstance", "Root", Controls.DummyStack );
+g_ins = m_dummy:GetInstance();
+g_ins.Dummy:RegisterCallback(onDummyFocus);
+function KillDummy()
+    ContextPtr:ClearUpdate()
+    Controls.DummyStack:DestroyAllChildren();
+    OnChatToggle();
+    ContextPtr:SetUpdate(BuildDummy)
+end
+function BuildDummy()
+    ContextPtr:ClearUpdate()
+    g_ins = m_dummy:GetInstance();
+    g_ins.Dummy:RegisterCallback(onDummyFocus);
+end
+function ChatFocus()
+    ContextPtr:ClearUpdate()
+    Controls.ChatEntry:TakeFocus();
+end
+
 -------------------------------------------------
 -------------------------------------------------
 function ShowHideInviteButton()
@@ -234,11 +275,20 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 
 -------------------------------------------------
 -------------------------------------------------
+-- NEW: replace input handles with configurable variables
 function InputHandler( uiMsg, wParam, lParam )
-    if( m_bChatOpen 
-        and uiMsg == KeyEvents.KeyUp
-        and wParam == Keys.VK_TAB ) then
-        Controls.ChatEntry:TakeFocus();
+    -- NEW: update GameInfoActions now?
+    if g_needsUpdate == true then
+        Game.UpdateActions();
+        g_needsUpdate = false;
+    end
+    if ( uiMsg == KeyEvents.KeyDown and wParam == g_KeyMap[GameInfoActions[ToggleChat].HotKeyVal] ) then
+        if( m_bChatOpen ) then
+            ContextPtr:SetUpdate(ChatFocus);
+        -- show chat if hidden
+        else
+            OnChatToggle();
+        end
         return true;
     end
 end
