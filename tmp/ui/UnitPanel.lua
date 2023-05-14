@@ -1683,9 +1683,10 @@ function TipHandler( control )
     tipControlTable.UnitActionText:SetText( strTitleString );
     
     -- HotKey
-    if action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION then
-        tipControlTable.UnitActionHotKey:SetText( "" );
-    elseif action.HotKey and action.HotKey ~= "" then
+	-- NEW: show promotion hotkeys now
+    --if action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION then
+    --    tipControlTable.UnitActionHotKey:SetText( "" );
+    if action.HotKey and action.HotKey ~= "" then
         tipControlTable.UnitActionHotKey:SetText( "("..tostring(action.HotKey)..")" );
     else
         tipControlTable.UnitActionHotKey:SetText( "" );
