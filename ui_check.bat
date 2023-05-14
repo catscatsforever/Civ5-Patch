@@ -181,6 +181,14 @@ IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
   )
 )
 REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.xml" (
+  ECHO DiploCorner.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\DiploCorner.xml" "%cd%\%patchfolder%\UI\DiploCorner.xml"
+) ELSE (
+  ECHO DiploCorner.xml: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploCorner.xml" "%cd%\%patchfolder%\UI\DiploCorner.xml"
+)
+REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\Improvements\WorldView.lua" (
   ECHO WorldView.lua: EUI version detected
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\WorldView.lua" "%cd%\%patchfolder%\UI\WorldView.lua"
