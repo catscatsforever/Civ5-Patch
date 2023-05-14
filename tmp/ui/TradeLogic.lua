@@ -1458,15 +1458,15 @@ function ResetDisplay()
             break;
         end
     end
-    if( bFound ) then
+    --if( bFound ) then
         Controls.UsPocketCities:SetDisabled( false );
         Controls.UsPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
 		Controls.UsPocketCities:GetTextControl():SetColorByName("Beige_Black");
-    else
+    --[[else
         Controls.UsPocketCities:SetDisabled( true );
         Controls.UsPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT" ));
 		Controls.UsPocketCities:GetTextControl():SetColorByName("Gray_Black");
-    end
+    end]]
     
     
     bFound = false;
@@ -1476,15 +1476,15 @@ function ResetDisplay()
             break;
         end
     end
-    if( bFound ) then
+    -- if( bFound ) then
         Controls.ThemPocketCities:SetDisabled( false );
         Controls.ThemPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
 		Controls.ThemPocketCities:GetTextControl():SetColorByName("Beige_Black");
-    else
+    --[[ else
         Controls.ThemPocketCities:SetDisabled( true );
         Controls.ThemPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM" ));
 		Controls.ThemPocketCities:GetTextControl():SetColorByName("Gray_Black");
-    end
+    end]]
       
 
     ---------------------------------------------------------------------------------- 
@@ -3067,16 +3067,22 @@ function ShowCityChooser( isUs )
 		
         local iCityID = pCity:GetID();
         
-        if ( g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
+        -- if ( g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
             local instance = m_pIM:GetInstance();
             
-            instance.CityName:SetText( pCity:GetName() );
-            instance.CityPop:SetText( pCity:GetPopulation() );
+            if ( not g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() )) then
+            	instance.CityName:SetText( "[COLOR_GREY]"..pCity:GetName().."[ENDCOLOR]" );
+            	instance.CityPop:SetText( "[COLOR_GREY]"..pCity:GetPopulation().."[ENDCOLOR]" );
+            else
+            	instance.CityName:SetText( pCity:GetName() );
+            	instance.CityPop:SetText( pCity:GetPopulation() );
+            end
             instance.Button:SetVoids( m_iFrom, iCityID );
             instance.Button:RegisterCallback( Mouse.eLClick, OnChooseCity );
             
             bFound = true;
-        end
+            instance.Button:SetDisabled( not g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) );
+        -- end
     end
     
     if( not bFound ) then
