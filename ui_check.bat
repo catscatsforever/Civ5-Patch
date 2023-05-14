@@ -6,7 +6,9 @@ ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.xml" "%cd%\%patchfolder%\UI\CultureOverview.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploCorner.lua" "%cd%\%patchfolder%\UI\DiploCorner.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EnemyUnitPanel.lua" "%cd%\%patchfolder%\UI\EnemyUnitPanel.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\InGame.lua" "%cd%\%patchfolder%\UI\InGame.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\JoiningRoom.lua" "%cd%\%patchfolder%\UI\JoiningRoom.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.xml" "%cd%\%patchfolder%\UI\VictoryProgress.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\VictoryProgress.lua" "%cd%\%patchfolder%\UI\VictoryProgress.lua"
@@ -177,5 +179,13 @@ IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
   )
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Improvements\WorldView.lua" (
+  ECHO WorldView.lua: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\WorldView.lua" "%cd%\%patchfolder%\UI\WorldView.lua"
+) ELSE (
+  ECHO WorldView.lua: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\WorldView.lua" "%cd%\%patchfolder%\UI\WorldView.lua"
 )
 EXIT
