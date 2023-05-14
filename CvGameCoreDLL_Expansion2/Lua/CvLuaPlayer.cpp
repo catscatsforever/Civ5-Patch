@@ -10854,7 +10854,7 @@ int CvLuaPlayer::lScienceToStealAmount(lua_State* L)
 	const PlayerTypes eTarget = (PlayerTypes)luaL_checkinteger(L, 2);
 	const TechTypes eTech = (TechTypes)luaL_checkinteger(L, 3);
 
-	if(pkPlayer->GetEspionage()->GetNumTechsToSteal(eTarget) > 0 && pkPlayer->GetEspionage()->m_aiNumTechsToStealList[eTarget] > 0)
+	if(pkPlayer->GetEspionage()->GetNumTechsToSteal(eTarget) > 0 && pkPlayer->GetEspionage()->m_aiNumTechsToStealList[eTarget] > 0 && pkPlayer->GetEspionage()->m_aaPlayerScienceToStealList[eTarget].size() > 0)
 	{
 		lua_pushinteger(L, std::min(pkPlayer->GetPlayerTechs()->GetResearchCost(eTech) - GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech), pkPlayer->GetEspionage()->m_aaPlayerScienceToStealList[eTarget][pkPlayer->GetEspionage()->m_aaPlayerScienceToStealList[eTarget].size() - 1]));
 	}

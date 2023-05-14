@@ -212,7 +212,10 @@ void CvPlayerEspionage::DoTurn()
 			{
 				if(kTeam.GetTeamTechs())
 				{
-					kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+					if (m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
+					{
+						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), m_pPlayer->GetID());
+					}
 				}
 				if (m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
 				{
