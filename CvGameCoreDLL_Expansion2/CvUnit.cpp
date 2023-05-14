@@ -1448,7 +1448,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 			else
 			{
-#ifndef REMOVE_EXCESS_CAMERA_CANTERING
+#ifndef REMOVE_EXCESS_CAMERA_CENTERING
 				DLLUI->setDirty(SelectionCamera_DIRTY_BIT, true);
 #endif
 			}

@@ -17181,7 +17181,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 					DLLUI->setCycleSelectionCounter(1);
 				}
 
-#ifndef REMOVE_EXCESS_CAMERA_CANTERING
+#ifndef REMOVE_EXCESS_CAMERA_CENTERING
 				DLLUI->setDirty(SelectionCamera_DIRTY_BIT, true);
 #endif
 
