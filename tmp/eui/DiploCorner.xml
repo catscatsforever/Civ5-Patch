@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
 <!-- edit: Ingame Hotkey Manager for EUI -->
+<!-- edit: Larger Espionage Overview option for EUI -->
 <Context ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Font="TwCenMT16">
 	<Stack Offset="0,30" Anchor="R,T" StackGrowth="Bottom">
 		<!-- CHAT PANEL    GridGlass16 Max Size="505,520" -->
@@ -63,6 +64,10 @@
 					<!--=======================================================================================================================-->
 					<Button ID="EspionageButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
 						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
+					</Button>
+					
+					<Button ID="EspionageButtonBig" ConsumeMouse="1" Anchor="C,T" Size="64,64" Texture="DC64_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabelBig" Hidden="1"/>
 					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Notification Log DropDownButtons -->

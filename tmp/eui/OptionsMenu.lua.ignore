@@ -4,6 +4,7 @@
 -- add new options for EUI
 -------------------------------------------------
 -- edit: Diplomacy stack left/right switch option for EUI
+-- edit: Larger Espionage Overview option for EUI
 -------------------------------------------------
 -- edit: NEW: Ingame Hotkey Manager for EUI
 -------------------------------------------------
@@ -113,6 +114,7 @@ function OnOK()
     EUI_options.SetValue( "UnitRibbon", Controls.UnitRibbonCheckbox:IsChecked() )
     EUI_options.SetValue( "CivRibbon", Controls.CivRibbonCheckbox:IsChecked() )
     EUI_options.SetValue( "DB_bAnchorLeft", Controls.LRAnchorToggleCheckbox:IsChecked() )
+    EUI_options.SetValue( "DB_bLargeEspionage", Controls.LargeEspionageCheckbox:IsChecked() )
 
     OptionsManager.CommitGameOptions();
     OptionsManager.CommitGraphicsOptions();
@@ -659,6 +661,7 @@ function UpdateGameOptionsDisplay()
     Controls.UnitRibbonCheckbox:SetCheck( EUI_options.GetValue( "UnitRibbon" ) ~= 0 )
     Controls.CivRibbonCheckbox:SetCheck( EUI_options.GetValue( "CivRibbon" ) ~= 0 )
     Controls.LRAnchorToggleCheckbox:SetCheck( EUI_options.GetValue( "DB_bAnchorLeft" ) ~= 0 )
+    Controls.LargeEspionageCheckbox:SetCheck( EUI_options.GetValue( "DB_bLargeEspionage" ) ~= 0 )
     Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
     Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
     Controls.AutoWorkersDontRemoveFeaturesCB:SetCheck( OptionsManager.IsAutoWorkersDontRemoveFeatures_Cached() );

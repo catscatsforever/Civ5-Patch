@@ -6,7 +6,6 @@ ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.xml" "%cd%\%patchfolder%\UI\CultureOverview.xml"
-ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploCorner.lua" "%cd%\%patchfolder%\UI\DiploCorner.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EnemyUnitPanel.lua" "%cd%\%patchfolder%\UI\EnemyUnitPanel.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\InGame.lua" "%cd%\%patchfolder%\UI\InGame.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\JoiningRoom.lua" "%cd%\%patchfolder%\UI\JoiningRoom.lua"
@@ -179,6 +178,14 @@ IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
   )
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.lua" (
+  ECHO DiploCorner.lua: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\DiploCorner.lua" "%cd%\%patchfolder%\UI\DiploCorner.lua"
+) ELSE (
+  ECHO DiploCorner.lua: no EUI, copying vanilla UI version
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploCorner.lua" "%cd%\%patchfolder%\UI\DiploCorner.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.xml" (
