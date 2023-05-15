@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- edit: Diplomacy stack left/right switch option for EUI -->
 <!-- edit: Ingame Hotkey Manager for EUI -->
+<!-- edit: Larger Espionage Overview option for EUI -->
 <Context ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow">
 
 
@@ -144,7 +145,7 @@
 
 		<!-- Interface Options -->
 		<Container ID="IFacePanel" Size="971,500" Offset="0,44" Hidden="1">
-			<Stack Anchor="R,T" Offset="550,50" Padding="10" >
+			<Stack Anchor="R,T" Offset="550,50" Padding="8" >
 				<CheckBox ID="PolicyInfo" Anchor="R,C" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
 				<CheckBox ID="ScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
 				<CheckBox ID="MPScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
