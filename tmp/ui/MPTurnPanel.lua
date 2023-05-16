@@ -344,6 +344,7 @@ function OnPause( bPause )
   	end
 end
 GameEvents.EndTurnTimerPause.Add( OnPause );
+GameEvents.EndTurnTimerReset.Add( OnPause );
 Events.ActivePlayerTurnStart.Add( OnPause );
 -- Edit: timer fading on pause END
 
