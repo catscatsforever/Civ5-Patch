@@ -23744,6 +23744,18 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_pDiplomacyRequests->Init(GetID());
 		//m_pDiplomacyRequests->Read(kStream);
 	}
+#ifdef AUTOSAVE_FIX_PREVENT_TURN_SKIP
+
+	if (m_bAlive)
+	{
+		// Set active turn for actual players, not the AI!
+		//SLOG("%d		%d		%d		%d		%d		%d", GetID(), m_bAlive ? 1 : 0, m_bTurnActive ? 1 : 0, m_bAutoMoves ? 1 : 0, m_bEndTurn ? 1 : 0, m_eEndTurnBlockingType);
+		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
+		m_bTurnActive = bHuman;
+		m_bAutoMoves = !bHuman;
+		m_bEndTurn = false;
+	}
+#endif
 
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
