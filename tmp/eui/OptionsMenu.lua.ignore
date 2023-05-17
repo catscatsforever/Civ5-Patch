@@ -1882,21 +1882,10 @@ end
 -------------------------------------------------
 -------------------------------------------------
 -- returns a table { HotKey, HotKeyPriority, CtrlDown, AltDown, ShiftDown, HotKeyAlt, HotKeyPriorityAlt, CtrlDownAlt, AltDownAlt, ShiftDownAlt }
-function GetHotkey( Cat, Id )
-    local res = {
-        HotKey = GameInfo[Categories[Cat]][Id].HotKey or 'NaN';
-        HotKeyPriority = GameInfo[Categories[Cat]][Id].HotKeyPriority or 0;
-        CtrlDown = GameInfo[Categories[Cat]][Id].CtrlDown or false;
-        AltDown = GameInfo[Categories[Cat]][Id].AltDown or false;
-        ShiftDown = GameInfo[Categories[Cat]][Id].ShiftDown or false;
-        HotKeyAlt = GameInfo[Categories[Cat]][Id].HotKeyAlt or 'NaN';
-        HotKeyPriorityAlt = GameInfo[Categories[Cat]][Id].HotKeyPriorityAlt or 0;
-        CtrlDownAlt = GameInfo[Categories[Cat]][Id].CtrlDownAlt or false;
-        AltDownAlt = GameInfo[Categories[Cat]][Id].AltDownAlt or false;
-        ShiftDownAlt = GameInfo[Categories[Cat]][Id].ShiftDownAlt or false;
-    }
+function GetHotkey( Cat, Id, bBackup )
+    local res = {}
     local name = string.format("'action_%d_%d'", Cat, Id);
-    for query in HotkeyManagerData.Query('SELECT * FROM SimpleValues WHERE Name = ' .. name) do
+    for query in HotkeyManagerData.Query(string.format('SELECT * FROM backup WHERE Name = %s', name)) do
         res.HotKey = query.HotKey;
         res.HotKeyPriority = query.HotKeyPriority;
         res.CtrlDown = query.CtrlDown;
@@ -1907,6 +1896,20 @@ function GetHotkey( Cat, Id )
         res.CtrlDownAlt = query.CtrlDownAlt;
         res.AltDownAlt = query.AltDownAlt;
         res.ShiftDownAlt = query.ShiftDownAlt;
+    end
+    if bBackup ~= true then
+        for query in HotkeyManagerData.Query(string.format('SELECT * FROM SimpleValues WHERE Name = %s', name)) do
+            res.HotKey = query.HotKey;
+            res.HotKeyPriority = query.HotKeyPriority;
+            res.CtrlDown = query.CtrlDown;
+            res.AltDown = query.AltDown;
+            res.ShiftDown = query.ShiftDown;
+            res.HotKeyAlt = query.HotKeyAlt;
+            res.HotKeyPriorityAlt = query.HotKeyPriorityAlt;
+            res.CtrlDownAlt = query.CtrlDownAlt;
+            res.AltDownAlt = query.AltDownAlt;
+            res.ShiftDownAlt = query.ShiftDownAlt;
+        end
     end
     return res;
 end
@@ -1997,7 +2000,7 @@ function OnResetHotkeyClick( Cat, Id )
         -- delete userdata entry and fallback to original hotkey
         for row in HotkeyManagerData.Query(string.format("DELETE FROM SimpleValues WHERE Name = 'action_%d_%d'", Cat, Id)) do
         end
-        local HK = GetHotkey(Cat, Id);
+        local HK = GetHotkey(Cat, Id, true);
         SendUpdateHotkey(Cat, Id, HK.HotKey, HK.CtrlDown, HK.AltDown, HK.ShiftDown, 0);
 
         g_CurrentEditable.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[HK.HotKey] and g_KeyMap[HK.HotKey][3] or '--', HK.CtrlDown, HK.AltDown, HK.ShiftDown));
@@ -2021,7 +2024,7 @@ function OnResetAllHotkeysClick()
     for name, action in next, actions do
         for row in HotkeyManagerData.Query(string.format("DELETE FROM SimpleValues WHERE Name = '%s'", name)) do
         end
-        local HK = GetHotkey(action[1], action[2]);
+        local HK = GetHotkey(action[1], action[2], true);
         g_StackChildren[action[1]][action[2]].HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[HK.HotKey] and g_KeyMap[HK.HotKey][3] or '--', HK.CtrlDown, HK.AltDown, HK.ShiftDown));
         SendUpdateHotkey(action[1], action[2], HK.HotKey, HK.CtrlDown, HK.AltDown, HK.ShiftDown, 0);
     end
@@ -2082,6 +2085,49 @@ function OnCategoryButtonClick( Cat )
 end
 
 -------------------------------------------------
+-------------------------------------------------
+-------------------------------------------------
+function BackupActions()
+    print('hotkeys backup START')
+    for row in HotkeyManagerData.Query("DROP TABLE IF EXISTS backup") do
+    end
+    for row in HotkeyManagerData.Query("CREATE TABLE backup (Name TEXT)") do
+    end
+    local newColumns = {
+        ActionSubType = { 'integer', 0 },
+        ActionIndex = { 'integer', 0 },
+        HotKey = { 'text', '' },
+        HotKeyPriority = { 'integer', 0 },
+        CtrlDown = { 'boolean', 0 },
+        AltDown = { 'boolean', 0 },
+        ShiftDown = { 'boolean', 0 },
+        HotKeyAlt = { 'text', '' },
+        HotKeyPriorityAlt = { 'integer', 0 },
+        CtrlDownAlt = { 'boolean', 0 },
+        AltDownAlt = { 'boolean', 0 },
+        ShiftDownAlt = { 'boolean', 0 },
+    }
+    for col, info in next, newColumns do
+        local defaultStr = '';
+        if info[2] ~= '' then
+            defaultStr = ' DEFAULT ' .. info[2];
+        end
+        for row in HotkeyManagerData.Query(string.format('ALTER TABLE backup ADD %s %s%s', col, info[1], defaultStr)) do
+        end
+    end
+
+    local Categories = {[0] = 'InterfaceModes', 'Commands', 'Builds', 'UnitPromotions', 'Specialists', 'Controls', 'Automates', 'Missions', };
+    for Cat,category in next,Categories do
+        for row in DB.Query(string.format("SELECT * FROM %s", category)) do
+            local DBstr = 'action_' .. Cat .. '_' .. row.ID;
+            local q = string.format("REPLACE INTO backup (Name, ActionSubType, ActionIndex, HotKey, CtrlDown, AltDown, ShiftDown) VALUES ('%s', %d, %d, '%s', %d, %d, %d)", DBstr, Cat, row.ID, row.HotKey or '', row.CtrlDown and 1 or 0, row.AltDown and 1 or 0, row.ShiftDown and 1 or 0)
+            for action in HotkeyManagerData.Query(q) do
+            end
+        end
+    end
+    print('hotkeys backup END')
+end
+
 -------------------------------------------------
 -------------------------------------------------
 -- on script load, make sure all columns are presented
@@ -2253,6 +2299,10 @@ ContextPtr:SetInputHandler( InputHandler );
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+-- use UI:HasShownLegal() to backup xml hotkeys info EXACTLY once on initial application loading
+if not UI:HasShownLegal() then
+    BackupActions()
+end
 VerifyUserDataIntegrity();
 InitHotkeys();
 BuildHotkeyManagerControls();
