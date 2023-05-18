@@ -339,10 +339,11 @@
 
         <!-- Max Turn Check & Edit Box -->
         <Box Anchor="L,T" Size="480,24" Offset="20,0" Color="255,255,255,0" >
-          <Stack ID="MaxTurnStack" Anchor="L,T" Size="463,32" Offset="10,0" StackGrowth="Right">
-            <Box Anchor="L,C"  Size="161,32" Color="255,255,200,0" >
+          <Stack ID="MaxTurnStack" Anchor="L,T" Size="463,32" Offset="10,0" StackGrowth="Right" Padding="8">
+            <Box Anchor="L,C"  Size="32,32" Color="255,255,200,0">
               <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_AD_SETUP_MAX_TURNS" ToolTip="TXT_KEY_AD_SETUP_MAX_TURNS_TT" IsChecked="0" ID="MaxTurnsCheck" ConsumeMouse="1" />
             </Box>
+			<Label Font="TwCenMT20" Anchor="L,C" String="TXT_KEY_AD_SETUP_MAX_TURNS" Color0="255.255.200.0" Color1="0.0.0.0" />
             <Box Hidden="1" Anchor="L,C"  Size="34,24" Color="255,255,200,255" ID="MaxTurnsEditbox">
               <Box Anchor="C,C"  Offset="0,0" Size="32,22" Color="0,0,0,255" >
                 <EditBox Size="30,18" Anchor="L,C" ID="MaxTurnsEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" CallOnChar="1" />
@@ -354,10 +355,11 @@
         <!-- Turn Timer Check & Edit Box -->
         <Box Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" >
 
-          <Stack ID="TurnTimerStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
-            <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+          <Stack ID="TurnTimerStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right" Padding="8" >
+            <Box Anchor="L,C"  Size="32,32" Color="255,255,200,0" >
               <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_END_TURN_TIMER_ENABLED" ToolTip="TXT_KEY_GAME_OPTION_END_TURN_TIMER_ENABLED_HELP" IsChecked="0" ID="TurnTimerCheck" ConsumeMouse="1" />
             </Box>
+			<Label Font="TwCenMT20" Anchor="L,C" String="TXT_KEY_GAME_OPTION_END_TURN_TIMER_ENABLED" Color0="255.255.200.0" Color1="0.0.0.0" />
             <Box Hidden="1" Anchor="L,C"  Size="34,24" Color="255,255,200,255" ID="TurnTimerEditbox">
               <Box Anchor="C,C"  Offset="0,0" Size="32,22" Color="0,0,0,255" >
                 <EditBox Size="30,18" Anchor="L,C" ID="TurnTimerEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" CallOnChar="1" />
