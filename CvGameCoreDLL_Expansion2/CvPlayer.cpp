@@ -23746,7 +23746,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 #ifdef AUTOSAVE_FIX_PREVENT_TURN_SKIP
 
-	if (m_bAlive)
+	if (CvPreGame::gameType() == GAME_NETWORK_MULTIPLAYER && m_bAlive)
 	{
 		// Set active turn for actual players, not the AI!
 		//SLOG("%d		%d		%d		%d		%d		%d", GetID(), m_bAlive ? 1 : 0, m_bTurnActive ? 1 : 0, m_bAutoMoves ? 1 : 0, m_bEndTurn ? 1 : 0, m_eEndTurnBlockingType);
