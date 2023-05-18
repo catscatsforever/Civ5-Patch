@@ -505,15 +505,48 @@
 	<Instance Name="KeyEntry" >
         <Container ID="Root" Anchor="L,T" Size="200,34" Offset="-30,0" ConsumeMouse="1" Hidden="0">
 			<Box Anchor="L,C" Size="200,34" ID="HotkeyEditButtonsBox" Color="0,0,0,0" Hidden="1">
-				<TextButton Offset="210,-22" Anchor="R,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="HotkeyEditCancelButton">
-					<Image Anchor="L,C" AnchorSide="O.I" Offset="2,-2" Texture="checkx.dds" Size="26,26" ID="ASortByNameRankImage"/>
-				</TextButton>
-				<TextButton Offset="210,0" Anchor="R,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_OPSCREEN_CONFIRM_HOTKEY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="HotkeyEditConfirmButton">
-					<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="checkmark.dds" Size="26,26" ID="ASortByNameRankImage"/>
-				</TextButton>
-				<TextButton Offset="210,22" Anchor="R,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_OPSCREEN_RESET_HOTKEY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="HotkeyEditResetButton">
-					<Label Anchor="L,C" AnchorSide="O.I" Offset="0,-1" String="[ICON_SWAP]" />
-				</TextButton>
+                <Button Offset="210,-36" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditCancelButton">
+					<HideOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" />
+							<Image Color="Red,220" Anchor="L,C" AnchorSide="O.I" Offset="2,-2" Texture="checkx.dds" Size="26,26" />
+						</Stack>
+					</HideOnMouseOver>
+                    <ShowOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" />
+							<Image Color="Red,220" Anchor="L,C" AnchorSide="O.I" Offset="2,-2" Texture="checkx.dds" Size="26,26" />
+						</Stack>
+                    </ShowOnMouseOver>
+                </Button>
+                <Button Offset="210,0" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditConfirmButton">
+					<HideOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_CONFIRM_HOTKEY" />
+					<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="checkmark.dds" Size="26,26" />
+						</Stack>
+					</HideOnMouseOver>
+                    <ShowOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_CONFIRM_HOTKEY" />
+					<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="checkmark.dds" Size="26,26" />
+						</Stack>
+                    </ShowOnMouseOver>
+                </Button>
+                <Button Offset="210,36" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditResetButton">
+					<HideOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_RESET_HOTKEY" />
+							<Label Offset="0,-1" String="[ICON_SWAP]" />
+						</Stack>
+					</HideOnMouseOver>
+                    <ShowOnMouseOver>
+						<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+							<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_RESET_HOTKEY" />
+							<Label Offset="0,-1" String="[ICON_SWAP]" />
+						</Stack>
+                    </ShowOnMouseOver>
+                </Button>
 			</Box>
 			<Box Anchor="L,C" Size="154,24" Color="255,255,200,255" ID="HotkeyOuterBox" >
 				<Box Anchor="C,C" Size="152,22" Offset="0,0" Color="0,0,0,255" >
