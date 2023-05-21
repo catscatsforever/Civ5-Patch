@@ -1558,6 +1558,8 @@ function UpdateOptions()
 			local controlTable = g_AdvancedOptionIM:GetInstance();
 			g_AdvancedOptionsList[count] = controlTable;
 			controlTable.Text:LocalizeAndSetText(dueloption.Description);
+			controlTable.Text:SetAlpha(0.8);
+			controlTable.Text:LocalizeAndSetToolTip(dueloption.Help);
 			count = count + 1;
 		end
 
