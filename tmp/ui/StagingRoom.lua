@@ -1625,6 +1625,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
 				end
@@ -1636,6 +1638,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
 				end
@@ -1647,6 +1651,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
 				end
@@ -1658,6 +1664,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
@@ -1669,6 +1677,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
@@ -1680,6 +1690,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
@@ -1691,6 +1703,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
@@ -1702,6 +1716,8 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
@@ -1713,12 +1729,17 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
+						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
 				end
 			end
 		end
 	end
+	-- Add empty text to padd the bottom.
+	local controlTable = g_AdvancedOptionIM:GetInstance();
+	controlTable.Text:SetText(" ");
 		
 		-- Update scrollable panel
 		Controls.AdvancedOptions:CalculateSize();

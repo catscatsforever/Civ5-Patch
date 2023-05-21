@@ -7,7 +7,7 @@
 
   <!-- Game Option Instance -->
   <Instance Name="GameOption" Size="320.24">
-    <Label ID="Text" Anchor="C,T"  Offset="0,0"  String="Era Started: Ancient" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+    <Label ID="Text" Anchor="C,T" TruncateWidth="280" Offset="0,0"  String="Era Started: Ancient" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
   </Instance>
 
   <!-- Player Slot Instance Style="Grid9FrameTurns" -->
