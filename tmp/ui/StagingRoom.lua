@@ -1545,6 +1545,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1570,6 +1571,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1579,6 +1581,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1588,6 +1591,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1597,6 +1601,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1606,6 +1611,7 @@ function UpdateOptions()
 					local controlTable = g_AdvancedOptionIM:GetInstance();
 					g_AdvancedOptionsList[count] = controlTable;
 					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
 					count = count + 1;
 				end
 			end
@@ -1616,6 +1622,7 @@ function UpdateOptions()
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
 						controlTable.Text:LocalizeAndSetText(option.Description);
+						controlTable.Text:LocalizeAndSetToolTip(option.Help);
 						count = count + 1;
 					end
 				end
@@ -1626,8 +1633,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
@@ -1639,8 +1645,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
@@ -1652,8 +1657,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[savedValue].Description) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Buildings[savedValue].Help);
 						count = count + 1;
 					end
@@ -1665,8 +1669,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
@@ -1678,8 +1681,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
@@ -1691,8 +1693,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
@@ -1704,8 +1705,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
@@ -1717,8 +1717,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
@@ -1730,8 +1729,7 @@ function UpdateOptions()
 					if(savedValue ~= nil and savedValue > -1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
 						g_AdvancedOptionsList[count] = controlTable;
-						controlTable.Text:SetText("[COLOR_RED]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
-						controlTable.Text:SetAlpha(0.8);
+						controlTable.Text:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Beliefs[savedValue].ShortDescription) .. "[ENDCOLOR]");
 						controlTable.Text:LocalizeAndSetToolTip(GameInfo.Beliefs[savedValue].Description);
 						count = count + 1;
 					end
