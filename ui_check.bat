@@ -180,7 +180,7 @@ IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
   )
 )
 REM -------------------------------------------------
-IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.lua" (
+IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.xml" (
   ECHO DiploCorner.lua: EUI version detected
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\DiploCorner.lua" "%cd%\%patchfolder%\UI\DiploCorner.lua"
 ) ELSE (
