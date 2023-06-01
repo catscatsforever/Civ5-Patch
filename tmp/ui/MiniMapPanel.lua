@@ -678,6 +678,8 @@ function UpdateStreamerView()
 		strWondersText = strWondersText .. "[END_COLOR]";
 	end
 
+	-- NEW: show players population!
+	strPoliciesText = "[ICON_CITIZEN]" .. pActivePlayer:GetTotalPopulation() .. "    " .. strPoliciesText;
 	local strReligionText = strReligion1Text
 	if strReligion2Text:len() > 0 then
 		if beliefCount == 0 then
