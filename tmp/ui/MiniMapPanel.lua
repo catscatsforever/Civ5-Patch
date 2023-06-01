@@ -1,5 +1,6 @@
 ----------------------------------------------------------------
 -- edit: Streamer view extended for EUI & vanilla UI
+-- edit: Duel Mode for Streamer view for EUI & vanilla UI
 ----------------------------------------------------------------       
 ----------------------------------------------------------------        
 include( "InstanceManager" );
@@ -10,6 +11,27 @@ local g_IconModes = GetStrategicViewIconSettings();
 
 local StreamerViewData = Modding.OpenUserData( "StreamerView", 1);
 local StreamerViewShowState = StreamerViewData.GetValue("DB_bShow") or 0;
+
+-- NEW: Duel Mode bans
+local g_DuelMode = PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0;
+local g_DuelModeWonder1 = GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1")] and
+		Locale.ConvertTextKey(GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1")].Description) or false;
+local g_DuelModeWonder2 = GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2")] and
+		Locale.ConvertTextKey(GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2")].Description) or false;
+local g_DuelModeWonder3 = GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3")] and
+		Locale.ConvertTextKey(GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3")].Description) or false;
+local g_DuelModePantheon1 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1")].ShortDescription) or false;
+local g_DuelModePantheon2 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2")].ShortDescription) or false;
+local g_DuelModePantheon3 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3")].ShortDescription) or false;
+local g_DuelModeBelief1 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1")].ShortDescription) or false;
+local g_DuelModeBelief2 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2")].ShortDescription) or false;
+local g_DuelModeBelief3 = GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3")] and
+		Locale.ConvertTextKey(GameInfo.Beliefs[PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF3")].ShortDescription) or false;
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
@@ -634,6 +656,27 @@ function UpdateStreamerView()
 	else
 		strWondersText = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WONDERS_TEXT") ..': ' .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
 	end
+	-- NEW: Duel Mode banned wonders
+	if g_DuelMode then
+		if strWondersText:len() > 0 then
+			strWondersText = strWondersText .. "    [COLOR_NEGATIVE_TEXT]";
+		else
+			strWondersText = strWondersText .. " [COLOR_NEGATIVE_TEXT]";
+		end
+		if g_DuelModeWonder1 then
+			strWondersText = strWondersText .. g_DuelModeWonder1 .. ", ";
+		end
+		if g_DuelModeWonder2 then
+			strWondersText = strWondersText .. g_DuelModeWonder2 .. ", ";
+		end
+		if g_DuelModeWonder3 then
+			strWondersText = strWondersText .. g_DuelModeWonder3 .. ", ";
+		end
+		if strWondersText:sub(-2) == ", " then
+			strWondersText = strWondersText:sub(1, -3);
+		end
+		strWondersText = strWondersText .. "[END_COLOR]";
+	end
 
 	local strReligionText = strReligion1Text
 	if strReligion2Text:len() > 0 then
@@ -642,6 +685,36 @@ function UpdateStreamerView()
 		else
 			strReligionText = strReligionText .. ' ' .. strReligion2Text;
 		end
+	end
+	-- NEW: Duel Mode banned beliefs
+	if g_DuelMode then
+		if strReligionText:len() > 0 then
+			strReligionText = strReligionText .. "    [COLOR_NEGATIVE_TEXT]";
+		else
+			strReligionText = strReligionText .. " [COLOR_NEGATIVE_TEXT]";
+		end
+		if g_DuelModePantheon1 then
+			strReligionText = strReligionText .. g_DuelModePantheon1 .. ", ";
+		end
+		if g_DuelModePantheon2 then
+			strReligionText = strReligionText .. g_DuelModePantheon2 .. ", ";
+		end
+		if g_DuelModePantheon3 then
+			strReligionText = strReligionText .. g_DuelModePantheon3 .. ", ";
+		end
+		if g_DuelModeBelief1 then
+			strReligionText = strReligionText .. g_DuelModeBelief1 .. ", ";
+		end
+		if g_DuelModeBelief2 then
+			strReligionText = strReligionText .. g_DuelModeBelief2 .. ", ";
+		end
+		if g_DuelModeBelief3 then
+			strReligionText = strReligionText .. g_DuelModeBelief3 .. ", ";
+		end
+		if strReligionText:sub(-2) == ", " then
+			strReligionText = strReligionText:sub(1, -3);
+		end
+		strReligionText = strReligionText .. "[END_COLOR]";
 	end
 	Controls.StreamerPoliciesText:SetText(strPoliciesText);
 	Controls.StreamerBeliefs1Text:SetText(strReligionText);
