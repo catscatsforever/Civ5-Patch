@@ -679,7 +679,7 @@ function UpdateStreamerView()
 	end
 
 	-- NEW: show players population!
-	strPoliciesText = "[ICON_CITIZEN]" .. pActivePlayer:GetTotalPopulation() .. "    " .. strPoliciesText;
+	strPoliciesText = pActivePlayer:GetTotalPopulation() .. " [ICON_CITIZEN]    " .. strPoliciesText;
 	local strReligionText = strReligion1Text
 	if strReligion2Text:len() > 0 then
 		if beliefCount == 0 then
@@ -863,6 +863,7 @@ GameEvents.ReligionFounded.Add(UpdateStreamerView);
 GameEvents.ReligionEnhanced.Add(UpdateStreamerView);
 GameEvents.ReformationAdded.Add(UpdateStreamerView);
 GameEvents.CityCaptureComplete.Add(UpdateStreamerView);
+Events.SerialEventCityPopulationChanged.Add(UpdateStreamerView);
 --GameEvents.CityCaptureComplete.Add(function() print('CityCaptureComplete'); end);
 Events.ActivePlayerTurnStart.Add(UpdateStreamerView);
 --Events.ActivePlayerTurnStart.Add(function() print('ActivePlayerTurnStart'); end);
