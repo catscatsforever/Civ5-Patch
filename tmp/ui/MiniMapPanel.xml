@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- edit: Turn Timer reset&pause for EUI & vanilla UI -->
+<!-- edit: Streamer view extended for EUI & vanilla UI -->
+<!-- edit: notifications misclick protection for EUI & vanilla UI -->
 <Context ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" >
 
+	<Grid Anchor="R,C" Size="100,Full" ID="RightCurtainBlock" ConsumeMouseButton="1" Color="0,0,0,0" />
 
 	<Instance Name="LegendKey">
 		<Stack ID="Item" StackGrowth="Right" >
