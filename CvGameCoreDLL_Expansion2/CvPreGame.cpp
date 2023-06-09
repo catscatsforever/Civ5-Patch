@@ -2612,7 +2612,7 @@ void setLeaderName(PlayerTypes p, const CvString& n)
 }
 #ifdef INGAME_HOTKEY_MANAGER
 // first find and edit matching ActionInfo instance, then update core DB (probably redundant)
-void UpdateHotkey(int iSubType, int iIndex, const char* szHotkeyStr, bool bCtrl, bool bAlt, bool bShift, int iHotkeyPriority)
+void UpdateHotkey(int iSubType, int iIndex, const char* szHotkeyStr, bool bCtrl, bool bAlt, bool bShift/*, int iHotkeyPriority*/)
 {
 	typedef std::vector<CvActionInfo*> ActionInfoVector;
 	ActionInfoVector& actionInfos = GC.getActionInfo();
@@ -2663,15 +2663,15 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 	{
 		int iSubType = (((uint)p >> 24) & 15);  // 4-bit
 		int iIndex = (((uint)p >> 8) & 65535);  // 16-bit
-		bool bHotkeyAlt = (((uint)p >> 7) & 1);  // 4x1-bit flags
+		// bool bHotkeyAlt = (((uint)p >> 7) & 1);  // 4x1-bit flags
 		bool bCtrl = (((uint)p >> 6) & 1);
 		bool bAlt = (((uint)p >> 5) & 1);
 		bool bShift = (((uint)p >> 4) & 1);
-		int iHotkeyPriority = (((uint)p) & 15);  // 4-bit
+		// int iHotkeyPriority = (((uint)p) & 15);  // 4-bit
 
 		const char* hotkeyStr = szKey.c_str();
 
-		UpdateHotkey(iSubType, iIndex, hotkeyStr, bCtrl, bAlt, bShift, iHotkeyPriority);
+		UpdateHotkey(iSubType, iIndex, hotkeyStr, bCtrl, bAlt, bShift/*, iHotkeyPriority*/);
 		return;
 	}
 #endif
