@@ -9,6 +9,7 @@
 -- edit: NEW: Ingame Hotkey Manager for EUI
 -------------------------------------------------
 --print("Loading EUI option menu...",os.clock())
+include( "IconSupport" );
 local ipairs = ipairs
 local math_floor = math.floor
 local string_format = string.format
@@ -2207,7 +2208,37 @@ function BuildHotkeyManagerControls()
                     ContextPtr:BuildInstanceForControl("KeyEntry", instance, catStackInstance.CategoryStack2);
 
                     instance.HotkeyDescriptionLabel:LocalizeAndSetText(data[i].Description or data[i].Type or '??');
-                    instance.HotkeyDescriptionLabel:LocalizeAndSetToolTip(data[i].Help);
+                    instance.HotkeyDescriptionLabel:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                    instance.HotkeyDescriptionIcon:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                    instance.HotkeyDescriptionIcon32:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                    -- illustrate actions
+                    if it == 'Controls' then
+                        -- skip
+                        instance.HotkeyDescriptionIcon:SetHide(true);
+                    elseif it == 'UnitPromotions' or it == 'Specialists' then
+                        -- PortraitIndex/IconAtlas
+                        if data[i].PortraitIndex ~= -1 then
+                            if data[i].IconAtlas == 'ABILITY_ATLAS' then  -- no size 45 icons here :(
+                                IconHookup( data[i].PortraitIndex, 32, data[i].IconAtlas, instance.HotkeyDescriptionIcon32 );
+                                instance.HotkeyDescriptionIcon:SetHide(true);
+                                instance.HotkeyDescriptionIcon32:SetHide(false);
+                            else
+                                IconHookup( data[i].PortraitIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
+                            end
+                        else
+                            instance.HotkeyDescriptionIcon:SetHide(true);
+                        end
+                    else
+                        -- IconIndex/IconAtlas
+                        if data[i].Type == 'MISSION_FOUND' then  -- special care for city found mission
+                            instance.HotkeyDescriptionIcon:SetTextureAndResize("Assets/UI/Art/Icons/BuildCity36.dds");
+                            instance.HotkeyDescriptionIcon:SetOffsetVal(instance.HotkeyDescriptionIcon:GetOffsetX() + 5, instance.HotkeyDescriptionIcon:GetOffsetY());
+                        elseif data[i].IconIndex ~= -1 then
+                            IconHookup( data[i].IconIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
+                        else
+                            instance.HotkeyDescriptionIcon:SetHide(true);
+                        end
+                    end
 
                     instance.HotkeyEditButton:SetVoid1(cat);
                     instance.HotkeyEditButton:SetVoid2(i);
