@@ -553,11 +553,12 @@
 					<EditBox ID="HotkeyEdit" EditMode="1" Size="150,18" Anchor="C,C" Font="TwCenMT16" NumberInput="0" Disabled="1" MaxLength="64" />
 				</Box>
 			</Box>
-			<Label ID="HotkeyDescriptionLabel" Offset="170,0" Anchor="L,C" Font="TwCenMT20" />
 			<Button ID="HotkeyEditButton" Anchor="L,C" Size="154,24" ConsumeMouse="1">
-			
 				<Label ID="HotkeyEditFrontLabel" Size="150,18" Anchor="C,C" Font="TwCenMT16" />
 			</Button>
+			<Image ID="HotkeyDescriptionIcon" Offset="153,0" Anchor="L,C" Size="45,45" />
+			<Image ID="HotkeyDescriptionIcon32" Offset="160,0" Anchor="L,C" Size="32,32" Hidden="1" />
+			<Label ID="HotkeyDescriptionLabel" Offset="197,0" Anchor="L,C" Font="TwCenMT20" />
         </Container>
     </Instance>
 	<Instance Name="CategorySeparator" >
