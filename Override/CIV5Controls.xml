@@ -1183,7 +1183,7 @@
 		<Row> 
 			<ID>35</ID> 
 			<Type>BUILD_JUNGLE_LUMBERMILL</Type> 
-			<Description>TXT_KEY_BUILD_LUMBERMILL</Description> 
+			<Description>TXT_KEY_BUILD_JUNGLE_LUMBERMILL</Description> 
 			<Recommendation>TXT_KEY_BUILD_LUMBERMILL_REC</Recommendation> 
 			<HotKey>KB_L</HotKey> 
 			<HotKeyPriority>0</HotKeyPriority> 
@@ -2325,7 +2325,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>true</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Visible>true</Visible> 
+			<Visible>false</Visible> 
 			<GotoPlot>true</GotoPlot> 
 			<HighlightPlot>false</HighlightPlot> 
 			<SelectType>false</SelectType> 
@@ -2349,7 +2349,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Visible>true</Visible> 
+			<Visible>false</Visible> 
 			<GotoPlot>true</GotoPlot> 
 			<HighlightPlot>false</HighlightPlot> 
 			<SelectType>false</SelectType> 
