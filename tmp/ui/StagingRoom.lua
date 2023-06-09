@@ -1616,7 +1616,7 @@ function UpdateOptions()
 				end
 			end
 			for option in GameInfo.GameOptions{Type = "GAMEOPTION_RAGING_BARBARIANS"} do
-				if PreGame.GetGameOption("GAMEOPTION_NO_BARBARIANS") > 0 then
+				if PreGame.GetGameOption("GAMEOPTION_NO_BARBARIANS") <= 0 then
 					local savedValue = PreGame.GetGameOption(option.Type);
 					if(savedValue ~= nil and savedValue == 1) then
 						local controlTable = g_AdvancedOptionIM:GetInstance();
