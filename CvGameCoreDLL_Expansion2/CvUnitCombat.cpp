@@ -2029,6 +2029,24 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				{
 					pkUnit->kill(false, eAttackerOwner);
 				}
+#ifdef UNIT_DIED_BY_NUKING_NOTIFICATIONS
+				ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
+				CvString strBuffer;
+
+				if(eAttackerOwner == GC.getGame().getActivePlayer())
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+					pkDLLInterface->AddMessage(0, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				}
+
+				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_AND_DEATH", pkUnit->getNameKey(), pkAttacker->getNameKey());
+				CvNotifications* pNotifications = GET_PLAYER(pkUnit->getOwner()).GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
+					pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), pkUnit->getX(), pkUnit->getY(), (int) pkUnit->getUnitType(), pkUnit->getOwner());
+				}
+#endif
 
 				GET_PLAYER(kEntry.GetPlayer()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
 			}
