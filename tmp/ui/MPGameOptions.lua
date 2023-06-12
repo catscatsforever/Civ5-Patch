@@ -351,7 +351,11 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 		Controls.NoAncientRuinsBox:SetHide( false );
 		Controls.NoEspionageBox:SetHide( false );
 		Controls.NoBarbariansBox:SetHide( false );
-		Controls.RagingBarbariansBox:SetHide( false );
+		if Controls.NoBarbariansCheck:IsChecked() then
+			Controls.RagingBarbariansBox:SetHide( true );
+		else
+			Controls.RagingBarbariansBox:SetHide( false );
+		end
 		Controls.BanWorldWondersBox:SetHide( false );
 		Controls.BanPantheonsBox:SetHide( false );
 		Controls.BanReligionBeliefsBox:SetHide( false );
@@ -1411,7 +1415,11 @@ function SetDuelModeOption()
 	Controls.NoAncientRuinsBox:SetHide(not isChecked);
 	Controls.NoEspionageBox:SetHide(not isChecked);
 	Controls.NoBarbariansBox:SetHide(not isChecked);
-	Controls.RagingBarbariansBox:SetHide(not isChecked);
+	if Controls.NoBarbariansCheck:IsChecked() then
+		Controls.RagingBarbariansBox:SetHide( true );
+	else
+		Controls.RagingBarbariansBox:SetHide( not isChecked );
+	end
 	Controls.BanWorldWondersBox:SetHide(not isChecked);
 	Controls.BanPantheonsBox:SetHide(not isChecked);
 	Controls.BanReligionBeliefsBox:SetHide(not isChecked);
