@@ -203,4 +203,11 @@ IF EXIST "%cd%\UI_bc1\Improvements\WorldView.lua" (
   ECHO WorldView.lua: no EUI, copying vanilla UI version
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\WorldView.lua" "%cd%\%patchfolder%\UI\WorldView.lua"
 )
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\TopPanel\TopPanel.xml" (
+  ECHO TopPanel.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TopPanel.xml" "%cd%\%patchfolder%\UI\TopPanel.xml"
+) ELSE (
+  ECHO TopPanel.xml: no EUI, skipping
+)
 EXIT
