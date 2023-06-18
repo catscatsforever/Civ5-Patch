@@ -121,8 +121,11 @@
               </Stack>
             </Box>
 
+            <!-- List of Check Boxes -->
+            <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="GameOptionsStack" />
+
             <!-- Duel Mode Check -->
-            <Box Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" >
+            <Box Anchor="L,T" Size="480,25" Offset="30,-7" Color="255,255,255,0" >
 
               <Stack ID="DuelModeStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
                 <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
@@ -237,11 +240,8 @@
               </Stack>
             </Box>
 
-            <!-- List of Check Boxes -->
-            <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="GameOptionsStack" />
-
             <!-- DLC -->
-            <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+            <Box Anchor="C,T" Size="500,30" Offset="0,7" Color="White.0" >
               <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
               <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_DLC_ALLOWED" Font="TwCenMT20" />
               <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
