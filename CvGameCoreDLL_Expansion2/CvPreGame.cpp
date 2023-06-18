@@ -2620,9 +2620,9 @@ void UpdateHotkey(int iSubType, int iIndex, const char* szHotkeyStr, bool bCtrl,
 	{
 		if ((*it)->getSubType() == iSubType && (*it)->getOriginalIndex() == iIndex)
 		{
-			SLOG("OLD HK: %d %d '%s' %d -- %s", (*it)->getSubType(), (*it)->getOriginalIndex(), (*it)->getHotKey(), (*it)->getHotKeyVal(), (*it)->GetDescription());
+			//SLOG("OLD HK: %d %d '%s' %d -- %s", (*it)->getSubType(), (*it)->getOriginalIndex(), (*it)->getHotKey(), (*it)->getHotKeyVal(), (*it)->GetDescription());
 			(*it)->UpdateHotkey(szHotkeyStr, bAlt, bShift, bCtrl);
-			SLOG("UPD HK: %d %d '%s' %d -- %s", (*it)->getSubType(), (*it)->getOriginalIndex(), (*it)->getHotKey(), (*it)->getHotKeyVal(), (*it)->GetDescription());
+			//SLOG("UPD HK: %d %d '%s' %d -- %s", (*it)->getSubType(), (*it)->getOriginalIndex(), (*it)->getHotKey(), (*it)->getHotKeyVal(), (*it)->GetDescription());
 
 			Database::Results kData;
 			Database::Connection* db = GC.GetGameDatabase();
@@ -2632,8 +2632,8 @@ void UpdateHotkey(int iSubType, int iIndex, const char* szHotkeyStr, bool bCtrl,
 			CvString str = ActionSubTypesStr[iSubType];
 			if (iSubType <= (sizeof(ActionSubTypesStr) / sizeof(*ActionSubTypesStr))) {
 
-				sprintf_s(szSQL, "UPDATE %s SET HotKey = '%s', CtrlDown = %d, AltDown = %d, ShiftDown = %d WHERE ID = %d", str.c_str(), szHotkeyStr, bCtrl ? 1 : 0, bAlt ? 1 : 0, bShift ? 1 : 0, iIndex);
-				SLOG(szSQL);
+				//sprintf_s(szSQL, "UPDATE %s SET HotKey = '%s', CtrlDown = %d, AltDown = %d, ShiftDown = %d WHERE ID = %d", str.c_str(), szHotkeyStr, bCtrl ? 1 : 0, bAlt ? 1 : 0, bShift ? 1 : 0, iIndex);
+				//SLOG(szSQL);
 				if (db->Execute(kData, szSQL))
 				{
 					while (kData.Step())
