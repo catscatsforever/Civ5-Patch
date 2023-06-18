@@ -351,11 +351,7 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 		Controls.NoAncientRuinsBox:SetHide( false );
 		Controls.NoEspionageBox:SetHide( false );
 		Controls.NoBarbariansBox:SetHide( false );
-		if Controls.NoBarbariansCheck:IsChecked() then
-			Controls.RagingBarbariansBox:SetHide( true );
-		else
-			Controls.RagingBarbariansBox:SetHide( false );
-		end
+		Controls.RagingBarbariansBox:SetHide( false );
 		Controls.BanWorldWondersBox:SetHide( false );
 		Controls.BanPantheonsBox:SetHide( false );
 		Controls.BanReligionBeliefsBox:SetHide( false );
@@ -1415,11 +1411,7 @@ function SetDuelModeOption()
 	Controls.NoAncientRuinsBox:SetHide(not isChecked);
 	Controls.NoEspionageBox:SetHide(not isChecked);
 	Controls.NoBarbariansBox:SetHide(not isChecked);
-	if Controls.NoBarbariansCheck:IsChecked() then
-		Controls.RagingBarbariansBox:SetHide( true );
-	else
-		Controls.RagingBarbariansBox:SetHide( not isChecked );
-	end
+	Controls.RagingBarbariansBox:SetHide( not isChecked );
 	Controls.BanWorldWondersBox:SetHide(not isChecked);
 	Controls.BanPantheonsBox:SetHide(not isChecked);
 	Controls.BanReligionBeliefsBox:SetHide(not isChecked);
@@ -1508,6 +1500,9 @@ Controls.NoEspionageCheck:RegisterCallback( Mouse.eLClick, OnNoEspionageChecked 
 function SetNoBarbariansOption()
 	local isChecked = Controls.NoBarbariansCheck:IsChecked();
 	PreGame.SetGameOption("GAMEOPTION_NO_BARBARIANS", isChecked);
+	if isChecked then
+		PreGame.SetGameOption("GAMEOPTION_RAGING_BARBARIANS", false);
+	end
 
 	UpdateGameOptionsDisplay();
 end
@@ -1525,6 +1520,9 @@ Controls.NoBarbariansCheck:RegisterCallback( Mouse.eLClick, OnNoBarbariansChecke
 function SetRagingBarbariansOption()
 	local isChecked = Controls.RagingBarbariansCheck:IsChecked();
 	PreGame.SetGameOption("GAMEOPTION_RAGING_BARBARIANS", isChecked);
+	if isChecked then
+		PreGame.SetGameOption("GAMEOPTION_NO_BARBARIANS", false);
+	end
 
 	UpdateGameOptionsDisplay();
 end
