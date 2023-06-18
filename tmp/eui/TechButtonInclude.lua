@@ -425,7 +425,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for row in GameInfo.Buildings( thisPrereqTech ) do
 -- Duel Mode
 		if not (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
-			and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == row.ID) or 70 == row.ID)) then
+			and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == row.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == row.ID) or 70 == row.ID or PreGame.GetGameOption("GAMEOPTION_DISABLE_OXFORD_UNIVERSITY") > 0 and row.ID == 61)) then
 			if validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
 				break
 			end
