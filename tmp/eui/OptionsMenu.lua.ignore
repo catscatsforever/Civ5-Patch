@@ -2060,7 +2060,7 @@ function OnShowInvalidHotkeysCheckbox( bIsChecked )
         for _, entry in next, it do
             --local cat = entry.HotkeyEditButton:GetVoid1();
             local id = entry.HotkeyEditButton:GetVoid2();
-            if (cat ~= 2 and cat ~= 3 and cat ~= 5 and GameInfo[Categories[cat]][id].Visible == false) or (cat == 3 and GameInfo[Categories[cat]][id].CannotBeChosen) then
+            if (cat ~= 2 and cat ~= 3 and cat ~= 5 and GameInfo[Categories[cat]][id].Visible == false) or (cat == 3 and (GameInfo[Categories[cat]][id].CannotBeChosen or (GameInfo[Categories[cat]][id].IconAtlas == 'ABILITY_ATLAS'))) then
                 --print(GameInfo[Categories[cat]][id].Description, GameInfo[Categories[cat]][id].Visible)
                 entry.Root:SetHide( not bIsChecked )
             end
@@ -2262,7 +2262,8 @@ function BuildHotkeyManagerControls()
 
                     -- exclude invisible (internal) actions
                     -- exclude embedded promotions
-                    if (g_bShowInvalidActions == 0) and ((it ~= 'Builds' and it ~= 'Controls' and it ~= 'UnitPromotions' and data[i].Visible == false) or (it == 'UnitPromotions' and data[i].CannotBeChosen)) then
+                    -- it seems all promotions from 'ABILITY_ATLAS' are embedded as well.
+                    if (g_bShowInvalidActions == 0) and ((it ~= 'Builds' and it ~= 'Controls' and it ~= 'UnitPromotions' and data[i].Visible == false) or (it == 'UnitPromotions' and (data[i].CannotBeChosen or (data[i].IconAtlas == 'ABILITY_ATLAS')))) then
                         instance.Root:SetHide(true);
                     end
                 end
