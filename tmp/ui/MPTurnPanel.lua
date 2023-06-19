@@ -329,7 +329,7 @@ Events.EndTurnTimerUpdate.Add(OnEndTurnTimerUpdate);
 
 -- Edit: timer fading on pause START
 function OnPause( bPause )
-  	if bPause == true then
+  	if Game.IsTurnTimerPaused() == true then
 		Controls.EndTurnTimerMyTurnAnim:Stop();
 		Controls.EndTurnTimerMyTurnAnim:SetAlpha(0.3)
 		Controls.EndTurnTimeMeterAnim:Stop();
@@ -420,4 +420,6 @@ Controls.EndTurnTimerButton:RegisterCallback( Mouse.eLClick, OnEndTurnTimerClick
 -------------------------------------------------------------------------
 BuildStaticTeamsList();
 BuildTurnQueue();
+-- NEW in case game was saved with paused turn timer state
+OnPause(Game.IsTurnTimerPaused());
 
