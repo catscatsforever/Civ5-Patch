@@ -107,7 +107,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  -- Duel Mode
 		if validBuildingBuilds[thisBuildingInfo.BuildingClass] == thisBuildingInfo.Type then
 			if not (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
-				and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == thisBuildingInfo.ID) or 70 == thisBuildingInfo.ID)) then
+				and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == thisBuildingInfo.ID) or 70 == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_DISABLE_OXFORD_UNIVERSITY") > 0 and 61 == thisBuildingInfo.ID)) then
 				local buttonName = "B"..tostring(buttonNum);
 				local thisButton = thisTechButtonInstance[buttonName];
 				if thisButton then

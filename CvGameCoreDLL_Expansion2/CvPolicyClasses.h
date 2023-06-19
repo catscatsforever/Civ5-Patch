@@ -596,6 +596,9 @@ public:
 	void DoUnlockPolicyBranch(PolicyBranchTypes eBranchType);
 	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType);
 
+#ifdef POLICY_BRANCH_UNLOCKING_TURN
+	int PolicyBranchUnlockingTurn(PolicyBranchTypes eBranchType) const;
+#endif
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);
 	int GetNumPolicyBranchesUnlocked() const;
@@ -666,6 +669,9 @@ private:
 	bool* m_pabHasOneShotPolicyFired;
 	bool* m_pabHaveOneShotFreeUnitsFired;
 	bool* m_pabPolicyBranchUnlocked;
+#ifdef POLICY_BRANCH_UNLOCKING_TURN
+	int* m_paiPolicyBranchUnlockingTurn;
+#endif
 	bool* m_pabPolicyBranchBlocked;
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
 	bool* m_pabPolicyBranchNotificationLocked;

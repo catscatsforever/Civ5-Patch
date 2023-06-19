@@ -14,6 +14,9 @@ local StreamerViewShowState = StreamerViewData.GetValue("DB_bShow") or 0;
 
 -- NEW: Duel Mode bans
 local g_DuelMode = PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0;
+local g_DuelModeBanWonders = PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0;
+local g_DuelModeBanPantheons = PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") > 0;
+local g_DuelModeBanBeliefs = PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") > 0;
 local g_DuelModeWonder1 = GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1")] and
 		Locale.ConvertTextKey(GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1")].Description) or false;
 local g_DuelModeWonder2 = GameInfo.Buildings[PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2")] and
@@ -663,13 +666,13 @@ function UpdateStreamerView()
 		else
 			strWondersText = strWondersText .. " [COLOR_NEGATIVE_TEXT]";
 		end
-		if g_DuelModeWonder1 then
+		if g_DuelModeWonder1 and g_DuelModeBanWonders then
 			strWondersText = strWondersText .. g_DuelModeWonder1 .. ", ";
 		end
-		if g_DuelModeWonder2 then
+		if g_DuelModeWonder2 and g_DuelModeBanWonders then
 			strWondersText = strWondersText .. g_DuelModeWonder2 .. ", ";
 		end
-		if g_DuelModeWonder3 then
+		if g_DuelModeWonder3 and g_DuelModeBanWonders then
 			strWondersText = strWondersText .. g_DuelModeWonder3 .. ", ";
 		end
 		if strWondersText:sub(-2) == ", " then
@@ -695,22 +698,22 @@ function UpdateStreamerView()
 		else
 			strReligionText = strReligionText .. " [COLOR_NEGATIVE_TEXT]";
 		end
-		if g_DuelModePantheon1 then
+		if g_DuelModePantheon1 and g_DuelModeBanPantheons then
 			strReligionText = strReligionText .. g_DuelModePantheon1 .. ", ";
 		end
-		if g_DuelModePantheon2 then
+		if g_DuelModePantheon2 and g_DuelModeBanPantheons then
 			strReligionText = strReligionText .. g_DuelModePantheon2 .. ", ";
 		end
-		if g_DuelModePantheon3 then
+		if g_DuelModePantheon3 and g_DuelModeBanPantheons then
 			strReligionText = strReligionText .. g_DuelModePantheon3 .. ", ";
 		end
-		if g_DuelModeBelief1 then
+		if g_DuelModeBelief1 and g_DuelModeBanBeliefs then
 			strReligionText = strReligionText .. g_DuelModeBelief1 .. ", ";
 		end
-		if g_DuelModeBelief2 then
+		if g_DuelModeBelief2 and g_DuelModeBanBeliefs then
 			strReligionText = strReligionText .. g_DuelModeBelief2 .. ", ";
 		end
-		if g_DuelModeBelief3 then
+		if g_DuelModeBelief3 and g_DuelModeBanBeliefs then
 			strReligionText = strReligionText .. g_DuelModeBelief3 .. ", ";
 		end
 		if strReligionText:sub(-2) == ", " then

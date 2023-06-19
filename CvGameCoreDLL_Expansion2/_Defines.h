@@ -318,6 +318,8 @@
 /// Biology, Electrisity, Steam Power and Dynamite triggers ideology choise
 #define NEW_IDEOLOGY_TRIGGER
 ///
+#define POLICY_BRANCH_UNLOCKING_TURN
+///
 #define POLICY_BRANCH_NOTIFICATION_LOCKED
 /// The game will now send a “can adopt policy” notification if you get enough culture for a policy mid-turn
 #define UPDATE_CULTURE_NOTIFICATION_DURING_TURN
