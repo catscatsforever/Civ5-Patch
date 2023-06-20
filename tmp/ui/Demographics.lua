@@ -1,6 +1,8 @@
 include( "IconSupport" );
 ----------------------------------------------------------------
-----------------------------------------------------------------
+-------------------------------------------------
+-- edit: Do not show AI in Demographics
+-------------------------------------------------
 local m_PopulationTable = {};
 local m_FoodTable = {};
 local m_ProductionTable = {};
@@ -45,7 +47,8 @@ function GetBest( table, iPlayer )
     local highestID = iPlayer;
     for i = 0, GameDefines.MAX_MAJOR_CIVS do
 		local pPlayer = Players[i];
-        if(pPlayer:IsAlive() and not pPlayer:IsMinorCiv()) then
+        -- exclude AI from Demographics
+        if((pPlayer:IsAlive() and not Game.IsNetworkMultiPlayer() or pPlayer:IsHuman()) and not pPlayer:IsMinorCiv()) then
             if( highest == nil or table[i] > highest ) then
                 highest = table[i];
                 highestID = i;
@@ -65,7 +68,8 @@ function GetAverage( table, iPlayer )
     
     for i = 0, GameDefines.MAX_MAJOR_CIVS do
        	local pPlayer = Players[i];
-        if(pPlayer:IsAlive() and not pPlayer:IsMinorCiv()) then
+        -- exclude AI from Demographics
+        if((pPlayer:IsAlive() and not Game.IsNetworkMultiPlayer() or pPlayer:IsHuman()) and not pPlayer:IsMinorCiv()) then
             count = count + 1;
             accum = accum + table[i];
         end
@@ -82,7 +86,8 @@ function GetWorst( table, iPlayer )
     local lowestID = iPlayer;
     for i = 0, GameDefines.MAX_MAJOR_CIVS do
         local pPlayer = Players[i];
-		if(pPlayer:IsAlive() and not pPlayer:IsMinorCiv()) then
+        -- exclude AI from Demographics
+		if((pPlayer:IsAlive() and not Game.IsNetworkMultiPlayer() or pPlayer:IsHuman()) and not pPlayer:IsMinorCiv()) then
             if( lowest == nil or table[i] <= lowest ) then
                 lowest = table[i];
                 lowestID = i;
@@ -102,7 +107,8 @@ function GetRank( table, iPlayer )
     
     for i = 0, GameDefines.MAX_MAJOR_CIVS do
         local pPlayer = Players[i];
-		if(pPlayer:IsAlive() and not pPlayer:IsMinorCiv()) then
+        -- exclude AI from Demographics
+		if((pPlayer:IsAlive() and not Game.IsNetworkMultiPlayer() or pPlayer:IsHuman()) and not pPlayer:IsMinorCiv()) then
             if( table[i] > playerVal ) then
                 rank = rank + 1;
             end
