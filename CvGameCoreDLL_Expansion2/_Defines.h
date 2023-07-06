@@ -316,7 +316,7 @@
 /// Adopting all policies in the Liberty tree will decrease Unhappiness from each city by 1.
 #define LIBERTY_FINISER_LESS_UNHAPPINESS_PER_CITY
 /// Biology, Electrisity, Steam Power and Dynamite triggers ideology choise
-#define NEW_IDEOLOGY_TRIGGER
+// #define NEW_IDEOLOGY_TRIGGER
 ///
 #define POLICY_BRANCH_UNLOCKING_TURN
 ///
