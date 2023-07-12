@@ -3103,6 +3103,10 @@ ReligionTypes CvCityReligions::GetSimulatedReligiousMajority()
 /// What is the second most popular religion in this city with a majority religion?
 ReligionTypes CvCityReligions::GetSecondaryReligion()
 {
+#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
+	return eFoundedReligion;
+#else
 	int iMostFollowers = -1;
 	int iMostPressure = -1;
 	ReligionTypes eMajority = GetReligiousMajority();
@@ -3132,6 +3136,7 @@ ReligionTypes CvCityReligions::GetSecondaryReligion()
 	}
 
 	return eMostFollowers;
+#endif
 }
 
 /// Is there a pantheon belief in the secondary religion here?
