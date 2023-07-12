@@ -6417,7 +6417,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if(pBestCity != NULL)
 		{
 #ifdef POP_RUIN_FOOD_NOT_POPULATION
-			pBestCity->changeFood(10*kGoodyInfo.getPopulation());
+			pBestCity->changeFood(13 * kGoodyInfo.getPopulation());
 #else
 			pBestCity->changePopulation(kGoodyInfo.getPopulation());
 #endif
