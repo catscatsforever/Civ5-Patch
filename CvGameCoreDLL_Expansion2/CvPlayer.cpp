@@ -23758,7 +23758,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		//SLOG("%d		%d		%d		%d		%d		%d", GetID(), m_bAlive ? 1 : 0, m_bTurnActive ? 1 : 0, m_bAutoMoves ? 1 : 0, m_bEndTurn ? 1 : 0, m_eEndTurnBlockingType);
 		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
 		m_bTurnActive = bHuman;
-		m_bAutoMoves = !bHuman;
+		//m_bAutoMoves = !bHuman;
 		m_bEndTurn = false;
 	}
 #endif
