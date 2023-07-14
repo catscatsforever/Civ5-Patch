@@ -17200,12 +17200,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 		else
 		{
-#ifdef AUTOSAVE_END_OF_TURN
-			if (GetID() == kGame.getActivePlayer())
-			{
-				gDLL->AutoSave(false, true);
-			}
-#endif
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
@@ -23758,7 +23752,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		//SLOG("%d		%d		%d		%d		%d		%d", GetID(), m_bAlive ? 1 : 0, m_bTurnActive ? 1 : 0, m_bAutoMoves ? 1 : 0, m_bEndTurn ? 1 : 0, m_eEndTurnBlockingType);
 		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
 		m_bTurnActive = bHuman;
-		m_bAutoMoves = !bHuman;
+		//m_bAutoMoves = !bHuman;
 		m_bEndTurn = false;
 	}
 #endif
