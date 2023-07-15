@@ -179,6 +179,9 @@ CvCity::CvCity() :
 	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
 	, m_iCheapestPlotInfluence("CvCity::m_iCheapestPlotInfluence", m_syncArchive)
 	, m_iEspionageModifier(0)
+#ifdef NEW_FACTORIES
+	, m_bCityHasCoal(false)
+#endif
 	, m_iTradeRouteRecipientBonus(0)
 	, m_iTradeRouteTargetBonus(0)
 	, m_unitBeingBuiltForOperation()
@@ -690,6 +693,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iMaintenance = 0;
 	m_iHealRate = 0;
 	m_iEspionageModifier = 0;
+#ifdef NEW_FACTORIES
+	m_bCityHasCoal = false;
+#endif
 	m_iNoOccupiedUnhappinessCount = 0;
 	m_iFood = 0;
 	m_iFoodKept = 0;
@@ -3444,6 +3450,22 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 	VALIDATE_OBJECT
 	SetResourceDemandedCountdown(GetResourceDemandedCountdown() + iChange);
 }
+
+#ifdef NEW_FACTORIES
+//	--------------------------------------------------------------------------------
+bool CvCity::IsCityHasCoal() const
+{
+	VALIDATE_OBJECT
+		return m_bCityHasCoal;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetCityHasCoal(bool bValue)
+{
+	VALIDATE_OBJECT
+		m_bCityHasCoal = bValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getFoodTurnsLeft() const
@@ -6396,10 +6418,78 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			changeRiverPlotYield(eYield, (pBuildingInfo->GetRiverPlotYieldChange(eYield) * iChange));
 			changeLakePlotYield(eYield, (pBuildingInfo->GetLakePlotYieldChange(eYield) * iChange));
 			changeSeaResourceYield(eYield, (pBuildingInfo->GetSeaResourceYieldChange(eYield) * iChange));
+#ifdef NEW_FACTORIES
+			if (eBuilding != (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true))
+			{
+				ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
+				changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+			}
+			else
+			{
+				int iLoop = 0;
+				int iLoopCity = 0;
+				for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+				{
+					ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
+					if (pLoopCity == this)
+					{
+						if (iChange < 0)
+						{
+							iLoopCity++;
+						}
+						continue;
+					}
+					if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource, true) - GET_PLAYER(getOwner()).getNumResourceUsed(eResource) > iLoopCity)
+					{
+						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, -(pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
+						pLoopCity->changeYieldRateModifier(eYield, -(pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
+						pLoopCity->SetCityHasCoal(false);
+					}
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						iLoopCity++;
+					}
+				}
+				iLoop = 0;
+				iLoopCity = 0;
+				for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+				{
+					ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
+					if (pLoopCity == this)
+					{
+						if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource, true) - GET_PLAYER(getOwner()).getNumResourceUsed(eResource) > iLoopCity)
+						{
+							ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
+							changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+							if (iChange > 0)
+							{
+								pLoopCity->SetCityHasCoal(true);
+								iLoopCity++;
+							}
+						}
+						continue;
+					}
+					if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource, true) - GET_PLAYER(getOwner()).getNumResourceUsed(eResource) > iLoopCity)
+					{
+						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, (pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
+						pLoopCity->changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
+						pLoopCity->SetCityHasCoal(true);
+					}
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						iLoopCity++;
+					}
+				}
+			}
+#endif
+#ifndef NEW_FACTORIES
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
+#endif
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
+#ifndef NEW_FACTORIES
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+#endif
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 			changeYieldRateModifier(eYield, pPolicies->GetBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
@@ -14186,6 +14276,9 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iMaintenance;
 	kStream >> m_iHealRate;
 	kStream >> m_iEspionageModifier;
+#ifdef NEW_FACTORIES
+	kStream >> m_bCityHasCoal;
+#endif
 	kStream >> m_iNoOccupiedUnhappinessCount;
 	kStream >> m_iFood;
 	kStream >> m_iFoodKept;
@@ -14538,6 +14631,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iMaintenance;
 	kStream << m_iHealRate;
 	kStream << m_iEspionageModifier;
+#ifdef NEW_FACTORIES
+	kStream << m_bCityHasCoal;
+#endif
 	kStream << m_iNoOccupiedUnhappinessCount;
 	kStream << m_iFood;
 	kStream << m_iFoodKept;

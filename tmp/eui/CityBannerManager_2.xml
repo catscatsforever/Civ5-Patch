@@ -106,6 +106,7 @@
 				<TextButton ID="CityIsPuppet" String="[ICON_PUPPET]"/>
 				<TextButton ID="CityFocus"/>
 				<Label ID="CityQuests"/>
+				<Label ID="CityHasCoal" String="[ICON_RES_COAL]"/>
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
 				<Label ID="CityIsConnected" String="[ICON_CONNECTED]"/>

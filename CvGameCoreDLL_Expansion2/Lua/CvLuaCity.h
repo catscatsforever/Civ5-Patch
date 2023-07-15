@@ -76,6 +76,10 @@ protected:
 	static int lGetResourceDemandedCountdown(lua_State* L);
 #endif
 
+#ifdef NEW_FACTORIES
+	static int lIsCityHasCoal(lua_State* L);
+#endif
+
 	static int lGetFoodTurnsLeft(lua_State* L);
 	static int lIsProduction(lua_State* L);
 	static int lIsProductionLimited(lua_State* L);

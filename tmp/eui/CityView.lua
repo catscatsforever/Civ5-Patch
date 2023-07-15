@@ -1569,6 +1569,16 @@ local function UpdateCityViewNow()
 		-- Blockaded
 		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 
+--	NEW FACTORIES
+		-- Has Coal
+		if city:IsCityHasCoal() then
+			Controls.HasCoalIcon:SetHide(false);
+			Controls.HasCoalIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_HAS_COAL");
+		else
+			Controls.HasCoalIcon:SetHide(true);
+		end
+--	NEW FACTORIES END
+
 		-- Being Razed
 		if city:IsRazing() then
 			Controls.CityIsRazing:SetHide(false)

@@ -180,6 +180,9 @@ IF EXIST "%cd%\UI_bc1\CityBanners\CityBannerManager.lua" (
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
     ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityBannerManager_2.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
   )
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityBannerManager.lua" "%cd%\%patchfolder%\UI\CityBannerManager.lua"
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityBannerManager.xml" "%cd%\%patchfolder%\UI\CityBannerManager.xml"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\NotificationPanel\DiploCorner.xml" (
@@ -211,5 +214,19 @@ IF EXIST "%cd%\UI_bc1\TopPanel\TopPanel.xml" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TopPanel.xml" "%cd%\%patchfolder%\UI\TopPanel.xml"
 ) ELSE (
   ECHO TopPanel.xml: no EUI, skipping
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\CityView\CityView.xml" (
+  ECHO CityView.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityView.xml" "%cd%\%patchfolder%\UI\CityView.xml"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityView.xml" "%cd%\%patchfolder%\UI\CityView.xml"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\CityView\CityView_small.xml" (
+  ECHO CityView_small.xml: EUI version detected
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityView_small.xml" "%cd%\%patchfolder%\UI\CityView_small.xml"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityView_small.xml" "%cd%\%patchfolder%\UI\CityView_small.xml"
 )
 EXIT

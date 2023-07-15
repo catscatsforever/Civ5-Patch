@@ -470,6 +470,9 @@ local g_cityToolTips = {
 			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"
 		end
 	end,
+	CityHasCoal = function( city )
+		return L( "TXT_KEY_CITY_HAS_COAL", city:IsCityHasCoal() )
+	end,
 	CityIsRazing = function( city )
 		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
 	end,
@@ -885,6 +888,7 @@ local function RefreshCityBannersNow()
 			local originalCityOwnerID = city:GetOriginalOwner()
 			local originalCityOwner = Players[ originalCityOwnerID ]
 			local otherCivID, otherCivAlpha
+			local hasCoal = city:IsCityHasCoal()
 			local isRazing = city:IsRazing()
 			local isResistance = city:IsResistance()
 			local isPuppet = city:IsPuppet()
@@ -904,6 +908,9 @@ local function RefreshCityBannersNow()
 
 			-- Update population
 			instance.CityPopulation:SetText( city:GetPopulation() )
+
+			-- Has Coal ?
+			instance.CityHasCoal:SetHide( not hasCoal )
 
 			-- Being Razed ?
 			instance.CityIsRazing:SetHide( not isRazing )

@@ -250,6 +250,7 @@
         <Label Anchor="C,C" Offset="0,-1" ID="ResourceDemandedString" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
       </Grid>
       <Stack ID="IconsStack" Anchor="C,T" Size="0,0" Offset="0,0" StackGrowth="Right" Padding="0" Hidden="0">
+        <Label ID="HasCoalIcon" Anchor="C,C" Offset="0,0" String="[ICON_RES_COAL]" Hidden="1"/>
         <Label ID="RazingIcon" Anchor="C,C" Offset="0,0" String="[ICON_RAZING]" Hidden="1"/>
         <Label ID="ResistanceIcon" Anchor="C,C" Offset="0,0" String="[ICON_RESISTANCE]" Hidden="1"/>
         <Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Hidden="1"/>

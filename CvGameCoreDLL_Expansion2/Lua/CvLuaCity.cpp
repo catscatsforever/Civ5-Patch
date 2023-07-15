@@ -74,6 +74,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetResourceDemandedCountdown);
 #endif
 
+#ifdef NEW_FACTORIES
+	Method(IsCityHasCoal);
+#endif
+
 	Method(GetFoodTurnsLeft);
 	Method(IsProduction);
 	Method(IsProductionLimited);
@@ -982,8 +986,17 @@ int CvLuaCity::lGetResourceDemandedCountdown(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetResourceDemandedCountdown);
 }
-
 #endif
+
+#ifdef NEW_FACTORIES
+//------------------------------------------------------------------------------
+//bool IsCityHasCoal();
+int CvLuaCity::lIsCityHasCoal(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsCityHasCoal);
+}
+#endif
+
 //------------------------------------------------------------------------------
 //int getFoodTurnsLeft();
 int CvLuaCity::lGetFoodTurnsLeft(lua_State* L)

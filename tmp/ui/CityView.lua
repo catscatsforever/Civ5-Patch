@@ -791,6 +791,16 @@ function OnCityViewUpdate()
 			Controls.BlockadedIcon:SetHide(true);
 		end
 		
+--	NEW FACTORIES
+		-- Has Coal
+		if (pCity:IsCityHasCoal()) then
+			Controls.HasCoalIcon:SetHide(false);
+			Controls.HasCoalIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_HAS_COAL");
+		else
+			Controls.HasCoalIcon:SetHide(true);
+		end
+--	NEW FACTORIES END
+
 		-- Being Razed
 		if (pCity:IsRazing()) then
 			Controls.RazingIcon:SetHide(false);
