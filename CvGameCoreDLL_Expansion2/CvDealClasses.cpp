@@ -2465,7 +2465,11 @@ void CvGameDeals::DoTurn()
 		//int iTemp;
 		//TradeableItems eTempItem;
 
+#ifdef DO_TURN_CHANGE_ORDER
+		int iGameTurn = GC.getGame().getGameTurn() - 1;
+#else
 		int iGameTurn = GC.getGame().getGameTurn();
+#endif
 
 		// Check to see if any of our TradeItems in any of our Deals expire this turn
 		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
@@ -2551,7 +2555,11 @@ void CvGameDeals::DoTurn()
 				for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 				{
 					// Cancel individual items
+#ifdef DO_TURN_CHANGE_ORDER
+					itemIter->m_iFinalTurn = GC.getGame().getGameTurn() - 1;
+#else
 					itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
+#endif
 
 					eFromPlayer = itemIter->m_eFromPlayer;
 					eToPlayer = it->GetOtherPlayer(eFromPlayer);
@@ -2636,7 +2644,11 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	m_CurrentDeals.clear();
 	for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 	{
+#ifdef DO_TURN_CHANGE_ORDER
+		if (it->m_iFinalTurn <= GC.getGame().getGameTurn() - 1)
+#else
 		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
+#endif
 		{
 			m_HistoricalDeals.push_back(*it);
 		}

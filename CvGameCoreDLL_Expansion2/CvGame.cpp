@@ -7807,7 +7807,9 @@ void CvGame::doTurn()
 
 	updateScore();
 
+#ifndef DO_TURN_CHANGE_ORDER
 	m_kGameDeals.DoTurn();
+#endif
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -8711,6 +8713,22 @@ void CvGame::updateMoves()
 				}
 			}
 		}
+#ifdef DO_TURN_CHANGE_ORDER
+		for (iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
+			if (player.isAlive())
+			{
+				if (player.isMinorCiv())
+				{
+					player.GetMinorCivAI()->DoTurn();
+				}
+			}
+		}
+#endif
+#ifdef DO_TURN_CHANGE_ORDER
+		m_kGameDeals.DoTurn();
+#endif
 	}
 }
 

@@ -4392,7 +4392,7 @@ void CvPlayer::doTurn()
 					}
 				}
 #endif
-#ifndef GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
+#ifndef DO_TURN_CHANGE_ORDER
 				GetTrade()->DoTurn();
 #endif
 				GetMilitaryAI()->ResetCounters();
@@ -4424,7 +4424,7 @@ void CvPlayer::doTurn()
 		doTurnPostDiplomacy();
 	}
 
-#ifdef GET_TRADE_DO_TURN_AFTER_DO_TURN_POST_DIPLOMACY
+#ifdef DO_TURN_CHANGE_ORDER
 	if(isAlive())
 	{
 		if(!isBarbarian())
@@ -4455,6 +4455,66 @@ void CvPlayer::doTurnPostDiplomacy()
 {
 	CvGame& kGame = GC.getGame();
 
+#if defined AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES && defined DO_TURN_CHANGE_ORDER
+	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
+	int iCheapestTechCost = MAX_INT;
+	while (GetNumFreeTechs() > 0)
+	{
+		for (int i = 0; i < GC.getNumTechInfos(); i++)
+		{
+			TechTypes e = (TechTypes)i;
+			CvTechEntry* pInfo = GC.getTechInfo(e);
+			if (pInfo)
+			{
+				// We don't
+				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
+				{
+					// But we could
+					if (GetPlayerTechs()->CanResearch(e))
+					{
+						if (pInfo->GetResearchCost() < iCheapestTechCost)
+						{
+							iCheapestTechCost = pInfo->GetResearchCost();
+							vePossibleTechs.clear();
+							vePossibleTechs.push_back(e);
+						}
+						else if (pInfo->GetResearchCost() == iCheapestTechCost)
+						{
+							vePossibleTechs.push_back(e);
+						}
+					}
+				}
+			}
+		}
+
+		if (!vePossibleTechs.empty())
+		{
+			int iRoll = GC.getGame().getJonRandNum((int)vePossibleTechs.size(), "Rolling to choose free tech from conquering a city");
+			TechTypes eFreeTech = vePossibleTechs[iRoll];
+			CvAssert(eFreeTech != NO_TECH)
+				if (eFreeTech != NO_TECH)
+				{
+					GET_TEAM(getTeam()).setHasTech(eFreeTech, true, GetID(), true, true);
+					GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eFreeTech, true);
+				}
+		}
+		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
+	}
+#endif
+#ifdef DO_TURN_CHANGE_ORDER
+	// Do turn for all Cities
+	{
+		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()));
+		if (getNumCities() > 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				pLoopCity->doTurn();
+			}
+		}
+	}
+#endif
 	if(isAlive())
 	{
 		kGame.GetTacticalAnalysisMap()->RefreshDataForNextPlayer(this);
@@ -4476,10 +4536,12 @@ void CvPlayer::doTurnPostDiplomacy()
 			GetLeagueAI()->DoTurn();
 		}
 
+#ifndef DO_TURN_CHANGE_ORDER
 		if(isMinorCiv())
 		{
 			GetMinorCivAI()->DoTurn();
 		}
+#endif
 	}
 
 	// Temporary boosts
@@ -4496,13 +4558,16 @@ void CvPlayer::doTurnPostDiplomacy()
 		ChangeTourismBonusTurns(-1);
 	}
 
+
+#ifndef DO_TURN_CHANGE_ORDER
 	// Golden Age
 	DoProcessGoldenAge();
+#endif
 
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
-#ifdef AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
+#if defined AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES && !defined DO_TURN_CHANGE_ORDER
 	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
 	int iCheapestTechCost = MAX_INT;
 	while(GetNumFreeTechs() > 0)
@@ -4548,6 +4613,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
 	}
 #endif
+#ifndef DO_TURN_CHANGE_ORDER
 	// Do turn for all Cities
 	{
 		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
@@ -4560,6 +4626,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			}
 		}
 	}
+#endif
 
 	// Gold
 	GetTreasury()->DoGold();
@@ -4722,6 +4789,11 @@ void CvPlayer::doTurnPostDiplomacy()
 #endif
 		}
 
+#ifdef DO_TURN_CHANGE_ORDER
+		// Science
+		doResearch();
+#endif
+
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		{
 			CvNotifications* pNotifications = GetNotifications();
@@ -4757,8 +4829,10 @@ void CvPlayer::doTurnPostDiplomacy()
 		GetPlayerPolicies()->DoPolicyAI();
 	}
 
+#ifndef DO_TURN_CHANGE_ORDER
 	// Science
 	doResearch();
+#endif
 
 	GetEspionage()->DoTurn();
 
@@ -4769,6 +4843,11 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Leagues
 	CvGameLeagues* pGameLeagues = kGame.GetGameLeagues();
 	pGameLeagues->DoPlayerTurn(*this);
+
+#ifdef DO_TURN_CHANGE_ORDER
+	// Golden Age
+	DoProcessGoldenAge();
+#endif
 
 	// Anarchy counter
 	if(GetAnarchyNumTurns() > 0)
