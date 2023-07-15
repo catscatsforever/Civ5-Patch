@@ -592,10 +592,6 @@
 #if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
 // #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
 #endif
-/// Turn timers are paused when a player is reconnecting
-// #define AUI_GAME_SET_PAUSED_TURN_TIMERS_PAUSE_ON_RECONNECT
-/// New option that pauses the game when an active player disconnects and the game is not sequential
-// #define AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 /// New option that allows custom turn timer settings to multiply/divide the default turn times by a certain amount instead of forcing turn times to be the custom amount
 #define AUI_GAME_RELATIVE_TURN_TIMERS
 ///
