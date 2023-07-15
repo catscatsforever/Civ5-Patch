@@ -10751,11 +10751,17 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		if(iTempModifier > 0)
 		{
 			// Only applies defending friendly territory
+#ifndef ASSYRIA_UA_REWORK
 			if(pBattlePlot->getOwner() == getOwner())
+#endif
 			{
 				// Check tech levels too
+#ifdef ASSYRIA_UA_REWORK
+				if (pOtherUnit && !(GET_TEAM(GET_PLAYER(pOtherUnit->getOwner()).getTeam()).isBarbarian() || GET_TEAM(GET_PLAYER(pOtherUnit->getOwner()).getTeam()).isMinorCiv()) && GET_TEAM(GET_PLAYER(pOtherUnit->getOwner()).getTeam()).GetTeamTechs()->GetNumTechsKnown() > GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->GetNumTechsKnown())
+#else
 				UnitTypes eMyUnitType = getUnitType();
 				if(pOtherUnit && pOtherUnit->IsHigherTechThan(eMyUnitType))
+#endif
 				{
 					iModifier += iTempModifier;
 				}

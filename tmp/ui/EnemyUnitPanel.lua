@@ -962,16 +962,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 			
+			-- Assyria UA Rework
 			-- CombatBonusVsHigherTech
-			if (pToPlot:GetOwner() == iMyPlayer) then
+			-- if (pToPlot:GetOwner() == iMyPlayer) then
 				iModifier = pMyPlayer:GetCombatBonusVsHigherTech();
 
-				if (iModifier ~= 0 and pTheirUnit:IsHigherTechThan(pMyUnit:GetUnitType())) then
+				if (iModifier ~= 0 and Teams[pMyPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown() < Teams[pTheirPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown()) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_TECH_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
-			end
+			--end
 					
 			-- CombatBonusVsLargerCiv
 			iModifier = pMyPlayer:GetCombatBonusVsLargerCiv();
