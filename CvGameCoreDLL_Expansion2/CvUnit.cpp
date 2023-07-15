@@ -14177,6 +14177,32 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	setInfoBarDirty(true);
 
 	// if there is an enemy city nearby, alert any scripts to this
+#ifdef CITY_RANGE_MODIFIER
+	for (int iI = 1; iI <= 3; iI++)
+	{
+		int iAttackRange = iI * GC.getCITY_ATTACK_RANGE();
+		for (int iDX = -iAttackRange; iDX <= iAttackRange; iDX++)
+		{
+			for (int iDY = -iAttackRange; iDY <= iAttackRange; iDY++)
+			{
+				CvPlot* pTargetPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iAttackRange);
+				if (pTargetPlot && pTargetPlot->isCity())
+				{
+					if (isEnemy(pTargetPlot->getTeam()))
+					{
+						// do it
+						CvCity* pkPlotCity = pTargetPlot->getPlotCity();
+						if (iAttackRange == GC.getCITY_ATTACK_RANGE() + pkPlotCity->getCitytAttackRangeModifier())
+						{
+							auto_ptr<ICvCity1> pPlotCity = GC.WrapCityPointer(pkPlotCity);
+							DLLUI->SetSpecificCityInfoDirty(pPlotCity.get(), CITY_UPDATE_TYPE_ENEMY_IN_RANGE);
+						}
+					}
+				}
+			}
+		}
+	}
+#else
 	int iAttackRange = GC.getCITY_ATTACK_RANGE();
 	for(int iDX = -iAttackRange; iDX <= iAttackRange; iDX++)
 	{
@@ -14195,6 +14221,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 	}
+#endif
 
 	// Units moving into and out of cities change garrison happiness
 	if((pNewPlot && pNewPlot->isCity()) || (pOldPlot && pOldPlot->isCity()))

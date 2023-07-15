@@ -127,6 +127,9 @@ CvCity::CvCity() :
 	, m_iNumGreatPeople("CvCity::m_iNumGreatPeople", m_syncArchive)
 	, m_iBaseGreatPeopleRate("CvCity::m_iBaseGreatPeopleRate", m_syncArchive)
 	, m_iGreatPeopleRateModifier("CvCity::m_iGreatPeopleRateModifier", m_syncArchive)
+#ifdef CITY_RANGE_MODIFIER
+	, m_iCitytAttackRangeModifier("CvCity::m_iCitytAttackRangeModifier", m_syncArchive)
+#endif
 	, m_iJONSCultureStored("CvCity::m_iJONSCultureStored", m_syncArchive, true)
 	, m_iJONSCultureLevel("CvCity::m_iJONSCultureLevel", m_syncArchive)
 	, m_iJONSCulturePerTurnFromBuildings("CvCity::m_iJONSCulturePerTurnFromBuildings", m_syncArchive)
@@ -664,6 +667,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNumGreatPeople = 0;
 	m_iBaseGreatPeopleRate = 0;
 	m_iGreatPeopleRateModifier = 0;
+#ifdef CITY_RANGE_MODIFIER
+	m_iCitytAttackRangeModifier = 0;
+#endif
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
 	m_iJONSCulturePerTurnFromBuildings = 0;
@@ -6212,6 +6218,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			
 		}
 #endif
+#ifdef CITY_RANGE_MODIFIER
+		changeCitytAttackRangeModifier(pBuildingInfo->GetCitytAttackRangeModifier()* iChange);
+#endif
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeFreeExperience(pBuildingInfo->GetFreeExperience() * iChange);
@@ -7710,6 +7719,23 @@ void CvCity::changeGreatPeopleRateModifier(int iChange)
 	VALIDATE_OBJECT
 	m_iGreatPeopleRateModifier = (m_iGreatPeopleRateModifier + iChange);
 }
+
+#ifdef CITY_RANGE_MODIFIER
+//	--------------------------------------------------------------------------------
+int CvCity::getCitytAttackRangeModifier() const
+{
+	VALIDATE_OBJECT
+		return m_iCitytAttackRangeModifier;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeCitytAttackRangeModifier(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iCitytAttackRangeModifier = (m_iCitytAttackRangeModifier + iChange);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Amount of Culture in this City
@@ -14134,6 +14160,9 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iNumGreatPeople;
 	kStream >> m_iBaseGreatPeopleRate;
 	kStream >> m_iGreatPeopleRateModifier;
+#ifdef CITY_RANGE_MODIFIER
+	kStream >> m_iCitytAttackRangeModifier;
+#endif
 	kStream >> m_iJONSCultureStored;
 	kStream >> m_iJONSCultureLevel;
 	kStream >> m_iJONSCulturePerTurnFromBuildings;
@@ -14486,6 +14515,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iNumGreatPeople;
 	kStream << m_iBaseGreatPeopleRate;
 	kStream << m_iGreatPeopleRateModifier;
+#ifdef CITY_RANGE_MODIFIER
+	kStream << m_iCitytAttackRangeModifier;
+#endif
 	kStream << m_iJONSCultureStored;
 	kStream << m_iJONSCultureLevel;
 	kStream << m_iJONSCulturePerTurnFromBuildings;
@@ -14912,6 +14944,9 @@ bool CvCity::CanRangeStrikeNow() const
 	}
 
 	int iRange = GC.getCITY_ATTACK_RANGE();
+#ifdef CITY_RANGE_MODIFIER
+	iRange += getCitytAttackRangeModifier();
+#endif
 	bool bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE();
 	CvPlot* pPlot = plot();
 	int iX = getX();
@@ -15023,6 +15058,9 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	int iAttackRange = GC.getCITY_ATTACK_RANGE();
+#ifdef CITY_RANGE_MODIFIER
+	iAttackRange += getCitytAttackRangeModifier();
+#endif
 
 	if(plotDistance(plot()->getX(), plot()->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > iAttackRange)
 	{
@@ -15315,6 +15353,9 @@ void CvCity::DoNearbyEnemy()
 		return;
 
 	int iSearchRange = GC.getCITY_ATTACK_RANGE();
+#ifdef CITY_RANGE_MODIFIER
+	iSearchRange += getCitytAttackRangeModifier();
+#endif
 	CvPlot* pBestPlot = NULL;
 
 	bool bFoundEnemy = false;

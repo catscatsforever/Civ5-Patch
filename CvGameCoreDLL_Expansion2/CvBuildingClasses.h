@@ -194,6 +194,9 @@ public:
 	int GetExtraLeagueVotes() const;
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
+#ifdef CITY_RANGE_MODIFIER
+	int GetCitytAttackRangeModifier() const;
+#endif
 	bool IsTeamShare() const;
 	bool IsWater() const;
 	bool IsRiver() const;
@@ -407,6 +410,9 @@ private:
 	int m_iExtraLeagueVotes;
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
+#ifdef CITY_RANGE_MODIFIER
+	int m_iCitytAttackRangeModifier;
+#endif
 
 	bool m_bTeamShare;
 	bool m_bWater;

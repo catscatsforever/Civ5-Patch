@@ -331,6 +331,11 @@ public:
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
 
+#ifdef CITY_RANGE_MODIFIER
+	int getCitytAttackRangeModifier() const;
+	void changeCitytAttackRangeModifier(int iChange);
+#endif
+
 	// Culture stuff
 
 	int GetJONSCultureStored() const;
@@ -832,6 +837,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iNumGreatPeople;
 	FAutoVariable<int, CvCity> m_iBaseGreatPeopleRate;
 	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
+#ifdef CITY_RANGE_MODIFIER
+	FAutoVariable<int, CvCity> m_iCitytAttackRangeModifier;
+#endif
 	FAutoVariable<int, CvCity> m_iJONSCultureStored;
 	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromBuildings;

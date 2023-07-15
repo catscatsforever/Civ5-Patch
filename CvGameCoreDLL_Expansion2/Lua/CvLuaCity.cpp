@@ -436,6 +436,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeNow);
 	Method(CanRangeStrikeAt);
+#ifdef CITY_RANGE_MODIFIER
+	Method(GetCitytAttackRangeModifier)
+#endif
 	Method(HasPerformedRangedStrikeThisTurn);
 	Method(RangeCombatUnitDefense);
 	Method(RangeCombatDamage);
@@ -3563,6 +3566,18 @@ int CvLuaCity::lCanRangeStrikeAt(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::canRangeStrikeAt);
 }
+#ifdef CITY_RANGE_MODIFIER
+//------------------------------------------------------------------------------
+//int GetCitytAttackRangeModifier()
+int CvLuaCity::lGetCitytAttackRangeModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->getCitytAttackRangeModifier();
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaCity::lHasPerformedRangedStrikeThisTurn(lua_State* L)
 {

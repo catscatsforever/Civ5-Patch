@@ -123,6 +123,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iExtraLeagueVotes(0),
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
+#ifdef CITY_RANGE_MODIFIER
+	m_iCitytAttackRangeModifier(0),
+#endif
 	m_bTeamShare(false),
 	m_bWater(false),
 	m_bRiver(false),
@@ -359,6 +362,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
+#ifdef CITY_RANGE_MODIFIER
+	m_iCitytAttackRangeModifier = kResults.GetInt("CitytAttackRangeModifier");
+#endif
 
 	m_bArtInfoCulturalVariation = kResults.GetBool("ArtInfoCulturalVariation");
 	m_bArtInfoEraVariation = kResults.GetBool("ArtInfoEraVariation");
@@ -1334,6 +1340,14 @@ int CvBuildingEntry::GetPortraitIndex() const
 {
 	return m_iPortraitIndex;
 }
+
+#ifdef CITY_RANGE_MODIFIER
+/// index of portrait in the texture sheet
+int CvBuildingEntry::GetCitytAttackRangeModifier() const
+{
+	return m_iCitytAttackRangeModifier;
+}
+#endif
 
 /// Is the presence of this building shared with team allies?
 bool CvBuildingEntry::IsTeamShare() const
