@@ -1973,7 +1973,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	if(bConquest)
 	{
+#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+		if (GetPlayerTraits()->IsTechFromCityConquer() || GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_MILITARY_TRADITION", true)))
+#else
 		if (GetPlayerTraits()->IsTechFromCityConquer())
+#endif
 		{
 			// Will this be the first time we have owned this city?
 			if (!pOldCity->isEverOwned(GetID()))
@@ -11103,6 +11107,12 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 {
 	PlayerTypes eOpponent = pConqueredCity->getOwner();
+#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+	if (!GET_PLAYER(eOpponent).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+	{
+		return;
+	}
+#endif
 	FStaticVector<TechTypes, 128, true, c_eCiv5GameplayDLL> vePossibleTechs;
 	int iCheapestTechCost = MAX_INT;
 	for (int i = 0; i < GC.getNumTechInfos(); i++)
