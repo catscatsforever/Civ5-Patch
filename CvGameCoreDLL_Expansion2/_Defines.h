@@ -554,7 +554,7 @@
 /// Fixes the bug where building a new improvement on a tile with a pillaged improvement keeps the tile marked as pillaged
 #define AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
 /// Fixes the fact that in simultaneous turns multiplayer, barbarians can spawn and then move units in the same turn.
-// #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
+#define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 /// Fixes a possible null pointer dereferences in FoundPantheon()
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
 /// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
