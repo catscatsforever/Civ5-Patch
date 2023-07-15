@@ -208,6 +208,7 @@
 				<TextButton ID="CityDiplomat" String="[ICON_DIPLOMAT]" Hidden="1"/>
 				<TextButton ID="CityQuests"/>
 				<Label ID="CityIsPuppet" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET_OTHER"/>
+				<Label ID="CityHasCoal" String="[ICON_RES_COAL]"/>
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>

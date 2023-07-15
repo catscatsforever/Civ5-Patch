@@ -268,7 +268,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 --	NEW FACTORIES
 		-- Has Coal
-		if (pCity:IsCityHasCoal()) then
+		if (city:IsCityHasCoal()) then
 			Controls.HasCoalIcon:SetHide(false);
 			Controls.HasCoalIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_HAS_COAL");
 		else
