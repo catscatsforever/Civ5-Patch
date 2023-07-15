@@ -1615,6 +1615,22 @@ void CvGame::CheckPlayerTurnDeactivate()
 
 					if(bAutoMovesComplete)
 					{
+#ifdef AUTOSAVE_END_OF_TURN
+						int iFirstAlivePlayer = -1;
+						for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)  // find first alive player index (assume there is atleast one)
+						{
+							CvPlayer& kItPlayer = GET_PLAYER((PlayerTypes)iJ);
+							if (kItPlayer.isAlive() && kItPlayer.isHuman())
+							{
+								iFirstAlivePlayer = iJ;
+								break;
+							}
+						}
+						if (iI == iFirstAlivePlayer)  // save just before first player deactivation
+						{
+							gDLL->AutoSave(false, true);
+						}
+#endif
 						kPlayer.setTurnActive(false);
 
 						// Activate the next player
