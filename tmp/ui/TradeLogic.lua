@@ -1412,7 +1412,7 @@ function ResetDisplay()
     ---------------------------------------------------------------------------------- 
 
 	if ( Controls.UsPocketDoF ~= nil and Controls.ThemPocketDoF ~= nil) then
-		if (g_bPVPTrade) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
+		--[[if (g_bPVPTrade) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
 		
 			strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT");
 		
@@ -1445,7 +1445,11 @@ function ResetDisplay()
 		else
 			Controls.UsPocketDoF:SetHide(true);
 			Controls.ThemPocketDoF:SetHide(true);
-		end
+		end]]
+		-- REMOVE DOF
+		Controls.UsPocketDoF:SetHide(true);
+		Controls.ThemPocketDoF:SetHide(true);
+		-- REMOVE DOF END
 	end
 	
     ---------------------------------------------------------------------------------- 

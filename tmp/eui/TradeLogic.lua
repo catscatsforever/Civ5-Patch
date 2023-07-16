@@ -897,7 +897,7 @@ function ResetDisplay( diploMessage )
 	----------------------------------------------------------------------------------
 
 	if gk_mode and Controls.UsPocketDoF and Controls.ThemPocketDoF then
-		Controls.UsPocketDoF:SetHide( not g_PVPTrade )
+		--[[Controls.UsPocketDoF:SetHide( not g_PVPTrade )
 		Controls.ThemPocketDoF:SetHide( not g_PVPTrade )
 		if g_PVPTrade then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
 
@@ -909,7 +909,11 @@ function ResetDisplay( diploMessage )
 			end
 			SetEnabledAndToolTip( Controls.UsPocketDoF, g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iDealDuration), toolTip )
 			SetEnabledAndToolTip( Controls.ThemPocketDoF, g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iDealDuration), toolTip )
-		end
+		end]]
+		-- REMOVE DOF
+		Controls.UsPocketDoF:SetHide( not g_PVPTrade )
+		Controls.ThemPocketDoF:SetHide( not g_PVPTrade )
+		-- REMOVE DOF END
 	end
 
 	-- Pocket Cities

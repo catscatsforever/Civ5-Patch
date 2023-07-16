@@ -350,8 +350,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// DoF has not been made with this player
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 		{
+#ifndef REMOVE_DOF
 			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
 				return false;
+#endif
 		}
 
 		// Can't trade more Gold than you have
@@ -628,9 +630,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Embassy has not been established with this team
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
 			return false;
+#ifndef REMOVE_DOF
 		// DoF has not been made with this player
 		if(!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
 			return false;
+#endif
 #ifdef RES_AGR_COUNT
 		CvGame& kGame = GC.getGame();
 		if(kGame.isOption("GAMEOPTION_LIMITATION_RA") && (pFromTeam->getResearchAgreementCount() > 1 || pToTeam->getResearchAgreementCount() > 1))
@@ -827,6 +831,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Declaration of friendship
 	else if(eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
+#ifdef REMOVE_DOF
+		return false;
+#endif
 #ifdef NO_TRADE_ITEMS_WITH_AI
 		if (!(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			return false;
