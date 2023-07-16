@@ -1572,10 +1572,10 @@ local function UpdateCityViewNow()
 --	NEW FACTORIES
 		-- Has Coal
 		if city:IsCityHasCoal() then
-			Controls.HasCoalIcon:SetHide(false);
-			Controls.HasCoalIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_HAS_COAL");
+			Controls.CityHasCoal:SetHide(false);
+			Controls.CityHasCoal:LocalizeAndSetToolTip("TXT_KEY_CITY_HAS_COAL");
 		else
-			Controls.HasCoalIcon:SetHide(true);
+			Controls.CityHasCoal:SetHide(true);
 		end
 --	NEW FACTORIES END
 
