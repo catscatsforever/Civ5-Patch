@@ -1,3 +1,4 @@
+-- Edit: skip UI.CopyLastAutoSave in MP games for EUI & vanilla UI
 include( "InstanceManager" );
 include( "IconSupport" );
 include( "SupportFunctions" );
@@ -34,11 +35,12 @@ function OnSave()
 		if(g_SelectedEntry.SaveData == nil and g_SelectedEntry.IsCloudSave) then
 			for i, v in ipairs(g_SavedGames) do
 				if(v == g_SelectedEntry) then
-					if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
-						Steam.CopyLastAutoSaveToSteamCloud( i );
-					else
+					-- NEW: never copy old autosave
+					--if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
+					--	Steam.CopyLastAutoSaveToSteamCloud( i );
+					--else
 						Steam.SaveGameToCloud(i);
-					end
+					--end
 					break;
 				end
 			end
@@ -49,11 +51,12 @@ function OnSave()
 			return;
 		end
 	else
-		if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
-			UI.CopyLastAutoSave( Controls.NameBox:GetText() );
-		else
+		-- NEW: never copy old autosave
+		--if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
+		--	UI.CopyLastAutoSave( Controls.NameBox:GetText() );
+		--else
 			UI.SaveGame( Controls.NameBox:GetText() );
-		end
+		--end
 	end
 	
 	Controls.NameBox:ClearString();
