@@ -3389,7 +3389,16 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 #ifdef NEW_VENICE_UA
 	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
 	if (m_pPlayer->GetPlayerTraits()->HasTrait(eTrait))
-		iNumRoutes += 2;
+	{
+		if (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(GC.getInfoTypeForString("TECH_OPTICS", true))))
+		{
+			iNumRoutes += 1;
+		}
+		if (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(GC.getInfoTypeForString("TECH_ASTRONOMY", true))))
+		{
+			iNumRoutes += 1;
+		}
+	}
 #endif
 	return iNumRoutes;
 }

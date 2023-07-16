@@ -407,6 +407,20 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			buttonNum = buttonNum + 1;
 		end	
 	end
+
+	playerID = Game.GetActivePlayer();
+	player = Players[playerID];
+	civID = GameInfo.Civilizations[player:GetCivilizationType()].ID;
+	if civID == 43 and (tech.ID == 12 or tech.ID == 31) then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE" ) );
+			buttonNum = buttonNum + 1;
+		end	
+	end
 	
 	
 	if (tech.ScenarioTechButton == 1) then
