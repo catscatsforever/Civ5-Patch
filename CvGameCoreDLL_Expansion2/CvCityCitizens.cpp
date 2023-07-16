@@ -2415,7 +2415,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 	}
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true))
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
@@ -2518,7 +2518,20 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			kPlayer.incrementGreatProphetsCreated();
 		}
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SWEDEN_UA_REWORK
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		{
+			kPlayer.incrementGreatScientistsCreated();
+		}
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		{
+			kPlayer.incrementGreatEngineersCreated();
+		}
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		{
+			kPlayer.incrementGreatMerchantsCreated();
+		}
+#elif defined SEPARATE_GREAT_PEOPLE
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 		{
 			kPlayer.incrementGreatScientistsCreated();

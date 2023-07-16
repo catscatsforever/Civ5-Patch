@@ -374,6 +374,8 @@
 #define ASSYRIA_UA_REWORK
 ///
 #define MONGOL_CS_BULLY
+///
+#define SWEDEN_UA_REWORK
 /// Golden age combat bonus modifier now applies only during attack
 #define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 /*UA CHANGES END*/

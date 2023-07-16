@@ -623,7 +623,7 @@ public:
 	int getGreatProphetsCreated() const;
 	void incrementGreatProphetsCreated();
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	int getGreatScientistsCreated() const;
 	void incrementGreatScientistsCreated();
 	int getGreatEngineersCreated() const;
@@ -1687,7 +1687,7 @@ protected:
 #ifdef FREE_GREAT_PERSON
 	int m_iGreatProphetsCreated;
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	int m_iGreatScientistsCreated;
 	int m_iGreatEngineersCreated;
 	int m_iGreatMerchantsCreated;

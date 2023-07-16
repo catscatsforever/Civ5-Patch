@@ -6077,7 +6077,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 							else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 							{
 #ifndef FREE_GREAT_PERSON
@@ -6102,6 +6102,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
+#endif
+#ifdef SEPARATE_GREAT_PEOPLE
 							else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 							{
 #ifndef FREE_GREAT_PERSON
