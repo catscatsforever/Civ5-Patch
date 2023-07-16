@@ -1224,6 +1224,9 @@ void CvDeal::AddResearchAgreement(PlayerTypes eFrom, int iDuration)
 	{
 		CvTradedItem item;
 		item.m_eItemType = TRADE_ITEM_RESEARCH_AGREEMENT;
+#ifdef RA_LESS_TURNS
+		iDuration = iDuration * 3 / 5;
+#endif
 		item.m_iDuration = iDuration;
 		//item.m_iFinalTurn = iDuration + GC.getGame().getGameTurn();
 		item.m_iFinalTurn = -1;
@@ -2938,6 +2941,9 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer);
 			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / GC.getRESEARCH_AGREEMENT_BOOST_DIVISOR(); //one (third) of minimum contribution
 			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
+#ifdef RA_LESS_TURNS
+			iBeakersBonus = iBeakersBonus * 5 / 3;
+#endif
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)

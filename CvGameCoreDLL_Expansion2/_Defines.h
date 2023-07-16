@@ -294,6 +294,8 @@
 #define HAS_TECH_BY_HUMAN
 /// Autospending free technologies that was not spent during turn transition
 #define AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
+///
+#define RA_LESS_TURNS
 /*TECHNOLOGIES AND RESEARCH CHANGES END*/
 
 
