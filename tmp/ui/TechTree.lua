@@ -443,7 +443,9 @@ function TechSelected( eTech, iDiscover)
 		else
 			-- disable freetech choice while net message is pending
 			local numFreeTechs = player:GetNumFreeTechs()
-			player:SetNumFreeTechs(0)
+			if (player:CanResearchForFree(eTech)) then
+				player:SetNumFreeTechs(0)
+			end
 			-- actual freetechs number will be numFreeTechs-1 once the message is broadcasted
 	   		Network.SendResearch(eTech, numFreeTechs, -1, UIManager:GetShift());
 		end
