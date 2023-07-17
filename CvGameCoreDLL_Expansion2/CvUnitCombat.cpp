@@ -1172,8 +1172,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			if(GC.getGame().getJonRandNum(100, "Intercept Rand (Air)") < pInterceptor->currInterceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
-#ifdef FIGHTER_SETMADEATTACK_AFTER_INTERCEPTION
-				pInterceptor->setMadeAttack(true);
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+				pInterceptor->finishMoves();
 #endif
 			}
 		}
@@ -2947,8 +2947,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	if(pInterceptor != NULL)
 	{
 		kAttacker.setMadeAttack(true);
-#ifdef FIGHTER_SETMADEATTACK_AFTER_INTERCEPTION
-		pInterceptor->setMadeAttack(true);
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+		pInterceptor->finishMoves();
 #endif
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirSweepCombatInfo(kAttacker, pInterceptor, targetPlot, &kCombatInfo);
