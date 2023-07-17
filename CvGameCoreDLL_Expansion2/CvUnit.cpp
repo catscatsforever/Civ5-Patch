@@ -6610,7 +6610,26 @@ bool CvUnit::rebase(int iX, int iY)
 	if(pTargetPlot == NULL)
 		return false;
 
+#ifdef REBASE_WITH_AIRPORTS
+	if (oldPlot->isCity() && pTargetPlot->isCity())
+	{
+		// City must be owned by us
+		if (oldPlot->getPlotCity()->CanAirlift() && pTargetPlot->getPlotCity()->CanAirlift())
+		{
+			changeMoves(-GC.getMOVE_DENOMINATOR());
+		}
+		else
+		{
+			finishMoves();
+		}
+	}
+	else
+	{
+		finishMoves();
+	}
+#else
 	finishMoves();
+#endif
 
 	// Loses sight bonus for this turn
 	setReconPlot(NULL);

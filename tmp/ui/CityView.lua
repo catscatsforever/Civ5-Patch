@@ -1202,6 +1202,9 @@ function OnCityViewUpdate()
 						strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
 						if (iPlayerMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_GP_MOD", iPlayerMod);
+						end	
+						if (iPlayerMod < 0) then
+							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_NEGATIVE_GP_MOD", iPlayerMod);
 						end
 						if (iPolicyMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_GP_MOD", iPolicyMod);

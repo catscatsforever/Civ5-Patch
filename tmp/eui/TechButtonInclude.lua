@@ -572,6 +572,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if (internationalTradeRoutesChange or 0) > 0 then
 			addSmallActionButton( GameInfo.Missions.MISSION_ESTABLISH_TRADE_ROUTE, "+"..internationalTradeRoutesChange.."   ", "TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE" )
 		end
+		g_activePlayerID = Game.GetActivePlayer()
+		g_activePlayer = Players[g_activePlayerID]
+		g_activeCivID = GameInfo.Civilizations[g_activePlayer:GetCivilizationType()].ID
+		if g_activeCivID == 43 and (tech.ID == 12 or tech.ID == 31) then
+			addSmallActionButton( GameInfo.Missions.MISSION_ESTABLISH_TRADE_ROUTE, "+".. 1 .."   ", "TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE" )
+		end
 
 		for row in GameInfo.Technology_TradeRouteDomainExtraRange( thisTechType ) do
 			if row.TechType == techType and (row.Range or 0) > 0 then

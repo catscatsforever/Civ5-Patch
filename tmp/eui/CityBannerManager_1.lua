@@ -909,8 +909,10 @@ local function RefreshCityBannersNow()
 			-- Update population
 			instance.CityPopulation:SetText( city:GetPopulation() )
 
-			-- Has Coal ?
-			instance.CityHasCoal:SetHide( not hasCoal )
+			if isActiveType then
+				-- Has Coal ?
+				instance.CityHasCoal:SetHide( not hasCoal )
+			end
 
 			-- Being Razed ?
 			instance.CityIsRazing:SetHide( not isRazing )

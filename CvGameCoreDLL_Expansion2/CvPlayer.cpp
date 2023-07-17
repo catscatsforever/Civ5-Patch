@@ -195,7 +195,7 @@ CvPlayer::CvPlayer() :
 #ifdef FREE_GREAT_PERSON
 	, m_iGreatProphetsCreated(0)
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	, m_iGreatScientistsCreated(0)
 	, m_iGreatEngineersCreated(0)
 	, m_iGreatMerchantsCreated(0)
@@ -834,7 +834,7 @@ void CvPlayer::uninit()
 #ifdef FREE_GREAT_PERSON
 	m_iGreatProphetsCreated = 0;
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	m_iGreatScientistsCreated = 0;
 	m_iGreatEngineersCreated = 0;
 	m_iGreatMerchantsCreated = 0;
@@ -13813,7 +13813,7 @@ void CvPlayer::incrementGreatProphetsCreated()
 }
 #endif
 
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatScientistsCreated() const
 {
@@ -14360,8 +14360,14 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatGeneralRateModifier += m_iGreatGeneralRateModFromBldgs;
 	m_iDomesticGreatGeneralRateModifier += m_iDomesticGreatGeneralRateModFromBldgs;
 
+#ifdef SWEDEN_UA_REWORK
+	m_iGreatScientistRateModifier += GetGreatPeopleRateModFromFriendships();
+	m_iGreatEngineerRateModifier += GetGreatPeopleRateModFromFriendships();
+	m_iGreatMerchantRateModifier += GetGreatPeopleRateModFromFriendships();
+#else
 	// Finally anything from friendships
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();
+#endif
 
 	// And effects from Leagues
 	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
@@ -14390,6 +14396,13 @@ int CvPlayer::GetGreatPeopleRateModFromFriendships() const
 	int iRtnValue = 0;
 	int iTraitMod = GetPlayerTraits()->GetDOFGreatPersonModifier();
 
+#ifdef SWEDEN_UA_REWORK
+	// Have the trait, one for each friend
+	if (iTraitMod != 0)
+	{
+		iRtnValue = iTraitMod;
+	}
+#else
 	// Have the trait, one for each friend
 	if(iTraitMod > 0)
 	{
@@ -14417,6 +14430,7 @@ int CvPlayer::GetGreatPeopleRateModFromFriendships() const
 			}
 		}
 	}
+#endif
 
 	return iRtnValue;
 }
@@ -14649,7 +14663,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				incrementGreatMusiciansCreated();
 			}
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 			{
 				incrementGreatScientistsCreated();
@@ -23154,7 +23168,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 									{
 #ifndef FREE_GREAT_PERSON
@@ -23573,7 +23587,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef FREE_GREAT_PERSON
 	kStream >> m_iGreatProphetsCreated;
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	kStream >> m_iGreatScientistsCreated;
 	kStream >> m_iGreatEngineersCreated;
 	kStream >> m_iGreatMerchantsCreated;
@@ -24155,7 +24169,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef FREE_GREAT_PERSON
 	kStream << m_iGreatProphetsCreated;
 #endif
-#ifdef SEPARATE_GREAT_PEOPLE
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 	kStream << m_iGreatScientistsCreated;
 	kStream << m_iGreatEngineersCreated;
 	kStream << m_iGreatMerchantsCreated;

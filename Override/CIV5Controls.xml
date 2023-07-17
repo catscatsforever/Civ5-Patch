@@ -1195,7 +1195,7 @@
 			<ShiftDownAlt>false</ShiftDownAlt> 
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
-			<Time>1400</Time> 
+			<Time>1200</Time> 
 			<Cost>0</Cost> 
 			<CostIncreasePerImprovement>0</CostIncreasePerImprovement> 
 			<Kill>false</Kill> 
@@ -9675,7 +9675,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>33</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 
@@ -9806,7 +9806,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>33</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 
@@ -9938,7 +9938,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>34</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 

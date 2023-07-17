@@ -279,6 +279,10 @@
 #define REMOVE_EXCESS_CAMERA_CENTERING
 ///
 #define DISABLE_BUILD_REPAIR_ON_NON_FRIENDLY_TERRITORY
+///
+#define FIGHTER_SETMADEATTACK_AFTER_INTERCEPTION
+///
+#define REBASE_WITH_AIRPORTS
 /*UNITS CHANGES END*/
 
 
@@ -294,6 +298,8 @@
 #define HAS_TECH_BY_HUMAN
 /// Autospending free technologies that was not spent during turn transition
 #define AUTOMATICALLY_SPEND_FREE_TECHNOLOGIES
+///
+#define RA_LESS_TURNS
 /*TECHNOLOGIES AND RESEARCH CHANGES END*/
 
 
@@ -368,6 +374,8 @@
 #define ASSYRIA_UA_REWORK
 ///
 #define MONGOL_CS_BULLY
+///
+#define SWEDEN_UA_REWORK
 /// Golden age combat bonus modifier now applies only during attack
 #define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 /*UA CHANGES END*/
@@ -695,6 +703,8 @@
 #define INCLUDE_WATER_IN_LAND_SCORE
 ///
 #define MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
+///
+#define REMOVE_DOF
 /*OTHER CHANGES END*/
 
 
