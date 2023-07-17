@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V6.3f
+set patchfolder=Tournament Mod V7.0
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -33,7 +33,6 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\GameMenu.lua" "%cd%\%patchfolder
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Demographics.lua" "%cd%\%patchfolder%\UI\Demographics.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Bombardment.lua" "%cd%\%patchfolder%\UI\Bombardment.lua"
-ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SaveMenu.lua" "%cd%\%patchfolder%\UI\SaveMenu.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
