@@ -196,7 +196,9 @@ local function TechSelected( techID )
 		else
 			-- disable freetech choice while net message is pending
 			local numFreeTechs = g_activePlayer:GetNumFreeTechs()
-			g_activePlayer:SetNumFreeTechs(0)
+			if (g_activePlayer:CanResearchForFree( techID )) then
+				g_activePlayer:SetNumFreeTechs(0)
+			end
 			-- actual freetechs number will be numFreeTechs-1 once the message is broadcasted
 			Network_SendResearch( techID, numFreeTechs, -1, shift )
 			if g_isAutoClose and not shift and g_popupInfoType == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH then
