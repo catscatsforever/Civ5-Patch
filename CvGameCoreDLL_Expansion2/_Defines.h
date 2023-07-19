@@ -579,8 +579,6 @@
 #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 /// Fixes a possible null pointer dereferences in FoundPantheon()
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
-/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
-// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 /// Planes will take damage and Guided Missiles will dissapear when war is declaring by Air Strike
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
 // Fixes incorrect plot distance calculation for wrapped maps

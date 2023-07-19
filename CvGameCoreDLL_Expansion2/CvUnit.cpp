@@ -270,9 +270,6 @@ CvUnit::CvUnit() :
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 	, m_bInstaHealLocked(false)
 #endif
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	, m_bIsIgnoreExpended("CvUnit::m_bIsIgnoreExpended", m_syncArchive)
-#endif
 	, m_bPromotionReady("CvUnit::m_bPromotionReady", m_syncArchive)
 	, m_bDeathDelay("CvUnit::m_bDeathDelay", m_syncArchive)
 	, m_bCombatFocus("CvUnit::m_bCombatFocus", m_syncArchive)
@@ -938,9 +935,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bAITurnProcessed = false;
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	m_bIsIgnoreExpended = false;
-#endif
 
 	m_eOwner = eOwner;
 	m_eOriginalOwner = eOwner;
@@ -1270,10 +1264,6 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			pLoopUnit->setTransportUnit(this);
 		}
 	}
-
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	SetIgnoreExpended(pUnit->IsIgnoreExpended());
-#endif
 
 	pUnit->kill(true);
 }
@@ -6274,9 +6264,6 @@ bool CvUnit::createGreatWork()
 
 		if(IsGreatPerson())
 		{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-			if (!IsIgnoreExpended())
-#endif
 			kPlayer.DoGreatPersonExpended(getUnitType());
 		}
 
@@ -7185,9 +7172,6 @@ bool CvUnit::DoFoundReligion()
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
 				kOwner.GetReligions()->SetFoundingReligion(true);
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-				if (!IsIgnoreExpended())
-#endif
 				kOwner.DoGreatPersonExpended(getUnitType());
 				kill(true);
 			}
@@ -7217,9 +7201,6 @@ bool CvUnit::DoFoundReligion()
 					}
 
 					pReligions->FoundReligion(getOwner(), eReligion, NULL, eBeliefs[0], eBeliefs[1], eBeliefs[2], eBeliefs[3], pkCity);
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-					if (!IsIgnoreExpended())
-#endif
 					kOwner.DoGreatPersonExpended(getUnitType());
 					kill(true);
 				}
@@ -7327,9 +7308,6 @@ bool CvUnit::DoEnhanceReligion()
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
 					pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-				if (!IsIgnoreExpended())
-#endif
 				kOwner.DoGreatPersonExpended(getUnitType());
 				kill(true);
 			}
@@ -7343,10 +7321,6 @@ bool CvUnit::DoEnhanceReligion()
 					BeliefTypes eBelief2 = kOwner.GetReligionAI()->ChooseEnhancerBelief();  // temporary
 
 					pReligions->EnhanceReligion(getOwner(), eReligion, eBelief1, eBelief2);
-
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-					if (!IsIgnoreExpended())
-#endif
 
 					kOwner.DoGreatPersonExpended(getUnitType());
 					kill(true);
@@ -7506,9 +7480,6 @@ bool CvUnit::DoSpreadReligion()
 				if(IsGreatPerson())
 				{
 					CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-					if (!IsIgnoreExpended())
-#endif
 					kPlayer.DoGreatPersonExpended(getUnitType());
 				}
 
@@ -7836,9 +7807,6 @@ bool CvUnit::discover()
 
 	if(IsGreatPerson())
 	{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		pPlayer->DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8067,9 +8035,6 @@ bool CvUnit::hurry()
 	if(IsGreatPerson())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8192,9 +8157,6 @@ bool CvUnit::trade()
 	if(IsGreatPerson())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8301,9 +8263,6 @@ bool CvUnit::buyCityState()
 	if (IsGreatPerson())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8379,9 +8338,6 @@ bool CvUnit::repairFleet()
 	if(IsGreatPerson())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8542,9 +8498,6 @@ bool CvUnit::DoCultureBomb()
 
 		if(IsGreatPerson())
 		{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-			if (!IsIgnoreExpended())
-#endif
 			kPlayer.DoGreatPersonExpended(getUnitType());
 		}
 
@@ -8740,9 +8693,6 @@ bool CvUnit::goldenAge()
 
 	if(IsGreatPerson())
 	{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -8899,9 +8849,6 @@ bool CvUnit::givePolicies()
 
 	if(IsGreatPerson())
 	{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kPlayer.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -9006,9 +8953,6 @@ bool CvUnit::blastTourism()
 
 	if(IsGreatPerson())
 	{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (!IsIgnoreExpended())
-#endif
 		kUnitOwner.DoGreatPersonExpended(getUnitType());
 	}
 
@@ -9263,9 +9207,6 @@ bool CvUnit::build(BuildTypes eBuild)
 
 				if(IsGreatPerson())
 				{
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-					if (!IsIgnoreExpended())
-#endif
 					kPlayer.DoGreatPersonExpended(getUnitType());
 				}
 
@@ -9948,17 +9889,6 @@ bool CvUnit::IsGreatPerson() const
 
 	return (getSpecialUnitType() == eSpecialUnitGreatPerson);
 }
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-bool CvUnit::IsIgnoreExpended() const
-{
-	return m_bIsIgnoreExpended;
-}
-void CvUnit::SetIgnoreExpended(bool bNewValue)
-{
-	if (m_bIsIgnoreExpended != bNewValue)
-		m_bIsIgnoreExpended = bNewValue;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
@@ -18517,9 +18447,6 @@ void CvUnit::read(FDataStream& kStream)
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 	kStream >> m_bInstaHealLocked;
 #endif
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	kStream >> m_bIsIgnoreExpended;
-#endif
 
 	//  Read mission queue
 	UINT uSize;
@@ -18640,9 +18567,6 @@ void CvUnit::write(FDataStream& kStream) const
 #endif
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 	kStream << m_bInstaHealLocked;
-#endif
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	kStream << m_bIsIgnoreExpended;
 #endif
 
 	//  Write mission list
