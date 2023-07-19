@@ -967,7 +967,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- if (pToPlot:GetOwner() == iMyPlayer) then
 				iModifier = pMyPlayer:GetCombatBonusVsHigherTech();
 
-				if (iModifier ~= 0 and Teams[pMyPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown() < Teams[pTheirPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown() and pTheirPlayer:isHuman()) then
+				if (iModifier ~= 0 and Teams[pMyPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown() < Teams[pTheirPlayer:GetTeam()]:GetTeamTechs():GetNumTechsKnown() and not (pTheirPlayer:IsBarbarian() or pTheirPlayer:IsMinorCiv())) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_TECH_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
