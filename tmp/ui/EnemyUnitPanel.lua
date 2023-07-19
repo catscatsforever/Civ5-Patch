@@ -1457,7 +1457,11 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- UnitCombatModifier
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
-					iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
+					if (GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].ID == 15) then
+						iModifier = 0;
+					else
+						iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
+					end
 
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();

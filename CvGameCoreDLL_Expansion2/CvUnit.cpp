@@ -10840,7 +10840,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += iTempModifier;
 
 		// Unit Combat type Modifier
+#ifdef ATTACK_BONUS_VS_RANGED_MOUNTED
+		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT && pOtherUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RANGED_MOUNTED"))
+#else
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+#endif
 		{
 			iTempModifier = unitCombatModifier(pOtherUnit->getUnitCombatType());
 			iModifier += iTempModifier;
@@ -10933,6 +10937,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	// Our empire fights well in Golden Ages?
 	if(GET_PLAYER(getOwner()).isGoldenAge())
 		iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeCombatModifier();
+#endif
+
+#ifdef ATTACK_BONUS_VS_RANGED_MOUNTED
+	if (pDefender && pDefender->getUnitCombatType() != NO_UNITCOMBAT && pDefender->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RANGED_MOUNTED"))
+	{
+		iTempModifier = unitCombatModifier(pDefender->getUnitCombatType());
+		iModifier += iTempModifier;
+	}
 #endif
 
 	////////////////////////
