@@ -568,6 +568,8 @@
 #define NEW_FACTORIES
 ///
 #define CITY_RANGE_MODIFIER
+///
+#define BUILDING_BARN
 /*CITIES CHANGES END*/
 
 
