@@ -7000,9 +7000,46 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 	{
 		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+#ifdef POLICY_ETHICS_REWORK
+		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+		{
+			SpecialistTypes eSpecialist;
+
+			for (int iSpecialistLoop = 1; iSpecialistLoop < 4; iSpecialistLoop++)
+			{
+				eSpecialist = (SpecialistTypes)iSpecialistLoop;
+
+				if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+				{
+					iFoodReduction += GetCityCitizens()->GetSpecialistCount(eSpecialist) * iFoodPerPop;
+				}
+			}
+		}
+#endif
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
 	}
+#ifdef POLICY_ETHICS_REWORK
+	else
+	{
+		int iFoodReduction = 0;
+		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+		{
+			SpecialistTypes eSpecialist;
+
+			for (int iSpecialistLoop = 1; iSpecialistLoop < 4; iSpecialistLoop++)
+			{
+				eSpecialist = (SpecialistTypes)iSpecialistLoop;
+
+				if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+				{
+					iFoodReduction += GetCityCitizens()->GetSpecialistCount(eSpecialist) * iFoodPerPop;
+				}
+			}
+		}
+		iNum -= iFoodReduction;
+	}
+#endif
 
 	return iNum;
 }
