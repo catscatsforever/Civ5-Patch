@@ -2416,6 +2416,19 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 	}
 #if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
+	}
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatEngineersCreated();
+	}
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
+	}
+#elif defined SEPARATE_GREAT_PEOPLE
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true))
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
