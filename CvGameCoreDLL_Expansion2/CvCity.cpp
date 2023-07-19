@@ -9812,9 +9812,24 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if(pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
+#ifdef GOLDEN_AGE_SCIENCE_MODIFIER
+			if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ARTISTIC_GENIUS", true)))
+			{
+				iModifier += iTempMod;
+				if (toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+			}
+			else if (eIndex != 3)
+			{
+				iModifier += iTempMod;
+				if (toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+			}
+#else
 			iModifier += iTempMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+#endif
 		}
 	}
 
