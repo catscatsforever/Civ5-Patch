@@ -29305,7 +29305,7 @@
 			<CityAttackPlunderModifier>0</CityAttackPlunderModifier> 
 			<ReligiousStrengthLossRivalTerritory>0</ReligiousStrengthLossRivalTerritory> 
 			<TradeMissionInfluenceModifier>100</TradeMissionInfluenceModifier> 
-			<TradeMissionGoldModifier>100</TradeMissionGoldModifier> 
+			<TradeMissionGoldModifier>0</TradeMissionGoldModifier> 
 			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
