@@ -135,6 +135,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
 	m_iCityStateTradeChange(0),
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	m_iGoldPerCSFriendsip(0),
+#endif
 	m_bMinorGreatPeopleAllies(false),
 	m_bMinorScienceAllies(false),
 	m_bMinorResourceBonus(false),
@@ -359,6 +362,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
 	m_iCityStateTradeChange = kResults.GetInt("CityStateTradeChange");
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	m_iGoldPerCSFriendsip = kResults.GetInt("GoldPerCSFriendsip");
+#endif
 	m_bMinorGreatPeopleAllies = kResults.GetBool("MinorGreatPeopleAllies");
 	m_bMinorScienceAllies = kResults.GetBool("MinorScienceAllies");
 	m_bMinorResourceBonus = kResults.GetBool("MinorResourceBonus");
@@ -1277,6 +1283,13 @@ int CvPolicyEntry::GetCityStateTradeChange() const
 {
 	return m_iCityStateTradeChange;
 }
+
+#ifdef GOLD_PER_CS_FRIENDSHIP
+int CvPolicyEntry::GetGoldPerCSFriendsip() const
+{
+	return m_iGoldPerCSFriendsip;
+}
+#endif
 
 /// Great People from Allied Minors?
 bool CvPolicyEntry::IsMinorGreatPeopleAllies() const
@@ -2570,6 +2583,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_CITY_STATE_TRADE_CHANGE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCityStateTradeChange();
 				break;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+			case POLICYMOD_GOLD_PER_CS_FRIENDSHIP:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGoldPerCSFriendsip();
+				break;
+#endif
 			case POLICYMOD_INTERNAL_TRADE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifier();
 				break;

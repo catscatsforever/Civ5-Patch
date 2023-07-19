@@ -9,6 +9,9 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreUtils.h"
 #include "ICvDLLUserInterface.h"
+#ifdef GOLD_PER_CS_FRIENDSHIP
+#include "CvMinorCivAI.h"
+#endif
 
 #include "LintFree.h"
 
@@ -445,6 +448,33 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 	return iGoldFromReligion;
 }
 
+#ifdef GOLD_PER_CS_FRIENDSHIP
+/// Gold Per Turn from Policies
+int CvTreasury::GetGoldPerTurnFromPolicies() const
+{
+	int iGoldFromPolicies = 0;
+
+	int iGoldPerCSFriendship = 0;
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)i;
+		if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
+		{
+			iGoldPerCSFriendship += 2;
+		} 
+		else if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(m_pPlayer->GetID()))
+		{
+			iGoldPerCSFriendship += 1;
+		}
+	}
+	iGoldPerCSFriendship *= m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GOLD_PER_CS_FRIENDSHIP);
+
+	iGoldFromPolicies += iGoldPerCSFriendship;
+
+	return iGoldFromPolicies;
+}
+#endif
+
 /// Gross income for turn times 100
 int CvTreasury::CalculateGrossGold()
 {
@@ -467,6 +497,11 @@ int CvTreasury::CalculateGrossGoldTimes100()
 
 	// Religion
 	iNetGold += GetGoldPerTurnFromReligion() * 100;
+
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	// Policies
+	iNetGold += GetGoldPerTurnFromPolicies() * 100;
+#endif
 
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;

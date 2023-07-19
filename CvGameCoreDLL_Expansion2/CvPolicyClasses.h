@@ -146,6 +146,9 @@ public:
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
 	int GetCityStateTradeChange() const;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	int GetGoldPerCSFriendsip() const;
+#endif
 	bool IsMinorGreatPeopleAllies() const;
 	bool IsMinorScienceAllies() const;
 	bool IsMinorResourceBonus() const;
@@ -335,6 +338,9 @@ private:
 	int m_iTradeRouteTourismModifier;
 	int m_iOpenBordersTourismModifier;
 	int m_iCityStateTradeChange;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	int m_iGoldPerCSFriendsip;
+#endif
 	bool m_bMinorGreatPeopleAllies;
 	bool m_bMinorScienceAllies;
 	bool m_bMinorResourceBonus;
@@ -533,6 +539,9 @@ enum PolicyModifierType
 	POLICYMOD_STEAL_TECH_FASTER_MODIFIER,
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	POLICYMOD_GOLD_PER_CS_FRIENDSHIP,
+#endif
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,

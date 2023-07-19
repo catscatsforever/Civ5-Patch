@@ -540,13 +540,14 @@ function GoldTipHandler( control )
 	end
 	
 	local iGoldPerTurnFromReligion = pPlayer:GetGoldPerTurnFromReligion();
+	local iGoldPerTurnFromPolicies = pPlayer:GetGoldPerTurnFromPolicies();
 
 	local fTradeRouteGold = (pPlayer:GetGoldFromCitiesTimes100() - pPlayer:GetGoldFromCitiesMinusTradeRoutesTimes100()) / 100;
 	local fGoldPerTurnFromCities = pPlayer:GetGoldFromCitiesMinusTradeRoutesTimes100() / 100;
 	local fCityConnectionGold = pPlayer:GetCityConnectionGoldTimes100() / 100;
 	--local fInternationalTradeRouteGold = pPlayer:GetGoldPerTurnFromTradeRoutesTimes100() / 100;
 	local fTraitGold = pPlayer:GetGoldPerTurnFromTraits();
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold;
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + iGoldPerTurnFromPolicies + fTradeRouteGold + fTraitGold;
 	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
@@ -571,6 +572,9 @@ function GoldTipHandler( control )
 	end
 	if (iGoldPerTurnFromReligion > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
+	end
+	if (iGoldPerTurnFromPolicies > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_POLICIES", iGoldPerTurnFromPolicies);
 	end
 	strText = strText .. "[/COLOR]";
 	
