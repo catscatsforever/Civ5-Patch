@@ -99,6 +99,9 @@ public:
 	int GetBuildingPurchaseCostModifier() const;
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	int GetTradeMissionGoldModifier() const;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	int GetDiscoverAmountScienceModifier() const;
+#endif
 	int GetFaithCostModifier() const;
 	int GetCulturalPlunderMultiplier() const;
 	int GetStealTechSlowerModifier() const;
@@ -294,6 +297,9 @@ private:
 	int m_iBuildingPurchaseCostModifier;
 	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iTradeMissionGoldModifier;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	int m_iDiscoverAmountScienceModifier;
+#endif
 	int m_iFaithCostModifier;
 	int m_iCulturalPlunderMultiplier;
 	int m_iStealTechSlowerModifier;
@@ -514,6 +520,9 @@ enum PolicyModifierType
     POLICYMOD_CULTURE_FROM_GARRISON,
     POLICYMOD_UNIT_FREQUENCY_MODIFIER,
     POLICYMOD_TRADE_MISSION_GOLD_MODIFIER,
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	POLICYMOD_DISCOVER_AMONT_SCIENCE_MODIFIER,
+#endif
     POLICYMOD_FAITH_COST_MODIFIER,
     POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER,
     POLICYMOD_STEAL_TECH_SLOWER_MODIFIER,

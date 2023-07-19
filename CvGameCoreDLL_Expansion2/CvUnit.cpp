@@ -7797,6 +7797,10 @@ bool CvUnit::discover()
 
 	// Beakers boost based on previous turns
 	int iBeakersBonus = getDiscoverAmount();
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	iBeakersBonus *= (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_DISCOVER_AMONT_SCIENCE_MODIFIER));
+	iBeakersBonus /= 100;
+#endif
 	TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
 	if(eCurrentTech == NO_TECH)
 	{

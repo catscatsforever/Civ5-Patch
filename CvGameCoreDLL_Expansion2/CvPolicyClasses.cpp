@@ -88,6 +88,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iBuildingPurchaseCostModifier(0),
 	m_iCityConnectionTradeRouteGoldModifier(0),
 	m_iTradeMissionGoldModifier(0),
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	m_iDiscoverAmountScienceModifier(0),
+#endif
 	m_iFaithCostModifier(0),
 	m_iCulturalPlunderMultiplier(0),
 	m_iStealTechSlowerModifier(0),
@@ -302,6 +305,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBuildingPurchaseCostModifier = kResults.GetInt("BuildingPurchaseCostModifier");
 	m_iCityConnectionTradeRouteGoldModifier = kResults.GetInt("CityConnectionTradeRouteGoldModifier");
 	m_iTradeMissionGoldModifier = kResults.GetInt("TradeMissionGoldModifier");
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	m_iDiscoverAmountScienceModifier = kResults.GetInt("DiscoverAmountScienceModifier");
+#endif
 	m_iFaithCostModifier = kResults.GetInt("FaithCostModifier");
 	m_iCulturalPlunderMultiplier = kResults.GetInt("CulturalPlunderMultiplier");
 	m_iStealTechSlowerModifier = kResults.GetInt("StealTechSlowerModifier");
@@ -1002,6 +1008,13 @@ int CvPolicyEntry::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
 }
+
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+int CvPolicyEntry::GetDiscoverAmountScienceModifier() const
+{
+	return m_iDiscoverAmountScienceModifier;
+}
+#endif
 
 /// How much more of a discount do we get on Faith purchases?
 int CvPolicyEntry::GetFaithCostModifier() const
@@ -2535,6 +2548,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_TRADE_MISSION_GOLD_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeMissionGoldModifier();
 				break;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+			case POLICYMOD_DISCOVER_AMONT_SCIENCE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDiscoverAmountScienceModifier();
+				break;
+#endif
 			case POLICYMOD_FAITH_COST_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetFaithCostModifier();
 				break;
