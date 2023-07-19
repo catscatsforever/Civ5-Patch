@@ -3415,6 +3415,13 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 #ifdef AUTOCRACY_EXTRA_VOTES
 		iVotes += std::min(6, iExtraAutoVotes);
 #endif
+#ifdef PATRONAGE_FINISHER_REWORK
+		PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_GUNBOAT_DIPLOMACY", true /*bHideAssert*/);
+		if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
+		{
+			iVotes += 2;
+		}
+#endif
 
 		// Diplomats after Globalization tech
 		int iDiplomatVotes = 0;
