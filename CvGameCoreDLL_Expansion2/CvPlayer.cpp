@@ -5107,6 +5107,9 @@ void CvPlayer::DoUnitReset()
 
 		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
+#ifdef REBASE_WITH_AIRPORTS
+		pLoopUnit->setMadeRebase(false);
+#endif
 		pLoopUnit->setMadeInterception(false);
 
 		if(!isHuman())

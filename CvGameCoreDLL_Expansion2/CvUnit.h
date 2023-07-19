@@ -944,6 +944,11 @@ public:
 	bool isOutOfAttacks() const;
 	void setMadeAttack(bool bNewValue);
 
+#ifdef REBASE_WITH_AIRPORTS
+	bool isOutOfRebases() const;
+	void setMadeRebase(bool bNewValue);
+#endif
+
 	int GetNumInterceptions() const;
 	void ChangeNumInterceptions(int iChange);
 
@@ -1396,6 +1401,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
+#ifdef REBASE_WITH_AIRPORTS
+	FAutoVariable<int, CvUnit> m_iRebaseMade;
+#endif
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
 	int m_iGreatAdmiralCount;
 	FAutoVariable<int, CvUnit> m_iGreatGeneralModifier;

@@ -1173,7 +1173,14 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-				pInterceptor->finishMoves();
+				if (pInterceptor->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_SORTIE", true)))
+				{
+					pInterceptor->changeMoves(-GC.getMOVE_DENOMINATOR());
+				}
+				else
+				{
+					pInterceptor->finishMoves();
+				}
 #endif
 			}
 		}
