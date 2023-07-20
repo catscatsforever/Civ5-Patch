@@ -2283,6 +2283,25 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #endif
+#ifdef BUILDING_BARN
+	if (getNumCities() > 0)
+	{
+		int iLoop = 0;
+		int iNumBuildings = 0;
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, -iNumBuildings);
+			}
+		}
+	}
+#endif
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift));
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
@@ -2903,6 +2922,25 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				pLoopCity->SetCityHasCoal(true);
 				iLoopCity++;
+			}
+		}
+	}
+#endif
+#ifdef BUILDING_BARN
+	if (getNumCities() > 0)
+	{
+		int iLoop = 0;
+		int iNumBuildings = 0;
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, iNumBuildings);
 			}
 		}
 	}
@@ -5069,6 +5107,9 @@ void CvPlayer::DoUnitReset()
 
 		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
+#ifdef REBASE_WITH_AIRPORTS
+		pLoopUnit->setMadeRebase(false);
+#endif
 		pLoopUnit->setMadeInterception(false);
 
 		if(!isHuman())
@@ -20758,6 +20799,25 @@ void CvPlayer::deleteCity(int iID)
 		}
 	}
 #endif
+#ifdef BUILDING_BARN
+	if (getNumCities() > 0)
+	{
+		int iLoop = 0;
+		int iNumBuildings = 0;
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, -iNumBuildings);
+			}
+		}
+	}
+#endif
 	m_cities.RemoveAt(iID);
 #ifdef NEW_FACTORIES
 	if (getNumCities() > 0)
@@ -20778,6 +20838,25 @@ void CvPlayer::deleteCity(int iID)
 			{
 				pLoopCity->SetCityHasCoal(true);
 				iLoopCity++;
+			}
+		}
+	}
+#endif
+#ifdef BUILDING_BARN
+	if (getNumCities() > 0)
+	{
+		int iLoop = 0;
+		int iNumBuildings = 0;
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, iNumBuildings);
 			}
 		}
 	}

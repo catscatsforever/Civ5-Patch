@@ -241,6 +241,9 @@ CvUnit::CvUnit() :
 	, m_iFlags("CvUnit::m_iFlags", m_syncArchive)
 	, m_iNumAttacks("CvUnit::m_iNumAttacks", m_syncArchive)
 	, m_iAttacksMade("CvUnit::m_iAttacksMade", m_syncArchive)
+#ifdef REBASE_WITH_AIRPORTS
+	, m_iRebaseMade("CvUnit::m_iRebaseMade", m_syncArchive)
+#endif
 	, m_iGreatGeneralCount("CvUnit::m_iGreatGeneralCount", m_syncArchive)
 	, m_iGreatAdmiralCount(0)
 	, m_iGreatGeneralModifier("CvUnit::m_iGreatGeneralModifier", m_syncArchive)
@@ -901,6 +904,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iFlags = 0;
 	m_iNumAttacks = 1;
 	m_iAttacksMade = 0;
+#ifdef REBASE_WITH_AIRPORTS
+	m_iRebaseMade = 0;
+#endif
 	m_iGreatGeneralCount = 0;
 	m_iGreatAdmiralCount = 0;
 	m_iGreatGeneralModifier = 0;
@@ -6444,6 +6450,13 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 		return false;
 	}
 
+#ifdef REBASE_WITH_AIRPORTS
+	if (isOutOfRebases())
+	{
+		return false;
+	}
+#endif
+
 	return true;
 }
 
@@ -6603,7 +6616,7 @@ bool CvUnit::rebase(int iX, int iY)
 		// City must be owned by us
 		if (oldPlot->getPlotCity()->CanAirlift() && pTargetPlot->getPlotCity()->CanAirlift())
 		{
-			changeMoves(-GC.getMOVE_DENOMINATOR());
+			setMadeRebase(true);
 		}
 		else
 		{
@@ -16743,6 +16756,30 @@ void CvUnit::setMadeAttack(bool bNewValue)
 	}
 }
 
+#ifdef REBASE_WITH_AIRPORTS
+//	--------------------------------------------------------------------------------
+bool CvUnit::isOutOfRebases() const
+{
+	VALIDATE_OBJECT
+
+	return m_iRebaseMade > 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setMadeRebase(bool bNewValue)
+{
+	VALIDATE_OBJECT
+		if (bNewValue)
+		{
+			m_iRebaseMade++;
+		}
+		else
+		{
+			m_iRebaseMade = 0;
+		}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNumInterceptions() const
