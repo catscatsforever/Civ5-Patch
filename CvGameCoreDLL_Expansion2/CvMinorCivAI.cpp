@@ -1768,8 +1768,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	kStream >> m_bPledgeRevoked;
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
 		kStream >> m_iTurnPeaceBlockedWithMinor;
