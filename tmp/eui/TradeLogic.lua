@@ -851,9 +851,9 @@ function ResetDisplay( diploMessage )
 			if not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam) then
 				toolTip = toolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" )
 			end
-			if not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs) then
+			--[[if not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs) then
 				toolTip = toolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_DOF_TT" )
-			end
+			end]]
 		end
 		local ourCash = g_pUs:GetGold() - researchAgreementCost
 		local theirCach = g_pThem:GetGold() - researchAgreementCost
@@ -911,8 +911,8 @@ function ResetDisplay( diploMessage )
 			SetEnabledAndToolTip( Controls.ThemPocketDoF, g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iDealDuration), toolTip )
 		end]]
 		-- REMOVE DOF
-		Controls.UsPocketDoF:SetHide( not g_PVPTrade )
-		Controls.ThemPocketDoF:SetHide( not g_PVPTrade )
+		Controls.UsPocketDoF:SetHide( true )
+		Controls.ThemPocketDoF:SetHide( true )
 		-- REMOVE DOF END
 	end
 

@@ -2274,10 +2274,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(false);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(false);
 				iLoopCity++;
 			}
 		}
@@ -2898,10 +2898,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(true);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(true);
 				iLoopCity++;
 			}
 		}
@@ -7328,10 +7328,10 @@ void CvPlayer::found(int iX, int iY)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(false);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(false);
 				iLoopCity++;
 			}
 		}
@@ -7453,10 +7453,10 @@ void CvPlayer::found(int iX, int iY)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(true);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(true);
 				iLoopCity++;
 			}
 		}
@@ -19141,7 +19141,10 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(true);
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				{
+					pLoopCity->SetCityHasCoal(true);
+				}
 			}
 			else if (eIndex == eResource &&
 				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) + iChange > iLoopCity &&
@@ -19149,7 +19152,10 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (- pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, - pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(false);
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				{
+					pLoopCity->SetCityHasCoal(false);
+				}
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
@@ -19294,7 +19300,10 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(true);
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				{
+					pLoopCity->SetCityHasCoal(true);
+				}
 			}
 			else if (eIndex == eResource &&
 				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) - iChange > iLoopCity &&
@@ -19302,7 +19311,10 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (- pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, - pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(false);
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				{
+					pLoopCity->SetCityHasCoal(false);
+				}
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
@@ -20733,10 +20745,10 @@ void CvPlayer::deleteCity(int iID)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(false);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(false);
 				iLoopCity++;
 			}
 			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) == iLoopCity + 1)
@@ -20761,10 +20773,10 @@ void CvPlayer::deleteCity(int iID)
 			{
 				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->SetCityHasCoal(true);
 			}
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+				pLoopCity->SetCityHasCoal(true);
 				iLoopCity++;
 			}
 		}

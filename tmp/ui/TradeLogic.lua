@@ -1325,10 +1325,10 @@ function ResetDisplay()
 				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
 				bEmptyTT = false;
 			end
-			if (not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs)) then
+			--[[if (not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs)) then
 				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_DOF_TT" ) ;
 				bEmptyTT = false;
-			end
+			end]]
 			if (Players[g_iUs]:GetGold() < iCost or Players[g_iThem]:GetGold() < iCost or bEmptyTT) then
 				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_AGREEMENT" ) ;
 			end

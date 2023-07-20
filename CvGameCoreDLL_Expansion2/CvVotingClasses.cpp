@@ -3415,6 +3415,13 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 #ifdef AUTOCRACY_EXTRA_VOTES
 		iVotes += std::min(6, iExtraAutoVotes);
 #endif
+#ifdef PATRONAGE_FINISHER_REWORK
+		PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_GUNBOAT_DIPLOMACY", true /*bHideAssert*/);
+		if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
+		{
+			iVotes += 2;
+		}
+#endif
 
 		// Diplomats after Globalization tech
 		int iDiplomatVotes = 0;
@@ -3942,7 +3949,11 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 					iBestContribution = iContribution;
 				}
 			}
+#ifdef LEAGUE_PROJECT_REWARD_TIER_3_THRESHOLD
+			fThreshold = MAX((float)iBestContribution, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD() * GetProjectCostPerPlayer(eLeagueProject) * 8 / 5);
+#else
 			fThreshold = MAX((float)iBestContribution, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD() * GetProjectCostPerPlayer(eLeagueProject));
+#endif
 			break;
 		}
 	default:

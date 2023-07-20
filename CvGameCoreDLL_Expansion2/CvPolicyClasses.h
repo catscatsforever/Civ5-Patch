@@ -99,6 +99,9 @@ public:
 	int GetBuildingPurchaseCostModifier() const;
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	int GetTradeMissionGoldModifier() const;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	int GetDiscoverAmountScienceModifier() const;
+#endif
 	int GetFaithCostModifier() const;
 	int GetCulturalPlunderMultiplier() const;
 	int GetStealTechSlowerModifier() const;
@@ -146,6 +149,9 @@ public:
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
 	int GetCityStateTradeChange() const;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	int GetGoldPerCSFriendsip() const;
+#endif
 	bool IsMinorGreatPeopleAllies() const;
 	bool IsMinorScienceAllies() const;
 	bool IsMinorResourceBonus() const;
@@ -291,6 +297,9 @@ private:
 	int m_iBuildingPurchaseCostModifier;
 	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iTradeMissionGoldModifier;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	int m_iDiscoverAmountScienceModifier;
+#endif
 	int m_iFaithCostModifier;
 	int m_iCulturalPlunderMultiplier;
 	int m_iStealTechSlowerModifier;
@@ -335,6 +344,9 @@ private:
 	int m_iTradeRouteTourismModifier;
 	int m_iOpenBordersTourismModifier;
 	int m_iCityStateTradeChange;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	int m_iGoldPerCSFriendsip;
+#endif
 	bool m_bMinorGreatPeopleAllies;
 	bool m_bMinorScienceAllies;
 	bool m_bMinorResourceBonus;
@@ -508,6 +520,9 @@ enum PolicyModifierType
     POLICYMOD_CULTURE_FROM_GARRISON,
     POLICYMOD_UNIT_FREQUENCY_MODIFIER,
     POLICYMOD_TRADE_MISSION_GOLD_MODIFIER,
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	POLICYMOD_DISCOVER_AMONT_SCIENCE_MODIFIER,
+#endif
     POLICYMOD_FAITH_COST_MODIFIER,
     POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER,
     POLICYMOD_STEAL_TECH_SLOWER_MODIFIER,
@@ -533,6 +548,9 @@ enum PolicyModifierType
 	POLICYMOD_STEAL_TECH_FASTER_MODIFIER,
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	POLICYMOD_GOLD_PER_CS_FRIENDSHIP,
+#endif
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,

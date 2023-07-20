@@ -354,11 +354,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 			// We don't want them to lose the opportunity to found the religion, and the Great Prophet is already gone so just repost the notification
 			// If someone beat them to the last religion, well... tough luck.
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-			if (kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && eResult != CvGameReligions::FOUNDING_NO_BELIEFS_AVAILABLE)
-#else
 			if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE)
-#endif
 			{
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
 				if(pNotifications)
@@ -369,16 +365,6 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 				}
 				kPlayer.GetReligions()->SetFoundingReligion(true);
 			}
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-			else if (kPlayer.getCapitalCity())
-			{
-				UnitTypes eUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-				if (eUnit != NO_UNIT)
-				{
-					kPlayer.getCapitalCity()->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, false);
-				}
-			}
-#endif
 		}
 	}
 }
@@ -397,11 +383,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 		// We don't want them to lose the opportunity to enhance the religion, and the Great Prophet is already gone so just repost the notification
 		CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		if (kPlayer.isHuman() && pkCity && eResult != CvGameReligions::FOUNDING_NO_BELIEFS_AVAILABLE)
-#else
 		if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
-#endif
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if(pNotifications)
@@ -412,16 +394,6 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 			}
 			kPlayer.GetReligions()->SetFoundingReligion(true);
 		}
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-		else if (kPlayer.getCapitalCity())
-		{
-			UnitTypes eUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-			if (eUnit != NO_UNIT)
-			{
-				kPlayer.getCapitalCity()->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, false, true);
-			}
-		}
-#endif
 	}
 }
 //------------------------------------------------------------------------------

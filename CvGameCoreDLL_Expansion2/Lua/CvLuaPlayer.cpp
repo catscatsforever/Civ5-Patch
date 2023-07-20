@@ -197,6 +197,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCityConnectionGold);
 	Method(GetCityConnectionGoldTimes100);
 	Method(GetGoldPerTurnFromReligion);
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	Method(GetGoldPerTurnFromPolicies);
+#endif
 	Method(GetGoldPerTurnFromTradeRoutes);
 	Method(GetGoldPerTurnFromTradeRoutesTimes100);
 	Method(GetGoldPerTurnFromTraits);
@@ -2172,6 +2175,16 @@ int CvLuaPlayer::lGetGoldPerTurnFromReligion(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldPerTurnFromReligion());
 	return 1;
 }
+#ifdef GOLD_PER_CS_FRIENDSHIP
+//------------------------------------------------------------------------------
+//int GetGoldPerTurnFromPolicies();
+int CvLuaPlayer::lGetGoldPerTurnFromPolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldPerTurnFromPolicies());
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetGoldPerTurnFromTradeRoutes();
 int CvLuaPlayer::lGetGoldPerTurnFromTradeRoutes(lua_State* L)

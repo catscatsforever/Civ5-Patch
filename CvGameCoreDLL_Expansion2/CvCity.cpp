@@ -6445,10 +6445,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, -(pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 						pLoopCity->changeYieldRateModifier(eYield, -(pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
-						pLoopCity->SetCityHasCoal(false);
 					}
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
+						pLoopCity->SetCityHasCoal(false);
 						iLoopCity++;
 					}
 				}
@@ -6475,10 +6475,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, (pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 						pLoopCity->changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
-						pLoopCity->SetCityHasCoal(true);
 					}
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
+						pLoopCity->SetCityHasCoal(true);
 						iLoopCity++;
 					}
 				}
@@ -7000,9 +7000,46 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 	{
 		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
+#ifdef POLICY_ETHICS_REWORK
+		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+		{
+			SpecialistTypes eSpecialist;
+
+			for (int iSpecialistLoop = 1; iSpecialistLoop < 4; iSpecialistLoop++)
+			{
+				eSpecialist = (SpecialistTypes)iSpecialistLoop;
+
+				if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+				{
+					iFoodReduction += GetCityCitizens()->GetSpecialistCount(eSpecialist) * iFoodPerPop;
+				}
+			}
+		}
+#endif
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
 	}
+#ifdef POLICY_ETHICS_REWORK
+	else
+	{
+		int iFoodReduction = 0;
+		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+		{
+			SpecialistTypes eSpecialist;
+
+			for (int iSpecialistLoop = 1; iSpecialistLoop < 4; iSpecialistLoop++)
+			{
+				eSpecialist = (SpecialistTypes)iSpecialistLoop;
+
+				if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+				{
+					iFoodReduction += GetCityCitizens()->GetSpecialistCount(eSpecialist) * iFoodPerPop;
+				}
+			}
+		}
+		iNum -= iFoodReduction;
+	}
+#endif
 
 	return iNum;
 }
@@ -9812,9 +9849,24 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if(pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
+#ifdef GOLDEN_AGE_SCIENCE_MODIFIER
+			if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ARTISTIC_GENIUS", true)))
+			{
+				iModifier += iTempMod;
+				if (toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+			}
+			else if (eIndex != 3)
+			{
+				iModifier += iTempMod;
+				if (toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+			}
+#else
 			iModifier += iTempMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+#endif
 		}
 	}
 

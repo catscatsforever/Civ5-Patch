@@ -948,11 +948,12 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local goldPerTurnToOtherPlayers = -math_min(0,goldPerTurnFromDiplomacy)
 
 	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() * 100 or 0
+	local goldPerTurnFromPolicies = gk_mode and g_activePlayer:GetGoldPerTurnFromPolicies() * 100 or 0
 	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
-	local goldPerTurnFromPolicies = 0
+	-- local goldPerTurnFromPolicies = 0
 
 	local unitCost = g_activePlayer:CalculateUnitCost()
 	local unitSupply = g_activePlayer:CalculateUnitSupply()
@@ -974,15 +975,15 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 
 	-- Total gold
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + goldPerTurnFromPolicies + tradeRouteGold + playerTraitGold
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
 	else
 		totalWealth = g_activePlayer:GetEnergy()
 		totalIncome = g_activePlayer:CalculateGrossGoldTimes100() + goldPerTurnToOtherPlayers * 100
-		goldPerTurnFromPolicies = g_activePlayer:GetGoldPerTurnFromPolicies()
-		explicitIncome = explicitIncome + goldPerTurnFromPolicies
+		-- goldPerTurnFromPolicies = g_activePlayer:GetGoldPerTurnFromPolicies()
+		-- explicitIncome = explicitIncome + goldPerTurnFromPolicies
 		routeMaintenance = g_activePlayer:GetRouteEnergyMaintenance()
 		beaconEnergyDelta = g_activePlayer:GetBeaconEnergyCostPerTurn()
 	end

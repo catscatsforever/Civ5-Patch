@@ -70,6 +70,11 @@ public:
 	// Religion
 	int GetGoldPerTurnFromReligion() const;
 
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	// Policies
+	int GetGoldPerTurnFromPolicies() const;
+#endif
+
 	// Calculations ported over from CvPlayer
 	int CalculateGrossGold();
 	int CalculateGrossGoldTimes100();

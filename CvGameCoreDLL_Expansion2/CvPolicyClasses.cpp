@@ -88,6 +88,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iBuildingPurchaseCostModifier(0),
 	m_iCityConnectionTradeRouteGoldModifier(0),
 	m_iTradeMissionGoldModifier(0),
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	m_iDiscoverAmountScienceModifier(0),
+#endif
 	m_iFaithCostModifier(0),
 	m_iCulturalPlunderMultiplier(0),
 	m_iStealTechSlowerModifier(0),
@@ -135,6 +138,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
 	m_iCityStateTradeChange(0),
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	m_iGoldPerCSFriendsip(0),
+#endif
 	m_bMinorGreatPeopleAllies(false),
 	m_bMinorScienceAllies(false),
 	m_bMinorResourceBonus(false),
@@ -299,6 +305,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBuildingPurchaseCostModifier = kResults.GetInt("BuildingPurchaseCostModifier");
 	m_iCityConnectionTradeRouteGoldModifier = kResults.GetInt("CityConnectionTradeRouteGoldModifier");
 	m_iTradeMissionGoldModifier = kResults.GetInt("TradeMissionGoldModifier");
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+	m_iDiscoverAmountScienceModifier = kResults.GetInt("DiscoverAmountScienceModifier");
+#endif
 	m_iFaithCostModifier = kResults.GetInt("FaithCostModifier");
 	m_iCulturalPlunderMultiplier = kResults.GetInt("CulturalPlunderMultiplier");
 	m_iStealTechSlowerModifier = kResults.GetInt("StealTechSlowerModifier");
@@ -359,6 +368,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
 	m_iCityStateTradeChange = kResults.GetInt("CityStateTradeChange");
+#ifdef GOLD_PER_CS_FRIENDSHIP
+	m_iGoldPerCSFriendsip = kResults.GetInt("GoldPerCSFriendsip");
+#endif
 	m_bMinorGreatPeopleAllies = kResults.GetBool("MinorGreatPeopleAllies");
 	m_bMinorScienceAllies = kResults.GetBool("MinorScienceAllies");
 	m_bMinorResourceBonus = kResults.GetBool("MinorResourceBonus");
@@ -997,6 +1009,13 @@ int CvPolicyEntry::GetTradeMissionGoldModifier() const
 	return m_iTradeMissionGoldModifier;
 }
 
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+int CvPolicyEntry::GetDiscoverAmountScienceModifier() const
+{
+	return m_iDiscoverAmountScienceModifier;
+}
+#endif
+
 /// How much more of a discount do we get on Faith purchases?
 int CvPolicyEntry::GetFaithCostModifier() const
 {
@@ -1277,6 +1296,13 @@ int CvPolicyEntry::GetCityStateTradeChange() const
 {
 	return m_iCityStateTradeChange;
 }
+
+#ifdef GOLD_PER_CS_FRIENDSHIP
+int CvPolicyEntry::GetGoldPerCSFriendsip() const
+{
+	return m_iGoldPerCSFriendsip;
+}
+#endif
 
 /// Great People from Allied Minors?
 bool CvPolicyEntry::IsMinorGreatPeopleAllies() const
@@ -2553,6 +2579,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_TRADE_MISSION_GOLD_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeMissionGoldModifier();
 				break;
+#ifdef DISCOVER_AMONT_SCIENCE_MODIFIER
+			case POLICYMOD_DISCOVER_AMONT_SCIENCE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDiscoverAmountScienceModifier();
+				break;
+#endif
 			case POLICYMOD_FAITH_COST_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetFaithCostModifier();
 				break;
@@ -2601,6 +2632,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_CITY_STATE_TRADE_CHANGE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCityStateTradeChange();
 				break;
+#ifdef GOLD_PER_CS_FRIENDSHIP
+			case POLICYMOD_GOLD_PER_CS_FRIENDSHIP:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGoldPerCSFriendsip();
+				break;
+#endif
 			case POLICYMOD_INTERNAL_TRADE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifier();
 				break;

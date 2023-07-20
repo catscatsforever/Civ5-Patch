@@ -2025,7 +2025,21 @@ void CvCityCitizens::DoSpecialists()
 /// How many Specialists are assigned to this Building Type?
 int CvCityCitizens::GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kBuilding)
 {
+#ifdef POLICY_ETHICS_REWORK
+	if (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)) &&
+		((BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true) ||
+			(BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true) ||
+			(BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true)))
+	{
+		return kBuilding.GetSpecialistCount() + 1;
+	}
+	else
+	{
+		return kBuilding.GetSpecialistCount();
+	}
+#else
 	return kBuilding.GetSpecialistCount();
+#endif
 }
 
 /// Are we in the position to add another Specialist to eBuilding?
@@ -2036,12 +2050,36 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 
+#ifdef POLICY_ETHICS_REWORK
+	if (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)) &&
+		((BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true) ||
+			(BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true) ||
+			(BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true)))
+	{
+		if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
+			iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() + 1 &&				// Limit for this particular Building
+			iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
+		{
+			return true;
+		}
+	}
+	else
+	{
+		if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
+			iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
+			iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
+		{
+			return true;
+		}
+	}
+#else
 	if(iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
 	        iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
 	        iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
 	{
 		return true;
 	}
+#endif
 
 	return false;
 }
@@ -2416,6 +2454,19 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 	}
 #if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
+	}
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatEngineersCreated();
+	}
+	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true) && GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
+	}
+#elif defined SEPARATE_GREAT_PEOPLE
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true))
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
@@ -2455,11 +2506,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 }
 
 /// Create a GP!
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bSpawnWithNoExpendedTrigger)
-#else
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet)
-#endif
 {
 	CvAssert(eUnit != NO_UNIT);
 
@@ -2479,10 +2526,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 
 	CvPlayer& kPlayer = GET_PLAYER(GetCity()->getOwner());
 	CvUnit* newUnit = kPlayer.initUnit(eUnit, GetCity()->getX(), GetCity()->getY());
-#ifdef AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
-	if (bSpawnWithNoExpendedTrigger)
-		newUnit->SetIgnoreExpended(true);
-#endif
 
 	// Bump up the count
 	if(bIncrementCount && !bCountAsProphet)

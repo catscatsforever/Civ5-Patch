@@ -231,6 +231,8 @@
 #define FREE_GREAT_PERSON
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
+///
+#define DISCOVER_AMONT_SCIENCE_MODIFIER
 /// After second turn of Great Scientist appearance bulb amount slowly decrease to 0 every turn
 #define DECREASE_BULB_AMOUNT_OVER_TIME
 /// Increasing hurry production while engineering SS Parts
@@ -280,9 +282,11 @@
 ///
 #define DISABLE_BUILD_REPAIR_ON_NON_FRIENDLY_TERRITORY
 ///
-#define FIGHTER_SETMADEATTACK_AFTER_INTERCEPTION
+#define FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
 ///
 #define REBASE_WITH_AIRPORTS
+///
+#define ATTACK_BONUS_VS_RANGED_MOUNTED
 /*UNITS CHANGES END*/
 
 
@@ -333,6 +337,12 @@
 #define PATRONAGE_FINISHER_REWORK
 ///
 #define DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+///
+#define GOLD_PER_CS_FRIENDSHIP
+///
+#define GOLDEN_AGE_SCIENCE_MODIFIER
+///
+#define POLICY_ETHICS_REWORK
 /*POLICIES CHANGES END*/
 
 
@@ -569,8 +579,6 @@
 #define AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 /// Fixes a possible null pointer dereferences in FoundPantheon()
 #define AUI_RELIGION_FIX_FOUND_PANTHEON_NULL_POINTER_DEREFERENCE
-/// Respawns a player's Great Prophet if it was consumed but the player was beaten to founding the last possible religion in the game
-// #define AUI_DLLNETMESSAGEHANDLER_FIX_RESPAWN_PROPHET_IF_BEATEN_TO_LAST_RELIGION
 /// Planes will take damage and Guided Missiles will dissapear when war is declaring by Air Strike
 #define FIX_AIR_STRIKE_WHEN_DECLARING_WAR
 // Fixes incorrect plot distance calculation for wrapped maps
@@ -642,6 +650,8 @@
 #define ASSIGN_SECOND_PROPOSAL_PRIVILEGE
 ///
 // #define CHANGE_HOST_IF_DISCONNECTED
+///
+#define LEAGUE_PROJECT_REWARD_TIER_3_THRESHOLD
 /*LEAGUE CHANGES END*/
 
 
