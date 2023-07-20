@@ -17098,7 +17098,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		}
 		else
 		{
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
 				PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
@@ -24080,7 +24080,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	if (CvPreGame::gameType() == GAME_NETWORK_MULTIPLAYER && m_bAlive)
 	{
 		// Set active turn for actual players, not the AI!
-		//SLOG("%d		%d		%d		%d		%d		%d", GetID(), m_bAlive ? 1 : 0, m_bTurnActive ? 1 : 0, m_bAutoMoves ? 1 : 0, m_bEndTurn ? 1 : 0, m_eEndTurnBlockingType);
 		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
 		m_bTurnActive = bHuman;
 		//m_bAutoMoves = !bHuman;

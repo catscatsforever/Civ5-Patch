@@ -254,7 +254,7 @@ public:
 	void AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	bool IsPledgeRevokedByMajor(PlayerTypes eMajor) const;
 	bool IsPledgeRevokedByAnyMajor() const;
 	void SetPledgeRevokedByMajor(PlayerTypes eMajor, bool bValue);
@@ -598,11 +598,11 @@ private:
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
 	bool m_abMajorIntruding[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	bool m_bPledgeRevoked[MAX_MAJOR_CIVS];
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
-	int m_bTurnPeaceBlockedWithMinor[MAX_MAJOR_CIVS];
+	int m_iTurnPeaceBlockedWithMinor[MAX_MAJOR_CIVS];
 #endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];

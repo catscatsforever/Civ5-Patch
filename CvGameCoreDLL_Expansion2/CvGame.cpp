@@ -1305,7 +1305,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pTacticalMap = FNEW(CvTacticalAnalysisMap, c_eCiv5GameplayDLL, 0);
 
 #ifdef MP_PLAYERS_VOTING_SYSTEM
-		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pTacticalMap");
+		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pMPVotingSystem");
 		m_pMPVotingSystem = FNEW(CvMPVotingSystem, c_eCiv5GameplayDLL, 0);
 
 #endif

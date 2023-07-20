@@ -495,7 +495,7 @@
 // city states will no longer declare peace if influence is less than -50
 // #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 ///
-#define DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#define DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 ///
 // #define NO_FAITH_FROM_MEETING_CS
 ///
