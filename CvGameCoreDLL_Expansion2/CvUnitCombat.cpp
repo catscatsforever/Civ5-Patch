@@ -2033,7 +2033,40 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 				if(pkUnit->IsCombatUnit() || pkUnit->IsCanAttackRanged())
 				{
+#ifdef GDR_LESS_NUKING_DAMAGE
+								if (kEntry.GetDamage() > 40 && pkUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MECH", true /*bHideAssert*/))
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), 40);
+								}
+								else
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), kEntry.GetDamage());
+								}
+#else
+#endif
+#ifdef GDR_LESS_NUKING_DAMAGE
+						if (kEntry.GetDamage() > 40 && pkUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MECH", true /*bHideAssert*/))
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), 40);
+						}
+						else
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), kEntry.GetDamage());
+						}
+#else
+#endif
+#ifdef GDR_LESS_NUKING_DAMAGE
+					if (kEntry.GetDamage() > 40 && pkUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MECH", true /*bHideAssert*/))
+					{
+						pkUnit->changeDamage(40, eAttackerOwner);
+					}
+					else
+					{
+						pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
+					}
+#else
 					pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
+#endif
 				}
 				else if(kEntry.GetDamage() >= /*6*/ GC.getNUKE_NON_COMBAT_DEATH_THRESHOLD())
 				{
