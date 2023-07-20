@@ -5106,7 +5106,15 @@ void CvPlayer::DoUnitReset()
 		}
 
 		pLoopUnit->SetIgnoreDangerWakeup(false);
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+		if (!pLoopUnit->isSecondHalfTimerParadropped())
+		{
+			pLoopUnit->changeNoCaptureCount(-1);
+		}
+		pLoopUnit->setMadeSecondHalfTimerParadrop(false);
+#else
 		pLoopUnit->setMadeAttack(false);
+#endif
 #ifdef REBASE_WITH_AIRPORTS
 		pLoopUnit->setMadeRebase(false);
 #endif

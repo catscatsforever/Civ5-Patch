@@ -949,6 +949,11 @@ public:
 	void setMadeRebase(bool bNewValue);
 #endif
 
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+	bool isSecondHalfTimerParadropped() const;
+	void setMadeSecondHalfTimerParadrop(bool bNewValue);
+#endif
+
 	int GetNumInterceptions() const;
 	void ChangeNumInterceptions(int iChange);
 
@@ -1403,6 +1408,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
 #ifdef REBASE_WITH_AIRPORTS
 	FAutoVariable<int, CvUnit> m_iRebaseMade;
+#endif
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+	FAutoVariable<int, CvUnit> m_iSecondHalfTimerParadrop;
 #endif
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
 	int m_iGreatAdmiralCount;

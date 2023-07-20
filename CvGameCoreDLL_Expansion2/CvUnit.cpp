@@ -244,6 +244,9 @@ CvUnit::CvUnit() :
 #ifdef REBASE_WITH_AIRPORTS
 	, m_iRebaseMade("CvUnit::m_iRebaseMade", m_syncArchive)
 #endif
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+	, m_iSecondHalfTimerParadrop("CvUnit::m_iSecondHalfTimerParadrop", m_syncArchive)
+#endif
 	, m_iGreatGeneralCount("CvUnit::m_iGreatGeneralCount", m_syncArchive)
 	, m_iGreatAdmiralCount(0)
 	, m_iGreatGeneralModifier("CvUnit::m_iGreatGeneralModifier", m_syncArchive)
@@ -906,6 +909,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAttacksMade = 0;
 #ifdef REBASE_WITH_AIRPORTS
 	m_iRebaseMade = 0;
+#endif
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+	m_iSecondHalfTimerParadrop = 0;
 #endif
 	m_iGreatGeneralCount = 0;
 	m_iGreatAdmiralCount = 0;
@@ -5727,6 +5733,41 @@ bool CvUnit::paradrop(int iX, int iY)
 
 	changeMoves(-(GC.getMOVE_DENOMINATOR() / 2));
 	setMadeAttack(true);
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+	CvGame& kGame = GC.getGame();
+	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && kGame.getElapsedGameTurns() > 0 &&
+#ifdef AUI_GAME_RELATIVE_TURN_TIMERS
+	(kGame.getPitbossTurnTime() == 0 || kGame.isOption("GAMEOPTION_RELATIVE_TURN_TIMER")))
+#else
+		kGame.getPitbossTurnTime() == 0)
+#endif
+	{
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+		float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+		float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
+
+#ifdef TURN_TIMER_PAUSE_BUTTON
+		float fTimeElapsed = kGame.getTimeElapsed();
+#else
+		//NOTE:  These times exclude the time used for AI processing.
+		//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
+		float fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+
+		//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
+		float fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+
+		float fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
+#endif
+
+		if (fTimeElapsed * 2 > fGameTurnEnd)
+		{
+			setMadeSecondHalfTimerParadrop(true);
+			changeNoCaptureCount(1);
+		}
+	}
+#endif
 #ifdef NQM_UNIT_FIX_NO_INSTAHEAL_AFTER_PARADROP
 	setCanInstahealThisTurn(false);
 #endif
@@ -16777,6 +16818,31 @@ void CvUnit::setMadeRebase(bool bNewValue)
 		else
 		{
 			m_iRebaseMade = 0;
+		}
+}
+#endif
+
+#ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
+//	--------------------------------------------------------------------------------
+bool CvUnit::isSecondHalfTimerParadropped() const
+{
+	VALIDATE_OBJECT
+
+		return m_iSecondHalfTimerParadrop > 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setMadeSecondHalfTimerParadrop(bool bNewValue)
+{
+	VALIDATE_OBJECT
+		if (bNewValue)
+		{
+			m_iSecondHalfTimerParadrop++;
+		}
+		else
+		{
+			m_iSecondHalfTimerParadrop = 0;
 		}
 }
 #endif
