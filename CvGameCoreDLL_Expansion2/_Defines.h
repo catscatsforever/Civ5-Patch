@@ -600,7 +600,7 @@
 /// Fixed the bug where the production bonus from having a railroad connecting a city to the capital is not removed if the railroad connection is broken (credits to Wr4ith pointing this out after having researched the "weirdness" behind harbors, railroads, and the railroad bonus)
 #define AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
 /// Fixes already corrupted saves leading to turn skip in simultaneous mode.
-// #define AUTOSAVE_FIX_PREVENT_TURN_SKIP
+#define AUTOSAVE_FIX_PREVENT_TURN_SKIP
 /*BUGS FIXES END*/
 
 
@@ -627,7 +627,7 @@
 ///
 #define DO_TURN_CHANGE_ORDER
 /// move autosave to the end of turn
-// #define AUTOSAVE_END_OF_TURN
+#define AUTOSAVE_END_OF_TURN
 /*TURN AND TIMER CHANGES END*/
 
 
