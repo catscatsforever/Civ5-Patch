@@ -6430,7 +6430,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifdef NEW_FACTORIES
 			else if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true))
 			{
-				changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
 				int iLoop = 0;
 				int iLoopCity = 0;
 				for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -6448,10 +6447,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, -(pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 						pLoopCity->changeYieldRateModifier(eYield, -(pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->SetCityHasCoal(false);
+						}
 					}
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						pLoopCity->SetCityHasCoal(false);
 						iLoopCity++;
 					}
 				}
@@ -6478,18 +6480,22 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, (pBuildingInfo->GetYieldChange(eYield) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange(eBuildingClass, eYield)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 						pLoopCity->changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding)));
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->SetCityHasCoal(true);
+						}
 					}
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						pLoopCity->SetCityHasCoal(true);
 						iLoopCity++;
 					}
 				}
 			}
 #endif
 #ifdef BUILDING_BARN
-			else if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true) && (YieldTypes)eYield == (YieldTypes)GC.getInfoTypeForString("BUILDING_FOOD", true))
+			else if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true) && (YieldTypes)eYield == (YieldTypes)GC.getInfoTypeForString("YIELD_FOOD", true))
 			{
+				// changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
 				int iLoop = 0;
 				int iNumBuildings = 0;
 				for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -6829,6 +6835,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 							}
 #else
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
+#endif
+#ifdef FIX_POLICY_FREE_RELIGIOB
+							BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
+							{
+								iFollowers = GetCityReligions()->GetNumFollowers(GetCityReligions()->GetSecondaryReligion());
+								if (iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinFollowers())
+								{
+									iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
+								}
+							}
 #endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))

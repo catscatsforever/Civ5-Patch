@@ -287,6 +287,10 @@
 #define REBASE_WITH_AIRPORTS
 ///
 #define ATTACK_BONUS_VS_RANGED_MOUNTED
+///
+#define CAPTURE_RESTRICTION_AFTER_PARADROPPING
+///
+#define GDR_LESS_NUKING_DAMAGE
 /*UNITS CHANGES END*/
 
 
@@ -343,6 +347,8 @@
 #define GOLDEN_AGE_SCIENCE_MODIFIER
 ///
 #define POLICY_ETHICS_REWORK
+///
+#define FIX_POLICY_FREE_RELIGIOB
 /*POLICIES CHANGES END*/
 
 
@@ -600,7 +606,7 @@
 /// Fixed the bug where the production bonus from having a railroad connecting a city to the capital is not removed if the railroad connection is broken (credits to Wr4ith pointing this out after having researched the "weirdness" behind harbors, railroads, and the railroad bonus)
 #define AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
 /// Fixes already corrupted saves leading to turn skip in simultaneous mode.
-// #define AUTOSAVE_FIX_PREVENT_TURN_SKIP
+#define AUTOSAVE_FIX_PREVENT_TURN_SKIP
 /*BUGS FIXES END*/
 
 
@@ -627,7 +633,7 @@
 ///
 #define DO_TURN_CHANGE_ORDER
 /// move autosave to the end of turn
-// #define AUTOSAVE_END_OF_TURN
+#define AUTOSAVE_END_OF_TURN
 /*TURN AND TIMER CHANGES END*/
 
 
