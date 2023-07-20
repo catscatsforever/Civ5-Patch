@@ -3907,21 +3907,36 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 	}
 
 #ifdef ESPIONAGE_SYSTEM_REWORK
-	loadFrom >> uiNumCivs;
-	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_ESPIONAGE)
 	{
-		ScienceToStealList aScienceToStealList;
-		writeTo.m_aaPlayerScienceToStealList.push_back(aScienceToStealList);
-
-		uint uiNumScience;
-		loadFrom >> uiNumScience;
-		for(uint uiScience = 0; uiScience < uiNumScience; uiScience++)
+# endif
+		loadFrom >> uiNumCivs;
+		for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 		{
-			int iNumScienceToSteal;
-			loadFrom >> iNumScienceToSteal;
-			writeTo.m_aaPlayerScienceToStealList[uiCiv].push_back(iNumScienceToSteal);
+			ScienceToStealList aScienceToStealList;
+			writeTo.m_aaPlayerScienceToStealList.push_back(aScienceToStealList);
+
+			uint uiNumScience;
+			loadFrom >> uiNumScience;
+			for(uint uiScience = 0; uiScience < uiNumScience; uiScience++)
+			{
+				int iNumScienceToSteal;
+				loadFrom >> iNumScienceToSteal;
+				writeTo.m_aaPlayerScienceToStealList[uiCiv].push_back(iNumScienceToSteal);
+			}
+		}
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
+		{
+			ScienceToStealList aScienceToStealList;
+			writeTo.m_aaPlayerScienceToStealList.push_back(aScienceToStealList);
 		}
 	}
+# endif
 #endif
 
 	loadFrom >> uiNumCivs;
@@ -3995,6 +4010,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 {
 	uint uiVersion = 0;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_ESPIONAGE;
+#endif
 	saveTo << uiVersion;
 
 	saveTo << readFrom.m_aSpyList.size();

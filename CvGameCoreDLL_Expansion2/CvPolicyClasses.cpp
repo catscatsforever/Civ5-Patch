@@ -2175,11 +2175,39 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
 #ifdef POLICY_BRANCH_UNLOCKING_TURN
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiPolicyBranchUnlockingTurn, uiPolicyBranchCount);
+	if (uiVersion >= BUMP_SAVE_VERSION_POLICIES)
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	{
+# endif
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiPolicyBranchUnlockingTurn, uiPolicyBranchCount);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (int iI = 0; iI < m_pPolicies->GetNumPolicyBranches(); iI++)
+		{
+			m_paiPolicyBranchUnlockingTurn[iI] = -1;
+		}
+	}
+# endif
 #endif
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchNotificationLocked, uiPolicyBranchCount);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_POLICIES)
+	{
+# endif
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchNotificationLocked, uiPolicyBranchCount);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (int iI = 0; iI < m_pPolicies->GetNumPolicyBranches(); iI++)
+		{
+			m_pabPolicyBranchNotificationLocked[iI] = false;
+		}
+	}
+# endif
 #endif
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchFinished, uiPolicyBranchCount);
 	CvInfosSerializationHelper::ReadHashedTypeArray(kStream, m_paePolicyBranchesChosen, uiPolicyBranchCount);
@@ -2213,6 +2241,9 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 2;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_POLICIES;
+#endif
 	kStream << uiVersion;
 
 	CvAssertMsg(m_pPolicies != NULL && GC.getNumPolicyInfos() > 0, "Number of policies to serialize is expected to greater than 0");

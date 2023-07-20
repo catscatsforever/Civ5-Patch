@@ -1831,10 +1831,38 @@ void CvTeamTechs::Read(FDataStream& kStream)
 
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
 #ifdef HAS_TECH_BY_HUMAN
-		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechByHuman, iNumActiveTechs, paTechIDs);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		if (uiVersion >= BUMP_SAVE_VERSION_TECHS)
+		{
+# endif
+			CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechByHuman, iNumActiveTechs, paTechIDs);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		}
+		else
+		{
+			for (int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
+			{
+				m_pabHasTechByHuman[iI] = false;
+			}
+		}
+# endif
 #endif
 #ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
-		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechForLeague, iNumActiveTechs, paTechIDs);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		if (uiVersion >= BUMP_SAVE_VERSION_TECHS)
+		{
+# endif
+			CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechForLeague, iNumActiveTechs, paTechIDs);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		}
+		else
+		{
+			for (int iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
+			{
+				m_pabHasTechForLeague[iI] = false;
+			}
+		}
+# endif
 #endif
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabNoTradeTech, iNumActiveTechs, paTechIDs);
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiResearchProgress, iNumActiveTechs, paTechIDs);
@@ -1850,6 +1878,9 @@ void CvTeamTechs::Write(FDataStream& kStream)
 {
 	// Current version number
 	uint uiVersion = 1;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_TECHS;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_eLastTechAcquired;

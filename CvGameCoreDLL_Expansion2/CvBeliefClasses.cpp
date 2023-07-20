@@ -1857,10 +1857,32 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_iProphetCostModifier;
 	kStream >> m_iMissionaryStrengthModifier;
 #ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
-	kStream >> m_iExtraTradeRoutes;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	{
+# endif
+		kStream >> m_iExtraTradeRoutes;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iExtraTradeRoutes = 0;
+	}
+# endif
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
-	kStream >> m_iGoldenAgeTurns;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	{
+# endif
+		kStream >> m_iGoldenAgeTurns;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGoldenAgeTurns = 0;
+	}
+# endif
 #endif
 	kStream >> m_iMissionaryCostModifier;
 	kStream >> m_iFriendlyCityStateSpreadModifier;
@@ -1879,7 +1901,18 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 		m_iFaithBuildingTourism = 0;
 	}
 #ifdef GP_RATE_MODIFIER_FROM_BELIEF
-	kStream >> m_iGreatPeopleRateModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	{
+# endif
+		kStream >> m_iGreatPeopleRateModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatPeopleRateModifier = 0;
+	}
+# endif
 #endif
 
 
@@ -1904,6 +1937,9 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 2;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_BELIEFS;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_iFaithFromDyingUnits;

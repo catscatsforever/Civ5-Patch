@@ -14253,7 +14253,18 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iBaseGreatPeopleRate;
 	kStream >> m_iGreatPeopleRateModifier;
 #ifdef CITY_RANGE_MODIFIER
-	kStream >> m_iCitytAttackRangeModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	{
+# endif
+		kStream >> m_iCitytAttackRangeModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iCitytAttackRangeModifier = 0;
+	}
+# endif
 #endif
 	kStream >> m_iJONSCultureStored;
 	kStream >> m_iJONSCultureLevel;
@@ -14279,7 +14290,18 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iHealRate;
 	kStream >> m_iEspionageModifier;
 #ifdef NEW_FACTORIES
-	kStream >> m_bCityHasCoal;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	{
+# endif
+		kStream >> m_bCityHasCoal;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bCityHasCoal = false;
+	}
+# endif
 #endif
 	kStream >> m_iNoOccupiedUnhappinessCount;
 	kStream >> m_iFood;
@@ -14545,7 +14567,18 @@ void CvCity::read(FDataStream& kStream)
 
 	kStream >> m_bOwedCultureBuilding;
 #ifdef OWED_FOOD_BUILDING
-	kStream >> m_bOwedFoodBuilding;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	{
+# endif
+		kStream >> m_bOwedFoodBuilding;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bOwedFoodBuilding = false;
+	}
+# endif
 #endif
 
 	m_pCityStrategyAI->Read(kStream);
@@ -14596,6 +14629,9 @@ void CvCity::write(FDataStream& kStream) const
 
 	// Current version number
 	uint uiVersion = 6;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_CITY;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_iID;

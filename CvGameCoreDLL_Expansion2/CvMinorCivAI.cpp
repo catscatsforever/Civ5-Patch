@@ -1768,11 +1768,39 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 
-	kStream >> m_bPledgeRevoked;
 #ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	{
+# endif
+		kStream >> m_bPledgeRevoked;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_bPledgeRevoked[iI] = false;
+		}
+	}
+# endif
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	{
+# endif
 		kStream >> m_iTurnPeaceBlockedWithMinor;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_iTurnPeaceBlockedWithMinor[iI] = -10;
+		}
+	}
+# endif
 #endif
 
 	kStream >> m_abPledgeToProtect;
@@ -1813,6 +1841,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_MINORAI;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_ePersonality;

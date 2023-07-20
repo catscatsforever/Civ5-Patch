@@ -2894,16 +2894,44 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldChangeResourcesWrapper;
 
 #ifdef PORTUGAL_UA_REWORK
-	ArrayWrapper<int> kYieldChangeLuxuryResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeLuxuryResources);
-	kStream >> kYieldChangeLuxuryResourcesWrapper;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_TRAITS)
+	{
+# endif
+		ArrayWrapper<int> kYieldChangeLuxuryResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeLuxuryResources);
+		kStream >> kYieldChangeLuxuryResourcesWrapper;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			m_iYieldChangeLuxuryResources[iYield] = 0;
+		}
+	}
+# endif
 #endif
 
 	ArrayWrapper<int> kYieldRateModifierWrapper(NUM_YIELD_TYPES, m_iYieldRateModifier);
 	kStream >> kYieldRateModifierWrapper;
 
 #ifdef RUSSIA_UA_REWORK
-	ArrayWrapper<int> kRiverCityYieldChangeWrapper(NUM_YIELD_TYPES, m_iRiverCityYieldChange);
-	kStream >> kRiverCityYieldChangeWrapper;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_TRAITS)
+	{
+# endif
+		ArrayWrapper<int> kRiverCityYieldChangeWrapper(NUM_YIELD_TYPES, m_iRiverCityYieldChange);
+		kStream >> kRiverCityYieldChangeWrapper;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			m_iRiverCityYieldChange[iYield] = 0;
+		}
+	}
+# endif
 #endif
 
 	ArrayWrapper<int> kYieldChangeNaturalWonderWrapper(NUM_YIELD_TYPES, m_iYieldChangeNaturalWonder);
@@ -3002,6 +3030,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 {
 	// Current version number
 	uint uiVersion = 19;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_TRAITS;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_iGreatPeopleRateModifier;

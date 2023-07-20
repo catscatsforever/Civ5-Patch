@@ -7043,11 +7043,33 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iOpenBordersTradingAllowedCount;
 	kStream >> m_iDefensivePactTradingAllowedCount;
 #ifdef DEF_PACT_COUNT
-	kStream >> m_iDefensivePactCount;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_TEAM)
+	{
+# endif
+		kStream >> m_iDefensivePactCount;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iDefensivePactCount = 0;
+	}
+# endif
 #endif
 	kStream >> m_iResearchAgreementTradingAllowedCount;
 #ifdef RES_AGR_COUNT
-	kStream >> m_iResearchAgreementCount;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_TEAM)
+	{
+# endif
+		kStream >> m_iResearchAgreementCount;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iResearchAgreementCount = 0;
+	}
+# endif
 #endif
 	kStream >> m_iTradeAgreementTradingAllowedCount;
 	kStream >> m_iPermanentAllianceTradingCount;
@@ -7201,6 +7223,9 @@ void CvTeam::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_TEAM;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_iNumMembers;

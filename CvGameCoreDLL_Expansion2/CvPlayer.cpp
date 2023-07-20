@@ -23579,21 +23579,78 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGreatArtistsCreated;
 	kStream >> m_iGreatMusiciansCreated;
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
-	kStream >> m_bHasUsedDharma;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_bHasUsedDharma;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedDharma = false;
+	}
+# endif
 #endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
-	kStream >> m_bHasUsedUnityProphets;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_bHasUsedUnityProphets;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedUnityProphets = false;
+	}
+# endif
 #endif
 #ifdef FREE_GREAT_PERSON
-	kStream >> m_iGreatProphetsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_iGreatProphetsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatProphetsCreated = 0;
+	}
+# endif
 #endif
 #if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
-	kStream >> m_iGreatScientistsCreated;
-	kStream >> m_iGreatEngineersCreated;
-	kStream >> m_iGreatMerchantsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_iGreatScientistsCreated;
+		kStream >> m_iGreatEngineersCreated;
+		kStream >> m_iGreatMerchantsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatScientistsCreated = 0;
+		m_iGreatEngineersCreated = 0;
+		m_iGreatMerchantsCreated = 0;
+	}
+# endif
 #endif
 #ifdef SEPARATE_MERCHANTS
-	kStream >> m_iGreatMerchantsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_iGreatMerchantsCreated;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatMerchantsCreated = 0;
+	}
+# endif
 #endif
 	kStream >> m_iMerchantsFromFaith;
 	kStream >> m_iScientistsFromFaith;
@@ -23604,14 +23661,32 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iAdmiralsFromFaith;
 	kStream >> m_iEngineersFromFaith;
 #ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
-	kStream >> m_bMerchantsFromFaith;
-	kStream >> m_bScientistsFromFaith;
-	kStream >> m_bWritersFromFaith;
-	kStream >> m_bArtistsFromFaith;
-	kStream >> m_bMusiciansFromFaith;
-	kStream >> m_bGeneralsFromFaith;
-	kStream >> m_bAdmiralsFromFaith;
-	kStream >> m_bEngineersFromFaith;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_bMerchantsFromFaith;
+		kStream >> m_bScientistsFromFaith;
+		kStream >> m_bWritersFromFaith;
+		kStream >> m_bArtistsFromFaith;
+		kStream >> m_bMusiciansFromFaith;
+		kStream >> m_bGeneralsFromFaith;
+		kStream >> m_bAdmiralsFromFaith;
+		kStream >> m_bEngineersFromFaith;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bMerchantsFromFaith = false;
+		m_bScientistsFromFaith = false;
+		m_bWritersFromFaith = false;
+		m_bArtistsFromFaith = false;
+		m_bMusiciansFromFaith = false;
+		m_bGeneralsFromFaith = false;
+		m_bAdmiralsFromFaith = false;
+		m_bEngineersFromFaith = false;
+	}
+# endif
 #endif
 	kStream >> m_iGreatPeopleThresholdModifier;
 	kStream >> m_iGreatGeneralsThresholdModifier;
@@ -23820,8 +23895,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iLastSliceMoved;
 	kStream >> m_bHasBetrayedMinorCiv;
 #ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
-	kStream >> m_bOxfordUniversityWasEverBuilt;
-	kStream >> m_bNationalIntelligenceAgencyWasEverBuilt;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_bOxfordUniversityWasEverBuilt;
+		kStream >> m_bNationalIntelligenceAgencyWasEverBuilt;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bOxfordUniversityWasEverBuilt = false;
+		m_bNationalIntelligenceAgencyWasEverBuilt = false;
+	}
+# endif
 #endif
 	kStream >> m_bAlive;
 	kStream >> m_bEverAlive;
@@ -24100,7 +24187,12 @@ void CvPlayer::Read(FDataStream& kStream)
 void CvPlayer::Write(FDataStream& kStream) const
 {
 	//Save version number.  THIS MUST BE FIRST!!
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	int iVersion = BUMP_SAVE_VERSION_PLAYER;
+	kStream << iVersion;
+#else
 	kStream << g_CurrentCvPlayerVersion;
+#endif
 
 	kStream << m_iStartingX;
 	kStream << m_iStartingY;
