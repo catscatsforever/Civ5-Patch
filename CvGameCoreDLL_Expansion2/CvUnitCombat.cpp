@@ -3034,7 +3034,14 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	{
 		kAttacker.setMadeAttack(true);
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-		pInterceptor->finishMoves();
+		if (pInterceptor->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_SORTIE", true)))
+		{
+			pInterceptor->changeMoves(-GC.getMOVE_DENOMINATOR());
+		}
+		else
+		{
+			pInterceptor->finishMoves();
+		}
 #endif
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirSweepCombatInfo(kAttacker, pInterceptor, targetPlot, &kCombatInfo);
