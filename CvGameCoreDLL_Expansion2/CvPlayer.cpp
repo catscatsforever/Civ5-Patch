@@ -23359,6 +23359,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
+#ifdef FIX_POLICY_FREE_RELIGIOB
+	iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+	}
+#endif
+
 	DoUpdateHappiness();
 	GetTrade()->UpdateTradeConnectionValues();
 	recomputeGreatPeopleModifiers();

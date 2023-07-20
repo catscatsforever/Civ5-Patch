@@ -6830,6 +6830,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 #else
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
 #endif
+#ifdef FIX_POLICY_FREE_RELIGIOB
+							BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
+							{
+								iFollowers = GetCityReligions()->GetNumFollowers(GetCityReligions()->GetSecondaryReligion());
+								if (iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinFollowers())
+								{
+									iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
+								}
+							}
+#endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))
 							{
