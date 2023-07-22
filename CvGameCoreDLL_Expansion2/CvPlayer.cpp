@@ -5014,7 +5014,7 @@ void CvPlayer::DoUnitReset()
 		if(!pLoopUnit->isEmbarked())
 		{
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-			if(pLoopUnit->hasMoved() && pLoopUnit->getMadeInterceptionCount() > 0)
+			if(pLoopUnit->hasMoved() || pLoopUnit->getMadeInterceptionCount() > 0)
 #else
 			if (pLoopUnit->hasMoved())
 #endif

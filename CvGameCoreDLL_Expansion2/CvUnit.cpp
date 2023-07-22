@@ -6498,6 +6498,13 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 	}
 #endif
 
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+	if (isOutOfInterceptions())
+	{
+		return false;
+	}
+#endif
+
 	return true;
 }
 
@@ -12060,7 +12067,11 @@ bool CvUnit::isFortifyable(bool bCanWaitForNextTurn) const
 	// Can't fortify if you've already used any moves this turn
 	if(!bCanWaitForNextTurn)
 	{
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+		if (hasMoved() || getMadeInterceptionCount() > 0)
+#else
 		if(hasMoved())
+#endif
 		{
 			return false;
 		}

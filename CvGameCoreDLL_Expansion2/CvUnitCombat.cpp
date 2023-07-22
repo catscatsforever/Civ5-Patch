@@ -1351,7 +1351,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
 		if (pInterceptor->isOutOfInterceptions())
 		{
-			pInterceptor->finishMoves();
+			pInterceptor->setMadeAttack(true);
 		}
 #endif
 		pInterceptor->setCombatUnit(NULL);
@@ -1706,7 +1706,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
 		if (pkDefender->isOutOfInterceptions())
 		{
-			pkDefender->finishMoves();
+			pkDefender->setMadeAttack(true);
 		}
 #endif
 		if(pkAttacker && pkTargetPlot)
