@@ -16828,7 +16828,7 @@ bool CvUnit::isSecondHalfTimerParadropped() const
 {
 	VALIDATE_OBJECT
 
-		return m_iSecondHalfTimerParadrop > 0;
+	return m_iSecondHalfTimerParadrop > 0;
 }
 
 
