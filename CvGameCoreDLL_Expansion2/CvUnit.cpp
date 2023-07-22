@@ -5764,7 +5764,7 @@ bool CvUnit::paradrop(int iX, int iY)
 		if (fTimeElapsed * 2 > fGameTurnEnd)
 		{
 			setMadeSecondHalfTimerParadrop(true);
-			changeNoCaptureCount(1);
+			setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), true);
 		}
 	}
 #endif
@@ -6493,6 +6493,13 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 
 #ifdef REBASE_WITH_AIRPORTS
 	if (isOutOfRebases())
+	{
+		return false;
+	}
+#endif
+
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+	if (isOutOfInterceptions())
 	{
 		return false;
 	}
@@ -12060,7 +12067,11 @@ bool CvUnit::isFortifyable(bool bCanWaitForNextTurn) const
 	// Can't fortify if you've already used any moves this turn
 	if(!bCanWaitForNextTurn)
 	{
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+		if (hasMoved() || getMadeInterceptionCount() > 0)
+#else
 		if(hasMoved())
+#endif
 		{
 			return false;
 		}
@@ -20269,11 +20280,22 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_REBASE:
+#ifdef REBASE_WITH_AIRPORTS
+		if (getDomainType() == DOMAIN_AIR)
+		{
+			if (canRebase(plot()))
+			{
+				return true;
+			}
+	}
+		break;
+#else
 		if(getDomainType() == DOMAIN_AIR)
 		{
 			return true;
 		}
 		break;
+#endif
 
 	case INTERFACEMODE_EMBARK:
 		if(canEmbark(plot()))

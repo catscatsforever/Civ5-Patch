@@ -3462,7 +3462,10 @@ bool CvCity::isCityHasCoal() const
 				return true;
 			}
 		}
-		iLoopCity++;
+		if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true)))
+		{
+			iLoopCity++;
+		}
 	}
 	return false;
 }

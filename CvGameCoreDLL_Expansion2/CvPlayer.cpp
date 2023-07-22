@@ -5014,7 +5014,7 @@ void CvPlayer::DoUnitReset()
 		if(!pLoopUnit->isEmbarked())
 		{
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-			if(pLoopUnit->hasMoved() && pLoopUnit->getMadeInterceptionCount() > 0)
+			if(pLoopUnit->hasMoved() || pLoopUnit->getMadeInterceptionCount() > 0)
 #else
 			if (pLoopUnit->hasMoved())
 #endif
@@ -5063,7 +5063,7 @@ void CvPlayer::DoUnitReset()
 		{
 			if (pLoopUnit->getNoCaptureCount() > 0)
 			{
-				pLoopUnit->changeNoCaptureCount(-1);
+				pLoopUnit->setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), false);
 			}
 		}
 		pLoopUnit->setMadeSecondHalfTimerParadrop(false);

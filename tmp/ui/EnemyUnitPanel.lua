@@ -1062,10 +1062,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			-- UnitClassModifier
 			iModifier = pMyUnit:GetUnitClassModifier(pTheirUnit:GetUnitClassType());
-			if (iModifier ~= 0) then
+			if (iModifier > 0) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			elseif (iModifier < 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_PENALTY_VS_CLASS", unitClassType );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 
