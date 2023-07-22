@@ -1305,7 +1305,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pTacticalMap = FNEW(CvTacticalAnalysisMap, c_eCiv5GameplayDLL, 0);
 
 #ifdef MP_PLAYERS_VOTING_SYSTEM
-		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pTacticalMap");
+		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pMPVotingSystem");
 		m_pMPVotingSystem = FNEW(CvMPVotingSystem, c_eCiv5GameplayDLL, 0);
 
 #endif
@@ -9647,11 +9647,34 @@ void CvGame::Read(FDataStream& kStream)
 
 	// m_uiInitialTime not saved
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
-	kStream >> m_fPreviousTurnLen;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	{
+# endif
+		kStream >> m_fPreviousTurnLen;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_fPreviousTurnLen = static_cast<float>(getMaxTurnLen());
+	}
+# endif
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
-	kStream >> m_fTimeElapsed;
-	kStream >> m_bIsPaused;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	{
+# endif
+		kStream >> m_fTimeElapsed;
+		kStream >> m_bIsPaused;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_fTimeElapsed = 0.0f;
+		m_bIsPaused = false;
+	}
+# endif
 #endif
 
 	kStream >> m_bScoreDirty;
@@ -9712,7 +9735,27 @@ void CvGame::Read(FDataStream& kStream)
 	UnitClassArrayHelpers::Read(kStream, m_paiUnitClassCreatedCount);
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreatedCount);
 #ifdef DUEL_WORLD_WONDERS_SAME_TURN
-	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreationTurn);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	{
+# endif
+		BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreationTurn);
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+			if (!pkBuildingClassInfo)
+			{
+				continue;
+			}
+
+			m_paiBuildingClassCreationTurn[iI] = -1;
+		}
+	}
+# endif
 #endif
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiProjectCreatedCount, GC.getNumProjectInfos());
@@ -9807,7 +9850,19 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> *m_pGameLeagues;
 	kStream >> *m_pGameTrade;
 #ifdef MP_PLAYERS_VOTING_SYSTEM
-	kStream >> *m_pMPVotingSystem;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	{
+# endif
+		kStream >> *m_pMPVotingSystem;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		CvAssertMsg(m_pMPVotingSystem == NULL, "about to leak memory, CvGame::m_pMPVotingSystem");
+		m_pMPVotingSystem = FNEW(CvMPVotingSystem, c_eCiv5GameplayDLL, 0);
+	}
+# endif
 #endif
 
 	unsigned int lSize = 0;
@@ -9861,7 +9916,12 @@ void CvGame::ReadSupportingClassData(FDataStream& kStream)
 void CvGame::Write(FDataStream& kStream) const
 {
 	// Current version number
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	int iVersion = BUMP_SAVE_VERSION_GAME;
+	kStream << iVersion;
+#else
 	kStream << g_CurrentCvGameVersion;
+#endif
 
 	kStream << m_iEndTurnMessagesSent;
 	kStream << m_iElapsedGameTurns;

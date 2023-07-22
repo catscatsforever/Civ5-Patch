@@ -18555,11 +18555,34 @@ void CvUnit::read(FDataStream& kStream)
 	}
 
 #ifdef NEW_SCIENTISTS_BULB
-	kStream >> m_iResearchBulbAmount;
-	kStream >> m_iScientistBirthTurn;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	{
+# endif
+		kStream >> m_iResearchBulbAmount;
+		kStream >> m_iScientistBirthTurn;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iResearchBulbAmount = 0;
+		m_iScientistBirthTurn = 0;
+	}
+# endif
 #endif
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
-	kStream >> m_bInstaHealLocked;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	{
+# endif
+		kStream >> m_bInstaHealLocked;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bInstaHealLocked = false;
+	}
+# endif
 #endif
 
 	//  Read mission queue
@@ -18593,6 +18616,9 @@ void CvUnit::write(FDataStream& kStream) const
 
 	// Current version number
 	uint uiVersion = 9;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_UNIT;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_syncArchive;

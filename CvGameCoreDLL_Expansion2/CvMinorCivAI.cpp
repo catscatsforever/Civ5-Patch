@@ -559,7 +559,7 @@ bool CvMinorCivQuest::IsComplete()
 /// Is this quest now revoked (ie. because the player bullied us)?
 bool CvMinorCivQuest::IsRevoked()
 {
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer) || GET_PLAYER(m_eMinor).GetMinorCivAI()->IsPledgeRevokedByAnyMajor() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
 #else
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
@@ -1667,11 +1667,11 @@ void CvMinorCivAI::Reset()
 		m_abUnitSpawningDisabled[iI] = false;
 		m_abMajorIntruding[iI] = false;
 		m_abEverFriends[iI] = false;
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 		m_bPledgeRevoked[iI] = false;
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
-		m_bTurnPeaceBlockedWithMinor[iI] = -10;
+		m_iTurnPeaceBlockedWithMinor[iI] = -10;
 #endif
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
@@ -1768,11 +1768,39 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
-	kStream >> m_bPledgeRevoked;
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	{
+# endif
+		kStream >> m_bPledgeRevoked;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_bPledgeRevoked[iI] = false;
+		}
+	}
+# endif
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
-	kStream >> m_bTurnPeaceBlockedWithMinor;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	{
+# endif
+		kStream >> m_iTurnPeaceBlockedWithMinor;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_iTurnPeaceBlockedWithMinor[iI] = -10;
+		}
+	}
+# endif
 #endif
 
 	kStream >> m_abPledgeToProtect;
@@ -1813,6 +1841,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_MINORAI;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_ePersonality;
@@ -1849,11 +1880,11 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abUnitSpawningDisabled;
 	kStream << m_abMajorIntruding;
 	kStream << m_abEverFriends;
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	kStream << m_bPledgeRevoked;
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
-	kStream << m_bTurnPeaceBlockedWithMinor;
+	kStream << m_iTurnPeaceBlockedWithMinor;
 #endif
 
 	kStream << m_abPledgeToProtect;
@@ -3159,7 +3190,7 @@ void CvMinorCivAI::DoTestQuestsOnFirstContact(PlayerTypes eMajor)
 	}
 }
 
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 bool CvMinorCivAI::IsPledgeRevokedByMajor(PlayerTypes eMajor) const
 {
 	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
@@ -3190,7 +3221,7 @@ int CvMinorCivAI::GetTurnPeaceBlockedWithMinor(PlayerTypes eMajor) const
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
-	return m_bTurnPeaceBlockedWithMinor[eMajor];
+	return m_iTurnPeaceBlockedWithMinor[eMajor];
 }
 
 bool CvMinorCivAI::IsPeaceBlockedWithMinor(PlayerTypes eMajor) const
@@ -3200,7 +3231,7 @@ bool CvMinorCivAI::IsPeaceBlockedWithMinor(PlayerTypes eMajor) const
 
 void CvMinorCivAI::SetTurnPeaceBlockedWithMinor(PlayerTypes eMajor, int bValue)
 {
-	m_bTurnPeaceBlockedWithMinor[eMajor] = bValue;
+	m_iTurnPeaceBlockedWithMinor[eMajor] = bValue;
 }
 
 #endif
@@ -3345,7 +3376,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	}
 
 	// If quest(s) were revoked because of bullying, send out a notification
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	if(bQuestRevokedFromBullying && !IsPledgeRevokedByMajor(ePlayer))
 #else
 	if(bQuestRevokedFromBullying)
@@ -3357,7 +3388,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 		strSummary << GetPlayer()->getNameKey();
 		AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 	}
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	if(bQuestRevokedFromBullying && IsPledgeRevokedByMajor(ePlayer))
 #endif
 	{
@@ -6577,7 +6608,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 	if(GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GC.getFRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT())
 		return false;
 
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eMajor);
 	if(iLastBullyTurn >= 0)
 	{
@@ -8584,7 +8615,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
 	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	DoChangeProtectionFromMajor(eBully, false);
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
@@ -8605,7 +8636,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 
 	// In case we have quests that bullying makes obsolete, check now
 	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
-#ifdef DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;

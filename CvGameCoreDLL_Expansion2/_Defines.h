@@ -511,7 +511,7 @@
 // city states will no longer declare peace if influence is less than -50
 // #define NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW
 ///
-#define DEACREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
+#define DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 ///
 // #define NO_FAITH_FROM_MEETING_CS
 ///
@@ -725,6 +725,39 @@
 #define MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
 ///
 #define REMOVE_DOF
+// Maintain backwards compatibility with older versions
+// Starting from v7.0
+#define SAVE_BACKWARDS_COMPATIBILITY
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+// Individual read/write components versioning
+//
+// 0-999 reserved for vanilla and other mods compatibility
+// bump after any change to the corresponding read/write functions
+// don't forget to mark changes here
+//
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_BELIEFS 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_CITY 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_ESPIONAGE 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_GAME 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_MINORAI 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_PLAYER 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_POLICIES 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_TEAM 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_TECHS 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_TRAITS 1000
+// 1000: v7.0 (initial)
+#define BUMP_SAVE_VERSION_UNIT 1000
+#endif
 /*OTHER CHANGES END*/
 
 
