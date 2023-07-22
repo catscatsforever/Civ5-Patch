@@ -1172,16 +1172,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			if(GC.getGame().getJonRandNum(100, "Intercept Rand (Air)") < pInterceptor->currInterceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
-#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-				if (pInterceptor->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_SORTIE", true)))
-				{
-					pInterceptor->changeMoves(-GC.getMOVE_DENOMINATOR());
-				}
-				else
-				{
-					pInterceptor->finishMoves();
-				}
-#endif
 			}
 		}
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);		// Damage inflicted this round
@@ -1358,6 +1348,12 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	if(pInterceptor)
 	{
 		pInterceptor->setMadeInterception(true);
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+		if (pInterceptor->isOutOfInterceptions())
+		{
+			pInterceptor->finishMoves();
+		}
+#endif
 		pInterceptor->setCombatUnit(NULL);
 		pInterceptor->changeExperience(
 			kCombatInfo.getExperience(BATTLE_UNIT_INTERCEPTOR),
@@ -1707,6 +1703,12 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 	if(pkDefender)
 	{
 		pkDefender->setMadeInterception(true);
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+		if (pkDefender->isOutOfInterceptions())
+		{
+			pkDefender->finishMoves();
+		}
+#endif
 		if(pkAttacker && pkTargetPlot)
 		{
 			//One Hit
@@ -3033,16 +3035,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	if(pInterceptor != NULL)
 	{
 		kAttacker.setMadeAttack(true);
-#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-		if (pInterceptor->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_SORTIE", true)))
-		{
-			pInterceptor->changeMoves(-GC.getMOVE_DENOMINATOR());
-		}
-		else
-		{
-			pInterceptor->finishMoves();
-		}
-#endif
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirSweepCombatInfo(kAttacker, pInterceptor, targetPlot, &kCombatInfo);
 		CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);

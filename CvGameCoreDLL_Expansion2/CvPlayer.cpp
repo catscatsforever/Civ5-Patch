@@ -5013,7 +5013,11 @@ void CvPlayer::DoUnitReset()
 		// HEAL UNIT?
 		if(!pLoopUnit->isEmbarked())
 		{
-			if(pLoopUnit->hasMoved())
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+			if(pLoopUnit->hasMoved() && pLoopUnit->getMadeInterceptionCount() > 0)
+#else
+			if (pLoopUnit->hasMoved())
+#endif
 			{
 				if(pLoopUnit->isAlwaysHeal())
 				{
