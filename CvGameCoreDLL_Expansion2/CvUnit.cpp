@@ -20254,11 +20254,22 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_REBASE:
+#ifdef REBASE_WITH_AIRPORTS
+		if (getDomainType() == DOMAIN_AIR)
+		{
+			if (canRebase(plot()))
+			{
+				return true;
+			}
+	}
+		break;
+#else
 		if(getDomainType() == DOMAIN_AIR)
 		{
 			return true;
 		}
 		break;
+#endif
 
 	case INTERFACEMODE_EMBARK:
 		if(canEmbark(plot()))
