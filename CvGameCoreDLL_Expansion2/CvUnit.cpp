@@ -5764,7 +5764,7 @@ bool CvUnit::paradrop(int iX, int iY)
 		if (fTimeElapsed * 2 > fGameTurnEnd)
 		{
 			setMadeSecondHalfTimerParadrop(true);
-			changeNoCaptureCount(1);
+			setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), true);
 		}
 	}
 #endif

@@ -5063,7 +5063,7 @@ void CvPlayer::DoUnitReset()
 		{
 			if (pLoopUnit->getNoCaptureCount() > 0)
 			{
-				pLoopUnit->changeNoCaptureCount(-1);
+				pLoopUnit->setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), false);
 			}
 		}
 		pLoopUnit->setMadeSecondHalfTimerParadrop(false);
