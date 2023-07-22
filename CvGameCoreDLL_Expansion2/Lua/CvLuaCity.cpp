@@ -993,7 +993,15 @@ int CvLuaCity::lGetResourceDemandedCountdown(lua_State* L)
 //bool IsCityHasCoal();
 int CvLuaCity::lIsCityHasCoal(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::IsCityHasCoal);
+	bool bResult = false;
+	CvCity* pkCity = GetInstance(L);
+	BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+	if (pkCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+	{
+		bResult = pkCity->isCityHasCoal();
+	}
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 #endif
 
@@ -2974,7 +2982,23 @@ int CvLuaCity::lChangeBaseYieldRateFromTerrain(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetBaseYieldRateFromBuildings(lua_State* L)
 {
+#ifdef NEW_FACTORIES
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	int iYieldChanges = pkCity->GetBaseYieldRateFromBuildings(eIndex);
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		if (pkCity->isCityHasCoal())
+		{
+			iYieldChanges += (GC.getBuildingInfo(eBuilding)->GetYieldChange(YIELD_PRODUCTION) + pkCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding)->GetBuildingClassType(), YIELD_PRODUCTION)) * pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+	}
+	lua_pushinteger(L, iYieldChanges);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromBuildings);
+#endif
 }
 //------------------------------------------------------------------------------
 int CvLuaCity::lChangeBaseYieldRateFromBuildings(lua_State* L)
@@ -3059,7 +3083,19 @@ int CvLuaCity::lGetYieldRateModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+#ifdef NEW_FACTORIES
+	int iResult = pkCity->getYieldRateModifier(eIndex);
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		if (pkCity->isCityHasCoal())
+		{
+			iResult += (GC.getBuildingInfo(eBuilding)->GetYieldModifier(YIELD_PRODUCTION)) * pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+	}
+#else
 	const int iResult = pkCity->getYieldRateModifier(eIndex);
+#endif
 
 	lua_pushinteger(L, iResult);
 	return 1;

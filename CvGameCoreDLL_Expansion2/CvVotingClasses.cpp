@@ -3773,6 +3773,10 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 
 		iCost *= GC.getGame().getGameSpeedInfo().getConstructPercent();
 		iCost /= 100;
+#ifdef PROJECT_COST_PER_PLAYER_ROUND_TO_5
+		iCost /= 5;
+		iCost *= 5;
+#endif
 
 		iCost *= GC.getGame().getStartEraInfo().getConstructPercent();
 		iCost /= 100;

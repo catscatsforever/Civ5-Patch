@@ -1354,7 +1354,19 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	}
 
 	// ... and yield changes
+#ifdef NEW_FACTORIES
 	int iYieldChanges = pCity->GetBaseYieldRateFromBuildings(eYield);
+	if (eYield == YIELD_PRODUCTION)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		if (pCity->isCityHasCoal())
+		{
+			iYieldChanges += (GC.getBuildingInfo(eBuilding)->GetYieldChange(YIELD_PRODUCTION) + pCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding)->GetBuildingClassType(), YIELD_PRODUCTION)) * pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+	}
+#else
+	int iYieldChanges = pCity->GetBaseYieldRateFromBuildings(eYield);
+#endif
 	if(iYieldChanges > 0)
 	{
 		// +20% per point of yield change
