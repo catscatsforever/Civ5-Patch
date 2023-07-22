@@ -2260,32 +2260,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 	// end adapted from PostKill()
 
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(false);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
 #ifdef BUILDING_BARN
 	if (getNumCities() > 0)
 	{
@@ -2906,32 +2880,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
 	}
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(true);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
 #ifdef BUILDING_BARN
 	if (getNumCities() > 0)
 	{
@@ -7362,32 +7310,6 @@ void CvPlayer::found(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(false);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
 	CvCity* pCity = initCity(iX, iY);
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)
@@ -7490,32 +7412,6 @@ void CvPlayer::found(int iX, int iY)
 		// AI civ, may need to redo city specializations
 		GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITY_FOUNDED);
 	}
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(true);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -19179,46 +19075,6 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	if(iChange > 0)
 		DoTestOverResourceNotification(eIndex);
 
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (eIndex == eResource &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) + iChange < iLoopCity + 1 &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(true);
-				}
-			}
-			else if (eIndex == eResource &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) + iChange > iLoopCity &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) < iLoopCity + 1)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (- pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, - pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(false);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
-
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
@@ -19337,47 +19193,6 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 
 	if(iChange < 0 && !bIgnoreResourceWarning)
 		DoTestOverResourceNotification(eIndex);
-
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (eIndex == eResource &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) - iChange < iLoopCity + 1 &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(true);
-				}
-			}
-			else if (eIndex == eResource &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) - iChange > iLoopCity &&
-				getNumResourceTotal(eIndex, true) - getNumResourceUsed(eIndex) < iLoopCity + 1)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (- pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, - pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(false);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-			
-		}
-	}
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -20785,36 +20600,6 @@ CvCity* CvPlayer::addCity()
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (-pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) - pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, -pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(false);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) == iLoopCity + 1)
-			{
-				break;
-			}
-		}
-	}
-#endif
 #ifdef BUILDING_BARN
 	if (getNumCities() > 0)
 	{
@@ -20835,32 +20620,6 @@ void CvPlayer::deleteCity(int iID)
 	}
 #endif
 	m_cities.RemoveAt(iID);
-#ifdef NEW_FACTORIES
-	if (getNumCities() > 0)
-	{
-		int iLoop = 0;
-		int iLoopCity = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			ResourceTypes eResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_COAL", true);
-			BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (getNumResourceTotal(eResource, true) - getNumResourceUsed(eResource) > iLoopCity)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_PRODUCTION, (pBuildingInfo->GetYieldChange(YIELD_PRODUCTION) + pLoopCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), YIELD_PRODUCTION)) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				pLoopCity->changeYieldRateModifier(YIELD_PRODUCTION, pBuildingInfo->GetYieldModifier(YIELD_PRODUCTION) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-				{
-					pLoopCity->SetCityHasCoal(true);
-				}
-			}
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-			{
-				iLoopCity++;
-			}
-		}
-	}
-#endif
 #ifdef BUILDING_BARN
 	if (getNumCities() > 0)
 	{

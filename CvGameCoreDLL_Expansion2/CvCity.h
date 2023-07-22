@@ -138,8 +138,7 @@ public:
 	// End Resource Demanded
 
 #ifdef NEW_FACTORIES
-	bool IsCityHasCoal() const;
-	void SetCityHasCoal(bool bValue);
+	bool isCityHasCoal() const;
 #endif
 
 	int getFoodTurnsLeft() const;
@@ -896,9 +895,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
 	FAutoVariable<int, CvCity> m_iCheapestPlotInfluence;
 	int m_iEspionageModifier;
-#ifdef NEW_FACTORIES
-	bool m_bCityHasCoal;
-#endif
 
 	OperationSlot m_unitBeingBuiltForOperation;
 
