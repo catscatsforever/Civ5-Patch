@@ -5827,6 +5827,18 @@ bool CvUnit::paradrop(int iX, int iY)
 bool CvUnit::canMakeTradeRoute(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
+	if (IsAutomated())
+	{
+		SLOG("IsAutomated is true unit ID: %d", GetID());
+		return false;
+	}
+	if (isDelayedDeath())
+	{
+		SLOG("isDelayedDeath is true unit ID: %d", GetID());
+		return false;
+	}
+#endif
 	if (!isTrade())
 	{
 		return false;
@@ -5854,6 +5866,18 @@ bool CvUnit::canMakeTradeRoute(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canMakeTradeRouteAt(const CvPlot* pPlot, int iX, int iY, TradeConnectionType eConnectionType) const
 {
+#ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
+	if (IsAutomated())
+	{
+		SLOG("IsAutomated is true unit ID: %d", GetID());
+		return false;
+	}
+	if (isDelayedDeath())
+	{
+		SLOG("isDelayedDeath is true unit ID: %d", GetID());
+		return false;
+	}
+#endif
 	if (!canMakeTradeRoute(pPlot))
 	{
 		return false;
