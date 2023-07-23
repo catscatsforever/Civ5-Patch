@@ -18902,7 +18902,7 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 #ifdef NET_FIX_SINGLE_USE_ABILITY_DUPE
 	if (pUnit->isDelayedDeath())
 	{
-		SLOG("[%s:%d]: isDelayedDeath is true unit ID: %d", __FUNCTION__, __LINE__, pUnit->GetID());
+		SLOG("isDelayedDeath is true unit ID: %d", pUnit->GetID());
 		return;
 	}
 #endif
@@ -24051,7 +24051,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		// Set active turn for actual players, not the AI!
 		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
-		m_bTurnActive = bHuman;
+		//m_bTurnActive = bHuman;
 		//m_bAutoMoves = !bHuman;
 		m_bEndTurn = false;
 	}
