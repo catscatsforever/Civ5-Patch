@@ -7841,6 +7841,9 @@ void CvCity::changeGreatPeopleRateModifier(int iChange)
 int CvCity::getCitytAttackRangeModifier() const
 {
 	VALIDATE_OBJECT
+	if (GET_PLAYER(getOwner()).isMinorCiv())
+		return 1;
+	else
 		return m_iCitytAttackRangeModifier;
 }
 
@@ -7849,7 +7852,7 @@ int CvCity::getCitytAttackRangeModifier() const
 void CvCity::changeCitytAttackRangeModifier(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iCitytAttackRangeModifier = (m_iCitytAttackRangeModifier + iChange);
+	m_iCitytAttackRangeModifier = (m_iCitytAttackRangeModifier + iChange);
 }
 #endif
 
