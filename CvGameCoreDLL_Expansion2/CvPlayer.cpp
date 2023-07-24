@@ -4785,9 +4785,6 @@ void CvPlayer::doTurnPostDiplomacy()
 #endif
 		}
 
-		// Science
-		doResearch();
-
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		{
 			CvNotifications* pNotifications = GetNotifications();
@@ -4822,6 +4819,9 @@ void CvPlayer::doTurnPostDiplomacy()
 		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
 	}
+
+	// Science
+	doResearch();
 
 	GetEspionage()->DoTurn();
 
