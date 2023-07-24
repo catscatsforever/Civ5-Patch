@@ -1349,7 +1349,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	{
 		pInterceptor->setMadeInterception(true);
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-		if (pInterceptor->isOutOfInterceptions())
+		if (pInterceptor->isOutOfInterceptions() && pInterceptor->getDomainType() == DOMAIN_AIR)
 		{
 			pInterceptor->setMadeAttack(true);
 		}
@@ -1704,7 +1704,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 	{
 		pkDefender->setMadeInterception(true);
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-		if (pkDefender->isOutOfInterceptions())
+		if (pkDefender->isOutOfInterceptions() && pkDefender->getDomainType() == DOMAIN_AIR)
 		{
 			pkDefender->setMadeAttack(true);
 		}

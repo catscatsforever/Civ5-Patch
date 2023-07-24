@@ -12092,7 +12092,7 @@ bool CvUnit::isFortifyable(bool bCanWaitForNextTurn) const
 	if(!bCanWaitForNextTurn)
 	{
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
-		if (hasMoved() || getMadeInterceptionCount() > 0)
+		if (hasMoved() || (getMadeInterceptionCount() > 0 && getDomainType() == DOMAIN_AIR))
 #else
 		if(hasMoved())
 #endif
