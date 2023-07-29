@@ -569,7 +569,7 @@
 /// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
 #define AUI_NOFITICATIONS_FIX_PRODUCTION_NOTIFICATION_REMOVAL_EXTRA_CHECKS
 ///
-#define DO_NOT_COUNT_RECYLING_CENTER_AS_NATIONAL_WONDER
+#define FIX_IS_NATIONAL_WONDER_CLASS
 ///
 #define NEW_FACTORIES
 ///
