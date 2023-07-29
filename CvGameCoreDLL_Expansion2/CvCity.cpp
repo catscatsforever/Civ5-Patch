@@ -6775,7 +6775,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 #else
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
 #endif
-#ifdef FIX_POLICY_FREE_RELIGIOB
+#ifdef FIX_POLICY_FREE_RELIGION
 							BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 							if (eSecondaryPantheon != NO_BELIEF)
 							{
