@@ -3151,6 +3151,14 @@ BeliefTypes CvCityReligions::GetSecondaryReligionPantheonBelief()
 {
 	BeliefTypes eRtnValue = NO_BELIEF;
 
+#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
+	ReligionTypes eMajority = GetReligiousMajority();
+	if (!(eMajority > RELIGION_PANTHEON))
+	{
+		return NO_BELIEF;
+	}
+#endif
+
 	// Check for the policy that allows a secondary religion to be active
 	if (GET_PLAYER(m_pCity->getOwner()).IsSecondReligionPantheon())
 	{
