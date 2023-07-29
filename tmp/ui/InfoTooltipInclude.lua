@@ -198,7 +198,18 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	end
 	
 	-- Food
-	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
+	-- Barn Yield
+	local count = 0
+	local iFood = 0
+	if (iBuildingID == 162) then
+		-- for city in pActivePlayer:Cities() do
+		--	count = count + city:GetNumBuilding( iBuildingID )
+		-- end
+		iFood = pActivePlayer:CountNumBuildings( iBuildingID )
+	else
+		iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
+	end
+	-- Barn Yield End
 	if (pCity ~= nil) then
 		iFood = iFood + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);

@@ -665,7 +665,13 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		thisBuildingAndYieldTypes.YieldType = yield.Type
 
 		if Game and buildingClassID and yieldID < YieldTypes.NUM_YIELD_TYPES then -- weed out strange Communitas yields
-			yieldChange = Game.GetBuildingYieldChange( buildingID, yieldID )
+			-- Barn Yield
+			if yieldID == 0 and buildingID == 162 then
+				yieldChange = activePlayer:CountNumBuildings( buildingID )
+			else
+				yieldChange = Game.GetBuildingYieldChange( buildingID, yieldID )
+			end
+			-- Barn Yield End
 			yieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 			if activePlayer then
 				if gk_mode then
