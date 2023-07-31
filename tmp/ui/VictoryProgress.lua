@@ -731,6 +731,58 @@ function SetupScreen()
 	PopulateScoreBreakdown();
 	-- Proposal buttons
 	local pPlayer = Game.GetActivePlayer();
+	Controls.MPProposeIrrButton:SetToolTipString( nil );
+	Controls.MPProposeCCButton:SetToolTipString( nil );
+	Controls.MPProposeScrapButton:SetToolTipString( nil );
+
+	local tstrHintIrr = {};
+	if (Game.IsAnyActiveProposalType(0) == true) then
+		table.insert(tstrHintIrr, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ACTIVE"));
+	end
+	if (Game.IsProposalTypeAvailable(0) == false) then
+		table.insert(tstrHintIrr, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_UNAVAILABLE"));
+	end
+	if (Game.IsProposalTypeOnCooldown(0, pPlayer) == true) then
+		table.insert(tstrHintIrr, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ON_COOLDOWN", Game.GetProposalTypeCooldownResetTurn(0, pPlayer)));
+	end
+
+	local tstrHintCC = {};
+	if (Game.IsAnyActiveProposalType(1) == true) then
+		table.insert(tstrHintCC, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ACTIVE"));
+	end
+	if (Game.IsProposalTypeAvailable(1) == false) then
+		table.insert(tstrHintCC, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_UNAVAILABLE"));
+	end
+	if (Game.IsProposalTypeOnCooldown(1, pPlayer) == true) then
+		table.insert(tstrHintCC, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ON_COOLDOWN", Game.GetProposalTypeCooldownResetTurn(1, pPlayer)));
+	end
+
+	local tstrHintScrap = {};
+	if (Game.IsAnyActiveProposalType(2) == true) then
+		table.insert(tstrHintScrap, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ACTIVE"));
+	end
+	if (Game.IsProposalTypeAvailable(2) == false) then
+		table.insert(tstrHintScrap, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_UNAVAILABLE"));
+	end
+	if (Game.IsProposalTypeOnCooldown(2, pPlayer) == true) then
+		table.insert(tstrHintScrap, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_TYPE_ON_COOLDOWN", Game.GetProposalTypeCooldownResetTurn(2, pPlayer)));
+	end
+
+	if (Game.GetElapsedGameTurns() < g_NextProposalRequestTurn) then
+		table.insert(tstrHintIrr, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_WAIT_NEXT_TURN"));
+		table.insert(tstrHintCC, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_WAIT_NEXT_TURN"));
+		table.insert(tstrHintScrap, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_WAIT_NEXT_TURN"));
+	end
+	if (Game.IsPlayerHasActiveProposal(Game.GetActivePlayer()) == true) then
+		table.insert(tstrHintIrr, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_ALREADY_HAS_ACTIVE"));
+		table.insert(tstrHintCC, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_ALREADY_HAS_ACTIVE"));
+		table.insert(tstrHintScrap, Locale.Lookup("TXT_KEY_WARN_MP_PROPOSAL_ALREADY_HAS_ACTIVE"));
+	end
+
+	Controls.MPProposeIrrButton:SetToolTipString( table.concat(tstrHintIrr, '[ENDCOLOR][NEWLINE]') );
+	Controls.MPProposeCCButton:SetToolTipString( table.concat(tstrHintCC, '[ENDCOLOR][NEWLINE]') );
+	Controls.MPProposeScrapButton:SetToolTipString( table.concat(tstrHintScrap, '[ENDCOLOR][NEWLINE]') );
+
 	if (Game.GetElapsedGameTurns() >= g_NextProposalRequestTurn) and (Game.IsPlayerHasActiveProposal(Game.GetActivePlayer()) == false) then
 		--print('has active proposal false')
 		if (Game.IsAnyActiveProposalType(0) == false) and (Game.IsProposalTypeAvailable(0) == true) and (Game.IsProposalTypeOnCooldown(0, pPlayer) == false) then  -- irr
