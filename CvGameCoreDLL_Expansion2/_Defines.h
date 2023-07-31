@@ -563,7 +563,7 @@
 ///
 #define BUILDING_CLASS_YIELD_CHANGES
 /// Can't trade damaged cities
-#define TRADE_CITIES_ONLY_FULL_HP
+// #define TRADE_CITIES_ONLY_FULL_HP
 /// Puppet cities and cities with automated production will no longer accidentally trigger the production notification
 #define AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
 /// Adds a bunch of extra checks to the production notification invalidator so that it gets invalidated properly in more cases (e.g. when the city's owner changes)
@@ -576,6 +576,8 @@
 #define CITY_RANGE_MODIFIER
 ///
 #define BUILDING_BARN
+///
+#define CANNOT_LIBERATE_GIFTED_CS
 /*CITIES CHANGES END*/
 
 

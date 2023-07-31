@@ -2809,7 +2809,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pNewCity->getOriginalOwner() != eOldOwner && pNewCity->getOriginalOwner() != GetID())
 			{
 				eLiberatedPlayer = pNewCity->getOriginalOwner();
+#ifdef CANNOT_LIBERATE_GIFTED_CS
+				if (!CanLiberatePlayerCity(eLiberatedPlayer) || (GET_PLAYER(eLiberatedPlayer).isMinorCiv() && bGift))
+#else
 				if(!CanLiberatePlayerCity(eLiberatedPlayer))
+#endif
 				{
 					eLiberatedPlayer = NO_PLAYER;
 				}
