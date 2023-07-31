@@ -558,7 +558,7 @@
 #define CAN_BUILD_OU_AND_NIA_ONLY_ONCE
 ///
 #define REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-/// Removed grapics of Spaceship Parts
+/// Removed graphics of Spaceship Parts
 #define SPACESHIP_GRAPHICS
 ///
 #define BUILDING_CLASS_YIELD_CHANGES
