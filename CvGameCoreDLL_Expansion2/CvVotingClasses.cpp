@@ -11060,6 +11060,44 @@ bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eTyp
 
 bool CvMPVotingSystem::IsProposalTypeAvailable(MPVotingSystemProposalTypes eType)
 {
+#ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
+	//if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_STUFF"))  // TODO: UI checkbox?
+	{
+		// no IRR until first player enters Industrial era
+		if (eType == PROPOSAL_IRR)
+		{
+			EraTypes eMostAdvancedEra = NO_ERA;
+			for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+			{
+				EraTypes e = GET_PLAYER((PlayerTypes)i).GetCurrentEra();
+				if (GET_PLAYER((PlayerTypes)i).GetCurrentEra() > eMostAdvancedEra)
+				{
+					eMostAdvancedEra = e;
+				}
+			}
+
+			if (eMostAdvancedEra < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+			{
+				return false;
+			}
+		}
+
+		// no CC until turn 100
+		if (eType == PROPOSAL_CC)
+		{
+			if (GC.getGame().getGameTurn() < 100)
+			{
+				return false;
+			}
+		}
+
+		// no scraps!
+		if (eType == PROPOSAL_SCRAP)
+		{
+			return false;
+		}
+	}
+#endif
 	return true;
 }
 
