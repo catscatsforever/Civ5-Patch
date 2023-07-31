@@ -730,9 +730,10 @@ function SetupScreen()
 	-- Set Player Score
 	PopulateScoreBreakdown();
 	-- Proposal buttons
+	local pPlayer = Game.GetActivePlayer();
 	if (Game.GetElapsedGameTurns() >= g_NextProposalRequestTurn) and (Game.IsPlayerHasActiveProposal(Game.GetActivePlayer()) == false) then
 		--print('has active proposal false')
-		if Game.IsAnyActiveProposalType(0) == false then  -- irr
+		if (Game.IsAnyActiveProposalType(0) == false) and (Game.IsProposalTypeAvailable(0) == true) and (Game.IsProposalTypeOnCooldown(0, pPlayer) == false) then  -- irr
 			--print('any active irr false')
 			Controls.MPProposeIrrButton:SetDisabled(false)
 			Controls.MPProposeIrrLabel:SetAlpha( 1 );
@@ -742,17 +743,17 @@ function SetupScreen()
 			Controls.MPProposeIrrLabel:SetAlpha( 0.5 );
 		end
 
-		if Game.IsAnyActiveProposalType(1) == false then  -- cc
+		if (Game.IsAnyActiveProposalType(1) == false) and (Game.IsProposalTypeAvailable(1) == true) and (Game.IsProposalTypeOnCooldown(1, pPlayer) == false) then  -- cc
 			--print('any active cc false')
 			Controls.MPProposeCCButton:SetDisabled(false)
 			Controls.MPProposeCCLabel:SetAlpha( 1 );
 		else
+			--print('any active cc true')
 			Controls.MPProposeCCButton:SetDisabled(true)
 			Controls.MPProposeCCLabel:SetAlpha( 0.5 );
-			--print('any active cc true')
 		end
 
-		if Game.IsAnyActiveProposalType(2) == false then  -- scrap
+		if (Game.IsAnyActiveProposalType(2) == false) and (Game.IsProposalTypeAvailable(2) == true) and (Game.IsProposalTypeOnCooldown(2, pPlayer) == false) then  -- scrap
 			--print('any active scrap false')
 			Controls.MPProposeScrapButton:SetDisabled(false)
 			Controls.MPProposeScrapLabel:SetAlpha( 1 );
@@ -779,7 +780,15 @@ function SetupScreen()
 		
 end
 
-LuaEvents.OnProposalCreated.Add( SetupScreen )
+function UpdateIfVisible()
+	if ContextPtr:IsHidden() == false then
+		SetupScreen()
+	end
+end
+
+LuaEvents.OnProposalCreated.Add( UpdateIfVisible )
+Events.ActivePlayerTurnStart.Add( UpdateIfVisible );
+GameEvents.MPVotingSystemProposalResult.Add( UpdateIfVisible )
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------

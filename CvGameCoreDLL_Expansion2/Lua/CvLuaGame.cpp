@@ -387,6 +387,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetProposalIDbyUIid);
 	Method(GetProposalExpirationCounter);
 	Method(GetProposalType);
+	Method(GetProposalTypeCooldownResetTurn);
 	Method(GetProposalStatus);
 	Method(GetProposalOwner);
 	Method(GetProposalSubject);
@@ -399,6 +400,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMaxVotes);
 	Method(IsPlayerHasActiveProposal);
 	Method(IsAnyActiveProposalType);
+	Method(IsProposalTypeOnCooldown);
+	Method(IsProposalTypeAvailable);
 #endif
 #ifdef INGAME_HOTKEY_MANAGER
 	Method(UpdateActions);
@@ -2856,6 +2859,15 @@ int CvLuaGame::lGetProposalType(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaGame::lGetProposalTypeCooldownResetTurn(lua_State* L)
+{
+	const MPVotingSystemProposalTypes eType = static_cast<MPVotingSystemProposalTypes>(luaL_checkint(L, 1));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 2));
+
+	lua_pushinteger(L, GC.getGame().GetMPVotingSystem()->GetProposalTypeCooldownResetTurn(eType, ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaGame::lGetProposalStatus(lua_State* L)
 {
 	const int iUI_Id = luaL_checkint(L, 1);
@@ -2962,6 +2974,23 @@ int CvLuaGame::lIsAnyActiveProposalType(lua_State* L)
 	const MPVotingSystemProposalTypes eType = static_cast<MPVotingSystemProposalTypes>(luaL_checkint(L, 1));
 
 	lua_pushboolean(L, GC.getGame().GetMPVotingSystem()->IsAnyActiveProposalType(eType));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lIsProposalTypeOnCooldown(lua_State* L)
+{
+	const MPVotingSystemProposalTypes eType = static_cast<MPVotingSystemProposalTypes>(luaL_checkint(L, 1));
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 2));
+
+	lua_pushboolean(L, GC.getGame().GetMPVotingSystem()->IsProposalTypeOnCooldown(eType, ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lIsProposalTypeAvailable(lua_State* L)
+{
+	const MPVotingSystemProposalTypes eType = static_cast<MPVotingSystemProposalTypes>(luaL_checkint(L, 1));
+
+	lua_pushboolean(L, GC.getGame().GetMPVotingSystem()->IsProposalTypeAvailable(eType));
 	return 1;
 }
 #endif

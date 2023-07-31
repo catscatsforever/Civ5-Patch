@@ -10844,6 +10844,7 @@ void CvMPVotingSystem::Init()
 CvMPVotingSystem::Proposal::Proposal(void)
 {
 	iID = 0;
+	iCreationTurn = -1;
 	iExpirationCounter = 0;
 	eType = NO_PROPOSAL;
 	eStatus = STATUS_ACTIVE;
@@ -10900,6 +10901,26 @@ int CvMPVotingSystem::GetProposalUIid(int iProposalID)
 int CvMPVotingSystem::GetProposalExpirationCounter(int iProposalID)
 {
 	return m_vProposals.at(iProposalID).iExpirationCounter;
+}
+
+int CvMPVotingSystem::GetProposalTypeCooldownResetTurn(MPVotingSystemProposalTypes eType, PlayerTypes ePlayerID)
+{
+	int iMaxTurn = -1;
+	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
+	{
+		if ((it->eType == eType) && (it->iCreationTurn > iMaxTurn))
+		{
+			if ((eType != PROPOSAL_IRR) || (it->eProposalOwner == ePlayerID))  // personal cooldown for IRR
+				iMaxTurn = it->iCreationTurn;
+		}
+	}
+	SLOG("iMaxTurn %d getGameTurn %d", iMaxTurn, GC.getGame().getGameTurn());
+	if ((iMaxTurn == -1) || (eType == PROPOSAL_SCRAP))
+	{
+		return -1;
+	}
+
+	return iMaxTurn + PROPOSAL_COOLDOWN;
 }
 
 MPVotingSystemProposalTypes CvMPVotingSystem::GetProposalType(int iProposalID)
@@ -11002,6 +11023,46 @@ bool CvMPVotingSystem::IsAnyActiveProposalType(MPVotingSystemProposalTypes eType
 	return false;
 }
 
+
+bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eType, PlayerTypes ePlayerID)
+{
+	int iMaxTurn = -1;
+	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
+	{
+		if ((it->eType == eType) && (it->iCreationTurn > iMaxTurn))
+		{
+			if ((eType != PROPOSAL_IRR) || (it->eProposalOwner == ePlayerID))  // personal cooldown for IRR
+				iMaxTurn = it->iCreationTurn;
+		}
+	}
+
+	if (iMaxTurn == -1)
+	{
+		return false;
+	}
+
+	if (eType == PROPOSAL_IRR)
+	{
+		if (GC.getGame().getGameTurn() - iMaxTurn < PROPOSAL_COOLDOWN)
+			return true;
+	}
+	else if (eType == PROPOSAL_CC)
+	{
+		if (GC.getGame().getGameTurn() - iMaxTurn < PROPOSAL_COOLDOWN)
+			return true;
+	}
+	else if (eType == PROPOSAL_SCRAP)
+	{
+	}
+
+	return false;
+}
+
+bool CvMPVotingSystem::IsProposalTypeAvailable(MPVotingSystemProposalTypes eType)
+{
+	return true;
+}
+
 void CvMPVotingSystem::DoTurn()
 {
 	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
@@ -11075,6 +11136,7 @@ void CvMPVotingSystem::AddProposal(MPVotingSystemProposalTypes eProposalType, Pl
 
 	Proposal proposal;
 	proposal.iID = ID;
+	proposal.iCreationTurn = GC.getGame().getGameTurn();
 	proposal.iExpirationCounter = 2;
 	proposal.eType = eProposalType;
 	proposal.eProposalOwner = eProposalOwner;

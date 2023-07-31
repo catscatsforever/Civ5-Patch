@@ -1350,6 +1350,7 @@ public:
 
 		int iID;
 		int iUIid;
+		int iCreationTurn;
 		int iExpirationCounter;
 		MPVotingSystemProposalTypes eType;
 		MPVotingSystemProposalStatus eStatus;
@@ -1369,6 +1370,7 @@ public:
 	int GetProposalUIid(int iProposalID);
 	int GetProposalIDbyUIid(int iProposalUIid);
 	int GetProposalExpirationCounter(int iProposalID);
+	int GetProposalTypeCooldownResetTurn(MPVotingSystemProposalTypes eType, PlayerTypes ePlayerID);
 	MPVotingSystemProposalTypes GetProposalType(int iProposalID);
 	MPVotingSystemProposalStatus GetProposalStatus(int iProposalID);
 	PlayerTypes GetProposalOwner(int iProposalID);
@@ -1382,6 +1384,8 @@ public:
 	int GetMaxVotes(int iProposalID);
 	bool IsPlayerHasActiveProposal(PlayerTypes ePlayerID);
 	bool IsAnyActiveProposalType(MPVotingSystemProposalTypes eType);
+	bool IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eType, PlayerTypes ePlayerID);
+	bool IsProposalTypeAvailable(MPVotingSystemProposalTypes eType);
 
 	void DoTurn();
 	void AddProposal(MPVotingSystemProposalTypes eProposalType, PlayerTypes eProposalOwner, PlayerTypes eProposalSubject);
@@ -1400,6 +1404,7 @@ public:
 private:
 	const static int IRR_THRESHOLD_TIMES_100 = 80;  // 80% of total support is enough for irr
 	const static int MAX_ACTIVE_RESOLUTIONS = MAX_MAJOR_CIVS + 2;  // 1 irr x players, 1 cc and 1 scrap
+	const static int PROPOSAL_COOLDOWN = 10;
 
 	void DoCheckVoters(int iProposalID);
 	void DoUpdateProposalStatus(int iProposalID);
