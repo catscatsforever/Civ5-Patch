@@ -757,6 +757,8 @@
 #define BUMP_SAVE_VERSION_TRAITS 1000
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_UNIT 1000
+// 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
+#define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 #endif
 /*OTHER CHANGES END*/
 
@@ -784,7 +786,7 @@
 ///
 #define DUEL_BAN_RELIGION_BELIEFS
 ///
-#define DEUL_DISABLE_MOVE_AFTER_PURCHASE
+#define DUEL_DISABLE_MOVE_AFTER_PURCHASE
 ///
 #define DUEL_CANT_CAPTURE_CS_WORKER
 ///
@@ -795,15 +797,13 @@
 #define DUEL_HALICARNASSUS_GP_EXPENDED_GOLD_SCALE
 /*DUEL MODE STUFF END*/
 
+/*TOURNAMENT MODE STUFF START*/
+/// IRR/CC/SCRAP proposal conditional restrictions for tournament
+#define TOURNAMENT_VOTING_SYSTEM_CHANGES
+/*TOURNAMENT MODE STUFF END*/
 
 
 /*LOGGING START*/
-///
-#define CUSTOMLOG(sFmt, ...) {  \
-  CvString sMsg;  \
-  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
-  LOGFILEMGR.GetLog("MPVS.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
-}
 ///
 #define SLOG(sFmt, ...) {  \
   CvString sRef;  \

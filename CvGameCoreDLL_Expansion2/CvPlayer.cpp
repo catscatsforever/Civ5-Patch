@@ -24050,9 +24050,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	if (CvPreGame::gameType() == GAME_NETWORK_MULTIPLAYER && m_bAlive)
 	{
 		// Set active turn for actual players, not the AI!
-		bool bHuman = CvPreGame::isHuman((PlayerTypes)GetID());
-		//m_bTurnActive = bHuman;
-		//m_bAutoMoves = !bHuman;
 		m_bEndTurn = false;
 	}
 #endif
