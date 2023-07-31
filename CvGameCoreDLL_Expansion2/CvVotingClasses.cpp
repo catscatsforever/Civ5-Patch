@@ -11492,9 +11492,13 @@ FDataStream& operator<<(FDataStream& saveTo, const MPVotingSystemProposalStatus&
 //------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem::Proposal& writeTo)
 {
-	CUSTOMLOG("--- proposal read invoked WTF ---");
+	SLOG("--- proposal read invoked WTF ---");
+	// Version number to maintain backwards compatibility
+	uint uiVersion;
+	loadFrom >> uiVersion;
 	loadFrom >> writeTo.iID;
 	loadFrom >> writeTo.iUIid;
+	loadFrom >> writeTo.iCreationTurn;
 	loadFrom >> writeTo.iExpirationCounter;
 	loadFrom >> writeTo.eType;
 	loadFrom >> writeTo.eStatus;
@@ -11519,9 +11523,12 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem::Proposal& write
 
 FDataStream& operator<<(FDataStream& saveTo, const CvMPVotingSystem::Proposal& readFrom)
 {
-	CUSTOMLOG("--- proposal write invoked WTF ---");
+	SLOG("--- proposal write invoked WTF ---");
+	uint uiVersion = BUMP_SAVE_VERSION_MP_VOTING_SYSTEM;
+	saveTo << uiVersion;
 	saveTo << readFrom.iID;
 	saveTo << readFrom.iUIid;
+	saveTo << readFrom.iCreationTurn;
 	saveTo << readFrom.iExpirationCounter;
 	saveTo << readFrom.eType;
 	saveTo << readFrom.eStatus;
@@ -11542,51 +11549,49 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMPVotingSystem::Proposal& r
 // Serialization Read
 FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem& writeTo)
 {
+	// Version number to maintain backwards compatibility
+	uint uiVersion;
+	loadFrom >> uiVersion;
 	uint uiNumProposals;
 	bool bTemp;
 	CvMPVotingSystem::Proposal temp;
-	CUSTOMLOG("--- SERIALIZATION READ STARTED ---");
 	loadFrom >> uiNumProposals;
-	CUSTOMLOG("m_iLastProposalID: %d", uiNumProposals);
 	writeTo.m_iLastProposalID = uiNumProposals;
 	writeTo.m_vProposals.clear();
 	for (uint i = 0; i < uiNumProposals; i++)
 	{
-		CUSTOMLOG("---------- proposal i: %d", i);
 		loadFrom >> temp.iID;
 		loadFrom >> temp.iUIid;
-		CUSTOMLOG("-- temp.iUIid: %d", temp.iUIid);
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+		if (uiVersion >= BUMP_SAVE_VERSION_MP_VOTING_SYSTEM)
+#endif
+		loadFrom >> temp.iCreationTurn;
 		loadFrom >> temp.iExpirationCounter;
-		CUSTOMLOG("-- temp.iExpirationCounter: %d", temp.iExpirationCounter);
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+		if (uiVersion < BUMP_SAVE_VERSION_MP_VOTING_SYSTEM)
+		{
+			temp.iCreationTurn = temp.iExpirationCounter - 2;
+		}
+#endif
 		loadFrom >> temp.eType;
-		CUSTOMLOG("-- temp.eType: %d", (int)temp.eType);
 		loadFrom >> temp.eStatus;
-		CUSTOMLOG("-- temp.eStatus: %d", (int)temp.eStatus);
 		loadFrom >> temp.eProposalOwner;
-		CUSTOMLOG("-- temp.eProposalOwner: %d", (int)temp.eProposalOwner);
 		loadFrom >> temp.eProposalSubject;
-		CUSTOMLOG("-- temp.eProposalSubject: %d", (int)temp.eProposalSubject);
 		loadFrom >> temp.bComplete;
-		CUSTOMLOG("-- temp.bComplete: %d", temp.bComplete);
 		temp.vIsEligible.clear();
 		temp.vHasVoted.clear();
 		temp.vVotes.clear();
 		for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
 		{
-			CUSTOMLOG("-- vote props #%d", j);
 			loadFrom >> bTemp;
-			CUSTOMLOG("%d", bTemp);
 			temp.vIsEligible.push_back(bTemp);
 			loadFrom >> bTemp;
-			CUSTOMLOG("%d", bTemp);
 			temp.vHasVoted.push_back(bTemp);
 			loadFrom >> bTemp;
-			CUSTOMLOG("%d", bTemp);
 			temp.vVotes.push_back(bTemp);
 		}
 		writeTo.m_vProposals.push_back(temp);
 	}
-	CUSTOMLOG("--- END OF READ ---");
 
 	return loadFrom;
 }
@@ -11594,37 +11599,32 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem& writeTo)
 // Serialization Write
 FDataStream& operator<<(FDataStream& saveTo, const CvMPVotingSystem& readFrom)
 {
-	CUSTOMLOG("--- SERIALIZATION WRITE STARTED ---");
+	// Current version number
+	uint uiVersion = 0;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_MP_VOTING_SYSTEM;
+#endif
+	saveTo << uiVersion;
 	uint uiNumProposals = readFrom.m_iLastProposalID;
-	CUSTOMLOG("m_iLastProposalID: %d", uiNumProposals);
 	saveTo << uiNumProposals;
 	for (uint i = 0; i < uiNumProposals; i++)
 	{
-		CUSTOMLOG("---------- proposal i: %d", i);
 		saveTo << i;
-		CUSTOMLOG("-- ui_id set to: -1");
 		saveTo << -1;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).iExpirationCounter: %d", readFrom.m_vProposals.at(i).iExpirationCounter);
+		saveTo << readFrom.m_vProposals.at(i).iCreationTurn;
 		saveTo << readFrom.m_vProposals.at(i).iExpirationCounter;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eType: %d", (int)readFrom.m_vProposals.at(i).eType);
 		saveTo << readFrom.m_vProposals.at(i).eType;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eStatus: %d", (int)readFrom.m_vProposals.at(i).eStatus);
 		saveTo << readFrom.m_vProposals.at(i).eStatus;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eProposalOwner: %d", (int)readFrom.m_vProposals.at(i).eProposalOwner);
 		saveTo << readFrom.m_vProposals.at(i).eProposalOwner;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).eProposalSubject: %d", (int)readFrom.m_vProposals.at(i).eProposalSubject);
 		saveTo << readFrom.m_vProposals.at(i).eProposalSubject;
-		CUSTOMLOG("-- readFrom.m_vProposals.at(i).bComplete: %d", readFrom.m_vProposals.at(i).bComplete);
 		saveTo << readFrom.m_vProposals.at(i).bComplete;
 		for (uint j = 0; j < MAX_MAJOR_CIVS; j++)
 		{
-			CUSTOMLOG("-- vote props #%d: %d %d %d", j, readFrom.m_vProposals.at(i).vIsEligible.at(j), readFrom.m_vProposals.at(i).vHasVoted.at(j), readFrom.m_vProposals.at(i).vVotes.at(j));
 			saveTo << readFrom.m_vProposals.at(i).vIsEligible.at(j);
 			saveTo << readFrom.m_vProposals.at(i).vHasVoted.at(j);
 			saveTo << readFrom.m_vProposals.at(i).vVotes.at(j);
 		}
 	}
-	CUSTOMLOG("--- END OF WRITE ---");
 
 	return saveTo;
 }

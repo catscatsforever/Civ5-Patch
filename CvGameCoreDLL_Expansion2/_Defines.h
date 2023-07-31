@@ -757,6 +757,8 @@
 #define BUMP_SAVE_VERSION_TRAITS 1000
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_UNIT 1000
+// 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
+#define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 #endif
 /*OTHER CHANGES END*/
 
@@ -802,12 +804,6 @@
 
 
 /*LOGGING START*/
-///
-#define CUSTOMLOG(sFmt, ...) {  \
-  CvString sMsg;  \
-  CvString::format(sMsg, sFmt, __VA_ARGS__);  \
-  LOGFILEMGR.GetLog("MPVS.log", FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());  \
-}
 ///
 #define SLOG(sFmt, ...) {  \
   CvString sRef;  \
