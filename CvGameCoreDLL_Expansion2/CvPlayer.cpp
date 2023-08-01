@@ -19809,10 +19809,17 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) co
 		return false;
 	}
 
+#ifdef FIX_IS_NATIONAL_WONDER_CLASS
+	if (pkBuildingClassInfo->getMaxPlayerInstances() == -1)
+	{
+		return false;
+	}
+#else
 	if(!isNationalWonderClass(*pkBuildingClassInfo))
 	{
 		return false;
 	}
+#endif
 
 	CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
