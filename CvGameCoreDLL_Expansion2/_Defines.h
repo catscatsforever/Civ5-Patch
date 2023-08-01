@@ -596,6 +596,8 @@
 /// Fix bug of SetImprovementType when caused by placing Citadels on hided resource on enemy's territory
 #define FIX_SET_IMPROVEMENT_TYPE
 ///
+#define FIX_SET_IMPROVEMENT_PILLAGED_HAPPINESS_UPDATE
+///
 #define FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
 ///
 #define INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES

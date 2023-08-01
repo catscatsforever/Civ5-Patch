@@ -6330,6 +6330,10 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		}
 	}
 
+#ifdef FIX_SET_IMPROVEMENT_PILLAGED_HAPPINESS_UPDATE
+	GET_PLAYER(getOwner()).DoUpdateHappiness();
+#endif
+
 	if(bWasPillaged != m_bImprovementPillaged)
 	{
 		setLayoutDirty(true);
