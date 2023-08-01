@@ -13361,7 +13361,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			if (iResult != FFreeList::INVALID_INDEX)
 			{
 				CvUnit* pUnit = kPlayer.getUnit(iResult);
-#ifdef DEUL_DISABLE_MOVE_AFTER_PURCHASE
+#ifdef DUEL_DISABLE_MOVE_AFTER_PURCHASE
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase() || GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 #else
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
