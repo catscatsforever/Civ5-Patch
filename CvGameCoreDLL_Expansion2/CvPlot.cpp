@@ -6324,15 +6324,15 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 							if(GetResourceLinkedCity() != NULL)
 								SetResourceLinkedCityActive(true);
 						}
+
+#ifdef FIX_SET_IMPROVEMENT_PILLAGED_HAPPINESS_UPDATE
+						GET_PLAYER(getOwner()).DoUpdateHappiness();
+#endif
 					}
 				}
 			}
 		}
 	}
-
-#ifdef FIX_SET_IMPROVEMENT_PILLAGED_HAPPINESS_UPDATE
-	GET_PLAYER(getOwner()).DoUpdateHappiness();
-#endif
 
 	if(bWasPillaged != m_bImprovementPillaged)
 	{
