@@ -2,6 +2,7 @@
 -- Diplomacy and Advisors Buttons that float out in the screen
 -------------------------------------------------
 -- edit: Ingame Hotkey Manager – extended controls
+-- edit: Tournament mode for vanilla UI
 -------------------------------------------------
 g_needsUpdate = true;
 g_bWaitForKeyUp = false;
@@ -578,4 +579,9 @@ OnActivePlayerTurnStart();
 --Hide CultureOverview, if disabled.
 if(Game.IsOption("GAMEOPTION_NO_CULTURE_OVERVIEW_UI")) then
 	Controls.CultureOverviewButton:SetHide(true);
+end
+
+-- NEW: disable chatpull in tournament mode
+if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+    Controls.ChatPull:SetDisabled(true);
 end
