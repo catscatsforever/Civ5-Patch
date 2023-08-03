@@ -11061,7 +11061,7 @@ bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eTyp
 bool CvMPVotingSystem::IsProposalTypeAvailable(MPVotingSystemProposalTypes eType)
 {
 #ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
-	//if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_STUFF"))  // TODO: UI checkbox?
+	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))  // TODO: UI checkbox?
 	{
 		// no IRR until first player enters Industrial era
 		if (eType == PROPOSAL_IRR)
