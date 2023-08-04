@@ -3,6 +3,7 @@
 -------------------------------------------------
 -- edit: Ingame Hotkey Manager – extended controls
 -- edit: Larger Espionage Overview option for EUI
+-- edit: Tournament mode for EUI
 -------------------------------------------------
 g_needsUpdate = true;
 g_bWaitForKeyUp = false;
@@ -598,3 +599,8 @@ local function OnOptionsChanged()
 end
 OnOptionsChanged()
 Events.GameOptionsChanged.Add( OnOptionsChanged )
+
+-- NEW: disable chatpull in tournament mode
+if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+    Controls.ChatPull:SetDisabled(true);
+end

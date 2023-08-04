@@ -11061,7 +11061,7 @@ bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eTyp
 bool CvMPVotingSystem::IsProposalTypeAvailable(MPVotingSystemProposalTypes eType)
 {
 #ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
-	//if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_STUFF"))  // TODO: UI checkbox?
+	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))  // TODO: UI checkbox?
 	{
 		// no IRR until first player enters Industrial era
 		if (eType == PROPOSAL_IRR)
@@ -11373,6 +11373,13 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 	int maxVoters = GetMaxVotes(iProposalID);
 	int totalVotes = yesVotes + noVotes;
 	int irrVotersThreshold = maxVoters - (maxVoters + 1) * (100 - IRR_THRESHOLD_TIMES_100) / 100;
+#ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
+	// if tournament mode is on, raise threshold to 100 
+	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))
+	{
+		irrVotersThreshold = maxVoters;
+	}
+#endif
 
 	MPVotingSystemProposalTypes eType = GetProposalType(iProposalID);
 	if (eType == NO_PROPOSAL) {
