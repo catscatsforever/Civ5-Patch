@@ -11373,6 +11373,13 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 	int maxVoters = GetMaxVotes(iProposalID);
 	int totalVotes = yesVotes + noVotes;
 	int irrVotersThreshold = maxVoters - (maxVoters + 1) * (100 - IRR_THRESHOLD_TIMES_100) / 100;
+#ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
+	// if tournament mode is on, raise threshold to 100 
+	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))
+	{
+		irrVotersThreshold = maxVoters;
+	}
+#endif
 
 	MPVotingSystemProposalTypes eType = GetProposalType(iProposalID);
 	if (eType == NO_PROPOSAL) {
