@@ -83,7 +83,34 @@ function OnPantheonBeliefClick()
 
 	if(ToggleBeliefContext("PantheonBelief")) then
 		local availablePantheonBeliefs = {};
-		for i,v in ipairs(Game.GetAvailablePantheonBeliefs()) do
+		for info in GameInfo.Beliefs("Pantheon == 1 ORDER BY ShortDescription") do
+			if(info ~= nil and info.ID ~= g_Beliefs[6]) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailablePantheonBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availablePantheonBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availablePantheonBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[for i,v in ipairs(Game.GetAvailablePantheonBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil and v ~= g_Beliefs[6]) then
 				table.insert(availablePantheonBeliefs, {
@@ -94,7 +121,7 @@ function OnPantheonBeliefClick()
 			end
 		end
 		
-		table.sort(availablePantheonBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availablePantheonBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 		
 		SelectFromBeliefs(availablePantheonBeliefs, function(belief)
 			Controls.PantheonBeliefName:SetText(belief.Name);
@@ -111,7 +138,34 @@ function OnFounderBeliefClick()
 
 	if(ToggleBeliefContext("FounderBelief")) then
 		local availableFounderBeliefs = {};
-		for i,v in ipairs(Game.GetAvailableFounderBeliefs()) do
+		for info in GameInfo.Beliefs("Founder == 1 ORDER BY ShortDescription") do
+			if(info ~= nil and info.ID ~= g_Beliefs[6]) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableFounderBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableFounderBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableFounderBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[for i,v in ipairs(Game.GetAvailableFounderBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil and v ~= g_Beliefs[6]) then
 				table.insert(availableFounderBeliefs, {
@@ -122,7 +176,7 @@ function OnFounderBeliefClick()
 			end
 		end
 		
-		table.sort(availableFounderBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availableFounderBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 		
 		SelectFromBeliefs(availableFounderBeliefs, function(belief)
 			Controls.FounderBeliefName:SetText(belief.Name);
@@ -139,7 +193,34 @@ function OnFollowerBeliefClick()
 
 	if(ToggleBeliefContext("FollowerBelief")) then
 		local availableFollowerBeliefs = {};
-		for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
+		for info in GameInfo.Beliefs("Follower == 1 ORDER BY ShortDescription") do
+			if(info ~= nil and info.ID ~= g_Beliefs[6]) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableFollowerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableFollowerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil and v ~= g_Beliefs[6]) then
 				table.insert(availableFollowerBeliefs, {
@@ -151,7 +232,7 @@ function OnFollowerBeliefClick()
 		end
 		
 		-- Sort by their description.
-		table.sort(availableFollowerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availableFollowerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 			
 		SelectFromBeliefs(availableFollowerBeliefs, function(belief)
 			Controls.FollowerBeliefName:SetText(belief.Name);
@@ -167,7 +248,34 @@ function OnFollowerBelief2Click()
 
 	if(ToggleBeliefContext("FollowerBelief2")) then
 		local availableFollowerBeliefs = {};
-		for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
+		for info in GameInfo.Beliefs("Follower == 1 ORDER BY ShortDescription") do
+			if(info ~= nil) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableFollowerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableFollowerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[for i,v in ipairs(Game.GetAvailableFollowerBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil) then
 				table.insert(availableFollowerBeliefs, {
@@ -179,7 +287,7 @@ function OnFollowerBelief2Click()
 		end
 		
 		-- Sort by their description.
-		table.sort(availableFollowerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availableFollowerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 			
 		SelectFromBeliefs(availableFollowerBeliefs, function(belief)
 			Controls.FollowerBelief2Name:SetText(belief.Name);
@@ -195,7 +303,34 @@ function OnEnhancerBeliefClick()
 
 	if(ToggleBeliefContext("EnhancerBelief")) then
 		local availableEnhancerBeliefs = {};
-		for i,v in ipairs(Game.GetAvailableEnhancerBeliefs()) do
+		for info in GameInfo.Beliefs("Enhancer == 1 ORDER BY ShortDescription") do
+			if(info ~= nil and info.ID ~= g_Beliefs[6]) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableEnhancerBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableEnhancerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableEnhancerBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+		
+		--[[for i,v in ipairs(Game.GetAvailableEnhancerBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil) then
 				table.insert(availableEnhancerBeliefs, {
@@ -207,7 +342,7 @@ function OnEnhancerBeliefClick()
 		end
 		
 		-- Sort by their description.
-		table.sort(availableEnhancerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availableEnhancerBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 			
 		SelectFromBeliefs(availableEnhancerBeliefs, function(belief)
 			Controls.EnhancerBeliefName:SetText(belief.Name);
@@ -223,7 +358,34 @@ function OnBonusBeliefClick()
 
 	if(ToggleBeliefContext("BonusBelief")) then
 		local availableBonusBeliefs = {};
-		for i,v in ipairs(Game.GetAvailableBonusBeliefs()) do
+		for info in GameInfo.Beliefs("Pantheon == 1 OR Founder == 1 OR Follower == 1 OR Enhancer == 1 ORDER BY ShortDescription") do
+			if(info ~= nil and info.ID ~= g_Beliefs[1] and info.ID ~= g_Beliefs[2] and info.ID ~= g_Beliefs[3]) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableBonusBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableBonusBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableBonusBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+		
+		--[[for i,v in ipairs(Game.GetAvailableBonusBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil and v ~= g_Beliefs[1] and v ~= g_Beliefs[2] and v ~= g_Beliefs[3]) then
 				table.insert(availableBonusBeliefs, {
@@ -235,7 +397,7 @@ function OnBonusBeliefClick()
 		end
 		
 		-- Sort by their description.
-		table.sort(availableBonusBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+		table.sort(availableBonusBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
 			
 		SelectFromBeliefs(availableBonusBeliefs, function(belief)
 			Controls.BonusBeliefName:SetText(belief.Name);
@@ -535,6 +697,15 @@ function SelectFromBeliefs(beliefs, selectFn)
 	
 	for i,v in ipairs(beliefs) do
 		local itemInstance = g_BeliefItemManager:GetInstance();
+		if (v.Available == true) then
+	    	itemInstance.Button:SetDisabled(false);
+	    	itemInstance.Name:SetColorByName("Beige_Black");
+	    	itemInstance.Description:SetColorByName("Beige_Black");
+		else
+	    	itemInstance.Button:SetDisabled(true);
+	    	itemInstance.Name:SetColorByName("Gray_Black");
+	    	itemInstance.Description:SetColorByName("Gray_Black");
+	    end
 		itemInstance.Name:SetText(v.Name);
 		itemInstance.Description:SetText(v.Description);
 		

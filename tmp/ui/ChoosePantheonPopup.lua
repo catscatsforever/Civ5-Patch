@@ -86,8 +86,36 @@ function RefreshList()
 	
 	local availableBeliefs = {};
 	
-	if (g_bPantheons > 0) then		
+	if (g_bPantheons > 0) then
 		Controls.PanelTitle:LocalizeAndSetText("TXT_KEY_CHOOSE_PANTHEON_TITLE");
+		for info in GameInfo.Beliefs("Pantheon == 1 ORDER BY ShortDescription") do
+			if(info ~= nil) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailablePantheonBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[Controls.PanelTitle:LocalizeAndSetText("TXT_KEY_CHOOSE_PANTHEON_TITLE");
 		for i,v in ipairs(Game.GetAvailablePantheonBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil) then
@@ -97,9 +125,37 @@ function RefreshList()
 					Description = Locale.Lookup(belief.Description),
 				});
 			end
-		end	
+		end	]]
 	else
 		Controls.PanelTitle:LocalizeAndSetText("TXT_KEY_CHOOSE_REFORMATION_BELIEF_TITLE");
+		for info in GameInfo.Beliefs("Reformation == 1 ORDER BY ShortDescription") do
+			if(info ~= nil) then
+				local available = false;
+				for i,v in ipairs(Game.GetAvailableReformationBeliefs()) do
+					if (GameInfo.Beliefs[v] == info) then
+						available = true;
+						break;
+					end
+				end
+				if (available == true) then
+					table.insert(availableBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = true,
+					});
+				else
+					table.insert(availableBeliefs, {
+						ID = info.ID,
+						Name = Locale.Lookup(info.ShortDescription),
+						Description = Locale.Lookup(info.Description),
+						Available = false,
+					});
+				end
+			end
+		end
+
+		--[[Controls.PanelTitle:LocalizeAndSetText("TXT_KEY_CHOOSE_REFORMATION_BELIEF_TITLE");
 		for i,v in ipairs(Game.GetAvailableReformationBeliefs()) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil) then
@@ -109,15 +165,25 @@ function RefreshList()
 					Description = Locale.Lookup(belief.Description),
 				});
 			end
-		end		
+		end	]]	
 	end
 
 	-- Sort beliefs by their description.
-	table.sort(availableBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+	-- table.sort(availableBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
 	
 	local bTickTock = false;
+	-- for info in GameInfo.Beliefs("Pantheon = 1 ORDER BY ShortDescription") do
 	for i, belief in ipairs(availableBeliefs) do
 		local itemInstance = g_ItemManager:GetInstance();
+		if (belief.Available == true) then
+	    	itemInstance.Button:SetDisabled(false);
+	    	itemInstance.Name:SetColorByName("Beige_Black");
+	    	itemInstance.Description:SetColorByName("Beige_Black");
+		else
+	    	itemInstance.Button:SetDisabled(true);
+	    	itemInstance.Name:SetColorByName("Gray_Black");
+	    	itemInstance.Description:SetColorByName("Gray_Black");
+	    end
 		itemInstance.Name:SetText(belief.Name);
 		--itemInstance.Button:SetToolTipString(belief.Description);
 		itemInstance.Description:SetText(belief.Description);
