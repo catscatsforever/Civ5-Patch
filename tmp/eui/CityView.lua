@@ -7,6 +7,8 @@
 -- compatible with GameInfo.Yields() iterator broken by Communitas
 -- todo: sell building button
 ------------------------------------------------------
+-- edit: tournament mode for EUI
+------------------------------------------------------
 include( "EUI_tooltips" )
 
 Events.SequenceGameInitComplete.Add(function()
@@ -2427,4 +2429,14 @@ for addin in Modding.GetActivatedModEntryPoints("CityViewUIAddin") do
 	else
 		print( addinPath, result )
 	end
+end
+
+---------------------------------
+-- NEW: disable city rename for tournament
+if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+	Controls.EditButton:SetDisabled(true);
+	Controls.CityNameTitleBarLabel:SetDisabled(true);
+else
+	Controls.EditButton:SetDisabled(false);
+	Controls.CityNameTitleBarLabel:SetDisabled(false);
 end
