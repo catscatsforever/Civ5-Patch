@@ -4838,7 +4838,12 @@ CvString CvLeague::GetProjectRewardTierDetails(int iTier, LeagueProjectTypes ePr
 	{
 		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier3());
 		sRewardIcon = "[ICON_TROPHY_GOLD]";
+#ifdef LEAGUE_PROJECT_REWARD_TIER_3_THRESHOLD
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_3");
+		sTemp << GetContributionTierThreshold(CONTRIBUTION_TIER_2, eProject) / 100 * 8 / 5;
+#else
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_3");
+#endif
 		sContribution = sTemp.toUTF8();
 	}
 	else if (iTier == 2)
