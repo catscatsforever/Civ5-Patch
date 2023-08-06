@@ -764,6 +764,8 @@
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 #define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 #endif
+///
+#define statistic_stuff
 /*OTHER CHANGES END*/
 
 

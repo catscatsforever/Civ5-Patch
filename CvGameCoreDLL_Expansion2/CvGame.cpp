@@ -7229,6 +7229,16 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 			saveReplay();
 			showEndGameSequence();
+#ifdef statistic_stuff
+			//Deserialize the embedded SQLite database file.
+			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
+
+			// Need to Convert the UTF-8 string into a wide character string.
+			std::wstring wstrDatabasePath = CvStringUtils::FromUTF8ToUTF16(strUTF8DatabasePath);
+			FIFile* pkFile = FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
+			FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
+#endif
 		}
 
 		GC.GetEngineUserInterface()->setDirty(Cursor_DIRTY_BIT, true);
