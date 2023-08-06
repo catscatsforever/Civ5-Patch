@@ -12120,8 +12120,8 @@
 			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
-			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_2</PromotionPrereqOr1> 
-			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_2</PromotionPrereqOr2> 
+			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr1> 
+			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr2> 
 			<PediaType>PEDIA_AIR</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_EVASION</PediaEntry> 
 		</Row>
