@@ -766,6 +766,7 @@
 #endif
 ///
 #define statistic_stuff
+#define statistis_stuff_VARIANT
 /*OTHER CHANGES END*/
 
 
