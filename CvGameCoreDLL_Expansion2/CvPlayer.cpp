@@ -11068,7 +11068,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 {
 	PlayerTypes eOpponent = pConqueredCity->getOwner();
 #ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
-	if (!GET_PLAYER(eOpponent).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+	if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return;
 	}
@@ -11082,7 +11082,11 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		if (pInfo)
 		{
 			// They have it
+#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTechByHuman(e))
+#else
 			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTech(e))
+#endif
 			{
 				// We don't
 				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
