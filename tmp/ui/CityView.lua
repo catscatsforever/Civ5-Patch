@@ -1,6 +1,8 @@
 -------------------------------------------------
 -- Game View 
 -------------------------------------------------
+-- edit: tournament mode for vanilla UI
+-------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "SupportFunctions"  );
@@ -2754,3 +2756,12 @@ function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	end
 end
 Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);
+
+----------------------------------------------------------------
+-- NEW: disable city rename for tournament
+----------------------------------------------------------------
+if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+	Controls.EditButton:SetDisabled(true);
+else
+	Controls.EditButton:SetDisabled(false);
+end
