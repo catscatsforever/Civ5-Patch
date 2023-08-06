@@ -563,6 +563,24 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 		}
 	}
 #endif
+#ifdef statistis_stuff_VARIANT
+	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+	strUTF8DatabasePath += "..\\ReplayStats.db";
+
+	Database::Connection db;
+	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_CREATE | Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
+	{
+		CvString sQuery;
+		CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS seed%d (turn INTEGER NOT NULL, timeMilliseconds INTEGER NOT NULL, messageType INTEGER, player INTEGER, data TEXT, plotX INTEGER, plotY INTEGER);", (uint)CvPreGame::mapRandomSeed());
+		SLOG("%s", sQuery.c_str());
+		db.Execute(sQuery.c_str());
+	}
+	else
+	{
+		SLOG("ERROR opening db");
+
+	}
+#endif
 
 	return true;
 }
@@ -9561,6 +9579,9 @@ int CvGame::calculateOptionsChecksum()
 void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX, int iPlotY)
 {
 	int iGameTurn = getGameTurn();
+#ifdef statistis_stuff_VARIANT
+	addReplayStats(eType, ePlayer, pszText, iPlotX, iPlotY);
+#endif
 
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
 	if(iPlotX != -1 || iPlotY != -1)
@@ -9581,6 +9602,27 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 	message.setText(pszText);
 	m_listReplayMessages.push_back(message);
 }
+#ifdef statistis_stuff_VARIANT
+void CvGame::addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY)
+{
+
+	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+	strUTF8DatabasePath += "..\\ReplayStats.db";
+
+	Database::Connection db;
+	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
+	{
+		CvString sQuery;
+		CvString::format(sQuery, "REPLACE INTO seed%d (turn, timeMilliseconds, messageType, player, data, plotX, plotY) VALUES (%d, %d, %d, %d, '%s', %d, %d)", (uint)CvPreGame::mapRandomSeed(), GC.getGame().getGameTurn(), (int)(GC.getGame().getTimeElapsed() * 1000), (int)eType, (int)ePlayer, szData, iPlotX, iPlotY);
+		SLOG("%s", sQuery.c_str());
+		db.Execute(sQuery.c_str());
+	}
+	else
+	{
+		SLOG("ERROR opening db");
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvGame::clearReplayMessageMap()
