@@ -518,6 +518,8 @@
 #define PEACE_BLOCKED_WITH_MINORS
 // coup chances now use base influence instead of effective influence (which would be -60 during war)
 #define NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
+///
+#define CANNOT_LIBERATE_GIFTED_CS
 /*CITY-STATES CHANGES END*/
 
 
@@ -576,8 +578,6 @@
 #define CITY_RANGE_MODIFIER
 ///
 #define BUILDING_BARN
-///
-#define CANNOT_LIBERATE_GIFTED_CS
 /*CITIES CHANGES END*/
 
 
