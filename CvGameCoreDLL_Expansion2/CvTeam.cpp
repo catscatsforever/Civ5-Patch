@@ -5253,7 +5253,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		else
 		{
 #ifdef HAS_TECH_BY_HUMAN
-			if (isHuman())
+			if (!GC.getGame().isNetworkMultiPlayer() || isHuman())
 			{
 				GetTeamTechs()->SetHasTechByHuman(eIndex, bNewValue);
 			}

@@ -741,23 +741,33 @@ function ResetDisplay( diploMessage )
 	isEnabled = g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD, 1 ) -- 1 here is 1 Gold, which is the minimum possible
 	SetEnabledAndTextAndToolTip( Controls.UsPocketGold, isEnabled,
 		g_Deal:GetGoldAvailable( g_iUs, -1 ) .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD"), -- This is -1 because we're not changing anything right now
-		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE").."[ENDCOLOR]" )
+		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
 
 	-- Them pocket Gold
 	isEnabled = g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD, 1 ) -- 1 here is 1 Gold, which is the minimum possible
 	SetEnabledAndTextAndToolTip( Controls.ThemPocketGold, isEnabled,
 		g_Deal:GetGoldAvailable( g_iThem, -1 ) .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD"), -- This is -1 because we're not changing anything right now
-		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE").."[ENDCOLOR]" )
+		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
 
 	-- Us pocket Gold Per Turn
-	SetEnabledAndText( Controls.UsPocketGoldPerTurn,
+	isEnabled = g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) -- 1 here is 1 GPT, which is the minimum possible
+	SetEnabledAndTextAndToolTip( Controls.UsPocketGoldPerTurn, isEnabled,
+		g_pUs:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN"),
+		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
+
+	--[[SetEnabledAndText( Controls.UsPocketGoldPerTurn,
 		g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration ), -- 1 here is 1 GPT, which is the minimum possible
-		g_pUs:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") )
+		g_pUs:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") )]]
 
 	-- Them pocket Gold Per Turn
-	SetEnabledAndText( Controls.ThemPocketGoldPerTurn,
+	isEnabled = g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) -- 1 here is 1 GPT, which is the minimum possible
+	SetEnabledAndTextAndToolTip( Controls.UsPocketGoldPerTurn, isEnabled,
+		g_pThem:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN"),
+		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
+
+	--[[SetEnabledAndText( Controls.ThemPocketGoldPerTurn,
 		g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration ), -- 1 here is 1 GPT, which is the minimum possible
-		g_pThem:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") )
+		g_pThem:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") )]]
 
 
 	----------------------------------------------------------------------------------
@@ -940,8 +950,10 @@ function ResetDisplay( diploMessage )
 			instance.Button:SetDisabled( not bCanTradeResource )
             if ( not bCanTradeResource ) then
 	    		instance.Button:GetTextControl():SetColorByName("Gray_Black");
+	    		instance.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
             else
 	    		instance.Button:GetTextControl():SetColorByName("Beige_Black");
+	    		instance.Button:SetToolTipString(nil);
             end
 		else
 			instance.Button:SetHide( true )
@@ -962,8 +974,10 @@ function ResetDisplay( diploMessage )
 			instance.Button:SetDisabled( not bCanTradeResource )
             if ( not bCanTradeResource ) then
 	    		instance.Button:GetTextControl():SetColorByName("Gray_Black");
+	    		instance.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
             else
 	    		instance.Button:GetTextControl():SetColorByName("Beige_Black");
+	    		instance.Button:SetToolTipString(nil);
             end
 		else
 			instance.Button:SetHide( true )

@@ -1075,7 +1075,8 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.UsPocketGold:SetDisabled(true);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    -- Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
 	else
 	    Controls.UsPocketGold:SetDisabled(false);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1092,7 +1093,8 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.ThemPocketGold:SetDisabled(true);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    -- Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
 	else
 	    Controls.ThemPocketGold:SetDisabled(false);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1113,9 +1115,11 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.UsPocketGoldPerTurn:SetDisabled(true);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+	    Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+	    Controls.UsPocketGoldPerTurn:SetToolTipString(nil);	    
     end
     
     -- Them
@@ -1128,9 +1132,11 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+	    Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+	    Controls.ThemPocketGoldPerTurn:SetToolTipString(nil);	    
     end
 
     ---------------------------------------------------------------------------------- 
@@ -1566,8 +1572,10 @@ function ResetDisplay()
 
             	if (not bCanTradeResource) then
 	    			instance.Button:GetTextControl():SetColorByName("Gray_Black");
+	    			instance.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
             	else
 	    			instance.Button:GetTextControl():SetColorByName("Beige_Black");
+	    			instance.Button:SetToolTipString(nil);
             	end
             else
             	instance.Button:SetHide( true );
@@ -1642,8 +1650,10 @@ function ResetDisplay()
 
             	if (not bCanTradeResource) then
 	    			instance.Button:GetTextControl():SetColorByName("Gray_Black");
+	    			instance.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE"));
             	else
 	    			instance.Button:GetTextControl():SetColorByName("Beige_Black");
+	    			instance.Button:SetToolTipString(nil);
             	end
             else
             	instance.Button:SetHide( true );

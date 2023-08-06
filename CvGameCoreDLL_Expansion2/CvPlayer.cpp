@@ -11068,7 +11068,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 {
 	PlayerTypes eOpponent = pConqueredCity->getOwner();
 #ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
-	if (!GET_PLAYER(eOpponent).isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+	if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 	{
 		return;
 	}
@@ -11082,7 +11082,11 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		if (pInfo)
 		{
 			// They have it
+#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTechByHuman(e))
+#else
 			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTech(e))
+#endif
 			{
 				// We don't
 				if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e))
@@ -26668,6 +26672,44 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_MILITARYMIGHT"), iGameTurn, GetMilitaryMight());
+#ifdef statistic_stuff
+		const char* szDataSetName;
+		for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
+		{
+			szDataSetName = GC.getPolicyInfo((PolicyTypes)iI)->GetType();
+			setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, GetPlayerPolicies()->HasPolicy((PolicyTypes)iI));
+		}
+
+		for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+		{
+			szDataSetName = GC.getTechInfo((TechTypes)iI)->GetType();
+			setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)iI));
+		}
+
+		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+		CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
+		const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
+		for (int iI = 0; iI < iNumBeleifs; iI++)
+		{
+			int bHasBelief = 0;
+			const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+			CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+			if (!pkBelief)
+				continue;
+			szDataSetName = pkBelief->GetType();
+			if (pReligion && pReligion->m_Beliefs.HasBelief(eBelief))
+			{
+				bHasBelief = 1;
+			}
+			else if (eBelief == GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetID()))
+			{
+				bHasBelief = 1;
+			}
+
+			setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, bHasBelief);
+		}
+#endif
 	}
 }
 
