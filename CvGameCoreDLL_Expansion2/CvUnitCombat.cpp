@@ -1969,6 +1969,9 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	}
 
 	kAttacker.setReconPlot(&plot);
+#ifdef UNIT_DIED_BY_NUKING_NOTIFICATIONS
+	kAttacker.setReconPlot(NULL);
+#endif
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -2045,7 +2048,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							iDamage = 40;
 						}
 					}
-					if (iDamage >= pkUnit->GetMaxHitPoints())
+					if (iDamage >= pkUnit->GetCurrHitPoints())
 #else
 					if (kEntry.GetDamage() >= pkUnit->GetMaxHitPoints())
 #endif
@@ -2053,17 +2056,30 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 						CvString strBuffer;
 
-						// if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam(), false))
 						if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam()))
 						{
 							if (eAttackerOwner == GC.getGame().getActivePlayer())
 							{
-								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+								if (eAttackerOwner != pkUnit->getOwner())
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+								}
+								else
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+								}
 								pkDLLInterface->AddMessage(0, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 							}
 						}
 
-						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_AND_DEATH", pkUnit->getNameKey(), pkAttacker->getNameKey());
+						if (eAttackerOwner != pkUnit->getOwner())
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_AND_DEATH", pkUnit->getNameKey(), pkAttacker->getNameKey());
+						}
+						else
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+						}
 						CvNotifications* pNotifications = GET_PLAYER(pkUnit->getOwner()).GetNotifications();
 						if (pNotifications)
 						{
@@ -2076,13 +2092,19 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 						CvString strBuffer;
 
-						// if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam(), false))
 						if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam()))
 						{
 							if (eAttackerOwner == GC.getGame().getActivePlayer())
 							{
 #ifdef GDR_LESS_NUKING_DAMAGE
-								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), iDamage);
+								if (eAttackerOwner != pkUnit->getOwner())
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), iDamage);
+								}
+								else
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), iDamage);
+								}
 #else
 								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), kEntry.GetDamage());
 #endif
@@ -2091,7 +2113,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 
 #ifdef GDR_LESS_NUKING_DAMAGE
-						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), iDamage);
+						if (eAttackerOwner != pkUnit->getOwner())
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), iDamage);
+						}
+						else
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), iDamage);
+						}
 #else
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), kEntry.GetDamage());
 #endif
@@ -2111,17 +2140,30 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 					CvString strBuffer;
 
-					// if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam(), false))
 					if (pkUnit->plot()->isVisible(GET_PLAYER(eAttackerOwner).getTeam()))
 					{
 						if (eAttackerOwner == GC.getGame().getActivePlayer())
 						{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+							if (eAttackerOwner != pkUnit->getOwner())
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+							}
+							else
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+							}
 							pkDLLInterface->AddMessage(0, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 						}
 					}
 
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_AND_DEATH", pkUnit->getNameKey(), pkAttacker->getNameKey());
+					if (eAttackerOwner != pkUnit->getOwner())
+					{
+						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_AND_DEATH", pkUnit->getNameKey(), pkAttacker->getNameKey());
+					}
+					else
+					{
+						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_SELF_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkUnit->getNameKey());
+					}
 					CvNotifications* pNotifications = GET_PLAYER(pkUnit->getOwner()).GetNotifications();
 					if (pNotifications)
 					{
