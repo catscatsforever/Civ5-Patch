@@ -7248,14 +7248,50 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			saveReplay();
 			showEndGameSequence();
 #ifdef statistic_stuff
-			//Deserialize the embedded SQLite database file.
 			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
 
-			// Need to Convert the UTF-8 string into a wide character string.
-			std::wstring wstrDatabasePath = CvStringUtils::FromUTF8ToUTF16(strUTF8DatabasePath);
-			FIFile* pkFile = FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
-			FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
+			Database::Connection db;
+			if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_CREATE | Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
+			{
+				CvString sQuery;
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS seed%d (DataSetIndex INTEGER NOT NULL, Turn INTEGER NOT NULL, Player TEXT, DataSetName TEXT, Value INTEGER);", (uint)CvPreGame::mapRandomSeed());
+				SLOG("%s", sQuery.c_str());
+				db.Execute(sQuery.c_str());
+			}
+			else
+			{
+				SLOG("ERROR opening db");
+
+			}
+
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+				if (kPlayer.isEverAlive())
+				{
+					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
+					{
+						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)GC.getGame().getElapsedGameTurns(); uiTurn++)
+						{
+							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
+							if (kPlayer.getReplayDataSetName(uiDataSet) != NULL)
+							{
+								const CvString& pszText = GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", kPlayer.getName());
+								SLOG("%s", pszText.GetCString());
+								// SLOG("%s", pszText);
+								addReplayStats2(uiDataSet, pszText.GetCString(), uiTurn, pszText.GetCString(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
+							}
+						}
+					}
+				}
+				else
+				{
+					SLOG("ERROR not kPlayer.isEverAlive()");
+				}
+				SLOG("SLOG END");
+			}
 #endif
 		}
 
@@ -9614,6 +9650,25 @@ void CvGame::addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const
 	{
 		CvString sQuery;
 		CvString::format(sQuery, "REPLACE INTO seed%d (turn, timeMilliseconds, messageType, player, data, plotX, plotY) VALUES (%d, %d, %d, %d, '%s', %d, %d)", (uint)CvPreGame::mapRandomSeed(), GC.getGame().getGameTurn(), (int)(GC.getGame().getTimeElapsed() * 1000), (int)eType, (int)ePlayer, szData, iPlotX, iPlotY);
+		SLOG("%s", sQuery.c_str());
+		db.Execute(sQuery.c_str());
+	}
+	else
+	{
+		SLOG("ERROR opening db");
+	}
+}
+void CvGame::addReplayStats2(uint uiDataSet, const char* Player, uint uiTurn, const char* szData, int iValue)
+{
+
+	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+	strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
+
+	Database::Connection db;
+	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
+	{
+		CvString sQuery;
+		CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, Value) VALUES (%d, %d, %d, %d, '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szData, iValue);
 		SLOG("%s", sQuery.c_str());
 		db.Execute(sQuery.c_str());
 	}
