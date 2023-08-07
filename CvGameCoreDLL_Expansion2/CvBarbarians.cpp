@@ -94,7 +94,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 
 	// Raging
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-	if (kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
+	if (kGame.isNetworkMultiPlayer() && kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_RAGING_BARBARIANS) || !kGame.isNetworkMultiPlayer() && kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 #else
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 #endif
@@ -263,7 +263,7 @@ void CvBarbarians::DoCamps()
 	CvGame& kGame = GC.getGame();
 
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-	if(kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	if(kGame.isNetworkMultiPlayer() && kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS) || !kGame.isNetworkMultiPlayer() && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 #else
 	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 #endif
@@ -633,7 +633,7 @@ void CvBarbarians::DoUnits()
 	CvGame& kGame = GC.getGame();
 
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-	if(kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	if(kGame.isNetworkMultiPlayer() && kGame.isOption("GAMEOPTION_DUEL_STUFF") && kGame.isOption(GAMEOPTION_NO_BARBARIANS) || !kGame.isNetworkMultiPlayer() && kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 #else
 	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 #endif

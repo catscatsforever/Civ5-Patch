@@ -6457,7 +6457,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	if(kGoodyInfo.getBarbarianUnitClass() != NO_UNITCLASS)
 	{
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-		if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		if(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) || !GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 #else
 		if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 #endif
@@ -7778,7 +7778,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 	// Don't allow a city to consider an espionage building if they are playing a non-espionage game
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-	if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
+	if (GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage() || !GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
 #else
 	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage())
 #endif

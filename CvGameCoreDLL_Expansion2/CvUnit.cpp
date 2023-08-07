@@ -10898,7 +10898,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-			if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+			if(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) || !GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 #else
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 #endif
@@ -11412,7 +11412,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			}
 
 #ifdef DUEL_MOVING_SOME_OPTIONS_TO_DUEL_MODE
-			if(GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+			if(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) || !GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 #else
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 #endif
