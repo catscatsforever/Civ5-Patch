@@ -7250,7 +7250,6 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 #ifdef statistic_stuff
 			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
-
 			Database::Connection db;
 			if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_CREATE | Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 			{
@@ -7262,7 +7261,6 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			else
 			{
 				SLOG("ERROR opening db");
-
 			}
 
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
@@ -7273,25 +7271,23 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				{
 					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
 					{
-						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)GC.getGame().getElapsedGameTurns(); uiTurn++)
+						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)(GC.getGame().getStartTurn() + GC.getGame().getElapsedGameTurns()); uiTurn++)
 						{
 							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
 							if (kPlayer.getReplayDataSetName(uiDataSet) != NULL)
 							{
-								const CvString& pszText = GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", kPlayer.getName());
-								SLOG("%s", pszText.GetCString());
-								// SLOG("%s", pszText);
-								addReplayStats2(uiDataSet, pszText.GetCString(), uiTurn, pszText.GetCString(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
+								const CvString strText = GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", kPlayer.getName());
+								SLOG("%s", strText.c_str());
+								addReplayStats2(uiDataSet, strText.c_str(), uiTurn, strText.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
 							}
 						}
 					}
 				}
 				else
 				{
-					SLOG("ERROR not kPlayer.isEverAlive()");
 				}
-				SLOG("SLOG END");
 			}
+			SLOG("Civ5FinishedGameDatabase END");
 #endif
 		}
 
@@ -9668,7 +9664,7 @@ void CvGame::addReplayStats2(uint uiDataSet, const char* Player, uint uiTurn, co
 	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 	{
 		CvString sQuery;
-		CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, Value) VALUES (%d, %d, %d, %d, '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szData, iValue);
+		CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, Value) VALUES (%d, %d, '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szData, iValue);
 		SLOG("%s", sQuery.c_str());
 		db.Execute(sQuery.c_str());
 	}
