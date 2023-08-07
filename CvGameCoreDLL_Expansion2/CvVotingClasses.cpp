@@ -3492,6 +3492,15 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				sTemp << iWonderVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
+#ifdef PATRONAGE_FINISHER_REWORK
+			PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_PATRONAGE_FINISHER", true /*bHideAssert*/);
+			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_POLICY_VOTES");
+				// sTemp << iWonderVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+#endif
 			if (iWorldReligionVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_WORLD_RELIGION_VOTES");
