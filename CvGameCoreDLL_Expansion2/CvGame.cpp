@@ -7261,7 +7261,6 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			else
 			{
 				SLOG("ERROR opening db");
-
 			}
 
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
