@@ -7271,7 +7271,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				{
 					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
 					{
-						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)GC.getGame().getElapsedGameTurns(); uiTurn++)
+						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)(GC.getGame().getStartTurn() + GC.getGame().getElapsedGameTurns()); uiTurn++)
 						{
 							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
 							if (kPlayer.getReplayDataSetName(uiDataSet) != NULL)
