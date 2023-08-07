@@ -453,6 +453,7 @@ public:
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
 #ifdef statistis_stuff_VARIANT
 	void addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY);
+	void addReplayStats2(uint uiDataSet, const char* Player, uint uiTurn, const char* szData, int iValue);
 #endif
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
