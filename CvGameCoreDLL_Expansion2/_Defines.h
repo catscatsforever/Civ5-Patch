@@ -226,7 +226,7 @@
 /// Increasing faith purchase cost of first Great Scientist
 #define FAITH_FOR_THE_FIRST_SCIENTIST
 /// Separating great scientists, engineers, merchants and prophets
-// #define SEPARATE_GREAT_PEOPLE
+#define SEPARATE_GREAT_PEOPLE // NEW: Counts Born Great Presons
 /// Free Great person is now actually free
 #define FREE_GREAT_PERSON
 /// Great Scientists now bulb for science at point of birth, not current science
@@ -764,6 +764,8 @@
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 #define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 #endif
+///
+#define ENHANCED_GRAPHS
 ///
 #define statistic_stuff
 #define statistis_stuff_VARIANT

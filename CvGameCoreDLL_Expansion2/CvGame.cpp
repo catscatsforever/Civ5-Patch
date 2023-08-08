@@ -7276,9 +7276,8 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
 							if (kPlayer.getReplayDataSetName(uiDataSet) != NULL)
 							{
-								const CvString strText = GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", kPlayer.getName());
-								SLOG("%s", strText.c_str());
-								addReplayStats2(uiDataSet, strText.c_str(), uiTurn, strText.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
+								const CvString strText = kPlayer.getName();
+								addReplayStats2(uiDataSet, strText.c_str(), uiTurn, szDataSetName.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
 							}
 						}
 					}

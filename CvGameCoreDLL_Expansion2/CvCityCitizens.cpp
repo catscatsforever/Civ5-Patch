@@ -2466,7 +2466,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
 	}
-#elif defined SEPARATE_GREAT_PEOPLE
+/*#elif defined SEPARATE_GREAT_PEOPLE
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true))
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
@@ -2478,7 +2478,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true))
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
-	}
+	}*/
 #endif
 #ifdef SEPARATE_MERCHANTS
 	else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true))
@@ -2562,15 +2562,15 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 #endif
 #if defined SWEDEN_UA_REWORK
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatScientistsCreated();
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatEngineersCreated();
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT") && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0)
+		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatMerchantsCreated();
 		}
