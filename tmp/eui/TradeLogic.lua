@@ -750,8 +750,8 @@ function ResetDisplay( diploMessage )
 		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
 
 	-- Us pocket Gold Per Turn
-	isEnabled = g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) -- 1 here is 1 GPT, which is the minimum possible
-	SetEnabledAndTextAndToolTip( Controls.UsPocketGoldPerTurn, isEnabled,
+	SetEnabledAndTextAndToolTip( Controls.UsPocketGoldPerTurn,
+		g_Deal:IsPossibleToTradeItem( g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration ), -- 1 here is 1 GPT, which is the minimum possible
 		g_pUs:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN"),
 		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
 
@@ -760,8 +760,8 @@ function ResetDisplay( diploMessage )
 		g_pUs:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") )]]
 
 	-- Them pocket Gold Per Turn
-	isEnabled = g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) -- 1 here is 1 GPT, which is the minimum possible
-	SetEnabledAndTextAndToolTip( Controls.UsPocketGoldPerTurn, isEnabled,
+	SetEnabledAndText( Controls.ThemPocketGoldPerTurn,
+		g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration ), -- 1 here is 1 GPT, which is the minimum possible
 		g_pThem:CalculateGoldRate() .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN"),
 		bnw_mode and not isEnabled and "[COLOR_WARNING_TEXT]"..Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEM_EMBARGOED_ONE_LINE").."[ENDCOLOR]" )
 
