@@ -276,6 +276,22 @@ public:
 	int GetNumUnitsSuppliedByHandicap() const;
 	int GetNumUnitsSuppliedByCities() const;
 	int GetNumUnitsSuppliedByPopulation() const;
+#ifdef ENHANCED_GRAPHS
+	int GetNumTrainedUnits() const;
+	void ChangeNumTrainedUnits(int iChange);
+	int GetNumKilledUnits() const;
+	void ChangeNumKilledUnits(int iChange);
+	int GetNumLostUnits() const;
+	void ChangeNumLostUnits(int iChange);
+	int GetUnitsDamageDealt() const;
+	void ChangeUnitsDamageDealt(int iChange);
+	int GetUnitsDamageTaken() const;
+	void ChangeUnitsDamageTaken(int iChange);
+	int GetCitiesDamageDealt() const;
+	void ChangeCitiesDamageDealt(int iChange);
+	int GetCitiesDamageTaken() const;
+	void ChangeCitiesDamageTaken(int iChange);
+#endif
 
 	int GetNumUnitsOutOfSupply() const;
 
@@ -1666,6 +1682,13 @@ protected:
 	int m_iSpyStartingRank;
 #ifdef ENHANCED_GRAPHS
 	int m_iNumStolenScience;
+	int m_iNumTrainedUnits;
+	int m_iNumKilledUnits;
+	int m_iNumLostUnits;
+	int m_iUnitsDamageDealt;
+	int m_iUnitsDamageTaken;
+	int m_iCitiesDamageDealt;
+	int m_iCitiesDamageTaken;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;

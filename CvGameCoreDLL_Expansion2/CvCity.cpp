@@ -12770,6 +12770,12 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		}
 #endif
 
+#ifdef ENHANCED_GRAPHS
+	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
+	{
+		thisPlayer.ChangeNumTrainedUnits(1);
+	}
+#endif
 	return pUnit->GetID();
 }
 
@@ -13426,6 +13432,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 		}
 	}
+
+#ifdef ENHANCED_GRAPHS
+	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
+	{
+		kPlayer.ChangeNumTrainedUnits(1);
+	}
+#endif
 	break;
 	case YIELD_FAITH:
 	{
@@ -13707,6 +13720,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 		}
 	}
+
+#ifdef ENHANCED_GRAPHS
+	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
+	{
+		kPlayer.ChangeNumTrainedUnits(1);
+	}
+#endif
 	break;
 	}
 }

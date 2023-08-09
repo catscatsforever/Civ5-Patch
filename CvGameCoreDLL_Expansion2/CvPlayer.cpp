@@ -162,6 +162,13 @@ CvPlayer::CvPlayer() :
 	, m_iSpyStartingRank(0)
 #ifdef ENHANCED_GRAPHS
 	, m_iNumStolenScience(0)
+	, m_iNumTrainedUnits(0)
+	, m_iNumKilledUnits(0)
+	, m_iNumLostUnits(0)
+	, m_iUnitsDamageDealt(0)
+	, m_iUnitsDamageTaken(0)
+	, m_iCitiesDamageDealt(0)
+	, m_iCitiesDamageTaken(0)
 #endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
@@ -804,6 +811,13 @@ void CvPlayer::uninit()
 	m_iSpyStartingRank = 0;
 #ifdef ENHANCED_GRAPHS
 	m_iNumStolenScience = 0;
+	m_iNumTrainedUnits = 0;
+	m_iNumKilledUnits = 0;
+	m_iNumLostUnits = 0;
+	m_iUnitsDamageDealt = 0;
+	m_iUnitsDamageTaken = 0;
+	m_iCitiesDamageDealt = 0;
+	m_iCitiesDamageTaken = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
@@ -9577,6 +9591,65 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation() const
 {
 	return getTotalPopulation() * getHandicapInfo().getProductionFreeUnitsPopulationPercent() / 100;
 }
+
+#ifdef ENHANCED_GRAPHS
+int CvPlayer::GetNumTrainedUnits() const
+{
+	return m_iNumTrainedUnits;
+}
+void CvPlayer::ChangeNumTrainedUnits(int iChange)
+{
+	m_iNumTrainedUnits = (m_iNumTrainedUnits + iChange);
+}
+int CvPlayer::GetNumKilledUnits() const
+{
+	return m_iNumKilledUnits;
+}
+void CvPlayer::ChangeNumKilledUnits(int iChange)
+{
+	m_iNumKilledUnits = (m_iNumKilledUnits + iChange);
+}
+int CvPlayer::GetNumLostUnits() const
+{
+	return m_iNumLostUnits;
+}
+void CvPlayer::ChangeNumLostUnits(int iChange)
+{
+	m_iNumLostUnits = (m_iNumLostUnits + iChange);
+}
+int CvPlayer::GetUnitsDamageDealt() const
+{
+	return m_iUnitsDamageDealt;
+}
+void CvPlayer::ChangeUnitsDamageDealt(int iChange)
+{
+	m_iUnitsDamageDealt = (m_iUnitsDamageDealt + iChange);
+}
+int CvPlayer::GetUnitsDamageTaken() const
+{
+	return m_iCitiesDamageDealt;
+}
+void CvPlayer::ChangeUnitsDamageTaken(int iChange)
+{
+	m_iCitiesDamageDealt = (m_iCitiesDamageDealt + iChange);
+}
+int CvPlayer::GetCitiesDamageDealt() const
+{
+	return m_iCitiesDamageDealt;
+}
+void CvPlayer::ChangeCitiesDamageDealt(int iChange)
+{
+	m_iCitiesDamageDealt = (m_iCitiesDamageDealt + iChange);
+}
+int CvPlayer::GetCitiesDamageTaken() const
+{
+	return m_iCitiesDamageTaken;
+}
+void CvPlayer::ChangeCitiesDamageTaken(int iChange)
+{
+	m_iCitiesDamageTaken = (m_iCitiesDamageTaken + iChange);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How much Units are eating Production?
@@ -23455,6 +23528,13 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iSpyStartingRank;
 #ifdef ENHANCED_GRAPHS
 	kStream >> m_iNumStolenScience;
+	kStream >> m_iNumTrainedUnits;
+	kStream >> m_iNumKilledUnits;
+	kStream >> m_iNumLostUnits;
+	kStream >> m_iUnitsDamageDealt;
+	kStream >> m_iUnitsDamageTaken;
+	kStream >> m_iCitiesDamageDealt;
+	kStream >> m_iCitiesDamageTaken;
 #endif
 	if (uiVersion >= 14)
 	{
@@ -24143,6 +24223,13 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iSpyStartingRank;
 #ifdef ENHANCED_GRAPHS
 	kStream << m_iNumStolenScience;
+	kStream << m_iNumTrainedUnits;
+	kStream << m_iNumKilledUnits;
+	kStream << m_iNumLostUnits;
+	kStream << m_iUnitsDamageDealt;
+	kStream << m_iUnitsDamageTaken;
+	kStream << m_iCitiesDamageDealt;
+	kStream << m_iCitiesDamageTaken;
 #endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
@@ -26745,9 +26832,9 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLING"), iGameTurn, iBullyGold);
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKERSFROMBULLING"), iGameTurn, iBullyWorkers);
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTRAINEDUNITS"), iGameTurn, 0());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMLOSTUNITS"), iGameTurn, 0());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMKILLEDUNITS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTRAINEDUNITS"), iGameTurn, GetNumTrainedUnits());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMLOSTUNITS"), iGameTurn, GetNumLostUnits());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMKILLEDUNITS"), iGameTurn, GetNumKilledUnits());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBUILTWONDERS"), iGameTurn, GetNumWonders());
 
@@ -26776,11 +26863,11 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMSTOLENSCIENCE"), iGameTurn, GetNumStolenScience());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOUNITS"), iGameTurn, 0());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOCITIES"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOUNITS"), iGameTurn, GetUnitsDamageDealt());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOCITIES"), iGameTurn, GetCitiesDamageDealt());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEINFLICTEDBYUNITS"), iGameTurn, 0());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEINFLICTEDBYCITIES"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGETAKENBYUNITS"), iGameTurn, GetUnitsDamageTaken());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGETAKENBYCITIES"), iGameTurn, GetCitiesDamageTaken());
 
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		int iNumDelegates;

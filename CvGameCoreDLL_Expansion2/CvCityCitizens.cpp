@@ -2565,14 +2565,20 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatScientistsCreated();
+			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
+				kPlayer.incrementGreatPeopleCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatEngineersCreated();
+			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
+				kPlayer.incrementGreatPeopleCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.incrementGreatMerchantsCreated();
+			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
+				kPlayer.incrementGreatPeopleCreated();
 		}
 #elif defined SEPARATE_GREAT_PEOPLE
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))

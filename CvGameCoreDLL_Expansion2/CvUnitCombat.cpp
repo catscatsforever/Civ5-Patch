@@ -834,6 +834,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 				{
 					bBarbarian = pCity->isBarbarian();
 					pCity->changeDamage(iDamage);
+#ifdef ENHANCED_GRAPHS
+					GET_PLAYER(pCity->getOwner()).ChangeCitiesDamageTaken(iDamage);
+					GET_PLAYER(pkAttacker->getOwner()).ChangeCitiesDamageDealt(iDamage);
+#endif
 
 					if(pCity->getOwner() == GC.getGame().getActivePlayer())
 					{
@@ -1002,6 +1006,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	{
 		pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 		pkDefender->changeDamage(iAttackerDamageInflicted);
+#ifdef ENHANCED_GRAPHS
+		GET_PLAYER(pkDefender->getOwner()).ChangeCitiesDamageTaken(iAttackerDamageInflicted);
+		GET_PLAYER(pkAttacker->getOwner()).ChangeCitiesDamageDealt(iAttackerDamageInflicted);
+#endif
 
 		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
@@ -1503,6 +1511,10 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				if(pkAttacker)
 				{
 					pCity->changeDamage(iAttackerDamageInflicted);
+#ifdef ENHANCED_GRAPHS
+					GET_PLAYER(pCity->getOwner()).ChangeCitiesDamageTaken(iAttackerDamageInflicted);
+					GET_PLAYER(pkAttacker->getOwner()).ChangeCitiesDamageDealt(iAttackerDamageInflicted);
+#endif
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pCity->getOwner());
 
 					//		iUnitDamage = std::max(pCity->getDamage(), pCity->getDamage() + iDamage);
@@ -2283,6 +2295,10 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkCity->changePopulation(-(std::min((pkCity->getPopulation() - 1), iNukedPopulation)));
 
 					// Add damage to the city
+#ifdef ENHANCED_GRAPHS
+					GET_PLAYER(pkCity->getOwner()).ChangeCitiesDamageTaken(kEntry.GetFinalDamage() - pkCity->getDamage());
+					GET_PLAYER(pkAttacker->getOwner()).ChangeCitiesDamageDealt(kEntry.GetFinalDamage() - pkCity->getDamage());
+#endif
 					pkCity->setDamage(kEntry.GetFinalDamage());
 
 					GET_PLAYER(pkCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
