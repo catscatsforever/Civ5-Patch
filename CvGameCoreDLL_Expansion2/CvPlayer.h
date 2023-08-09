@@ -509,6 +509,10 @@ public:
 	void ChangeEspionageModifier(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
+#ifdef ENHANCED_GRAPHS
+	int GetNumStolenScience() const;
+	void ChangeNumStolenScience(int iChange);
+#endif
 	// END Espionage
 
 	int GetExtraLeagueVotes() const;
@@ -1660,6 +1664,9 @@ protected:
 	int m_iHappinessPerXPolicies;
 	int m_iEspionageModifier;
 	int m_iSpyStartingRank;
+#ifdef ENHANCED_GRAPHS
+	int m_iNumStolenScience;
+#endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;

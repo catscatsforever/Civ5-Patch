@@ -1062,6 +1062,9 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 					if(kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
 					{
 						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]), ePlayer);
+#ifdef ENHANCED_GRAPHS
+						kPlayer.ChangeNumStolenScience(std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]));
+#endif
 					}
 				}
 				if(kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)

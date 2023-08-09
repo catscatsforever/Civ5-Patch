@@ -160,6 +160,9 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessFromLeagues(0)
 	, m_iEspionageModifier(0)
 	, m_iSpyStartingRank(0)
+#ifdef ENHANCED_GRAPHS
+	, m_iNumStolenScience(0)
+#endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
@@ -799,6 +802,9 @@ void CvPlayer::uninit()
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
 	m_iSpyStartingRank = 0;
+#ifdef ENHANCED_GRAPHS
+	m_iNumStolenScience = 0;
+#endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
 	m_iWoundedUnitDamageMod = 0;
@@ -13031,6 +13037,17 @@ void CvPlayer::ChangeStartingSpyRank(int iChange)
 	m_iSpyStartingRank = (m_iSpyStartingRank + iChange);
 }
 
+#ifdef ENHANCED_GRAPHS
+int CvPlayer::GetNumStolenScience() const
+{
+	return m_iNumStolenScience;
+}
+void CvPlayer::ChangeNumStolenScience(int iChange)
+{
+	m_iNumStolenScience = (m_iNumStolenScience + iChange);
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Extra league votes
 int CvPlayer::GetExtraLeagueVotes() const
@@ -23436,6 +23453,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 	kStream >> m_iEspionageModifier;
 	kStream >> m_iSpyStartingRank;
+#ifdef ENHANCED_GRAPHS
+	kStream >> m_iNumStolenScience;
+#endif
 	if (uiVersion >= 14)
 	{
 		kStream >> m_iExtraLeagueVotes;
@@ -24121,6 +24141,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iHappinessFromLeagues;
 	kStream << m_iEspionageModifier;
 	kStream << m_iSpyStartingRank;
+#ifdef ENHANCED_GRAPHS
+	kStream << m_iNumStolenScience;
+#endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
 	kStream << m_iWoundedUnitDamageMod;
@@ -26751,7 +26774,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, iRevealedTiles);
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMSTOLENSCIENCE"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMSTOLENSCIENCE"), iGameTurn, GetNumStolenScience());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOUNITS"), iGameTurn, 0());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEDEALTTOCITIES"), iGameTurn, 0());
@@ -26759,7 +26782,17 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEINFLICTEDBYUNITS"), iGameTurn, 0());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DAMAGEINFLICTEDBYCITIES"), iGameTurn, 0());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDELEGATES"), iGameTurn, 0());
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		int iNumDelegates;
+		if (pLeague)
+		{
+			iNumDelegates = pLeague->CalculateStartingVotesForMember(GetID());
+		}
+		else
+		{
+			iNumDelegates = 0;
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDELEGATES"), iGameTurn, iNumDelegates);
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDEMOGRAPHICSSCREENOPENEDPERTURN"), iGameTurn, 0());
 
