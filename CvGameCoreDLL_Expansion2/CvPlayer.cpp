@@ -26712,16 +26712,44 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTPROPHETS"), iGameTurn, getGreatProphetsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFPROPHETS"), iGameTurn, 0());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLING"), iGameTurn, 0());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKERSFROMBULLING"), iGameTurn, 0());
+		int iBullyGold = 0;
+		int iBullyWorkers = 0;
+		for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
+		{
+			iBullyGold += GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->GetBullyGoldAmountTotalByPlayer(GetID());
+			iBullyWorkers += GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->GetBullyWorkersAmountTotalByPlayer(GetID());
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLING"), iGameTurn, iBullyGold);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKERSFROMBULLING"), iGameTurn, iBullyWorkers);
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTRAINEDUNITS"), iGameTurn, 0());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMLOSTUNITS"), iGameTurn, 0());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMKILLEDUNITS"), iGameTurn, 0());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBUILTWONDERS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBUILTWONDERS"), iGameTurn, GetNumWonders());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, 0());
+		// revealed tiles
+		int iRevealedTiles = 0;
+		for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+		{
+			// when we encounter the first plot that is invalid, the rest of the list will be invalid
+			if (aiPlots[uiPlotIndex] == -1)
+			{
+				break;
+			}
+
+			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+			if (!pPlot)
+			{
+				continue;
+			}
+
+			if (pPlot->isRevealed(getTeam()))
+			{
+				iRevealedTiles++;
+			}
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, iRevealedTiles);
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMSTOLENSCIENCE"), iGameTurn, 0());
 
