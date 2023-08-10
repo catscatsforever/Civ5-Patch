@@ -750,7 +750,8 @@
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_MINORAI 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_PLAYER 1000
+// 1001: v7.2 (adds ENHANCED_GRAPHS)
+#define BUMP_SAVE_VERSION_PLAYER 1001
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_POLICIES 1000
 // 1000: v7.0 (initial)

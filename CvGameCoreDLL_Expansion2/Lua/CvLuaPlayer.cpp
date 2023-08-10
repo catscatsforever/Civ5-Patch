@@ -1004,6 +1004,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetWarmongerPreviewString);
 	Method(GetLiberationPreviewString);
+#ifdef ENHANCED_GRAPHS
+	Method(AddReplayOpenedDemographics);
+#endif
+
 
 }
 //------------------------------------------------------------------------------
@@ -11089,3 +11093,12 @@ int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
 	return 1;
 }
+
+#ifdef ENHANCED_GRAPHS
+int CvLuaPlayer::lAddReplayOpenedDemographics(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	pkPlayer->ChangeNumTimesOpenedDemographics(1);
+	return 1;
+}
+#endif
