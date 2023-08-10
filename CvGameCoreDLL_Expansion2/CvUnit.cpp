@@ -1312,12 +1312,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 #ifdef ENHANCED_GRAPHS
-	if (getUnitCombatType() != NO_UNITCOMBAT)
+	if (getUnitCombatType() != NO_UNITCOMBAT && ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER)
 	{
-		if (ePlayer != NO_PLAYER)
-		{
-			GET_PLAYER(ePlayer).ChangeNumKilledUnits(1);
-		}
+		GET_PLAYER(ePlayer).ChangeNumKilledUnits(1);
 		GET_PLAYER(getOwner()).ChangeNumLostUnits(1);
 	}
 #endif

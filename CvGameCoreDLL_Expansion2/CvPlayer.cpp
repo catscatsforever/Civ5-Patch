@@ -26880,7 +26880,11 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 	}
 
 	//Only record the following statistics if the player is alive.
+#ifdef ENHANCED_GRAPHS
+	if ((GC.getGame().isNetworkMultiPlayer() && isHuman() || !GC.getGame().isNetworkMultiPlayer() && isAlive()) && !isMinorCiv())
+#else
 	if(isAlive())
+#endif
 	{
 		//	Production Per Turn
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONPERTURN"), iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
@@ -27047,24 +27051,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		// revealed tiles
 		int iRevealedTiles = 0;
-		for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+		CvPlot* pLoopPlot;
+		for (int iLoopPlot = 0; iLoopPlot < GC.getMap().numPlots(); iLoopPlot++)
 		{
-			// when we encounter the first plot that is invalid, the rest of the list will be invalid
-			if (aiPlots[uiPlotIndex] == -1)
-			{
-				break;
-			}
-
-			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-			if (!pPlot)
-			{
-				continue;
-			}
-
-			if (pPlot->isRevealed(getTeam()))
-			{
+			pLoopPlot = GC.getMap().plotByIndexUnchecked(iLoopPlot);
+			if (pLoopPlot && pLoopPlot->isRevealed(getTeam()))
 				iRevealedTiles++;
-			}
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, iRevealedTiles);
 
@@ -27092,7 +27084,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMETSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
 #endif
 
 #ifdef statistic_stuff
