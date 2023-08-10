@@ -6045,12 +6045,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							if(pFreeUnit->IsGreatGeneral())
 							{
 								owningPlayer.incrementGreatGeneralsCreated();
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumGeneralsTotal(1);
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
 							else if(pFreeUnit->IsGreatAdmiral())
 							{
 								owningPlayer.incrementGreatAdmiralsCreated();
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumAdmiralTotal(1);
+#endif
 								CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
 								if (pFreeUnit->plot() != pSpawnPlot)
 								{
@@ -6062,6 +6068,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatWritersCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumWritersTotal(1);
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}							
@@ -6070,6 +6079,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatArtistsCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumArtistsTotal(1);
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}							
@@ -6077,6 +6089,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatMusiciansCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumMusiciansTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
@@ -6087,6 +6102,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatScientistsCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumScientistsTotal(1);
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
@@ -6095,6 +6113,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatEngineersCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumEngineersTotal(1);
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
@@ -6102,6 +6123,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatMerchantsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumMerchantsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
@@ -6112,6 +6136,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatProphetsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+								owningPlayer.ChangeNumProphetsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
@@ -13846,6 +13873,9 @@ bool CvCity::doCheckProduction()
 						if(iProductionGold > 0)
 						{
 							thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+#ifdef ENHANCED_GRAPHS
+							thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
+#endif
 
 							if(getOwner() == GC.getGame().getActivePlayer())
 							{
@@ -13911,6 +13941,9 @@ bool CvCity::doCheckProduction()
 					if(iProductionGold > 0)
 					{
 						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+#ifdef ENHANCED_GRAPHS
+						thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
+#endif
 
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
@@ -13941,6 +13974,9 @@ bool CvCity::doCheckProduction()
 					if(iProductionGold > 0)
 					{
 						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+#ifdef ENHANCED_GRAPHS
+						thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
+#endif
 
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{

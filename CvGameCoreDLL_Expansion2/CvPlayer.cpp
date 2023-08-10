@@ -169,6 +169,17 @@ CvPlayer::CvPlayer() :
 	, m_iUnitsDamageTaken(0)
 	, m_iCitiesDamageDealt(0)
 	, m_iCitiesDamageTaken(0)
+	, m_iNumScientistsTotal(0)
+	, m_iNumEngineersTotal(0)
+	, m_iNumMerchantsTotal(0)
+	, m_iNumWritersTotal(0)
+	, m_iNumArtistsTotal(0)
+	, m_iNumMusiciansTotal(0)
+	, m_iNumGeneralsTotal(0)
+	, m_iNumAdmiralsTotal(0)
+	, m_iNumProphetsTotal(0)
+	, m_iProductionGoldFromWonders(0)
+	, m_iNumChops(0)
 #endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
@@ -818,6 +829,17 @@ void CvPlayer::uninit()
 	m_iUnitsDamageTaken = 0;
 	m_iCitiesDamageDealt = 0;
 	m_iCitiesDamageTaken = 0;
+	m_iNumScientistsTotal = 0;
+	m_iNumEngineersTotal = 0;
+	m_iNumMerchantsTotal = 0;
+	m_iNumWritersTotal = 0;
+	m_iNumArtistsTotal = 0;
+	m_iNumMusiciansTotal = 0;
+	m_iNumGeneralsTotal = 0;
+	m_iNumAdmiralsTotal = 0;
+	m_iNumProphetsTotal = 0;
+	m_iProductionGoldFromWonders = 0;
+	m_iNumChops = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
@@ -9649,6 +9671,94 @@ void CvPlayer::ChangeCitiesDamageTaken(int iChange)
 {
 	m_iCitiesDamageTaken = (m_iCitiesDamageTaken + iChange);
 }
+int CvPlayer::GetNumScientistsTotal() const
+{
+	return m_iNumScientistsTotal;
+}
+void CvPlayer::ChangeNumScientistsTotal(int iChange)
+{
+	m_iNumScientistsTotal = (m_iNumScientistsTotal + iChange);
+}
+int CvPlayer::GetNumEngineersTotal() const
+{
+	return m_iNumEngineersTotal;
+}
+void CvPlayer::ChangeNumEngineersTotal(int iChange)
+{
+	m_iNumEngineersTotal = (m_iNumEngineersTotal + iChange);
+}
+int CvPlayer::GetNumMerchantsTotal() const
+{
+	return m_iNumMerchantsTotal;
+}
+void CvPlayer::ChangeNumMerchantsTotal(int iChange)
+{
+	m_iNumMerchantsTotal = (m_iNumMerchantsTotal + iChange);
+}
+int CvPlayer::GetNumWritersTotal() const
+{
+	return m_iNumWritersTotal;
+}
+void CvPlayer::ChangeNumWritersTotal(int iChange)
+{
+	m_iNumWritersTotal = (m_iNumWritersTotal + iChange);
+}
+int CvPlayer::GetNumAristsTotal() const
+{
+	return m_iNumArtistsTotal;
+}
+void CvPlayer::ChangeNumArtistsTotal(int iChange)
+{
+	m_iNumArtistsTotal = (m_iNumArtistsTotal + iChange);
+}
+int CvPlayer::GetNumMusiciansTotal() const
+{
+	return m_iNumMusiciansTotal;
+}
+void CvPlayer::ChangeNumMusiciansTotal(int iChange)
+{
+	m_iNumMusiciansTotal = (m_iNumMusiciansTotal + iChange);
+}
+int CvPlayer::GetNumGeneralsTotal() const
+{
+	return m_iNumGeneralsTotal;
+}
+void CvPlayer::ChangeNumGeneralsTotal(int iChange)
+{
+	m_iNumGeneralsTotal = (m_iNumGeneralsTotal + iChange);
+}
+int CvPlayer::GetNumAdmiralsTotal() const
+{
+	return m_iNumAdmiralsTotal;
+}
+void CvPlayer::ChangeNumAdmiralTotal(int iChange)
+{
+	m_iNumAdmiralsTotal = (m_iNumAdmiralsTotal + iChange);
+}
+int CvPlayer::GetNumProphetsTotal() const
+{
+	return m_iNumProphetsTotal;
+}
+void CvPlayer::ChangeNumProphetsTotal(int iChange)
+{
+	m_iNumProphetsTotal = (m_iNumProphetsTotal + iChange);
+}
+int CvPlayer::GetProductionGoldFromWonders() const
+{
+	return m_iProductionGoldFromWonders;
+}
+void CvPlayer::ChangeProductionGoldFromWonders(int iChange)
+{
+	m_iProductionGoldFromWonders = (m_iProductionGoldFromWonders + iChange);
+}
+int CvPlayer::GetNumChops() const
+{
+	return m_iNumChops;
+}
+void CvPlayer::ChangeNumChops(int iChange)
+{
+	m_iNumChops = (m_iNumChops + iChange);
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -10987,6 +11097,9 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 			CvCity* pSpawnCity = getCapitalCity();
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"), false /*bIncrementCount*/, false);
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"), false /*bIncrementCount*/, false);
+#ifdef ENHANCED_GRAPHS
+			ChangeNumProphetsTotal(2);
+#endif
 			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
 			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
 		// }
@@ -14699,42 +14812,81 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			if(pNewGreatPeople->IsGreatGeneral())
 			{
 				incrementGreatGeneralsCreated();
+#ifdef ENHANCED_GRAPHS
+				ChangeNumGeneralsTotal(1);
+#endif
 			}
 			else if(pNewGreatPeople->IsGreatAdmiral())
 			{
 				incrementGreatAdmiralsCreated();
+#ifdef ENHANCED_GRAPHS
+				ChangeNumAdmiralTotal(1);
+#endif
 			}
-#ifndef FREE_GREAT_PERSON
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatWritersCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumWritersTotal(1);
+#endif
 			}							
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatArtistsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumArtistsTotal(1);
+#endif
 			}							
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatMusiciansCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumMusiciansTotal(1);
+#endif
 			}
 #if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatScientistsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumScientistsTotal(1);
+#endif
 			}							
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatEngineersCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumEngineersTotal(1);
+#endif
 			}							
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatMerchantsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumMerchantsTotal(1);
+#endif
 			}
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 			{
+#ifndef FREE_GREAT_PERSON
 				incrementGreatProphetsCreated();
-			}
 #endif
+#ifdef ENHANCED_GRAPHS
+				ChangeNumProphetsTotal(1);
+#endif
+			}
 #ifdef SEPARATE_MERCHANTS
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 			{
@@ -23087,11 +23239,17 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									if(pNewUnit->IsGreatGeneral())
 									{
 										incrementGreatGeneralsCreated();
+#ifdef ENHANCED_GRAPHS
+										ChangeNumGeneralsTotal(1);
+#endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
 									else if(pNewUnit->IsGreatAdmiral())
 									{
 										incrementGreatAdmiralsCreated();
+#ifdef ENHANCED_GRAPHS
+										ChangeNumAdmiralTotal(1);
+#endif
 										CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
 										if (pNewUnit->plot() != pSpawnPlot)
 										{
@@ -23115,11 +23273,46 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifndef FREE_GREAT_PERSON
 										incrementGreatWritersCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumWritersTotal(1);
+#endif
 
 										if (pNewUnit->getUnitInfo().GetOneShotTourism() > 0)
 										{
 											pNewUnit->SetTourismBlastStrength(GetCulture()->GetTourismBlastStrength(pNewUnit->getUnitInfo().GetOneShotTourism()));
 										}
+
+										pNewUnit->jumpToNearestValidPlot();
+									}							
+									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+									{
+#ifndef FREE_GREAT_PERSON
+										incrementGreatArtistsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumArtistsTotal(1);
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}							
+									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+									{
+#ifndef FREE_GREAT_PERSON
+										incrementGreatMusiciansCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumMusiciansTotal(1);
+#endif
+										pNewUnit->jumpToNearestValidPlot();
+									}
+#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
+									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+									{
+#ifndef FREE_GREAT_PERSON
+										incrementGreatScientistsCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumScientistsTotal(1);
+#endif
 
 #ifdef NEW_SCIENTISTS_BULB
 #ifdef DECREASE_BULB_AMOUNT_OVER_TIME
@@ -23131,35 +23324,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										}
 #endif
 #endif
-
-										pNewUnit->jumpToNearestValidPlot();
-									}							
-									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-									{
-#ifndef FREE_GREAT_PERSON
-										incrementGreatArtistsCreated();
-#endif
-										pNewUnit->jumpToNearestValidPlot();
-									}							
-									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-									{
-#ifndef FREE_GREAT_PERSON
-										incrementGreatMusiciansCreated();
-#endif
-										pNewUnit->jumpToNearestValidPlot();
-									}
-#if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK
-									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-									{
-#ifndef FREE_GREAT_PERSON
-										incrementGreatScientistsCreated();
-#endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 									{
 #ifndef FREE_GREAT_PERSON
 										incrementGreatEngineersCreated();
+#endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumEngineersTotal(1);
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
@@ -23168,11 +23341,17 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifndef FREE_GREAT_PERSON
 										incrementGreatMerchantsCreated();
 #endif
+#ifdef ENHANCED_GRAPHS
+										ChangeNumMerchantsTotal(1);
+#endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 									{
 										incrementGreatProphetsCreated();
+#ifdef ENHANCED_GRAPHS
+										ChangeNumProphetsTotal(1);
+#endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
 #endif
@@ -23535,6 +23714,17 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iUnitsDamageTaken;
 	kStream >> m_iCitiesDamageDealt;
 	kStream >> m_iCitiesDamageTaken;
+	kStream >> m_iNumScientistsTotal;
+	kStream >> m_iNumEngineersTotal;
+	kStream >> m_iNumMerchantsTotal;
+	kStream >> m_iNumWritersTotal;
+	kStream >> m_iNumArtistsTotal;
+	kStream >> m_iNumMusiciansTotal;
+	kStream >> m_iNumGeneralsTotal;
+	kStream >> m_iNumAdmiralsTotal;
+	kStream >> m_iNumProphetsTotal;
+	kStream >> m_iProductionGoldFromWonders;
+	kStream >> m_iNumChops;
 #endif
 	if (uiVersion >= 14)
 	{
@@ -24230,6 +24420,17 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iUnitsDamageTaken;
 	kStream << m_iCitiesDamageDealt;
 	kStream << m_iCitiesDamageTaken;
+	kStream << m_iNumScientistsTotal;
+	kStream << m_iNumEngineersTotal;
+	kStream << m_iNumMerchantsTotal;
+	kStream << m_iNumWritersTotal;
+	kStream << m_iNumArtistsTotal;
+	kStream << m_iNumMusiciansTotal;
+	kStream << m_iNumGeneralsTotal;
+	kStream << m_iNumAdmiralsTotal;
+	kStream << m_iNumProphetsTotal;
+	kStream << m_iProductionGoldFromWonders;
+	kStream << m_iNumChops;
 #endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
@@ -24645,6 +24846,9 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	ChangeNumGreatPeople(1);
 
 	incrementGreatGeneralsCreated();
+#ifdef ENHANCED_GRAPHS
+	ChangeNumGeneralsTotal(1);
+#endif
 
 	changeGreatGeneralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE() * ((getGreatGeneralsCreated() / 10) + 1));
 
@@ -24698,6 +24902,9 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 
 	incrementGreatAdmiralsCreated();
+#ifdef ENHANCED_GRAPHS
+	ChangeNumAdmiralTotal(1);
+#endif
 	changeGreatAdmiralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE() * ((getGreatAdmiralsCreated() / 10) + 1));
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -26789,38 +26996,38 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSCIENTISTS"), iGameTurn, getGreatScientistsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTSCIENTISTS"), iGameTurn, getScientistsFromFaith() + getbScientistsFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFSCIENTISTS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFSCIENTISTS"), iGameTurn, GetNumScientistsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSENGINEERS"), iGameTurn, getGreatEngineersCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTENGINEERS"), iGameTurn, getEngineersFromFaith() + getbEngineersFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFENGINEERS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFENGINEERS"), iGameTurn, GetNumEngineersTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMERCHANTS"), iGameTurn, getGreatMerchantsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMERCHANTS"), iGameTurn, getMerchantsFromFaith() + getbMerchantsFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMERCHANTS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMERCHANTS"), iGameTurn, GetNumMerchantsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSWRITERS"), iGameTurn, getGreatWritersCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTWRITERS"), iGameTurn, getWritersFromFaith() + getbWritersFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFWRITERS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFWRITERS"), iGameTurn, GetNumWritersTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNARTISTS"), iGameTurn, getGreatArtistsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTARTISTS"), iGameTurn, getArtistsFromFaith() + getbArtistsFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFARTISTS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFARTISTS"), iGameTurn, GetNumAristsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMUSICIANS"), iGameTurn, getGreatMusiciansCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMUSICIANS"), iGameTurn, getMusiciansFromFaith() + getbMusiciansFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMUSICIANS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMUSICIANS"), iGameTurn, GetNumMusiciansTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNGENERALS"), iGameTurn, getGreatGeneralsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTGENERALS"), iGameTurn, getGeneralsFromFaith() + getbGeneralsFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFGENERALS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFGENERALS"), iGameTurn, GetNumGeneralsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNADMIRALS"), iGameTurn, getGreatAdmiralsCreated());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTADMIRALS"), iGameTurn, getAdmiralsFromFaith() + getbAdmiralsFromFaith());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOADMIRALS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOADMIRALS"), iGameTurn, GetNumAdmiralsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTPROPHETS"), iGameTurn, getGreatProphetsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFPROPHETS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFPROPHETS"), iGameTurn, GetNumProphetsTotal());
 
 		int iBullyGold = 0;
 		int iBullyWorkers = 0;
@@ -26883,9 +27090,9 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDEMOGRAPHICSSCREENOPENEDPERTURN"), iGameTurn, 0());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMETSFROMLOSTWONDERS"), iGameTurn, 0());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMETSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
 #endif
 
 #ifdef statistic_stuff

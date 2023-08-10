@@ -6398,6 +6398,16 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(iUnitClass);
 				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+#ifdef ENHANCED_GRAPHS
+				if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+				{
+					kPlayer.ChangeNumScientistsTotal(1);
+				}
+				else if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+				{
+					kPlayer.ChangeNumProphetsTotal(1);
+				}
+#endif
 
 				// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.
 				// So in the future we should use a different notification ("you received a new unit from your trait since you reached this tech") instead.

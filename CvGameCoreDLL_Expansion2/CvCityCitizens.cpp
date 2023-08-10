@@ -2532,10 +2532,16 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		if(newUnit->IsGreatGeneral())
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumGeneralsTotal(1);
+#endif
 			kPlayer.incrementGreatGeneralsCreated();
 		}
 		else if(newUnit->IsGreatAdmiral())
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumAdmiralTotal(1);
+#endif
 			kPlayer.incrementGreatAdmiralsCreated();
 			CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
 			if (newUnit->plot() != pSpawnPlot)
@@ -2545,37 +2551,58 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumWritersTotal(1);
+#endif
 			kPlayer.incrementGreatWritersCreated();
 		}							
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumArtistsTotal(1);
+#endif
 			kPlayer.incrementGreatArtistsCreated();
 		}							
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumMusiciansTotal(1);
+#endif
 			kPlayer.incrementGreatMusiciansCreated();
 		}
 #ifdef FREE_GREAT_PERSON
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumProphetsTotal(1);
+#endif
 			kPlayer.incrementGreatProphetsCreated();
 		}
 #endif
 #if defined SWEDEN_UA_REWORK
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumScientistsTotal(1);
+#endif
 			kPlayer.incrementGreatScientistsCreated();
 			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
 				kPlayer.incrementGreatPeopleCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumEngineersTotal(1);
+#endif
 			kPlayer.incrementGreatEngineersCreated();
 			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
 				kPlayer.incrementGreatPeopleCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#ifdef ENHANCED_GRAPHS
+			kPlayer.ChangeNumMerchantsTotal(1);
+#endif
 			kPlayer.incrementGreatMerchantsCreated();
 			if (!(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0))
 				kPlayer.incrementGreatPeopleCreated();

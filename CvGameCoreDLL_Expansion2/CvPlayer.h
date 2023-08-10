@@ -291,6 +291,28 @@ public:
 	void ChangeCitiesDamageDealt(int iChange);
 	int GetCitiesDamageTaken() const;
 	void ChangeCitiesDamageTaken(int iChange);
+	int GetNumScientistsTotal() const;
+	void ChangeNumScientistsTotal(int iChange);
+	int GetNumEngineersTotal() const;
+	void ChangeNumEngineersTotal(int iChange);
+	int GetNumMerchantsTotal() const;
+	void ChangeNumMerchantsTotal(int iChange);
+	int GetNumWritersTotal() const;
+	void ChangeNumWritersTotal(int iChange);
+	int GetNumAristsTotal() const;
+	void ChangeNumArtistsTotal(int iChange);
+	int GetNumMusiciansTotal() const;
+	void ChangeNumMusiciansTotal(int iChange);
+	int GetNumGeneralsTotal() const;
+	void ChangeNumGeneralsTotal(int iChange);
+	int GetNumAdmiralsTotal() const;
+	void ChangeNumAdmiralTotal(int iChange);
+	int GetNumProphetsTotal() const;
+	void ChangeNumProphetsTotal(int iChange);
+	int GetProductionGoldFromWonders() const;
+	void ChangeProductionGoldFromWonders(int iChange);
+	int GetNumChops() const;
+	void ChangeNumChops(int iChange);
 #endif
 
 	int GetNumUnitsOutOfSupply() const;
@@ -1689,6 +1711,17 @@ protected:
 	int m_iUnitsDamageTaken;
 	int m_iCitiesDamageDealt;
 	int m_iCitiesDamageTaken;
+	int m_iNumScientistsTotal;
+	int m_iNumEngineersTotal;
+	int m_iNumMerchantsTotal;
+	int m_iNumWritersTotal;
+	int m_iNumArtistsTotal;
+	int m_iNumMusiciansTotal;
+	int m_iNumGeneralsTotal;
+	int m_iNumAdmiralsTotal;
+	int m_iNumProphetsTotal;
+	int m_iProductionGoldFromWonders;
+	int m_iNumChops;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
