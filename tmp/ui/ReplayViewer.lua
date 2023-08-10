@@ -662,9 +662,9 @@ Panels = {
 				panel.PlayerGraphColors = {};
 				g_GraphLegendInstanceManager:ResetInstances();
 				for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
-					
 					local civ = GameInfo.Civilizations[player.Civilization];
 					
+					if (civ.Type ~= "CIVILIZATION_MINOR") then
 					local graphLegendInstance = g_GraphLegendInstanceManager:GetInstance();
 					
 					IconHookup( civ.PortraitIndex, 32, civ.IconAtlas, graphLegendInstance.LegendIcon );
@@ -694,6 +694,7 @@ Panels = {
 					end);
 					
 					panel.GraphLegendsByPlayer[i] = graphLegendInstance;
+					end
 				end
 				
 				panel.OnUpdate = panel:CreateUpdateHandler();
