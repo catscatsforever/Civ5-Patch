@@ -27122,8 +27122,6 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDELEGATES"), iGameTurn, iNumDelegates);
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDEMOGRAPHICSSCREENOPENEDPERTURN"), iGameTurn, 0());
-
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
@@ -27145,9 +27143,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			szDataSetName = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetType();
-			BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
-			setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, countNumBuildings(eBuilding));
+			if (GC.getBuildingClassInfo((BuildingClassTypes)iI))
+			{
+				szDataSetName = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetType();
+				BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
+				setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, countNumBuildings(eBuilding));
+			}
 		}
 
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
