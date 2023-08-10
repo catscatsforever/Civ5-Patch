@@ -13416,6 +13416,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					bool bScriptResult;
 					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
 				}
+
+#ifdef ENHANCED_GRAPHS
+				if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
+				{
+					kPlayer.ChangeNumTrainedUnits(1);
+				}
+#endif
 			}
 		}
 		else if(eBuildingType >= 0)
@@ -13459,13 +13466,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 		}
 	}
-
-#ifdef ENHANCED_GRAPHS
-	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
-	{
-		kPlayer.ChangeNumTrainedUnits(1);
-	}
-#endif
 	break;
 	case YIELD_FAITH:
 	{
@@ -13694,6 +13694,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				strLogMsg += temp;
 				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 			}
+
+#ifdef ENHANCED_GRAPHS
+			if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
+			{
+				kPlayer.ChangeNumTrainedUnits(1);
+			}
+#endif
 		}
 
 		else if(eBuildingType >= 0)
@@ -13747,13 +13754,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 		}
 	}
-
-#ifdef ENHANCED_GRAPHS
-	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
-	{
-		kPlayer.ChangeNumTrainedUnits(1);
-	}
-#endif
 	break;
 	}
 }

@@ -590,8 +590,8 @@ private:
 	PlayerTypes m_eMajorBoughtOutBy;
 
 #ifdef ENHANCED_GRAPHS
-	int m_aiBullyGoldAmountTotalByPlayer[MAX_MAJOR_CIVS];
-	int m_aiBullyWorkersAmountTotalByPlayer[MAX_MAJOR_CIVS];
+	int m_aiBullyGoldAmountTotalByPlayer[MAX_CIV_PLAYERS];
+	int m_aiBullyWorkersAmountTotalByPlayer[MAX_CIV_PLAYERS];
 #endif
 
 	int m_aiFriendshipWithMajorTimes100[MAX_MAJOR_CIVS];

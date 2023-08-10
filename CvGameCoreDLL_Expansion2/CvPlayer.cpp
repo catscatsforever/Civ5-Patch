@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -26922,7 +26922,11 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 	}
 
 	//Only record the following statistics if the player is alive.
+#ifdef ENHANCED_GRAPHS
+	if ((GC.getGame().isNetworkMultiPlayer() && isHuman() || !GC.getGame().isNetworkMultiPlayer() && isAlive()) && !isMinorCiv())
+#else
 	if(isAlive())
+#endif
 	{
 		//	Production Per Turn
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONPERTURN"), iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
@@ -27089,15 +27093,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		// revealed tiles
 		int iRevealedTiles = 0;
-		const int nPlots = GC.getMap().numPlots();
-		for (int iPlotLoop = 0; iPlotLoop < nPlots; iPlotLoop++)
+		CvPlot* pLoopPlot;
+		for (int iLoopPlot = 0; iLoopPlot < GC.getMap().numPlots(); iLoopPlot++)
 		{
-			CvPlot* pMapPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
-			if (pMapPlot->isRevealed(getTeam()))
-			{
-				++iRevealedTiles;
-			}
+			pLoopPlot = GC.getMap().plotByIndexUnchecked(iLoopPlot);
+			if (pLoopPlot && pLoopPlot->isRevealed(getTeam()))
+				iRevealedTiles++;
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, iRevealedTiles);
 
@@ -27125,7 +27126,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMETSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS"), iGameTurn, GetNumTimesOpenedDemographics());
 #endif
