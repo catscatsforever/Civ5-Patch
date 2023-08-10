@@ -214,7 +214,7 @@
 				<Label Anchor="C,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NoGraphData" String="TXT_KEY_REPLAY_NOGRAPHDATA" Hidden="1"/>
 			</Box>
 
-			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="110" Size="400,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="GraphDataSetPulldown" />
+			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="330" Size="500,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="GraphDataSetPulldown" />
 
 		</Box>
 

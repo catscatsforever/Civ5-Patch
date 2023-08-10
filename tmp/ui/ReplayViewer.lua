@@ -573,13 +573,15 @@ Panels = {
 								
 				for i,v in ipairs(g_GraphHorizontalMarkers) do
 					if(i == #g_GraphHorizontalMarkers) then
-						v:SetText(GetShortDateString(finalTurn, calendarType, gameSpeedType, startYear));
+						--v:SetText(GetShortDateString(finalTurn, calendarType, gameSpeedType, startYear));
+						v:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", finalTurn));
 					else
 						local turnIncrement = math.floor((i - 1) * turnIncrements) + minTurn;
 						if(turnIncrement < initialTurn) then
 							v:SetText("");	
 						else
-							v:SetText(GetShortDateString(turnIncrement, calendarType, gameSpeedType, startYear));
+							--v:SetText(GetShortDateString(turnIncrement, calendarType, gameSpeedType, startYear));
+							v:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", turnIncrement));
 						end
 					end
 				end
