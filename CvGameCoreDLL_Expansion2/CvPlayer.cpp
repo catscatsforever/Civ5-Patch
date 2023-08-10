@@ -23716,26 +23716,56 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iEspionageModifier;
 	kStream >> m_iSpyStartingRank;
 #ifdef ENHANCED_GRAPHS
-	kStream >> m_iNumStolenScience;
-	kStream >> m_iNumTrainedUnits;
-	kStream >> m_iNumKilledUnits;
-	kStream >> m_iNumLostUnits;
-	kStream >> m_iUnitsDamageDealt;
-	kStream >> m_iUnitsDamageTaken;
-	kStream >> m_iCitiesDamageDealt;
-	kStream >> m_iCitiesDamageTaken;
-	kStream >> m_iNumScientistsTotal;
-	kStream >> m_iNumEngineersTotal;
-	kStream >> m_iNumMerchantsTotal;
-	kStream >> m_iNumWritersTotal;
-	kStream >> m_iNumArtistsTotal;
-	kStream >> m_iNumMusiciansTotal;
-	kStream >> m_iNumGeneralsTotal;
-	kStream >> m_iNumAdmiralsTotal;
-	kStream >> m_iNumProphetsTotal;
-	kStream >> m_iProductionGoldFromWonders;
-	kStream >> m_iNumChops;
-	kStream >> m_iNumTimesOpenedDemographics;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_PLAYER)
+	{
+# endif
+		kStream >> m_iNumStolenScience;
+		kStream >> m_iNumTrainedUnits;
+		kStream >> m_iNumKilledUnits;
+		kStream >> m_iNumLostUnits;
+		kStream >> m_iUnitsDamageDealt;
+		kStream >> m_iUnitsDamageTaken;
+		kStream >> m_iCitiesDamageDealt;
+		kStream >> m_iCitiesDamageTaken;
+		kStream >> m_iNumScientistsTotal;
+		kStream >> m_iNumEngineersTotal;
+		kStream >> m_iNumMerchantsTotal;
+		kStream >> m_iNumWritersTotal;
+		kStream >> m_iNumArtistsTotal;
+		kStream >> m_iNumMusiciansTotal;
+		kStream >> m_iNumGeneralsTotal;
+		kStream >> m_iNumAdmiralsTotal;
+		kStream >> m_iNumProphetsTotal;
+		kStream >> m_iProductionGoldFromWonders;
+		kStream >> m_iNumChops;
+		kStream >> m_iNumTimesOpenedDemographics;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNumStolenScience = 0;
+		m_iNumTrainedUnits = 0;
+		m_iNumKilledUnits = 0;
+		m_iNumLostUnits = 0;
+		m_iUnitsDamageDealt = 0;
+		m_iUnitsDamageTaken = 0;
+		m_iCitiesDamageDealt = 0;
+		m_iCitiesDamageTaken = 0;
+		m_iNumScientistsTotal = 0;
+		m_iNumEngineersTotal = 0;
+		m_iNumMerchantsTotal = 0;
+		m_iNumWritersTotal = 0;
+		m_iNumArtistsTotal = 0;
+		m_iNumMusiciansTotal = 0;
+		m_iNumGeneralsTotal = 0;
+		m_iNumAdmiralsTotal = 0;
+		m_iNumProphetsTotal = 0;
+		m_iProductionGoldFromWonders = 0;
+		m_iNumChops = 0;
+		m_iNumTimesOpenedDemographics = 0;
+	}
+# endif
 #endif
 	if (uiVersion >= 14)
 	{
