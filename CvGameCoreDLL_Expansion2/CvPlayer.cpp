@@ -27059,23 +27059,14 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		// revealed tiles
 		int iRevealedTiles = 0;
-		for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+		const int nPlots = GC.getMap().numPlots();
+		for (int iPlotLoop = 0; iPlotLoop < nPlots; iPlotLoop++)
 		{
-			// when we encounter the first plot that is invalid, the rest of the list will be invalid
-			if (aiPlots[uiPlotIndex] == -1)
-			{
-				break;
-			}
+			CvPlot* pMapPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
-			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-			if (!pPlot)
+			if (pMapPlot->isRevealed(getTeam()))
 			{
-				continue;
-			}
-
-			if (pPlot->isRevealed(getTeam()))
-			{
-				iRevealedTiles++;
+				++iRevealedTiles;
 			}
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMREVEALEDTILES"), iGameTurn, iRevealedTiles);
