@@ -180,6 +180,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumProphetsTotal(0)
 	, m_iProductionGoldFromWonders(0)
 	, m_iNumChops(0)
+	, m_iNumTimesOpenedDemographics(0)
 #endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
@@ -840,6 +841,7 @@ void CvPlayer::uninit()
 	m_iNumProphetsTotal = 0;
 	m_iProductionGoldFromWonders = 0;
 	m_iNumChops = 0;
+	m_iNumTimesOpenedDemographics = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
@@ -9758,6 +9760,14 @@ int CvPlayer::GetNumChops() const
 void CvPlayer::ChangeNumChops(int iChange)
 {
 	m_iNumChops = (m_iNumChops + iChange);
+}
+int CvPlayer::GetNumTimesOpenedDemographics() const
+{
+	return m_iNumTimesOpenedDemographics;
+}
+void CvPlayer::ChangeNumTimesOpenedDemographics(int iChange)
+{
+	m_iNumTimesOpenedDemographics = (m_iNumTimesOpenedDemographics + iChange);
 }
 #endif
 
@@ -23725,6 +23735,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iNumProphetsTotal;
 	kStream >> m_iProductionGoldFromWonders;
 	kStream >> m_iNumChops;
+	kStream >> m_iNumTimesOpenedDemographics;
 #endif
 	if (uiVersion >= 14)
 	{
@@ -24431,6 +24442,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumProphetsTotal;
 	kStream << m_iProductionGoldFromWonders;
 	kStream << m_iNumChops;
+	kStream << m_iNumTimesOpenedDemographics;
 #endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
@@ -27093,6 +27105,8 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMETSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
+
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS"), iGameTurn, GetNumTimesOpenedDemographics());
 #endif
 
 #ifdef statistic_stuff

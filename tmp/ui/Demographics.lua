@@ -2,6 +2,7 @@ include( "IconSupport" );
 ----------------------------------------------------------------
 -------------------------------------------------
 -- edit: Do not show AI in Demographics
+-- edit: Add replay stats
 -------------------------------------------------
 local m_PopulationTable = {};
 local m_FoodTable = {};
@@ -510,9 +511,13 @@ function OnPopup( popupInfo )
         	if( ContextPtr:IsHidden() == false ) then
         	    OnBack();
             else
+                -- NEW: add replay stats
+                Players[Game.GetActivePlayer()]:AddReplayOpenedDemographics();
             	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
         	end
     	else
+            -- NEW: add replay stats
+            Players[Game.GetActivePlayer()]:AddReplayOpenedDemographics();
         	UIManager:QueuePopup( ContextPtr, PopupPriority.Demographics );
     	end
 	end

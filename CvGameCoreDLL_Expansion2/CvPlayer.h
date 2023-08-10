@@ -313,6 +313,8 @@ public:
 	void ChangeProductionGoldFromWonders(int iChange);
 	int GetNumChops() const;
 	void ChangeNumChops(int iChange);
+	int GetNumTimesOpenedDemographics() const;
+	void ChangeNumTimesOpenedDemographics(int Change);
 #endif
 
 	int GetNumUnitsOutOfSupply() const;
@@ -1722,6 +1724,7 @@ protected:
 	int m_iNumProphetsTotal;
 	int m_iProductionGoldFromWonders;
 	int m_iNumChops;
+	int m_iNumTimesOpenedDemographics;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
