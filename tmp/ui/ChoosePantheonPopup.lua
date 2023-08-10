@@ -169,7 +169,7 @@ function RefreshList()
 	end
 
 	-- Sort beliefs by their description.
-	-- table.sort(availableBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
+	table.sort(availableBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
 	
 	local bTickTock = false;
 	-- for info in GameInfo.Beliefs("Pantheon = 1 ORDER BY ShortDescription") do
