@@ -27122,16 +27122,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDELEGATES"), iGameTurn, iNumDelegates);
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMDEMOGRAPHICSSCREENOPENEDPERTURN"), iGameTurn, 0());
-
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCHOPS"), iGameTurn, GetNumChops());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS"), iGameTurn, GetProductionGoldFromWonders());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS"), iGameTurn, GetNumTimesOpenedDemographics());
-#endif
 
-#ifdef statistic_stuff
 		const char* szDataSetName;
 		for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
 		{
@@ -27143,6 +27139,23 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		{
 			szDataSetName = GC.getTechInfo((TechTypes)iI)->GetType();
 			setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)iI));
+		}
+
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			if (GC.getBuildingClassInfo((BuildingClassTypes)iI))
+			{
+				szDataSetName = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetType();
+				BuildingTypes eBuilding = NO_BUILDING;
+				eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
+				if (eBuilding == NO_BUILDING)
+				{
+					eBuilding = (BuildingTypes)GC.getBuildingClassInfo((BuildingClassTypes)iI)->getDefaultBuildingIndex();
+				}
+				if (eBuilding == NO_BUILDING)
+					continue;
+				setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, countNumBuildings(eBuilding));
+			}
 		}
 
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();

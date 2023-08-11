@@ -119,9 +119,9 @@ function OnPantheonBeliefClick()
 					Description = Locale.Lookup(belief.Description),
 				});
 			end
-		end
+		end]]
 		
-		table.sort(availablePantheonBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);]]
+		table.sort(availablePantheonBeliefs, function(a,b) return Locale.Compare(a.Name, b.Name) < 0; end);
 		
 		SelectFromBeliefs(availablePantheonBeliefs, function(belief)
 			Controls.PantheonBeliefName:SetText(belief.Name);
