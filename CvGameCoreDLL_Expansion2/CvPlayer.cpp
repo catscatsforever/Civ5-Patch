@@ -27146,7 +27146,14 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 			if (GC.getBuildingClassInfo((BuildingClassTypes)iI))
 			{
 				szDataSetName = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetType();
-				BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
+				BuildingTypes eBuilding = NO_BUILDING;
+				eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
+				if (eBuilding == NO_BUILDING)
+				{
+					eBuilding = (BuildingTypes)GC.getBuildingClassInfo((BuildingClassTypes)iI)->getDefaultBuildingIndex();
+				}
+				if (eBuilding == NO_BUILDING)
+					continue;
 				setReplayDataValue(getReplayDataSetIndex(szDataSetName), iGameTurn, countNumBuildings(eBuilding));
 			}
 		}
