@@ -512,12 +512,12 @@ function OnPopup( popupInfo )
         	    OnBack();
             else
                 -- NEW: add replay stats
-                Players[Game.GetActivePlayer()]:AddReplayOpenedDemographics();
+                Network.SendGiftUnit(-1, -8);
             	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
         	end
     	else
             -- NEW: add replay stats
-            Players[Game.GetActivePlayer()]:AddReplayOpenedDemographics();
+            Network.SendGiftUnit(-1, -8);
         	UIManager:QueuePopup( ContextPtr, PopupPriority.Demographics );
     	end
 	end
