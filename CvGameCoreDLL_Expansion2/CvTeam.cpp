@@ -6406,6 +6406,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				else if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 				{
 					kPlayer.ChangeNumProphetsTotal(1);
+					SLOG("Tech Great Propghet: %d", kPlayer.GetNumProphetsTotal());
 				}
 #endif
 

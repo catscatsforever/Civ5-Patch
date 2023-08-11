@@ -2540,7 +2540,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		else if(newUnit->IsGreatAdmiral())
 		{
 #ifdef ENHANCED_GRAPHS
-			kPlayer.ChangeNumAdmiralTotal(1);
+			kPlayer.ChangeNumAdmiralsTotal(1);
 #endif
 			kPlayer.incrementGreatAdmiralsCreated();
 			CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
@@ -2575,6 +2575,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		{
 #ifdef ENHANCED_GRAPHS
 			kPlayer.ChangeNumProphetsTotal(1);
+			SLOG("Spawn Great Propghet");
 #endif
 			kPlayer.incrementGreatProphetsCreated();
 		}
@@ -2640,6 +2641,9 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #endif
 	{
 		kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
+#ifdef ENHANCED_GRAPHS
+		kPlayer.ChangeNumProphetsTotal(1);
+#endif
 	}
 
 	// Setup prophet properly

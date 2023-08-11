@@ -306,7 +306,7 @@ public:
 	int GetNumGeneralsTotal() const;
 	void ChangeNumGeneralsTotal(int iChange);
 	int GetNumAdmiralsTotal() const;
-	void ChangeNumAdmiralTotal(int iChange);
+	void ChangeNumAdmiralsTotal(int iChange);
 	int GetNumProphetsTotal() const;
 	void ChangeNumProphetsTotal(int iChange);
 	int GetProductionGoldFromWonders() const;

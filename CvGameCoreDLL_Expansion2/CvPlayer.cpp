@@ -9733,7 +9733,7 @@ int CvPlayer::GetNumAdmiralsTotal() const
 {
 	return m_iNumAdmiralsTotal;
 }
-void CvPlayer::ChangeNumAdmiralTotal(int iChange)
+void CvPlayer::ChangeNumAdmiralsTotal(int iChange)
 {
 	m_iNumAdmiralsTotal = (m_iNumAdmiralsTotal + iChange);
 }
@@ -14830,7 +14830,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				incrementGreatAdmiralsCreated();
 #ifdef ENHANCED_GRAPHS
-				ChangeNumAdmiralTotal(1);
+				ChangeNumAdmiralsTotal(1);
 #endif
 			}
 			else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -23258,7 +23258,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									{
 										incrementGreatAdmiralsCreated();
 #ifdef ENHANCED_GRAPHS
-										ChangeNumAdmiralTotal(1);
+										ChangeNumAdmiralsTotal(1);
 #endif
 										CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
 										if (pNewUnit->plot() != pSpawnPlot)
@@ -23277,6 +23277,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 											pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 											pNewUnit->GetReligionData()->SetReligion(eReligion);
 										}
+#ifdef ENHANCED_GRAPHS
+										ChangeNumProphetsTotal(1);
+#endif
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 									{
@@ -24945,7 +24948,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 
 	incrementGreatAdmiralsCreated();
 #ifdef ENHANCED_GRAPHS
-	ChangeNumAdmiralTotal(1);
+	ChangeNumAdmiralsTotal(1);
 #endif
 	changeGreatAdmiralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE() * ((getGreatAdmiralsCreated() / 10) + 1));
 
@@ -27040,39 +27043,49 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FAITHPERTURN"), iGameTurn, GetTotalFaithPerTurn());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALFAITH"), iGameTurn, GetFaith());
 
+		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+		bool bIsFaithPurchaseAllGreatPeople = false;
+		if (pReligion)
+		{
+			if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople())
+			{
+				bIsFaithPurchaseAllGreatPeople = true;
+			}
+		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSCIENTISTS"), iGameTurn, getGreatScientistsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTSCIENTISTS"), iGameTurn, getScientistsFromFaith() + getbScientistsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTSCIENTISTS"), iGameTurn, getScientistsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbScientistsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFSCIENTISTS"), iGameTurn, GetNumScientistsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNENGINEERS"), iGameTurn, getGreatEngineersCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTENGINEERS"), iGameTurn, getEngineersFromFaith() + getbEngineersFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTENGINEERS"), iGameTurn, getEngineersFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbEngineersFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFENGINEERS"), iGameTurn, GetNumEngineersTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMERCHANTS"), iGameTurn, getGreatMerchantsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMERCHANTS"), iGameTurn, getMerchantsFromFaith() + getbMerchantsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMERCHANTS"), iGameTurn, getMerchantsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbMerchantsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMERCHANTS"), iGameTurn, GetNumMerchantsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNWRITERS"), iGameTurn, getGreatWritersCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTWRITERS"), iGameTurn, getWritersFromFaith() + getbWritersFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTWRITERS"), iGameTurn, getWritersFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbWritersFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFWRITERS"), iGameTurn, GetNumWritersTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNARTISTS"), iGameTurn, getGreatArtistsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTARTISTS"), iGameTurn, getArtistsFromFaith() + getbArtistsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTARTISTS"), iGameTurn, getArtistsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbArtistsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFARTISTS"), iGameTurn, GetNumAristsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMUSICIANS"), iGameTurn, getGreatMusiciansCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMUSICIANS"), iGameTurn, getMusiciansFromFaith() + getbMusiciansFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMUSICIANS"), iGameTurn, getMusiciansFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbMusiciansFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMUSICIANS"), iGameTurn, GetNumMusiciansTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNGENERALS"), iGameTurn, getGreatGeneralsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTGENERALS"), iGameTurn, getGeneralsFromFaith() + getbGeneralsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTGENERALS"), iGameTurn, getGeneralsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbGeneralsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFGENERALS"), iGameTurn, GetNumGeneralsTotal());
 
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNADMIRALS"), iGameTurn, getGreatAdmiralsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTADMIRALS"), iGameTurn, getAdmiralsFromFaith() + getbAdmiralsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTADMIRALS"), iGameTurn, getAdmiralsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbAdmiralsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFADMIRALS"), iGameTurn, GetNumAdmiralsTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTPROPHETS"), iGameTurn, getGreatProphetsCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTPROPHETS"), iGameTurn, GetReligions()->GetNumProphetsSpawned());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFPROPHETS"), iGameTurn, GetNumProphetsTotal());
 
 		int iBullyGold = 0;
@@ -27158,8 +27171,6 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 			}
 		}
 
-		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 		CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 		const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
 		for (int iI = 0; iI < iNumBeleifs; iI++)
