@@ -2575,7 +2575,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		{
 #ifdef ENHANCED_GRAPHS
 			kPlayer.ChangeNumProphetsTotal(1);
-			SLOG("Spawn Great Propghet");
 #endif
 			kPlayer.incrementGreatProphetsCreated();
 		}
