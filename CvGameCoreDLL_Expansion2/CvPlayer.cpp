@@ -23828,15 +23828,6 @@ void CvPlayer::Read(FDataStream& kStream)
 		kStream >> m_bMayaBoostMusicians;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
-	else if (uiVersion == 1001)
-	{
-		m_bMayaBoostScientist = 0;
-		m_bMayaBoostEngineers = 0;
-		m_bMayaBoostMerchants = 0;
-		m_bMayaBoostWriters = 0;
-		m_bMayaBoostArtists = 0;
-		m_bMayaBoostMusicians = 0;
-	}
 	else
 	{
 		m_iNumStolenScience = 0;

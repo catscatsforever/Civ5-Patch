@@ -372,57 +372,29 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY)
 {
 	CvGame& kGame(GC.getGame());
-#ifdef REPLAY_MESSAGE_EXTENDED
-	// -1 -- adds chat message to replay
-	if (eReligion == -1)
-	{
-		CvString strName;
-		ChatTargetTypes eTarget = static_cast<ChatTargetTypes>(eBelief1);
-		if (eTarget == CHATTARGET_TEAM)
-		{
-			strName = CvString::format("%s: [COLOR_GREEN]%s", GET_PLAYER(ePlayer).getName(), szCustomName);
-		}
-		else if (eTarget == CHATTARGET_PLAYER)
-		{
-			PlayerTypes toPlayer = static_cast<PlayerTypes>(eBelief2);
-			strName = CvString::format("%s to %s: %s", GET_PLAYER(ePlayer).getName(), GET_PLAYER(toPlayer).getName(), szCustomName);
-		}
-		else
-		{
-			strName = CvString::format("%s: %s", GET_PLAYER(ePlayer).getName(), szCustomName);
-		}
+	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
-		GC.getGame().addReplayMessage((ReplayMessageTypes)REPLAY_MESSAGE_CHAT, ePlayer, strName);
-	}
+	CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanEnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
+	if(eResult == CvGameReligions::FOUNDING_OK)
+		pkGameReligions->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
 	else
 	{
-#endif
-		CvGameReligions* pkGameReligions(kGame.GetGameReligions());
-
-		CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanEnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
-		if (eResult == CvGameReligions::FOUNDING_OK)
-			pkGameReligions->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
-		else
+		CvGameReligions::NotifyPlayer(ePlayer, eResult);
+		// We don't want them to lose the opportunity to enhance the religion, and the Great Prophet is already gone so just repost the notification
+		CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
 		{
-			CvGameReligions::NotifyPlayer(ePlayer, eResult);
-			// We don't want them to lose the opportunity to enhance the religion, and the Great Prophet is already gone so just repost the notification
-			CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
-			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			if (kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
+			CvNotifications* pNotifications = kPlayer.GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if (pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
-					pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, -1, pkCity->GetID());
-				}
-				kPlayer.GetReligions()->SetFoundingReligion(true);
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
+				pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, -1, pkCity->GetID());
 			}
+			kPlayer.GetReligions()->SetFoundingReligion(true);
 		}
-#ifdef REPLAY_MESSAGE_EXTENDED
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat)
