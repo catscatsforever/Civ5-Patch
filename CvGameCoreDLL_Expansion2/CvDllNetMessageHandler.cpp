@@ -959,7 +959,11 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 	if(pCity)
 #endif
 	{
+#ifdef ENHANCED_GRAPHS
+		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, true);
+#else
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
+#endif
 	}
 	kPlayer.ChangeNumMayaBoosts(-1);
 	kPlayer.GetPlayerTraits()->SetUnitBaktun(eGreatPersonUnit);
