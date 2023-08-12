@@ -33,6 +33,10 @@ public:
 	bool getPlot(unsigned int idx, int& iPlotX, int& iPlotY) const;
 	unsigned int getNumPlots() const;
 	void clearPlots();
+#ifdef REPLAY_MESSAGE_EXTENDED
+	void setTimestamp(float fTime);
+	int getTimestamp() const;
+#endif
 
 	void read(FDataStream& kStream, unsigned int uiVersion);
 	void write(FDataStream& kStream) const;
@@ -43,6 +47,9 @@ private:
 
 	typedef std::pair<short, short> PlotPosition;
 	typedef std::vector<PlotPosition> PlotPositionList;
+#ifdef REPLAY_MESSAGE_EXTENDED
+	int m_iTimeMilliseconds;
+#endif
 
 	PlotPositionList m_Plots;
 	PlayerTypes m_ePlayer;

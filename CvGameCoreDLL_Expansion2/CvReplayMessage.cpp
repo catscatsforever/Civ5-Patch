@@ -12,6 +12,33 @@
 // include this after all other headers!
 #include "LintFree.h"
 
+#ifdef REPLAY_MESSAGE_EXTENDED
+//------------------------------------------------------------------------------
+unsigned int CvReplayMessage::Version()
+{
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	return BUMP_SAVE_VERSION_REPLAYMESSAGE;
+# else
+	return 2;
+# endif
+}
+//------------------------------------------------------------------------------
+CvReplayMessage::CvReplayMessage()
+	: m_iTurn(-1)
+	, m_iTimeMilliseconds(0)
+	, m_eType(NO_REPLAY_MESSAGE)
+	, m_ePlayer(NO_PLAYER)
+{
+}
+//------------------------------------------------------------------------------
+CvReplayMessage::CvReplayMessage(int iTurn, ReplayMessageTypes eType, PlayerTypes ePlayer) :
+	m_iTurn(iTurn),
+	m_iTimeMilliseconds(static_cast<int>(GC.getGame().getTimeElapsed() * 1000)),
+	m_ePlayer(ePlayer),
+	m_eType(eType)
+{
+}
+#else
 //------------------------------------------------------------------------------
 unsigned int CvReplayMessage::Version()
 {
@@ -31,6 +58,7 @@ CvReplayMessage::CvReplayMessage(int iTurn, ReplayMessageTypes eType, PlayerType
 	m_eType(eType)
 {
 }
+#endif
 //------------------------------------------------------------------------------
 CvReplayMessage::~CvReplayMessage()
 {
@@ -113,6 +141,16 @@ void CvReplayMessage::clearPlots()
 {
 	m_Plots.clear();
 }
+#ifdef REPLAY_MESSAGE_EXTENDED
+void CvReplayMessage::setTimestamp(float fTime)
+{
+	m_iTimeMilliseconds = static_cast<int>(fTime);
+}
+int CvReplayMessage::getTimestamp() const
+{
+	return m_iTimeMilliseconds;
+}
+#endif
 //------------------------------------------------------------------------------
 void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
 {
@@ -134,6 +172,9 @@ void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
 			m_Plots.push_back(PlotPosition(sPlotX, sPlotY));
 		}
 	}
+#ifdef REPLAY_MESSAGE_EXTENDED
+	kStream >> m_iTimeMilliseconds;
+#endif
 
 	kStream >> m_ePlayer;
 	kStream >> m_strText;
@@ -150,6 +191,9 @@ void CvReplayMessage::write(FDataStream& kStream) const
 		kStream << (*it).first;
 		kStream << (*it).second;
 	}
+#ifdef REPLAY_MESSAGE_EXTENDED
+	kStream << m_iTimeMilliseconds;
+#endif
 
 	kStream << m_ePlayer;
 	kStream << m_strText;
