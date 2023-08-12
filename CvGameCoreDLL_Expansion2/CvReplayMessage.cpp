@@ -173,18 +173,7 @@ void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
 		}
 	}
 #ifdef REPLAY_MESSAGE_EXTENDED
-# ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_REPLAYMESSAGE)
-	{
-# endif
-		kStream >> m_iTimeMilliseconds;
-# ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else
-	{
-		m_iTimeMilliseconds = 0;
-	}
-# endif
+	kStream >> m_iTimeMilliseconds;
 #endif
 
 	kStream >> m_ePlayer;
