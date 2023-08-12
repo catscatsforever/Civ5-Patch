@@ -23830,26 +23830,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 	else if (uiVersion == 1001)
 	{
-		kStream >> m_iNumStolenScience;
-		kStream >> m_iNumTrainedUnits;
-		kStream >> m_iNumKilledUnits;
-		kStream >> m_iNumLostUnits;
-		kStream >> m_iUnitsDamageDealt;
-		kStream >> m_iUnitsDamageTaken;
-		kStream >> m_iCitiesDamageDealt;
-		kStream >> m_iCitiesDamageTaken;
-		kStream >> m_iNumScientistsTotal;
-		kStream >> m_iNumEngineersTotal;
-		kStream >> m_iNumMerchantsTotal;
-		kStream >> m_iNumWritersTotal;
-		kStream >> m_iNumArtistsTotal;
-		kStream >> m_iNumMusiciansTotal;
-		kStream >> m_iNumGeneralsTotal;
-		kStream >> m_iNumAdmiralsTotal;
-		kStream >> m_iNumProphetsTotal;
-		kStream >> m_iProductionGoldFromWonders;
-		kStream >> m_iNumChops;
-		kStream >> m_iNumTimesOpenedDemographics;
 		m_bMayaBoostScientist = 0;
 		m_bMayaBoostEngineers = 0;
 		m_bMayaBoostMerchants = 0;
