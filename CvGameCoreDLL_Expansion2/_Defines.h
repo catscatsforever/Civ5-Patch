@@ -751,7 +751,8 @@
 #define BUMP_SAVE_VERSION_MINORAI 1000
 // 1000: v7.0 (initial)
 // 1001: v7.2 (adds ENHANCED_GRAPHS)
-#define BUMP_SAVE_VERSION_PLAYER 1001
+// 1002: v7.2a (adds maya boost GP counters)
+#define BUMP_SAVE_VERSION_PLAYER 1002
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_POLICIES 1000
 // 1000: v7.0 (initial)
@@ -764,12 +765,21 @@
 #define BUMP_SAVE_VERSION_UNIT 1000
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 #define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
+// 1000: v7.2 (initial, adds m_iTimeMilliseconds)
+#define BUMP_SAVE_VERSION_REPLAYMESSAGE 1000
 #endif
 ///
 #define ENHANCED_GRAPHS
 ///
 // #define statistic_stuff
 // #define statistis_stuff_VARIANT
+// Adds timestamp for replay messages, saves chat messages
+#define REPLAY_MESSAGE_EXTENDED
+// Extended replay messages: pseudo-enums
+#define REPLAY_MESSAGE_CHAT 7
+// IMPORTANT
+// Must be defined only ONCE and account for all ReplayMessageTypes additions
+#define NUM_REPLAY_MESSAGE_TYPES 8
 /*OTHER CHANGES END*/
 
 
