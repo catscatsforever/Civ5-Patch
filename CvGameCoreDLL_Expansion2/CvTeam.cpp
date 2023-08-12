@@ -6407,6 +6407,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				{
 					kPlayer.ChangeNumProphetsTotal(1);
 				}
+				else if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+				{
+					kPlayer.ChangeNumMerchantsTotal(1);
+				}
 #endif
 
 				// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.

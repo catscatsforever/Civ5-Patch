@@ -315,6 +315,18 @@ public:
 	void ChangeNumChops(int iChange);
 	int GetNumTimesOpenedDemographics() const;
 	void ChangeNumTimesOpenedDemographics(int Change);
+	bool GetMayaBoostScientist() const;
+	void SetMayaBoostScientist(bool bValue);
+	bool GetMayaBoostEngineers() const;
+	void SetMayaBoostEngineers(bool bValue);
+	bool GetMayaBoostMerchants() const;
+	void SetMayaBoostMerchants(bool bValue);
+	bool GetMayaBoostWriters() const;
+	void SetMayaBoostWriters(bool bValue);
+	bool GetMayaBoostArtists() const;
+	void SetMayaBoostArtists(bool bValue);
+	bool GetMayaBoostMusicians() const;
+	void SetMayaBoostMusicians(bool bValue);
 #endif
 
 	int GetNumUnitsOutOfSupply() const;
@@ -1725,6 +1737,12 @@ protected:
 	int m_iProductionGoldFromWonders;
 	int m_iNumChops;
 	int m_iNumTimesOpenedDemographics;
+	int m_bMayaBoostScientist;
+	int m_bMayaBoostEngineers;
+	int m_bMayaBoostMerchants;
+	int m_bMayaBoostWriters;
+	int m_bMayaBoostArtists;
+	int m_bMayaBoostMusicians;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;

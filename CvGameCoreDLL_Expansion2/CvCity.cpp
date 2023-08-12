@@ -4771,14 +4771,6 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_RATIONALISM", true /*bHideAssert*/);
 						iNum = kPlayer.getScientistsFromFaith();
-#ifdef FAITH_FOR_THE_FIRST_SCIENTIST
-						CvGame& kGame = GC.getGame();
-						if (iNum == 0 && kGame.isOption("GAMEOPTION_EXPENSIVE_SCIENTISTS_FOR_FAITH"))
-						{
-							kPlayer.incrementScientistsFromFaith();
-							iNum++;
-						}
-#endif
 #ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
 						if(kPlayer.getbScientistsFromFaith())
 						{
@@ -6047,18 +6039,20 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							// Bump up the count
 							if(pFreeUnit->IsGreatGeneral())
 							{
-								owningPlayer.incrementGreatGeneralsCreated();
 #ifdef ENHANCED_GRAPHS
 								owningPlayer.ChangeNumGeneralsTotal(1);
+#else
+								owningPlayer.incrementGreatGeneralsCreated();
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
 							else if(pFreeUnit->IsGreatAdmiral())
 							{
-								owningPlayer.incrementGreatAdmiralsCreated();
 #ifdef ENHANCED_GRAPHS
 								owningPlayer.ChangeNumAdmiralsTotal(1);
+#else
+								owningPlayer.incrementGreatAdmiralsCreated();
 #endif
 								CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
 								if (pFreeUnit->plot() != pSpawnPlot)

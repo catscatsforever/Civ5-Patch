@@ -181,6 +181,12 @@ CvPlayer::CvPlayer() :
 	, m_iProductionGoldFromWonders(0)
 	, m_iNumChops(0)
 	, m_iNumTimesOpenedDemographics(0)
+	, m_bMayaBoostScientist(false)
+	, m_bMayaBoostEngineers(false)
+	, m_bMayaBoostMerchants(false)
+	, m_bMayaBoostWriters(false)
+	, m_bMayaBoostArtists(false)
+	, m_bMayaBoostMusicians(false)
 #endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
@@ -842,6 +848,12 @@ void CvPlayer::uninit()
 	m_iProductionGoldFromWonders = 0;
 	m_iNumChops = 0;
 	m_iNumTimesOpenedDemographics = 0;
+	m_bMayaBoostScientist = 0;
+	m_bMayaBoostEngineers = 0;
+	m_bMayaBoostMerchants = 0;
+	m_bMayaBoostWriters = 0;
+	m_bMayaBoostArtists = 0;
+	m_bMayaBoostMusicians = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
@@ -9769,6 +9781,54 @@ void CvPlayer::ChangeNumTimesOpenedDemographics(int iChange)
 {
 	m_iNumTimesOpenedDemographics = (m_iNumTimesOpenedDemographics + iChange);
 }
+bool CvPlayer::GetMayaBoostScientist() const
+{
+	return m_bMayaBoostScientist;
+}
+void CvPlayer::SetMayaBoostScientist(bool bValue)
+{
+	m_bMayaBoostScientist = bValue;
+}
+bool CvPlayer::GetMayaBoostEngineers() const
+{
+	return m_bMayaBoostEngineers;
+}
+void CvPlayer::SetMayaBoostEngineers(bool bValue)
+{
+	m_bMayaBoostEngineers = bValue;
+}
+bool CvPlayer::GetMayaBoostMerchants() const
+{
+	return m_bMayaBoostMerchants;
+}
+void CvPlayer::SetMayaBoostMerchants(bool bValue)
+{
+	m_bMayaBoostMerchants = bValue;
+}
+bool CvPlayer::GetMayaBoostWriters() const
+{
+	return m_bMayaBoostWriters;
+}
+void CvPlayer::SetMayaBoostWriters(bool bValue)
+{
+	m_bMayaBoostWriters = bValue;
+}
+bool CvPlayer::GetMayaBoostArtists() const
+{
+	return m_bMayaBoostArtists;
+}
+void CvPlayer::SetMayaBoostArtists(bool bValue)
+{
+	m_bMayaBoostArtists = bValue;
+}
+bool CvPlayer::GetMayaBoostMusicians() const
+{
+	return m_bMayaBoostMusicians;
+}
+void CvPlayer::SetMayaBoostMusicians(bool bValue)
+{
+	m_bMayaBoostMusicians = bValue;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -14061,7 +14121,19 @@ void CvPlayer::incrementMerchantsFromFaith()
 //	--------------------------------------------------------------------------------
 int CvPlayer::getScientistsFromFaith() const
 {
+#ifdef FAITH_FOR_THE_FIRST_SCIENTIST
+	CvGame& kGame = GC.getGame();
+	if (kGame.isOption("GAMEOPTION_EXPENSIVE_SCIENTISTS_FOR_FAITH"))
+	{
+		return m_iScientistsFromFaith + 1;
+	}
+	else
+	{
+		return m_iScientistsFromFaith + 1;
+	}
+#else
 	return m_iScientistsFromFaith;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -23230,7 +23302,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 												CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
 												if (pVeniceUnitEntry->IsCanBuyCityState())
 												{
-													pNewUnit = initUnit(eMerchantOfVeniceUnit, iX, iY);				
+													pNewUnit = initUnit(eMerchantOfVeniceUnit, iX, iY);
+#ifdef ENHANCED_GRAPHS
+													ChangeNumMerchantsTotal(1);
+#endif
 													break;
 												}
 											}
@@ -23248,17 +23323,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									if(pNewUnit->IsGreatGeneral())
 									{
-										incrementGreatGeneralsCreated();
 #ifdef ENHANCED_GRAPHS
 										ChangeNumGeneralsTotal(1);
+#else
+										incrementGreatGeneralsCreated();
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
 									else if(pNewUnit->IsGreatAdmiral())
 									{
-										incrementGreatAdmiralsCreated();
 #ifdef ENHANCED_GRAPHS
 										ChangeNumAdmiralsTotal(1);
+#else
+										incrementGreatAdmiralsCreated();
 #endif
 										CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
 										if (pNewUnit->plot() != pSpawnPlot)
@@ -23743,6 +23820,12 @@ void CvPlayer::Read(FDataStream& kStream)
 		kStream >> m_iProductionGoldFromWonders;
 		kStream >> m_iNumChops;
 		kStream >> m_iNumTimesOpenedDemographics;
+		kStream >> m_bMayaBoostScientist;
+		kStream >> m_bMayaBoostEngineers;
+		kStream >> m_bMayaBoostMerchants;
+		kStream >> m_bMayaBoostWriters;
+		kStream >> m_bMayaBoostArtists;
+		kStream >> m_bMayaBoostMusicians;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
 	else
@@ -23767,6 +23850,12 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_iProductionGoldFromWonders = 0;
 		m_iNumChops = 0;
 		m_iNumTimesOpenedDemographics = 0;
+		m_bMayaBoostScientist = 0;
+		m_bMayaBoostEngineers = 0;
+		m_bMayaBoostMerchants = 0;
+		m_bMayaBoostWriters = 0;
+		m_bMayaBoostArtists = 0;
+		m_bMayaBoostMusicians = 0;
 	}
 # endif
 #endif
@@ -24476,6 +24565,12 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iProductionGoldFromWonders;
 	kStream << m_iNumChops;
 	kStream << m_iNumTimesOpenedDemographics;
+	kStream << m_bMayaBoostScientist;
+	kStream << m_bMayaBoostEngineers;
+	kStream << m_bMayaBoostMerchants;
+	kStream << m_bMayaBoostWriters;
+	kStream << m_bMayaBoostArtists;
+	kStream << m_bMayaBoostMusicians;
 #endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
@@ -27053,27 +27148,27 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 				bIsFaithPurchaseAllGreatPeople = true;
 			}
 		}
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSCIENTISTS"), iGameTurn, getGreatScientistsCreated());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTSCIENTISTS"), iGameTurn, getScientistsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbScientistsFromFaith());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNSCIENTISTS"), iGameTurn, getGreatScientistsCreated() - GetMayaBoostScientist());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTSCIENTISTS"), iGameTurn, getScientistsFromFaith() - 1 + bIsFaithPurchaseAllGreatPeople * !getbScientistsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFSCIENTISTS"), iGameTurn, GetNumScientistsTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNENGINEERS"), iGameTurn, getGreatEngineersCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNENGINEERS"), iGameTurn, getGreatEngineersCreated() - GetMayaBoostEngineers());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTENGINEERS"), iGameTurn, getEngineersFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbEngineersFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFENGINEERS"), iGameTurn, GetNumEngineersTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMERCHANTS"), iGameTurn, getGreatMerchantsCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMERCHANTS"), iGameTurn, getGreatMerchantsCreated() - GetMayaBoostMerchants());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMERCHANTS"), iGameTurn, getMerchantsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbMerchantsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMERCHANTS"), iGameTurn, GetNumMerchantsTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNWRITERS"), iGameTurn, getGreatWritersCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNWRITERS"), iGameTurn, getGreatWritersCreated() - GetMayaBoostWriters());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTWRITERS"), iGameTurn, getWritersFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbWritersFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFWRITERS"), iGameTurn, GetNumWritersTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNARTISTS"), iGameTurn, getGreatArtistsCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNARTISTS"), iGameTurn, getGreatArtistsCreated() - GetMayaBoostArtists());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTARTISTS"), iGameTurn, getArtistsFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbArtistsFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFARTISTS"), iGameTurn, GetNumAristsTotal());
 
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMUSICIANS"), iGameTurn, getGreatMusiciansCreated());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBORNMUSICIANS"), iGameTurn, getGreatMusiciansCreated() - GetMayaBoostMusicians());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMOFBOUGHTMUSICIANS"), iGameTurn, getMusiciansFromFaith() + bIsFaithPurchaseAllGreatPeople * !getbMusiciansFromFaith());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFMUSICIANS"), iGameTurn, GetNumMusiciansTotal());
 
