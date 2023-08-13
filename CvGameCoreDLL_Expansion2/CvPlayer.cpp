@@ -5123,7 +5123,10 @@ void CvPlayer::DoUnitReset()
 		{
 			if (pLoopUnit->getNoCaptureCount() > 0)
 			{
-				pLoopUnit->setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), false);
+				if (pLoopUnit->getUnitType() != (UnitTypes)GC.getInfoTypeForString("UNIT_HELICOPTER_GUNSHIP", true))
+				{
+					pLoopUnit->setHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_NO_CAPTURE", true), false);
+				}
 			}
 		}
 		pLoopUnit->setMadeSecondHalfTimerParadrop(false);
