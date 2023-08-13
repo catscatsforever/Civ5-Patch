@@ -7247,20 +7247,138 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 			saveReplay();
 			showEndGameSequence();
-#ifdef statistic_stuff
+#ifdef DEV_RECORDDING_STATISTCS
 			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
 			Database::Connection db;
 			if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_CREATE | Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 			{
 				CvString sQuery;
-				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS seed%d (DataSetIndex INTEGER NOT NULL, Turn INTEGER NOT NULL, Player TEXT, DataSetName TEXT, Value INTEGER);", (uint)CvPreGame::mapRandomSeed());
-				SLOG("%s", sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS ReplayDataSetsChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, ReplayDataSetID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS PoliciesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, PolicyID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS TechnologiesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, TechnologyID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS BuildingClassesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, BuildingClassID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS BeliefsChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, BeliefID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS DataSets (DataSetID INTEGER NOT NULL);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS CivKeys (CivID INTEGER NOT NULL, CivKey TEXT);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS ReplayDataSetKeys (ReplayDataSetID INTEGER NOT NULL, ReplayDataSetKey TEXT);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS PolicyKeys (PolicyID INTEGER NOT NULL, PolicyKey TEXT);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS TechnologyKeys (TechnologyID INTEGER NOT NULL, TechnologyKey TEXT);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS BuildingClassKeys (BuildingClassID INTEGER NOT NULL, BuildingClassKey TEXT);");
+				db.Execute(sQuery.c_str());
+				CvString::format(sQuery, "CREATE TABLE IF NOT EXISTS BeliefKeys (BeliefID INTEGER NOT NULL, BeliefKey TEXT);");
 				db.Execute(sQuery.c_str());
 			}
 			else
 			{
 				SLOG("ERROR opening db");
+			}
+
+			// Init BDs
+			if (false)
+			{
+				if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
+				{
+					/*for (int iI = 0; iI < GC.getNumCivilizationInfos(); iI++)
+					{
+						if (GC.getCivilizationInfo((CivilizationTypes)iI))
+						{
+							CvString sQuery;
+							int ID = GC.getCivilizationInfo((CivilizationTypes)iI)->GetID();
+							CvString Key = GC.getCivilizationInfo((CivilizationTypes)iI)->GetDescription();
+							CvString::format(sQuery, "REPLACE INTO CivKeys (CivID, CivKey) VALUES (%d, '%s')", ID, Key.c_str());
+							SLOG("%s", sQuery.c_str());
+							db.Execute(sQuery.c_str());
+						}
+						else
+							SLOG("ERROR Civ Key");
+					}
+					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)0);
+					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
+					{
+						CvString sQuery;
+						int ID = (int)uiDataSet;
+						CvString::format(sQuery, "REPLACE INTO DataSets (DataSetID) VALUES (%d)", ID);
+						db.Execute(sQuery.c_str());
+					}
+					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
+					{
+						CvString sQuery;
+						int ID = (int)uiDataSet + 1;
+						CvString Key = kPlayer.getReplayDataSetDesc(uiDataSet);
+						CvString::format(sQuery, "REPLACE INTO ReplayDataSetKeys (ReplayDataSetID, ReplayDataSetKey) VALUES (%d, '%s')", ID, Key.c_str());
+						SLOG("%s", kPlayer.getReplayDataSetName(uiDataSet));
+						SLOG("%s", sQuery.c_str());
+						db.Execute(sQuery.c_str());
+					}
+					for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
+					{
+						if (GC.getPolicyInfo((PolicyTypes)iI))
+						{
+							CvString sQuery;
+							int ID = GC.getPolicyInfo((PolicyTypes)iI)->GetID();
+							CvString Key = GC.getPolicyInfo((PolicyTypes)iI)->GetDescription();
+							CvString::format(sQuery, "REPLACE INTO PolicyKeys (PolicyID, PolicyKey) VALUES (%d, '%s')", ID, Key.c_str());
+							SLOG("%s", sQuery.c_str());
+							db.Execute(sQuery.c_str());
+						}
+						else
+							SLOG("ERROR Policy Key");
+					}
+					for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+					{
+						if (GC.getTechInfo((TechTypes)iI))
+						{
+							CvString sQuery;
+							int ID = GC.getTechInfo((TechTypes)iI)->GetID();
+							CvString Key = GC.getTechInfo((TechTypes)iI)->GetDescription();
+							CvString::format(sQuery, "REPLACE INTO TechnologyKeys (TechnologyID, TechnologyKey) VALUES (%d, '%s')", ID, Key.c_str());
+							SLOG("%s", sQuery.c_str());
+							db.Execute(sQuery.c_str());
+						}
+						else
+							SLOG("ERROR Technology Key");
+					}
+					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+					{
+						if (GC.getBuildingClassInfo((BuildingClassTypes)iI))
+						{
+							CvString sQuery;
+							int ID = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetID();
+							CvString Key = GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetDescription();
+							CvString::format(sQuery, "REPLACE INTO BuildingClassKeys (BuildingClassID, BuildingClassKey) VALUES (%d, '%s')", ID, Key.c_str());
+							SLOG("%s", sQuery.c_str());
+							db.Execute(sQuery.c_str());
+						}
+						else
+							SLOG("ERROR BuildingClass Key");
+					}
+					for (int iI = 0; iI < GC.GetGameBeliefs()->GetNumBeliefs(); iI++)
+					{
+						const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+						if (GC.getBeliefInfo(eBelief))
+						{
+							CvString sQuery;
+							int ID = GC.getBeliefInfo((BeliefTypes)iI)->GetID();
+							CvString Key = Localization::Lookup(GC.getBeliefInfo(eBelief)->getShortDescription()).toUTF8();
+							CvString::format(sQuery, "REPLACE INTO BeliefKeys (BeliefID, BeliefKey) VALUES (%d, '%s')", ID, Key.c_str());
+							SLOG("%s", sQuery.c_str());
+							db.Execute(sQuery.c_str());
+						}
+						else
+							SLOG("ERROR Belief Key");
+					}*/
+				}
 			}
 
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
@@ -7271,13 +7389,25 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				{
 					for (uint uiDataSet = 0; uiDataSet < kPlayer.getNumReplayDataSets(); uiDataSet++)
 					{
-						for (uint uiTurn = (uint)GC.getGame().getStartTurn(); uiTurn < (uint)(GC.getGame().getStartTurn() + GC.getGame().getElapsedGameTurns()); uiTurn++)
+						for (uint uiTurn = (uint)GC.getGame().getStartTurn() + 1; uiTurn < (uint)(GC.getGame().getStartTurn() + GC.getGame().getElapsedGameTurns()); uiTurn++)
 						{
 							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
+							// const CvString& szDataSetDesc = kPlayer.getReplayDataSetDesc(uiDataSet);
 							if (kPlayer.getReplayDataSetName(uiDataSet) != NULL)
 							{
-								const CvString strText = kPlayer.getName();
-								addReplayStats2(uiDataSet, strText.c_str(), uiTurn, szDataSetName.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
+								if (uiTurn == 1)
+								{
+									const CvString strText = kPlayer.getName();
+									addReplayStats2(uiDataSet, ePlayer, uiTurn, szDataSetName.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn));
+								}
+								else
+								{
+									// const CvString strText = kPlayer.getName();
+									if (kPlayer.getReplayDataValue(uiDataSet, uiTurn - 1) != kPlayer.getReplayDataValue(uiDataSet, uiTurn))
+									{
+										addReplayStats2(uiDataSet, ePlayer, uiTurn, szDataSetName.c_str(), kPlayer.getReplayDataValue(uiDataSet, uiTurn) - kPlayer.getReplayDataValue(uiDataSet, uiTurn - 1));
+									}
+								}
 							}
 						}
 					}
@@ -9611,7 +9741,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 {
 	int iGameTurn = getGameTurn();
 #ifdef statistis_stuff_VARIANT
-	addReplayStats(eType, ePlayer, pszText, iPlotX, iPlotY);
+	// addReplayStats(eType, ePlayer, pszText, iPlotX, iPlotY);
 #endif
 
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
@@ -9653,7 +9783,9 @@ void CvGame::addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const
 		SLOG("ERROR opening db");
 	}
 }
-void CvGame::addReplayStats2(uint uiDataSet, const char* Player, uint uiTurn, const char* szData, int iValue)
+#endif
+#ifdef DEV_RECORDDING_STATISTCS
+void CvGame::addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue)
 {
 
 	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
@@ -9663,7 +9795,37 @@ void CvGame::addReplayStats2(uint uiDataSet, const char* Player, uint uiTurn, co
 	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 	{
 		CvString sQuery;
-		CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, Value) VALUES (%d, %d, '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szData, iValue);
+		if (uiDataSet < 71)
+		{
+			int ID = (int)uiDataSet + 1;
+			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+			CvString::format(sQuery, "REPLACE INTO ReplayDataSetsChanges (DataSetID, GameSeed, Turn, ReplayDataSetID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+		}
+		if (71 <= uiDataSet && uiDataSet < 182)
+		{
+			int ID = GC.getInfoTypeForString(szDataName, true);
+			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+			CvString::format(sQuery, "REPLACE INTO PoliciesChanges (DataSetID, GameSeed, Turn, PolicyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+		}
+		if (182 <= uiDataSet && uiDataSet < 263)
+		{
+			int ID = GC.getInfoTypeForString(szDataName, true);
+			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+			CvString::format(sQuery, "REPLACE INTO TechnologiesChanges (DataSetID, GameSeed, Turn, TechnologyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+		}
+		if (263 <= uiDataSet && uiDataSet < 385)
+		{
+			int ID = GC.getInfoTypeForString(szDataName, true);
+			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+			CvString::format(sQuery, "REPLACE INTO BuildingClassesChanges (DataSetID, GameSeed, Turn, BuildingClassID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+		}
+		if (385 <= uiDataSet && uiDataSet < 454)
+		{
+			int ID = GC.getInfoTypeForString(szDataName, true);
+			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+			CvString::format(sQuery, "REPLACE INTO BeliefsChanges (DataSetID, GameSeed, Turn, BeliefID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+		}
+		// CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, DataSetDesc, Value) VALUES (%d, %d, '%s', '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szDataName, szDataDesc, iValue);
 		SLOG("%s", sQuery.c_str());
 		db.Execute(sQuery.c_str());
 	}

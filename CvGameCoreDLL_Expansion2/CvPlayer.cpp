@@ -21338,6 +21338,192 @@ const char* CvPlayer::getReplayDataSetName(unsigned int idx) const
 	return NULL;
 }
 
+#ifdef DEV_RECORDDING_STATISTCS
+//	--------------------------------------------------------------------------------
+const char* CvPlayer::getReplayDataSetDesc(unsigned int idx) const
+{
+	if (idx < m_ReplayDataSets.size())
+	{
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_SCORE")
+			return Localization::Lookup("TXT_KEY_REPLAY_VIEWER_GRAPHBY_SCORE").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_PRODUCTIONPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_PRODUCTIONPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALGOLD")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALGOLD").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GOLDPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GOLDPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_CITYCOUNT")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_CITYCOUNT").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TECHSKNOWN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TECHSKNOWN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_SCIENCEPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_SCIENCEPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALCULTURE")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALCULTURE").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_CULTUREPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_CULTUREPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_EXCESSHAPINESS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_EXCESSHAPPINESS").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_HAPPINESS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_HAPPINESS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_UNHAPPINESS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_UNHAPPINESS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GOLDENAGETURNS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GOLDAGETURNS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_POPULATION")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALPOPULATION").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_FOODPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_FOODPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALLAND")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALLAND").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GPTCITYCONNECTIONS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GPTCITYCONNECTIONS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GPTDEALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GPTDEALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_UNITMAINTENANCE")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_UNITMAINTENANCE").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_BUILDINGMAINTENANCE")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_BUILDINGMAINTENANCE").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_IMPROVEMENTMAINTENANCE")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_IMPROVEMENTMAINTENANCE").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMBEROFPOLICIES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMBEROFPOLICIES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMBEROFWORKERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMBEROFWORKERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_IMPROVEDTILES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_IMPROVEDTILES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_WORKEDTILES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_WORKEDTILES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_MILITARYMIGHT")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_MILITARYMIGHT").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_FAITHPERTURN")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_FAITHPERTURN").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALFAITH")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALFAITH").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNSCIENTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNSCIENTISTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTSCIENTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTSCIENTISTS").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFSCIENTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFSCIENTISTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNENGINEERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNENGINEERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTENGINEERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTENGINEERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFENGINEERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFENGINEERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNMERCHANTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNMERCHANTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTMERCHANTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTMERCHANTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFMERCHANTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFMERCHANTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNWRITERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNWRITERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTWRITERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTWRITERS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFWRITERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFWRITERS").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNARTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNARTISTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTARTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTARTISTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFARTISTS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFARTISTS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNMUSICIANS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNMUSICIANS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTMUSICIANS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTMUSICIANS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFMUSICIANS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFMUSICIANS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTPROPHETS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTPROPHETS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFPROPHETS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFPROPHETS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNGENERALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNGENERALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTGENERALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTGENERALS").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFGENERALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFGENERALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBORNADMIRALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBORNADMIRALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMOFBOUGHTADMIRALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTADMIRALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFADMIRALS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFADMIRALS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GOLDFROMBULLING")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GOLDFROMBULLING").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_WORKERSFROMBULLING")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_WORKERSFROMBULLING").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMTRAINEDUNITS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMTRAINEDUNITS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMLOSTUNITS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMLOSTUNITS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMKILLEDUNITS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMKILLEDUNITS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMBUILTWONDERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMBUILTWONDERS").toUTF8();
+
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMREVEALEDTILES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMREVEALEDTILES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMSTOLENSCIENCE")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMSTOLENSCIENCE").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_DAMAGEDEALTTOUNITS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_DAMAGEDEALTTOUNITS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_DAMAGEDEALTTOCITIES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_DAMAGEDEALTTOCITIES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_DAMAGETAKENBYUNITS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_DAMAGETAKENBYUNITS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_DAMAGETAKENBYCITIES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_DAMAGETAKENBYCITIES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMDELEGATES")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMDELEGATES").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMTIMESOPENEDDEMOGRAPHICS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALCHOPS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALCHOPS").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_LOSTHAMMERSFROMLOSTWONDERS").toUTF8();
+
+		for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
+		{
+			if (m_ReplayDataSets[idx] == GC.getPolicyInfo((PolicyTypes)iI)->GetType())
+				return GC.getPolicyInfo((PolicyTypes)iI)->GetDescription();
+		}
+
+		for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+		{
+			if (m_ReplayDataSets[idx] == GC.getTechInfo((TechTypes)iI)->GetType())
+				return GC.getTechInfo((TechTypes)iI)->GetDescription();
+		}
+
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			if (GC.getBuildingClassInfo((BuildingClassTypes)iI))
+				if (m_ReplayDataSets[idx] == GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetType())
+					return GC.getBuildingClassInfo((BuildingClassTypes)iI)->GetDescription();
+		}
+
+		for (int iI = 0; iI < GC.GetGameBeliefs()->GetNumBeliefs(); iI++)
+		{
+			const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+			if (GC.getBeliefInfo(eBelief))
+				if (m_ReplayDataSets[idx] == GC.getBeliefInfo(eBelief)->GetType())
+					return Localization::Lookup(GC.getBeliefInfo(eBelief)->getShortDescription()).toUTF8();
+		}
+
+	}
+
+	return NULL;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 unsigned int CvPlayer::getReplayDataSetIndex(const char* szDataSetName)
 {
