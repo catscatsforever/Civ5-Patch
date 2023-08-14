@@ -9666,11 +9666,11 @@ void CvPlayer::ChangeUnitsDamageDealt(int iChange)
 }
 int CvPlayer::GetUnitsDamageTaken() const
 {
-	return m_iCitiesDamageDealt;
+	return m_iUnitsDamageTaken;
 }
 void CvPlayer::ChangeUnitsDamageTaken(int iChange)
 {
-	m_iCitiesDamageDealt = (m_iCitiesDamageDealt + iChange);
+	m_iUnitsDamageTaken = (m_iUnitsDamageTaken + iChange);
 }
 int CvPlayer::GetCitiesDamageDealt() const
 {
