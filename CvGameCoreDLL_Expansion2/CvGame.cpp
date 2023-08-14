@@ -10982,9 +10982,6 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
-#ifdef ENHANCED_GRAPHS
-	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeBullyGoldAmountTotalByPlayer(eBully, iGold);
-#endif
 
 	gDLL->sendMinorBullyGold(eBully, eMinor, iGold);
 }
@@ -10999,9 +10996,6 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
-#ifdef ENHANCED_GRAPHS
-	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeBullyWorkersAmountTotalByPlayer(eBully, 1);
-#endif
 
 	gDLL->sendMinorBullyUnit(eBully, eMinor, eUnitType);
 }

@@ -8581,6 +8581,9 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 		GET_PLAYER(eBully).GetTreasury()->ChangeGold(iGold);
 		DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS());
+#ifdef ENHANCED_GRAPHS
+		ChangeBullyGoldAmountTotalByPlayer(eBully, iGold);
+#endif
 	}
 
 	// Logging
@@ -8630,6 +8633,9 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 		else
 			pNewUnit->kill(false);	// Could not find a spot for the unit!
+#ifdef ENHANCED_GRAPHS
+		ChangeBullyWorkersAmountTotalByPlayer(eBully, 1);
+#endif
 	}
 
 	// Logging
