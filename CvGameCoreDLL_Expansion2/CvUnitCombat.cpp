@@ -1383,7 +1383,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 	CvUnit* pInterceptor = kCombatInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
 	CvAssert_Debug(pInterceptor);
+#ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
+	if(pInterceptor && !pkAttacker->isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_EVASION_II", true /*bHideAssert*/)))
+#else
 	if(pInterceptor)
+#endif
 	{
 		pInterceptor->setMadeInterception(true);
 #ifdef FIGHTER_FINISHMOVES_AFTER_INTERCEPTION
