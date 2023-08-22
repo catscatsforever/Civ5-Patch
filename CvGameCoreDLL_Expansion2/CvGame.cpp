@@ -2759,40 +2759,42 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 			if(pSelectedCity->getOwner() == getActivePlayer())
 			{
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
-				if (isGameMultiPlayer())
+				if ((eMessage == GAMEMESSAGE_DO_TASK) && (iData2 == TASK_RANGED_ATTACK))
 				{
-					float t1;
-					float t2;
-					GetTurnTimerData(t1, t2);
-
-					bool bAllComplete = true;  // replace gDLL->HasReceivedTurnAllComplete as it breaks after hj
-					for (uint i = 0; i < MAX_CIV_PLAYERS; i++)
+					if (isGameMultiPlayer())
 					{
-						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
-						if (kPlayer.isHuman() && kPlayer.isAlive()) {
-							if (!gDLL->HasReceivedTurnComplete((PlayerTypes)i))
-								bAllComplete = false;
-						}
-					}
+						float t1;
+						float t2;
+						GetTurnTimerData(t1, t2);
 
-					// both is true means turn is about to end
-					// both is false means turn just started
-					if (bAllComplete == getHasReceivedFirstMission()) {
-						if (isMPOrderedMoveOnTurnLoading()) {
-							SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
-							//SLOG("HasReceivedTurnAllComplete %d bAllComplete %d getHasReceivedFirstMission %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0, getHasReceivedFirstMission() ? 1 : 0);
-							return;
+						bool bAllComplete = true;  // replace gDLL->HasReceivedTurnAllComplete as it breaks after hj
+						for (uint i = 0; i < MAX_CIV_PLAYERS; i++)
+						{
+							CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+							if (kPlayer.isHuman() && kPlayer.isAlive()) {
+								if (!gDLL->HasReceivedTurnComplete((PlayerTypes)i))
+									bAllComplete = false;
+							}
 						}
-						else {
-							SLOG("--- first move order");
-							setMPOrderedMoveOnTurnLoading(true);
-						}
-					}
 
-					//SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d", t1, t2, (int)getActivePlayer(), eMessage);
-					//SLOG("HasReceivedTurnAllComplete: %d bAllComplete: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0);
+						// both is true means turn is about to end
+						// both is false means turn just started
+						if (bAllComplete == getHasReceivedFirstMission()) {
+							if (isMPOrderedMoveOnTurnLoading()) {
+								SLOG("--- subsequent move order REJECTED %f %f", t1, t2);
+								//SLOG("HasReceivedTurnAllComplete %d bAllComplete %d getHasReceivedFirstMission %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0, getHasReceivedFirstMission() ? 1 : 0);
+								return;
+							}
+							else {
+								SLOG("--- first move order");
+								setMPOrderedMoveOnTurnLoading(true);
+							}
+						}
+
+						//SLOG("%f %f selectionListGameNetMessage player: %d eMessage: %d", t1, t2, (int)getActivePlayer(), eMessage);
+						//SLOG("HasReceivedTurnAllComplete: %d bAllComplete: %d", gDLL->HasReceivedTurnAllComplete(getActivePlayer()) ? 1 : 0, bAllComplete ? 1 : 0);
+					}
 				}
-
 #endif
 				switch(eMessage)
 				{
