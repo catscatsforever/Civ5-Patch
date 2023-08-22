@@ -158,6 +158,22 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 
 	if(pkCity != NULL)
 	{
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+		if (eTask == TASK_RANGED_ATTACK)
+		{
+			CvGame& game = GC.getGame();
+			if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
+			{
+				SLOG("--- RECEIVED FIRST MISSION THIS TURN ---");
+				game.setHasReceivedFirstMission(true);
+				game.setMPOrderedMoveOnTurnLoading(false);
+			}
+			float t1;
+			float t2;
+			game.GetTurnTimerData(t1, t2);
+			//SLOG("%f %f RESPONSE push mission player: %d unitID: %d", t1, t2, (int)ePlayer, iUnitID);
+		}
+#endif
 		pkCity->doTask(eTask, iData1, iData2, bOption, bAlt, bShift, bCtrl);
 	}
 }
