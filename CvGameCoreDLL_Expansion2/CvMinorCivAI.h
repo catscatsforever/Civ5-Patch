@@ -502,6 +502,10 @@ public:
 	bool IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const; //antonjs: consider: replace with GetTurnLastBulliedByMajor
 	int GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const;
 	void SetTurnLastBulliedByMajor(PlayerTypes ePlayer, int iTurn);
+#ifdef WORKER_BULLY_RESRICTION
+	int GetTurnLastWorkerBulliedByMajor(PlayerTypes ePlayer) const;
+	void SetTurnLastWorkerBulliedByMajor(PlayerTypes ePlayer, int iTurn);
+#endif
 
 	// ****************
 	// *** Election ***
@@ -604,6 +608,9 @@ private:
 	int m_aiNumUnitsGifted[MAX_MAJOR_CIVS];
 	int m_aiNumGoldGifted[MAX_MAJOR_CIVS];
 	int m_aiTurnLastBullied[MAX_MAJOR_CIVS];
+#ifdef WORKER_BULLY_RESRICTION
+	int m_aiTurnLastWorkerBullied[MAX_MAJOR_CIVS];
+#endif
 	int m_aiTurnLastPledged[MAX_MAJOR_CIVS];
 	int m_aiTurnLastBrokePledge[MAX_MAJOR_CIVS];
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];

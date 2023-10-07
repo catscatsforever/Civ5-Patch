@@ -1667,6 +1667,9 @@ void CvMinorCivAI::Reset()
 		m_aiNumUnitsGifted[iI] = 0;
 		m_aiNumGoldGifted[iI] = 0;
 		m_aiTurnLastBullied[iI] = -1;
+#ifdef WORKER_BULLY_RESRICTION
+		m_aiTurnLastWorkerBullied[iI] = -1;
+#endif
 		m_aiTurnLastPledged[iI] = -1;
 		m_aiTurnLastBrokePledge[iI] = -1;
 		m_abUnitSpawningDisabled[iI] = false;
@@ -1770,6 +1773,30 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiNumGoldGifted;
 
 	kStream >> m_aiTurnLastBullied;
+#ifdef WORKER_BULLY_RESRICTION
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	{
+# endif
+	kStream >> m_aiTurnLastWorkerBullied;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion == 1000)
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_aiTurnLastWorkerBullied[iI] = -1;
+		}
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			m_aiTurnLastWorkerBullied[iI] = -1;
+		}
+	}
+# endif
+#endif
 
 	kStream >> m_aiTurnLastPledged;
 	kStream >> m_aiTurnLastBrokePledge;
@@ -1783,7 +1810,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
 	{
 # endif
-		kStream >> m_bPledgeRevoked;
+	kStream >> m_bPledgeRevoked;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
 	else
@@ -1890,6 +1917,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_aiNumUnitsGifted;
 	kStream << m_aiNumGoldGifted;
 	kStream << m_aiTurnLastBullied;
+#ifdef WORKER_BULLY_RESRICTION
+	kStream << m_aiTurnLastWorkerBullied;
+#endif
 	kStream << m_aiTurnLastPledged;
 	kStream << m_aiTurnLastBrokePledge;
 	kStream << m_abUnitSpawningDisabled;
@@ -8331,6 +8361,44 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		}
 	}
 
+#ifdef WORKER_BULLY_RESRICTION
+	if (bForUnit)
+	{
+		int iMostRecentBullyTurn = -11;
+		// PlayerTypes eMostRecentBulliedMinor = NO_PLAYER;
+
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			if (GET_PLAYER(eBullyPlayer).GetDiplomacyAI()->IsPlayerValid(eMinor))
+			{
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsEverBulliedByMajor(eBullyPlayer))
+				{
+					int iBullyTurn = GET_PLAYER(eMinor).GetMinorCivAI()->GetTurnLastWorkerBulliedByMajor(eBullyPlayer);
+					if (iBullyTurn > iMostRecentBullyTurn)
+					{
+						iMostRecentBullyTurn = iBullyTurn;
+						// eMostRecentBulliedMinor = eMinor;
+					}
+				}
+			}
+		}
+
+		if (iMostRecentBullyTurn + 10 >= GC.getGame().getGameTurn())
+		{
+			int iBulliedVeryRecentlyScore = iFailScore;
+			iScore += iBulliedVeryRecentlyScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iBulliedVeryRecentlyScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_WORKER_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+#endif
+
 	// **************************
 	// Tribute type
 	//
@@ -8638,6 +8706,9 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 #ifdef ENHANCED_GRAPHS
 		ChangeBullyWorkersAmountTotalByPlayer(eBully, 1);
 #endif
+#ifdef WORKER_BULLY_RESRICTION
+		SetTurnLastWorkerBulliedByMajor(eBully, GC.getGame().getGameTurn());
+#endif
 	}
 
 	// Logging
@@ -8782,6 +8853,26 @@ void CvMinorCivAI::SetTurnLastBulliedByMajor(PlayerTypes ePlayer, int iTurn)
 
 	m_aiTurnLastBullied[ePlayer] = iTurn;
 }
+
+#ifdef WORKER_BULLY_RESRICTION
+int CvMinorCivAI::GetTurnLastWorkerBulliedByMajor(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
+
+	return m_aiTurnLastWorkerBullied[ePlayer];
+}
+
+void CvMinorCivAI::SetTurnLastWorkerBulliedByMajor(PlayerTypes ePlayer, int iTurn)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+
+	m_aiTurnLastWorkerBullied[ePlayer] = iTurn;
+}
+#endif
 
 // ****************
 // *** Election ***
