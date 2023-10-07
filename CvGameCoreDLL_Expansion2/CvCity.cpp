@@ -7862,9 +7862,48 @@ int CvCity::getCitytAttackRangeModifier() const
 {
 	VALIDATE_OBJECT
 	if (GET_PLAYER(getOwner()).isMinorCiv())
+	{
 		return 1;
+	}
 	else
-		return m_iCitytAttackRangeModifier;
+	{
+		int iTempMod = 0;
+		// CvCity* pWorkingCity = getWorkingCity();
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		// eSecondaryPantheon = pWorkingCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+
+		// Extra yield for religion on this terrain
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
+			{
+				BeliefTypes pBelief = NO_BELIEF;
+				for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+				{
+					const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+					if (eBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+					{
+						pBelief = eBelief;
+						break;
+					}
+				}
+				if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+				{
+					iTempMod++;
+					if (eMajority > RELIGION_PANTHEON)
+					{
+						ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(getOwner());
+						if (eFoundedReligion == eMajority && GET_PLAYER(getOwner()).IsSecondReligionPantheon())
+						{
+							iTempMod++;
+						}
+					}
+				}
+			}
+		}
+		return m_iCitytAttackRangeModifier + iTempMod;
+	}
 }
 
 
