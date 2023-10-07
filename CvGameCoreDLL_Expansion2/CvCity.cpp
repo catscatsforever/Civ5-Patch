@@ -9862,6 +9862,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CAPITAL", iTempMod);
 	}
 
+#ifdef CREATIVE_EXPRESSION_SCIENCE_MOD
+	if (getPopulation() > 19)
+	{
+		if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
+		{
+			iTempMod = 33;
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_LARGEPOP_SCIENCEMOD", iTempMod);
+		}
+	}
+#endif
+
 	// Golden Age Yield Modifier
 	if(GET_PLAYER(getOwner()).isGoldenAge())
 	{
