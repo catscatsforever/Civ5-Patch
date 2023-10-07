@@ -4903,6 +4903,9 @@ void CvEspionageAI::AttemptCoups()
 		int iRoll = GC.getGame().getJonRandNum(100, "Random roll to see if we should attempt a coup");
 		if (iRoll < iChanceOfSuccess)
 		{
+#ifdef AI_CANT_COUP
+			if (!GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+#endif
 			pEspionage->AttemptCoup(uiSpy);
 		}
 	}
