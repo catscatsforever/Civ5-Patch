@@ -9869,6 +9869,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if(pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
+#ifdef BRAZIL_UA_REWORK
+			if (eIndex == 1 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
+			{
+				iTempMod += 10;
+			}
+#endif
 #ifdef GOLDEN_AGE_SCIENCE_MODIFIER
 			if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ARTISTIC_GENIUS", true)))
 			{
