@@ -758,7 +758,8 @@
 // 1000: v7.0 (initial)
 #define BUMP_SAVE_VERSION_GAME 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_MINORAI 1000
+// 1001: v7.3 (adds Workers Bully Turn)
+#define BUMP_SAVE_VERSION_MINORAI 1001
 // 1000: v7.0 (initial)
 // 1001: v7.2 (adds ENHANCED_GRAPHS)
 // 1002: v7.2a (adds maya boost GP counters)
