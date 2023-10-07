@@ -4007,6 +4007,19 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		// Pay adoption bonuses (if any)
 		if(!m_bHasPaidAdoptionBonus)
 		{
+#ifdef NEW_PAPAL_PRIMACY
+			int iInfluenceBoost = pNewReligion->m_Beliefs.GetCityStateMinimumInfluence();
+
+			if (iInfluenceBoost > 0)
+			{
+				if (GET_PLAYER(m_pCity->getOwner()).isAlive() && GET_PLAYER(m_pCity->getOwner()).isMinorCiv() && GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).isHasMet(GET_PLAYER(m_pCity->getOwner()).getTeam()))
+				{
+					GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(pNewReligion->m_eFounder, iInfluenceBoost);
+					SetPaidAdoptionBonus(true);
+				}
+			}
+#endif
+
 			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
 			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldBonus /= 100;
