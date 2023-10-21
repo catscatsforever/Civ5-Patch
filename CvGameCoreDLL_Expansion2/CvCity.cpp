@@ -9906,7 +9906,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	{
 		if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
 		{
-			iTempMod = 33;
+			iTempMod = 25;
 			iModifier += iTempMod;
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_LARGEPOP_SCIENCEMOD", iTempMod);

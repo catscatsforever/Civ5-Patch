@@ -16287,8 +16287,8 @@
 			<GreatGeneralModifier>0</GreatGeneralModifier> 
 			<GreatGeneralReceivesMovement>false</GreatGeneralReceivesMovement> 
 			<GreatGeneralCombatModifier>0</GreatGeneralCombatModifier> 
-			<FriendlyLandsModifier>0</FriendlyLandsModifier> 
-			<FriendlyLandsAttackModifier>15</FriendlyLandsAttackModifier> 
+			<FriendlyLandsModifier>20</FriendlyLandsModifier> 
+			<FriendlyLandsAttackModifier>0</FriendlyLandsAttackModifier> 
 			<OutsideFriendlyLandsModifier>0</OutsideFriendlyLandsModifier> 
 			<HPHealedIfDestroyEnemy>0</HPHealedIfDestroyEnemy> 
 			<ExtraWithdrawal>0</ExtraWithdrawal> 
