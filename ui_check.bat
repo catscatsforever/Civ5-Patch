@@ -30,7 +30,6 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPTurnPanel.lua" "%cd%\%patchfol
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\MPTurnPanel.xml" "%cd%\%patchfolder%\UI\MPTurnPanel.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CivilopediaScreen.lua" "%cd%\%patchfolder%\UI\CivilopediaScreen.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\GameMenu.lua" "%cd%\%patchfolder%\UI\GameMenu.lua"
-ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Demographics.lua" "%cd%\%patchfolder%\UI\Demographics.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Bombardment.lua" "%cd%\%patchfolder%\UI\Bombardment.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ChoosePantheonPopup.lua" "%cd%\%patchfolder%\UI\ChoosePantheonPopup.lua"
@@ -44,6 +43,12 @@ FIND %text% "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Improvements\SocialPolicyPopup.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
+) ELSE (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\LeaderHead\TradeLogic.lua" (
