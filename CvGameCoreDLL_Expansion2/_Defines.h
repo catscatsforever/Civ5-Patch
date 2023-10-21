@@ -739,6 +739,8 @@
 #define MP_ALWAYS_QUICK_COMBAT_AND_MOVEMENT
 ///
 #define REMOVE_DOF
+///
+#define CREATE_APOLLO_PROGRAM_WITH_CAP_FOUND
 // Maintain backwards compatibility with older versions
 // Starting from v7.0
 #define SAVE_BACKWARDS_COMPATIBILITY

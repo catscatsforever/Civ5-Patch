@@ -7445,6 +7445,16 @@ void CvPlayer::found(int iX, int iY)
 		}
 	}
 #endif
+#ifdef CREATE_APOLLO_PROGRAM_WITH_CAP_FOUND
+	ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	if (isHuman() && eApolloProgram != NO_PROJECT)
+	{
+		if (GET_TEAM(getTeam()).getProjectCount(eApolloProgram) < 1)
+		{
+			pCity->CreateProject(eApolloProgram);
+		}
+	}
+#endif
 
 	DoUpdateNextPolicyCost();
 
