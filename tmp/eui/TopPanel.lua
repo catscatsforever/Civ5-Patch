@@ -1184,109 +1184,115 @@ local function UpdateTopPanelNow()
 		-----------------------------
 		-- Update Great People
 		-----------------------------
-		local gp = ScanGP( g_activePlayer )
+		local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal();
+		local gp;
 
-		--[[if gp then
-			Controls.GpBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.GpBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.GpTurns:SetText(gp.Turns)
-			Controls.GpBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.GpIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.GpIcon)))
+		if (screenSizeX < 1680) then
+			gp = ScanGP( g_activePlayer )
+	
+			if gp then
+				Controls.GpBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.GpBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.GpTurns:SetText(gp.Turns)
+				Controls.GpBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.GpIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.GpIcon)))
+			else
+				Controls.GpBox:SetHide(true)
+				Controls.GpIcon:SetHide(true)
+				Controls.GpTurns:SetText("")
+			end
+
 		else
-			Controls.GpBox:SetHide(true)
-			Controls.GpIcon:SetHide(true)
-			Controls.GpTurns:SetText("")
-		end]]
+			gp = ScanScientist( g_activePlayer )
+	
+			if gp then
+				Controls.ScientistBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.ScientistBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.ScientistTurns:SetText(gp.Turns)
+				Controls.ScientistBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.ScientistIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.ScientistIcon)))
+			else
+				Controls.ScientistBox:SetHide(true)
+				Controls.ScientistIcon:SetHide(true)
+				Controls.ScientistTurns:SetText("")
+			end
+	
+			gp = ScanEngineer( g_activePlayer )
+	
+			if gp then
+				Controls.EngineerBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.EngineerBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.EngineerTurns:SetText(gp.Turns)
+				Controls.EngineerBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.EngineerIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.EngineerIcon)))
+			else
+				Controls.EngineerBox:SetHide(true)
+				Controls.EngineerIcon:SetHide(true)
+				Controls.EngineerTurns:SetText("")
+			end
+	
+			gp = ScanMerchant( g_activePlayer )
+	
+			if gp then
+				Controls.MerchantBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.MerchantBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.MerchantTurns:SetText(gp.Turns)
+				Controls.MerchantBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.MerchantIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.MerchantIcon)))
+			else
+				Controls.MerchantBox:SetHide(true)
+				Controls.MerchantIcon:SetHide(true)
+				Controls.MerchantTurns:SetText("")
+			end
+	
+			gp = ScanWriter( g_activePlayer )
+	
+			if gp then
+				Controls.WriterBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.WriterBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.WriterTurns:SetText(gp.Turns)
+				Controls.WriterBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.WriterIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.WriterIcon)))
+			else
+				Controls.WriterBox:SetHide(true)
+				Controls.WriterIcon:SetHide(true)
+				Controls.WriterTurns:SetText("")
+			end
 
-		gp = ScanScientist( g_activePlayer )
-
-		if gp then
-			Controls.ScientistBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.ScientistBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.ScientistTurns:SetText(gp.Turns)
-			Controls.ScientistBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.ScientistIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.ScientistIcon)))
-		else
-			Controls.ScientistBox:SetHide(true)
-			Controls.ScientistIcon:SetHide(true)
-			Controls.ScientistTurns:SetText("")
-		end
-
-		gp = ScanEngineer( g_activePlayer )
-
-		if gp then
-			Controls.EngineerBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.EngineerBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.EngineerTurns:SetText(gp.Turns)
-			Controls.EngineerBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.EngineerIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.EngineerIcon)))
-		else
-			Controls.EngineerBox:SetHide(true)
-			Controls.EngineerIcon:SetHide(true)
-			Controls.EngineerTurns:SetText("")
-		end
-
-		gp = ScanMerchant( g_activePlayer )
-
-		if gp then
-			Controls.MerchantBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.MerchantBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.MerchantTurns:SetText(gp.Turns)
-			Controls.MerchantBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.MerchantIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.MerchantIcon)))
-		else
-			Controls.MerchantBox:SetHide(true)
-			Controls.MerchantIcon:SetHide(true)
-			Controls.MerchantTurns:SetText("")
-		end
-
-		gp = ScanWriter( g_activePlayer )
-
-		if gp then
-			Controls.WriterBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.WriterBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.WriterTurns:SetText(gp.Turns)
-			Controls.WriterBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.WriterIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.WriterIcon)))
-		else
-			Controls.WriterBox:SetHide(true)
-			Controls.WriterIcon:SetHide(true)
-			Controls.WriterTurns:SetText("")
-		end
-
-		gp = ScanArtist( g_activePlayer )
-
-		if gp then
-			Controls.ArtistBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.ArtistBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.ArtistTurns:SetText(gp.Turns)
-			Controls.ArtistBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.ArtistIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.ArtistIcon)))
-		else
-			Controls.ArtistBox:SetHide(true)
-			Controls.ArtistIcon:SetHide(true)
-			Controls.ArtistTurns:SetText("")
-		end
-
-		gp = ScanMusician( g_activePlayer )
-
-		if gp then
-			Controls.MusicianBar:SetPercent( gp.Progress / gp.Threshold )
-			Controls.MusicianBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.MusicianTurns:SetText(gp.Turns)
-			Controls.MusicianBox:SetHide(false)
-			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.MusicianIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.MusicianIcon)))
-		else
-			Controls.MusicianBox:SetHide(true)
-			Controls.MusicianIcon:SetHide(true)
-			Controls.MusicianTurns:SetText("")
+			gp = ScanArtist( g_activePlayer )
+	
+			if gp then
+				Controls.ArtistBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.ArtistBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.ArtistTurns:SetText(gp.Turns)
+				Controls.ArtistBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.ArtistIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.ArtistIcon)))
+			else
+				Controls.ArtistBox:SetHide(true)
+				Controls.ArtistIcon:SetHide(true)
+				Controls.ArtistTurns:SetText("")
+			end
+	
+			gp = ScanMusician( g_activePlayer )
+	
+			if gp then
+				Controls.MusicianBar:SetPercent( gp.Progress / gp.Threshold )
+				Controls.MusicianBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
+				Controls.MusicianTurns:SetText(gp.Turns)
+				Controls.MusicianBox:SetHide(false)
+				local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
+				Controls.MusicianIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.MusicianIcon)))
+			else
+				Controls.MusicianBox:SetHide(true)
+				Controls.MusicianIcon:SetHide(true)
+				Controls.MusicianTurns:SetText("")
+			end
 		end
 
 		-----------------------------
