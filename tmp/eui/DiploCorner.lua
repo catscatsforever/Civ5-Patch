@@ -4,6 +4,7 @@
 -- edit: Ingame Hotkey Manager – extended controls
 -- edit: Larger Espionage Overview option for EUI
 -- edit: Tournament mode for EUI
+-- edit: Restore messages on game load for EUI
 -------------------------------------------------
 g_needsUpdate = true;
 g_bWaitForKeyUp = false;
@@ -213,9 +214,11 @@ Events.GameMessageChat.Add( OnChat );
 
 
 -------------------------------------------------
+-- NEW: store chat messages
 -------------------------------------------------
 function SendChat( text )
     if( string.len( text ) > 0 ) then
+        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, g_iChatTeam, g_iChatPlayer, -1, -1);
         Network.SendChat( text, g_iChatTeam, g_iChatPlayer );
     end
     Controls.ChatEntry:ClearString();

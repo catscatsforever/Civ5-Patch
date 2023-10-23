@@ -3,6 +3,7 @@
 -------------------------------------------------
 -- edit: Ingame Hotkey Manager – extended controls
 -- edit: Tournament mode for vanilla UI
+-- edit: Restore messages on game load for vanilla UI
 -------------------------------------------------
 g_needsUpdate = true;
 g_bWaitForKeyUp = false;
@@ -211,6 +212,7 @@ Events.GameMessageChat.Add( OnChat );
 -------------------------------------------------
 function SendChat( text )
     if( string.len( text ) > 0 ) then
+        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, g_iChatTeam, g_iChatPlayer, -1, -1);
         Network.SendChat( text, g_iChatTeam, g_iChatPlayer );
     end
     Controls.ChatEntry:ClearString();
