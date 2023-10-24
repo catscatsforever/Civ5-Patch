@@ -244,6 +244,32 @@ Panels = {
 				
 					messageInstance.MessageText2:SetHide(true);
 				
+					-- NEW: format chat messages
+					local strText = '';
+					if (message.Type == 7) then -- chat message
+						--print(message.Turn, message.Timestamp, message.Player, message.Data1, message.Data2)
+    					local iLocalPlayer = Game.GetActivePlayer();
+    					local iLocalTeam = Players[iLocalPlayer]:GetTeam();
+						local eTargetType = message.Data1;
+						local toPlayer = message.Data2;
+						if( eTargetType == ChatTargetTypes.CHATTARGET_TEAM ) then
+    					    strText = '[COLOR_GREEN]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ' (Team): ' .. message.Text;
+    					elseif( eTargetType == ChatTargetTypes.CHATTARGET_PLAYER ) then
+    					    local toName;
+    					    if( toPlayer == iLocalPlayer ) then
+    					        toName = Locale.ConvertTextKey( "TXT_KEY_YOU" );
+    					    else
+    					        toName = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_PLAYER", (#Players[toPlayer]:GetNickName() > 0 and Players[toPlayer]:GetNickName() or Players[toPlayer]:GetName()) );
+    					    end
+    					    strText = '[COLOR_MAGENTA]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ' (' .. toName .. '): ' .. message.Text;
+    					elseif( message.Player == iLocalPlayer ) then
+    					    strText = '[COLOR_GREY]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ': ' .. message.Text;
+    					else
+    					    strText = '[COLOR_POPUP_TEXT]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ': ' .. message.Text;
+    					end
+    					message.Text = strText;
+    					--print(strText)
+					end
 					-- NEW: extended replay messages -- add timestamp
 					local text = "T" .. tostring(message.Turn) .. " (" .. (message.Timestamp / 1000) .. "s) - " .. message.Text;
 										
@@ -1286,7 +1312,7 @@ function GenerateReplayInfoFromCurrentGame()
 	-- table.sort(messages, function(a, b) return a.Turn < b.Turn end);
 	for i,message in ipairs(messages) do
 		-- NEW: extended replay messages -- add timestamp
-		table.insert(replayMessages, {Turn = message.Turn, Text = message.Text, Type = message.Type, Player = playerMap[message.Player], Plots = message.Plots, Timestamp = message.Timestamp});
+		table.insert(replayMessages, {Turn = message.Turn, Text = message.Text, Type = message.Type, Player = playerMap[message.Player], Plots = message.Plots, Timestamp = message.Timestamp, Data1 = message.Data1, Data2 = message.Data2});
 	end
 	g_ReplayInfo.Messages = replayMessages;
 	
