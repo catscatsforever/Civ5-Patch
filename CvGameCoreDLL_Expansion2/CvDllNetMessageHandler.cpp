@@ -392,23 +392,11 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 	// -1 -- adds chat message to replay
 	if (eReligion == -1)
 	{
-		CvString strName;
-		ChatTargetTypes eTarget = static_cast<ChatTargetTypes>(eBelief1);
-		if (eTarget == CHATTARGET_TEAM)
-		{
-			strName = CvString::format("%s: [COLOR_GREEN]%s", GET_PLAYER(ePlayer).getName(), szCustomName);
-		}
-		else if (eTarget == CHATTARGET_PLAYER)
-		{
-			PlayerTypes toPlayer = static_cast<PlayerTypes>(eBelief2);
-			strName = CvString::format("%s to %s: %s", GET_PLAYER(ePlayer).getName(), GET_PLAYER(toPlayer).getName(), szCustomName);
-		}
-		else
-		{
-			strName = CvString::format("%s: %s", GET_PLAYER(ePlayer).getName(), szCustomName);
-		}
-
-		GC.getGame().addReplayMessage((ReplayMessageTypes)REPLAY_MESSAGE_CHAT, ePlayer, strName);
+		CvString strText = szCustomName;
+		int iTargetType = static_cast<int>(eBelief1);
+		int iToPlayerOrTeam = static_cast<int>(eBelief2);
+		// SLOG("addReplayMessage %d %s %d %d", (int)ePlayer, szCustomName, iTargetType, iToPlayerOrTeam);
+		GC.getGame().addReplayMessage((ReplayMessageTypes)REPLAY_MESSAGE_CHAT, ePlayer, strText, iTargetType, iToPlayerOrTeam, -1, -1);
 	}
 	else
 	{

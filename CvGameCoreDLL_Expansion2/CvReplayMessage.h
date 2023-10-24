@@ -16,6 +16,9 @@ public:
 
 	CvReplayMessage();
 	CvReplayMessage(int iTurn, ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER);
+#ifdef REPLAY_MESSAGE_EXTENDED
+	CvReplayMessage(int iTurn, int iData1, int iData2, ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER);
+#endif
 	virtual ~CvReplayMessage();
 
 	// Accessors
@@ -36,6 +39,10 @@ public:
 #ifdef REPLAY_MESSAGE_EXTENDED
 	void setTimestamp(float fTime);
 	int getTimestamp() const;
+	void setExtraData1(int iData1);
+	int getExtraData1() const;
+	void setExtraData2(int iData1);
+	int getExtraData2() const;
 #endif
 
 	void read(FDataStream& kStream, unsigned int uiVersion);
@@ -49,6 +56,8 @@ private:
 	typedef std::vector<PlotPosition> PlotPositionList;
 #ifdef REPLAY_MESSAGE_EXTENDED
 	int m_iTimeMilliseconds;
+	int m_iExtraData1;
+	int m_iExtraData2;
 #endif
 
 	PlotPositionList m_Plots;

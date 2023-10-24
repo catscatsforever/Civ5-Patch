@@ -26,6 +26,8 @@ unsigned int CvReplayMessage::Version()
 CvReplayMessage::CvReplayMessage()
 	: m_iTurn(-1)
 	, m_iTimeMilliseconds(0)
+	, m_iExtraData1(0)
+	, m_iExtraData2(0)
 	, m_eType(NO_REPLAY_MESSAGE)
 	, m_ePlayer(NO_PLAYER)
 {
@@ -34,6 +36,15 @@ CvReplayMessage::CvReplayMessage()
 CvReplayMessage::CvReplayMessage(int iTurn, ReplayMessageTypes eType, PlayerTypes ePlayer) :
 	m_iTurn(iTurn),
 	m_iTimeMilliseconds(static_cast<int>(GC.getGame().getTimeElapsed() * 1000)),
+	m_ePlayer(ePlayer),
+	m_eType(eType)
+{
+}
+CvReplayMessage::CvReplayMessage(int iTurn, int iData1, int iData2, ReplayMessageTypes eType, PlayerTypes ePlayer) :
+	m_iTurn(iTurn),
+	m_iTimeMilliseconds(static_cast<int>(GC.getGame().getTimeElapsed() * 1000)),
+	m_iExtraData1(iData1),
+	m_iExtraData2(iData2),
 	m_ePlayer(ePlayer),
 	m_eType(eType)
 {
@@ -150,6 +161,22 @@ int CvReplayMessage::getTimestamp() const
 {
 	return m_iTimeMilliseconds;
 }
+void CvReplayMessage::setExtraData1(int iData1)
+{
+	m_iExtraData1 = iData1;
+}
+int CvReplayMessage::getExtraData1() const
+{
+	return m_iExtraData1;
+}
+void CvReplayMessage::setExtraData2(int iData2)
+{
+	m_iExtraData2 = iData2;
+}
+int CvReplayMessage::getExtraData2() const
+{
+	return m_iExtraData2;
+}
 #endif
 //------------------------------------------------------------------------------
 void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
@@ -178,11 +205,21 @@ void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
 	{
 # endif
 		kStream >> m_iTimeMilliseconds;
+		kStream >> m_iExtraData1;
+		kStream >> m_iExtraData2;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion == 1000)
+	{
+		kStream >> m_iTimeMilliseconds;
+		m_iExtraData1 = 0;
+		m_iExtraData2 = 0;
 	}
 	else
 	{
 		m_iTimeMilliseconds = 0;
+		m_iExtraData1 = 0;
+		m_iExtraData2 = 0;
 	}
 # endif
 #endif
@@ -204,6 +241,8 @@ void CvReplayMessage::write(FDataStream& kStream) const
 	}
 #ifdef REPLAY_MESSAGE_EXTENDED
 	kStream << m_iTimeMilliseconds;
+	kStream << m_iExtraData1;
+	kStream << m_iExtraData2;
 #endif
 
 	kStream << m_ePlayer;

@@ -451,6 +451,9 @@ public:
 	int calculateOptionsChecksum();
 
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
+#ifdef REPLAY_MESSAGE_EXTENDED
+	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iData1, int iData2, int iPlotX, int iPlotY);
+#endif
 #ifdef statistis_stuff_VARIANT
 	void addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY);
 #endif

@@ -406,6 +406,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #ifdef INGAME_HOTKEY_MANAGER
 	Method(UpdateActions);
 #endif
+#ifdef LUAAPI_GET_TURN_TIME_ELAPSED
+	Method(GetTurnTimeElapsed);
+#endif
 }
 //------------------------------------------------------------------------------
 
@@ -1565,7 +1568,7 @@ int CvLuaGame::lGetReplayMessage(lua_State* L)
 		const CvReplayMessage* pMessage = game.getReplayMessage(idx);
 
 #ifdef REPLAY_MESSAGE_EXTENDED
-		lua_createtable(L, 0, 6);
+		lua_createtable(L, 0, 8);
 #else
 		lua_createtable(L, 0, 5);
 #endif
@@ -1583,6 +1586,12 @@ int CvLuaGame::lGetReplayMessage(lua_State* L)
 #ifdef REPLAY_MESSAGE_EXTENDED
 		lua_pushinteger(L, pMessage->getTimestamp());
 		lua_setfield(L, t, "Timestamp");
+
+		lua_pushinteger(L, pMessage->getExtraData1());
+		lua_setfield(L, t, "Data1");
+
+		lua_pushinteger(L, pMessage->getExtraData2());
+		lua_setfield(L, t, "Data2");
 
 #endif
 		const CvString& text = pMessage->getText();
@@ -1636,7 +1645,7 @@ int CvLuaGame::lGetReplayMessages(lua_State* L)
 		const CvReplayMessage* pMessage = game.getReplayMessage(i);
 
 #ifdef REPLAY_MESSAGE_EXTENDED
-		lua_createtable(L, 0, 6);
+		lua_createtable(L, 0, 8);
 #else
 		lua_createtable(L, 0, 5);
 #endif
@@ -1654,6 +1663,12 @@ int CvLuaGame::lGetReplayMessages(lua_State* L)
 #ifdef REPLAY_MESSAGE_EXTENDED
 		lua_pushinteger(L, pMessage->getTimestamp());
 		lua_setfield(L, t, "Timestamp");
+
+		lua_pushinteger(L, pMessage->getExtraData1());
+		lua_setfield(L, t, "Data1");
+
+		lua_pushinteger(L, pMessage->getExtraData2());
+		lua_setfield(L, t, "Data2");
 
 #endif
 		const CvString& text = pMessage->getText();
@@ -3077,5 +3092,13 @@ int CvLuaGame::lUpdateActions(lua_State* L)
 	}
 
 	return 0;
+}
+#endif
+#ifdef LUAAPI_GET_TURN_TIME_ELAPSED
+int CvLuaGame::lGetTurnTimeElapsed(lua_State* L)
+{
+	lua_pushinteger(L, static_cast<int>(GC.getGame().getTimeElapsed() * 1000));
+
+	return 1;
 }
 #endif

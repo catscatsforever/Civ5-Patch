@@ -151,9 +151,10 @@ Controls.ChatToggle:RegisterCallback( Mouse.eLClick, OnChatToggle );
 
 
 -------------------------------------------------
+-- NEW: bSkipSound, show message timestamp on hover
 -------------------------------------------------
 local bFlipper = false;
-function OnChat( fromPlayer, toPlayer, text, eTargetType )
+function OnChat( fromPlayer, toPlayer, text, eTargetType, bSkipSound, iTurn, iTimestamp )
 
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "ChatEntry", controlTable, Controls.ChatStack );
@@ -199,7 +200,17 @@ function OnChat( fromPlayer, toPlayer, text, eTargetType )
     end
     bFlipper = not bFlipper;
     
-	Events.AudioPlay2DSound( "AS2D_IF_MP_CHAT_DING" );		
+    if ( bSkipSound ~= true ) then
+        Events.AudioPlay2DSound( "AS2D_IF_MP_CHAT_DING" );
+    end 
+
+    -- set tooltip with message timestamp info, either historical or generated ATM
+    if ( iTurn == nil or iTimestamp == nil ) then
+        iTurn = Game.GetElapsedGameTurns();
+        iTimestamp = Game.GetTurnTimeElapsed();
+    end
+    local strToolTip = string.format("T%i, %is", iTurn, iTimestamp / 1000);
+    controlTable.Box:SetToolTipString(strToolTip);
 
     Controls.ChatStack:CalculateSize();
     Controls.ChatScroll:CalculateInternalSize();
@@ -209,10 +220,22 @@ Events.GameMessageChat.Add( OnChat );
 
 
 -------------------------------------------------
+-- NEW: store chat messages
 -------------------------------------------------
 function SendChat( text )
     if( string.len( text ) > 0 ) then
-        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, g_iChatTeam, g_iChatPlayer, -1, -1);
+        local iTarget = ChatTargetTypes.NO_CHATTARGET;
+        local iToPlayerOrTeam = -1;
+        if (g_iChatTeam ~= -1) then
+            iTarget = ChatTargetTypes.CHATTARGET_TEAM;
+            iToPlayerOrTeam = g_iChatTeam;
+        elseif (g_iChatPlayer ~= -1) then
+            iTarget = ChatTargetTypes.CHATTARGET_PLAYER;
+            iToPlayerOrTeam = g_iChatPlayer;
+        else
+            iTarget = ChatTargetTypes.CHATTARGET_ALL;
+        end
+        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, iTarget, g_iChatPlayer, -1, -1);
         Network.SendChat( text, g_iChatTeam, g_iChatPlayer );
     end
     Controls.ChatEntry:ClearString();
@@ -587,3 +610,22 @@ end
 if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
     Controls.ChatPull:SetDisabled(true);
 end
+
+-- NEW: add saved chat messages on load
+function LoadChatMessages()
+    local messages = Game.GetReplayMessages();
+    local iLocalPlayer = Game.GetActivePlayer();
+    local iLocalTeam = Players[iLocalPlayer]:GetTeam();
+    for i,message in ipairs(messages) do
+        if (message.Type == 7) then -- chat message
+            print(message.Player, message.Data1, message.Data2, message.Text);
+            local eTarget = message.Data1;
+            local toPlayer = message.Data2;
+            if ( not (eTarget == ChatTargetTypes.CHATTARGET_PLAYER and message.Player ~= iLocalPlayer and toPlayer ~= iLocalPlayer or eTarget == ChatTargetTypes.CHATTARGET_TEAM and Players[message.Player]:GetTeam() ~= iLocalTeam)) then
+                OnChat( message.Player, message.Data2, message.Text, message.Data1, true, message.Turn, message.Timestamp )
+            end
+        end
+    end
+end
+
+LoadChatMessages();

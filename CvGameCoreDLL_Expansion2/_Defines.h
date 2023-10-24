@@ -648,6 +648,8 @@
 #define DO_TURN_CHANGE_ORDER
 /// move autosave to the end of turn
 #define AUTOSAVE_END_OF_TURN
+/// Game.GetTurnTimeElapsed() returns elapsed time in milliseconds
+#define LUAAPI_GET_TURN_TIME_ELAPSED
 /*TURN AND TIMER CHANGES END*/
 
 
@@ -779,7 +781,8 @@
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 #define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 // 1000: v7.2 (initial, adds m_iTimeMilliseconds)
-#define BUMP_SAVE_VERSION_REPLAYMESSAGE 1000
+// 1001: v7.3b (adds m_iExtraData1, m_iExtraData2)
+#define BUMP_SAVE_VERSION_REPLAYMESSAGE 1001
 #endif
 ///
 #define ENHANCED_GRAPHS
