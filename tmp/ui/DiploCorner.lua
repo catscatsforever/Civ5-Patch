@@ -235,7 +235,7 @@ function SendChat( text )
         else
             iTarget = ChatTargetTypes.CHATTARGET_ALL;
         end
-        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, iTarget, g_iChatPlayer, -1, -1);
+        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, iTarget, iToPlayerOrTeam, -1, -1);
         Network.SendChat( text, g_iChatTeam, g_iChatPlayer );
     end
     Controls.ChatEntry:ClearString();
