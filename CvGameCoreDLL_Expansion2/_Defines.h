@@ -798,6 +798,8 @@
 #define NUM_REPLAY_MESSAGE_TYPES 8
 ///
 // #define DEV_RECORDDING_STATISTCS
+// use PreGame.GetNickName with encoded value to retrieve user's SteamId
+#define PREGAMEAPI_GET_NETID
 /*OTHER CHANGES END*/
 
 

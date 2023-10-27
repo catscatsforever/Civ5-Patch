@@ -1614,6 +1614,21 @@ const CvString& nickname(PlayerTypes p)
 
 const CvString& nicknameDisplayed(PlayerTypes p)
 {
+#ifdef PREGAMEAPI_GET_NETID
+	// intercept Pregame.GetNickName here
+	// it actually limits max PlayerType value to 2^28 (it's OK)
+	if ((((uint)p >> 28) & 15) == 1)  // check if leftmost bits are 0001
+	{
+		static CvString netId = "";
+		PlayerTypes pId = (PlayerTypes)((uint)p & 268435455);  // all 28 rightmost bits
+		size_t ind = nickname(pId).rfind("@");  // nickname format is PlayerName@SteamId, assume "@" is guaranteed
+		if (ind != std::string::npos)
+		{
+			netId = (CvString)(nickname(pId).substr(ind + 1));  // extract steamID from nickname
+		}
+		return netId;
+	}
+#endif
 	if(p >= 0 && p < MAX_PLAYERS)
 		return s_displayNicknames[p];
 	static const CvString none("");
