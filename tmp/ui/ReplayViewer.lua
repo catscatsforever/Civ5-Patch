@@ -251,21 +251,22 @@ Panels = {
     					local iLocalPlayer = Game.GetActivePlayer();
     					local iLocalTeam = Players[iLocalPlayer]:GetTeam();
 						local eTargetType = message.Data1;
+						local fromPlayer = message.Player - 1;
 						local toPlayer = message.Data2;
 						if( eTargetType == ChatTargetTypes.CHATTARGET_TEAM ) then
-    					    strText = '[COLOR_GREEN]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ' (Team): ' .. message.Text;
+    					    strText = '[COLOR_GREEN]' .. PreGame.GetNickName(fromPlayer) .. ' (Team): ' .. message.Text;
     					elseif( eTargetType == ChatTargetTypes.CHATTARGET_PLAYER ) then
     					    local toName;
     					    if( toPlayer == iLocalPlayer ) then
     					        toName = Locale.ConvertTextKey( "TXT_KEY_YOU" );
     					    else
-    					        toName = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_PLAYER", (#Players[toPlayer]:GetNickName() > 0 and Players[toPlayer]:GetNickName() or Players[toPlayer]:GetName()) );
+    					        toName = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_PLAYER", PreGame.GetNickName(toPlayer) );
     					    end
-    					    strText = '[COLOR_MAGENTA]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ' (' .. toName .. '): ' .. message.Text;
-    					elseif( message.Player == iLocalPlayer ) then
-    					    strText = '[COLOR_GREY]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ': ' .. message.Text;
+    					    strText = '[COLOR_MAGENTA]' .. PreGame.GetNickName(fromPlayer) .. ' (' .. toName .. '): ' .. message.Text;
+    					elseif( fromPlayer == iLocalPlayer ) then
+    					    strText = '[COLOR_GREY]' .. PreGame.GetNickName(fromPlayer) .. ': ' .. message.Text;
     					else
-    					    strText = '[COLOR_POPUP_TEXT]' .. (#Players[message.Player]:GetNickName() > 0 and Players[message.Player]:GetNickName() or Players[message.Player]:GetName()) .. ': ' .. message.Text;
+    					    strText = '[COLOR_POPUP_TEXT]' .. PreGame.GetNickName(fromPlayer) .. ': ' .. message.Text;
     					end
     					message.Text = strText;
     					--print(strText)
