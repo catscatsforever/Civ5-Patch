@@ -2,6 +2,7 @@
 -- Staging Room Screen
 -------------------------------------------------
 -- edit: Duel Mode for EUI and vanilla UI
+-- edit: Community Remarks for EUI & vanilla UI
 -------------------------------------------------
 include( "IconSupport" );
 include( "SupportFunctions"  );
@@ -15,6 +16,9 @@ include( "TurnStatusBehavior" ); -- for turn status button behavior
 -------------------------------------------------
 local m_SlotInstances = {};
 local g_ChatInstances = {};
+-- NEW: global tables are populated on script load
+local g_CommunityRemarks = {};
+local g_MMRoleTypes = {};
 
 local g_AdvancedOptionIM = InstanceManager:new( "GameOption", "Text", Controls.AdvancedOptions );
 local g_AdvancedOptionsList = {};
@@ -672,6 +676,22 @@ function UpdatePlayer( slotInstance, playerInfo )
 		PopulateSlotTypePulldown( slotInstance.SlotTypePulldown, playerID, g_slotTypeOptions );
 		-------------------------------------------------------------
 	
+		-------------------------------------------------------------
+		-- NEW: check if player has any community remarks
+		local netID = GetNetID(playerID);
+		if g_CommunityRemarks[netID] then
+			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
+			local tstrTooltip = {};
+			for _,i in ipairs(g_CommunityRemarks[netID]) do
+				table.insert(tstrTooltip, i.Tooltip);
+			end
+			slotInstance.CommunityRemarkSign:SetHide(false);
+			slotInstance.CommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
+		else
+			slotInstance.CommunityRemarkSign:SetHide(true);
+		end
+		-------------------------------------------------------------
+
         local bIsHuman  = (PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_TAKEN);
         local bIsLocked = (PreGame.GetSlotClaim( playerID ) == SlotClaim.SLOTCLAIM_RESERVED) or
                           (PreGame.GetSlotClaim( playerID ) == SlotClaim.SLOTCLAIM_ASSIGNED);
@@ -967,6 +987,22 @@ function UpdateLocalPlayer( playerInfo )
 	if( not bIsReady ) then
 		m_bLaunchReady = false;
 	end
+
+	-----------------------------------------------------------
+	-- NEW: check if local player has any community remarks
+	local netID = GetNetID(Matchmaking.GetLocalID());
+	if g_CommunityRemarks[netID] then
+		local tstrTooltip = {};
+		table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
+		for _,i in ipairs(g_CommunityRemarks[netID]) do
+			table.insert(tstrTooltip, i.Tooltip);
+		end
+		Controls.LocalCommunityRemarkSign:SetHide(false);
+		Controls.LocalCommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
+	else
+		Controls.LocalCommunityRemarkSign:SetHide(true);
+	end
+	-----------------------------------------------------------
 	
 	local bCantChangeCiv = bIsReady or (PreGame.GetLoadFileName() ~= "") or bIsObserver or PreGame.GameStarted();
 	local bCantChangeTeam = bIsReady or (PreGame.GetLoadFileName() ~= "") or bIsObserver or PreGame.GameStarted();
@@ -2217,3 +2253,35 @@ Events.MultiplayerGameAbandoned.Add( OnAbandoned );
 
 -------------------------------------------------
 AdjustScreenSize();
+
+
+-- NEW: Community Remarks - populate tables from the database
+for i in GameInfo.PlayerMMRoleTypes() do
+	g_MMRoleTypes[i.ID] =
+		{
+			Type = i.Type,
+			Description = Locale.ConvertTextKey(i.Description),
+			Tooltip = Locale.ConvertTextKey(i.TooltipText),
+		};
+end
+for i in GameInfo.CommunityPlayerRemarks() do
+	local netID = i.PlayerNetID:sub(2);
+	local date = os.date('%d %b %Y ', i.EpochTimestamp);
+	if g_CommunityRemarks[netID] == nil then
+		g_CommunityRemarks[netID] = {};
+	end
+	table.insert(g_CommunityRemarks[netID],
+		{
+			NetID = netID,
+			Name = i.PlayerLastObservedName,
+			Role = g_MMRoleTypes[i.PlayerMMRoleType] and g_MMRoleTypes[i.PlayerMMRoleType].Description or '??',
+			Tooltip = '[ICON_BULLET]' .. date .. Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_PLAYERNAME', i.PlayerLastObservedName) .. ': ' .. (g_MMRoleTypes[i.PlayerMMRoleType] and g_MMRoleTypes[i.PlayerMMRoleType].Tooltip or '??'),
+		});
+end
+-- real netID from the dll (only for non-local MP games)
+function GetNetID( iPlayerID )
+	if iPlayerID >= 0 and iPlayerID < 2 ^ 28 then
+		local product = (2 ^ 28) + iPlayerID;
+    	return PreGame.GetNickName(product);
+    end
+end

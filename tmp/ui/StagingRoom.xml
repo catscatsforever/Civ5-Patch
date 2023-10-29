@@ -1,4 +1,5 @@
 <!-- edit: Duel Mode for EUI and vanilla UI -->
+<!-- edit: Community Remarks for EUI and vanilla UI -->
 
 <?xml version="1.0" encoding="utf-8"?>
 <Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" >
@@ -85,6 +86,9 @@
 
       <!-- Kick Button -->
       <Button Hidden="0" Anchor="R,T" Size="32,32" Offset="5,3" ID="KickButton" Texture="assets/UI/Art/Icons/IconFrame32Delete.DDS" ToolTip="TXT_KEY_MP_KICK_PLAYER" />
+
+	  <!-- NEW: Community Remarks sign -->
+      <AlphaAnim Anchor="R,B" Size="80,80" Offset="-45,0" ID="CommunityRemarkSign" Texture="diplomacyvote.dds" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="1"/>
 
       <!-- Swap Button -->
       <GridButton Style="SmallButton" Hidden="0" Anchor="R,T" Size="42,32" Offset="165,8" ID="SwapButton" String="[ICON_SWAP]" ToolTip="TXT_KEY_MP_SWAP_BUTTON_TT" >
@@ -247,6 +251,9 @@
 
       <!-- Ready Checkbox -->
       <CheckBox Anchor="R,T" String="" Offset="6,6" ID="LocalReadyCheck" ButtonTexture="assets/UI/Art/Icons/IconFrame32CheckOff.DDS" CheckTexture="assets/UI/Art/Icons/IconFrame32Check.DDS" ToolTip="TXT_KEY_MP_READY_CHECK" />
+	  
+	  <!-- NEW: Community Remarks sign -->
+      <AlphaAnim Anchor="R,B" Size="80,80" Offset="0,0" ID="LocalCommunityRemarkSign" Texture="diplomacyvote.dds" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="1"/>
 
       <!-- Edit Button -->
       <Container Anchor="R,B" Size="50,32" Offset="34,5" >
