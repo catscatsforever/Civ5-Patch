@@ -2707,6 +2707,470 @@ function AssignStartingPlots:FixSugarJungles()
 	end
 end
 ------------------------------------------------------------------------------
+function AssignStartingPlots:PlaceLuxuries()
+	-- This function is dependent upon AssignLuxuryRoles() and PlaceCityStates() having been executed first.
+	local iW, iH = Map.GetGridSize();
+	local res = Map.GetCustomOption(5);
+	-- Place Luxuries at civ start locations.
+	for loop, reg_data in ipairs(self.regions_sorted_by_type) do
+		local region_number = reg_data[1];
+		local this_region_luxury = reg_data[2];
+		local x = self.startingPlots[region_number][1];
+		local y = self.startingPlots[region_number][2];
+		print("-"); print("Attempting to place Luxury#", this_region_luxury, "at start plot", x, y, "in Region#", region_number);
+		-- Determine number to place at the start location
+		local iNumToPlace = 1;
+		if res == 4 then -- Legendary Start
+			iNumToPlace = 2;
+		end
+		if self.regionData[region_number][8] < 2.5 then -- Low fertility per region rectangle plot, add a lux.
+			--print("-"); print("Region#", region_number, "has low rectangle fertility, giving it an extra Luxury at start plot.");
+			iNumToPlace = iNumToPlace + 1;
+			self.luxury_low_fert_compensation[this_region_luxury] = self.luxury_low_fert_compensation[this_region_luxury] + 1;
+			self.region_low_fert_compensation[region_number] = self.region_low_fert_compensation[region_number] + 1;
+		end
+		if self.regionData[region_number][6] / self.regionTerrainCounts[region_number][2] < 4 then -- Low fertility per land plot.
+			--print("-"); print("Region#", region_number, "has low per-plot fertility, giving it an extra Luxury at start plot.");
+			iNumToPlace = iNumToPlace + 1;
+			self.luxury_low_fert_compensation[this_region_luxury] = self.luxury_low_fert_compensation[this_region_luxury] + 1;
+			self.region_low_fert_compensation[region_number] = self.region_low_fert_compensation[region_number] + 1;
+		end
+		-- Obtain plot lists appropriate to this luxury type.
+		local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list;
+		primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(this_region_luxury);
+		luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
+
+		-- First pass, checking only first two rings with a 50% ratio.
+		shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+		local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumToPlace, 0.5, -1, 0, 0, shuf_list);
+		if iNumLeftToPlace > 0 and secondary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, -1, 0, 0, shuf_list);
+		end
+		if iNumLeftToPlace > 0 and tertiary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, -1, 0, 0, shuf_list);
+		end
+		if iNumLeftToPlace > 0 and quaternary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, -1, 0, 0, shuf_list);
+		end
+
+		if iNumLeftToPlace > 0 then
+			-- Second pass, checking three rings with a 100% ratio.
+			luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 3, false)
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, -1, 0, 0, shuf_list);
+			if iNumLeftToPlace > 0 and secondary > 0 then
+				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, -1, 0, 0, shuf_list);
+			end
+			if iNumLeftToPlace > 0 and tertiary > 0 then
+				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, -1, 0, 0, shuf_list);
+			end
+			if iNumLeftToPlace > 0 and quaternary > 0 then
+				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, -1, 0, 0, shuf_list);
+			end
+		end
+
+		if iNumLeftToPlace > 0 then
+			-- If we haven't been able to place all of this lux type at the start, it CAN be placed
+			-- in the region somewhere. Subtract remainder from this region's compensation, so that the
+			-- regional process, later, will attempt to place this remainder somewhere in the region.
+			self.luxury_low_fert_compensation[this_region_luxury] = self.luxury_low_fert_compensation[this_region_luxury] - iNumLeftToPlace;
+			self.region_low_fert_compensation[region_number] = self.region_low_fert_compensation[region_number] - iNumLeftToPlace;
+		end
+		if iNumLeftToPlace > 0 and self.iNumTypesRandom > 0 then
+			-- We'll attempt to place one source of a Luxury type assigned to random distribution.
+			local randoms_to_place = 1;
+			for loop, random_res in ipairs(self.resourceIDs_assigned_to_random) do
+		 		primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(random_res);
+		 		if randoms_to_place > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if randoms_to_place > 0 and secondary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if randoms_to_place > 0 and tertiary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if randoms_to_place > 0 and quaternary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+			end
+		end
+	end
+	
+	-- Place Luxuries at City States.
+	-- Candidates include luxuries exclusive to CS, the lux assigned to this CS's region (if in a region), and the randoms.
+	for city_state = 1, self.iNumCityStates do
+		-- First check to see if this city state number received a valid start plot.
+		if self.city_state_validity_table[city_state] == false then
+			-- This one did not! It does not exist on the map nor have valid data, so we will ignore it.
+		else
+			-- OK, it's a valid city state. Process it.
+			local region_number = self.city_state_region_assignments[city_state];
+			local x = self.cityStatePlots[city_state][1];
+			local y = self.cityStatePlots[city_state][2];
+			local allowed_luxuries = self:GetListOfAllowableLuxuriesAtCitySite(x, y, 2)
+			local lux_possible_for_cs = {}; -- Recorded with ID as key, weighting as data entry
+			-- Identify Allowable Luxuries assigned to City States.
+			-- If any CS-Only types are eligible, then all combined will have a weighting of 75%
+			local cs_only_types = {};
+			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
+				if allowed_luxuries[res_ID] == true then
+					table.insert(cs_only_types, res_ID);
+				end
+			end
+			local iNumCSAllowed = table.maxn(cs_only_types);
+			if iNumCSAllowed > 0 then
+				for loop, res_ID in ipairs(cs_only_types) do
+					lux_possible_for_cs[res_ID] = 75 / iNumCSAllowed;
+				end
+			end
+			-- Identify Allowable Random Luxuries and the Regional Luxury if any.
+			-- If any random types are eligible (plus the regional type if in a region) these combined carry a 25% weighting.
+			if self.iNumTypesRandom > 0 or region_number > 0 then
+				local random_types_allowed = {};
+				for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
+					if allowed_luxuries[res_ID] == true then
+						table.insert(random_types_allowed, res_ID);
+					end
+				end
+				local iNumRandAllowed = table.maxn(random_types_allowed);
+				local iNumAllowed = iNumRandAllowed;
+				if region_number > 0 then
+					iNumAllowed = iNumAllowed + 1; -- Adding the region type in to the mix with the random types.
+					local res_ID = self.region_luxury_assignment[region_number];
+					if allowed_luxuries[res_ID] == true then
+						lux_possible_for_cs[res_ID] = 25 / iNumAllowed;
+					end
+				end
+				if iNumRandAllowed > 0 then
+					for loop, res_ID in ipairs(random_types_allowed) do
+						lux_possible_for_cs[res_ID] = 25 / iNumAllowed;
+					end
+				end
+			end
+
+			-- If there are no allowable luxury types at this city site, then this city state gets none.
+			local iNumAvailableTypes = table.maxn(lux_possible_for_cs);
+			if iNumAvailableTypes == 0 then
+				--print("City State #", city_state, "has poor land, ineligible to receive a Luxury resource.");
+			else
+				-- Calculate probability thresholds for each allowable luxury type.
+				local res_threshold = {};
+				local totalWeight, accumulatedWeight = 0, 0;
+				for res_ID, this_weight in pairs(lux_possible_for_cs) do
+					totalWeight = totalWeight + this_weight;
+				end
+				for res_ID, this_weight in pairs(lux_possible_for_cs) do
+					local threshold = (this_weight + accumulatedWeight) * 10000 / totalWeight;
+					res_threshold[res_ID] = threshold;
+					accumulatedWeight = accumulatedWeight + this_weight;
+				end
+				-- Choose luxury type.
+				local use_this_ID;
+				local diceroll = Map.Rand(10000, "Choose resource type - Assign Luxury To City State - Lua");
+				for res_ID, threshold in pairs(res_threshold) do
+					if diceroll < threshold then -- Choose this resource type.
+						use_this_ID = res_ID;
+						break
+					end
+				end
+				print("-"); print("-"); print("-Assigned Luxury Type", use_this_ID, "to City State#", city_state);
+				-- Place luxury.
+				local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list;
+				primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(use_this_ID);
+				luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
+				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+				local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				if iNumLeftToPlace > 0 and secondary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace > 0 and tertiary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace > 0 and quaternary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				--if iNumLeftToPlace == 0 then
+					--print("-"); print("Placed Luxury ID#", use_this_ID, "at City State#", city_state, "in Region#", region_number, "located at Plot", x, y);
+				--end
+			end
+		end
+	end
+		
+	-- Place Regional Luxuries
+	for region_number, res_ID in ipairs(self.region_luxury_assignment) do
+		print("-"); print("- - -"); print("Attempting to place regional luxury #", res_ID, "in Region#", region_number);
+		local iNumAlreadyPlaced = self.amounts_of_resources_placed[res_ID + 1];
+		local assignment_split = self.luxury_assignment_count[res_ID];
+		local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list, iNumLeftToPlace;
+		primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(res_ID);
+		luxury_plot_lists = self:GenerateLuxuryPlotListsInRegion(region_number)
+
+		-- Calibrate number of luxuries per region to world size and number of civs
+		-- present. The amount of lux per region should be at its highest when the 
+		-- number of civs in the game is closest to "default" for that map size.
+		local target_list = self:GetRegionLuxuryTargetNumbers()
+		local targetNum = math.floor((target_list[self.iNumCivs] + (0.5 * self.luxury_low_fert_compensation[res_ID])) / assignment_split);
+		targetNum = targetNum - self.region_low_fert_compensation[region_number];
+		-- Adjust target number according to Resource Setting.
+		if res == 1 then
+			targetNum = targetNum - 1;
+		elseif res == 3 then
+			targetNum = targetNum + 1
+		end
+		local iNumThisLuxToPlace = math.max(1, targetNum); -- Always place at least one.
+
+		--print("-"); print("Target number for Luxury#", res_ID, "with assignment split of", assignment_split, "is", targetNum);
+		
+		-- Place luxuries.
+		shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumThisLuxToPlace, 0.3, 2, 0, 3, shuf_list);
+		if iNumLeftToPlace > 0 and secondary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.3, 2, 0, 3, shuf_list);
+		end
+		if iNumLeftToPlace > 0 and tertiary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.4, 2, 0, 2, shuf_list);
+		end
+		if iNumLeftToPlace > 0 and quaternary > 0 then
+			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.5, 2, 0, 2, shuf_list);
+		end
+		--print("-"); print("-"); print("Number of LuxuryID", res_ID, "left to place in Region#", region_number, "is", iNumLeftToPlace);
+	end
+
+	-- Place Random Luxuries
+	if self.iNumTypesRandom > 0 then
+		print("* *"); print("* iNumTypesRandom = ", self.iNumTypesRandom); print("* *");
+		-- This table governs targets for total number of luxuries placed in the world, not
+		-- including the "extra types" of Luxuries placed at start locations. These targets
+		-- are approximate. An additional random factor is added in based on number of civs.
+		-- Any difference between regional and city state luxuries placed, and the target, is
+		-- made up for with the number of randomly placed luxuries that get distributed.
+		local world_size_data = self:GetWorldLuxuryTargetNumbers()
+		local targetLuxForThisWorldSize = world_size_data[1];
+		local loopTarget = world_size_data[2];
+		local extraLux = Map.Rand(self.iNumCivs, "Luxury Resource Variance - Place Resources LUA");
+		local iNumRandomLuxTarget = targetLuxForThisWorldSize + extraLux - self.totalLuxPlacedSoFar;
+		
+		if self.iNumTypesRandom * 3 > iNumRandomLuxTarget then
+			print ("iNumRandomLuxTarget = " .. tostring(iNumRandomLuxTarget) .. ". Just putting in 3 of each random.");
+		end
+		
+		local iNumRandomLuxPlaced, iNumThisLuxToPlace = 0, 0;
+		-- This table weights the amount of random luxuries to place, with first-selected getting heavier weighting.
+		local random_lux_ratios_table = {
+		{1},
+		{0.55, 0.45},
+		{0.40, 0.33, 0.27},
+		{0.35, 0.25, 0.25, 0.15},
+		{0.25, 0.25, 0.20, 0.15, 0.15},
+		{0.20, 0.20, 0.20, 0.15, 0.15, 0.10},
+		{0.20, 0.20, 0.15, 0.15, 0.10, 0.10, 0.10},
+		{0.20, 0.15, 0.15, 0.10, 0.10, 0.10, 0.10, 0.10} };
+
+		for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
+			local primary, secondary, tertiary, quaternary, luxury_plot_lists, current_list, iNumLeftToPlace;
+			primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(res_ID);
+			
+			-- If calculated number of randoms is low, just place 3 of each
+			if self.iNumTypesRandom * 3 > iNumRandomLuxTarget then
+				iNumThisLuxToPlace = 3;
+				
+			elseif self.iNumTypesRandom > 8 then
+				iNumThisLuxToPlace = math.max(3, math.ceil(iNumRandomLuxTarget / 10));
+				
+			else
+				local lux_minimum = math.max(3, loopTarget - loop);
+				local lux_share_of_remaining = math.ceil(iNumRandomLuxTarget * random_lux_ratios_table[self.iNumTypesRandom][loop]);
+				iNumThisLuxToPlace = math.max(lux_minimum, lux_share_of_remaining);
+			end
+			-- Place this luxury type.
+			current_list = self.global_luxury_plot_lists[primary];
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumThisLuxToPlace, 0.25, 2, 4, 6, current_list);
+			if iNumLeftToPlace > 0 and secondary > 0 then
+				current_list = self.global_luxury_plot_lists[secondary];
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, 2, 4, 6, current_list);
+			end
+			if iNumLeftToPlace > 0 and tertiary > 0 then
+				current_list = self.global_luxury_plot_lists[tertiary];
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, 2, 4, 6, current_list);
+			end
+			if iNumLeftToPlace > 0 and quaternary > 0 then
+				current_list = self.global_luxury_plot_lists[quaternary];
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.3, 2, 4, 6, current_list);
+			end
+			iNumRandomLuxPlaced = iNumRandomLuxPlaced + iNumThisLuxToPlace - iNumLeftToPlace;
+			print("-"); print("Random Luxury Target Number:", iNumThisLuxToPlace);
+			print("Random Luxury Target Placed:", iNumThisLuxToPlace - iNumLeftToPlace); print("-");
+		end
+
+		--[[
+		print("-"); print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+		print("+ Random Luxuries Target Number:", iNumRandomLuxTarget);
+		print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+		print("+ Random Luxuries Number Placed:", iNumRandomLuxPlaced);
+		print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"); print("-");
+		]]--
+
+	end
+
+	-- For Resource settings other than Sparse, add a second luxury type at start locations.
+	-- This second type will be selected from Random types if possible, CS types if necessary, and other regions' types as a final fallback.
+	-- Marble is included in the types possible to be placed.
+	if res ~= 1 then
+		for region_number = 1, self.iNumCivs do
+			local x = self.startingPlots[region_number][1];
+			local y = self.startingPlots[region_number][2];
+			local use_this_ID;
+			local candidate_types, iNumTypesAllowed = {}, 0;
+			local allowed_luxuries = self:GetListOfAllowableLuxuriesAtCitySite(x, y, 2)
+			print("-"); print("--- Eligible Types List for Second Luxury in Region#", region_number, "---");
+			-- See if any Random types are eligible.
+			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
+				if allowed_luxuries[res_ID] == true then
+					--print("- Found eligible luxury type:", res_ID);
+					iNumTypesAllowed = iNumTypesAllowed + 1;
+					table.insert(candidate_types, res_ID);
+				end
+			end
+			-- Check to see if any Special Case luxuries are eligible. Disallow if Strategic Balance resource setting.
+			if res ~= 5 and res ~= 6 then
+				for loop, res_ID in ipairs(self.resourceIDs_assigned_to_special_case) do
+					if allowed_luxuries[res_ID] == true then
+						print("- Found eligible luxury type:", res_ID);
+						iNumTypesAllowed = iNumTypesAllowed + 1;
+						table.insert(candidate_types, res_ID);
+					end
+				end
+			end
+		
+			if iNumTypesAllowed > 0 then
+				local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
+				use_this_ID = candidate_types[diceroll];
+			else
+				-- See if any City State types are eligible.
+				for loop, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
+					if allowed_luxuries[res_ID] == true then
+						print("- Found eligible luxury type:", res_ID);
+						iNumTypesAllowed = iNumTypesAllowed + 1;
+						table.insert(candidate_types, res_ID);
+					end
+				end
+				if iNumTypesAllowed > 0 then
+					local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
+					use_this_ID = candidate_types[diceroll];
+				else
+					-- See if anybody else's regional type is eligible.
+					local region_lux_ID = self.region_luxury_assignment[region_number];
+					for loop, res_ID in ipairs(self.resourceIDs_assigned_to_regions) do
+						if res_ID ~= region_lux_ID then
+							if allowed_luxuries[res_ID] == true then
+								print("- Found eligible luxury type:", res_ID);
+								iNumTypesAllowed = iNumTypesAllowed + 1;
+								table.insert(candidate_types, res_ID);
+							end
+						end
+					end
+					if iNumTypesAllowed > 0 then
+						local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
+						use_this_ID = candidate_types[diceroll];
+					else
+						print("-"); print("Failed to place second Luxury type at start in Region#", region_number, "-- no eligible types!"); print("-");
+					end
+				end
+			end
+			print("--- End of Eligible Types list for Second Luxury in Region#", region_number, "---");
+			if use_this_ID ~= nil then -- Place this luxury type at this start.
+				local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list;
+				primary, secondary, tertiary, quaternary = self:GetIndicesForLuxuryType(use_this_ID);
+				luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
+				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
+				local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				if iNumLeftToPlace > 0 and secondary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace > 0 and tertiary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace > 0 and quaternary > 0 then
+					shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, -1, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace == 0 then
+					print("-"); print("Placed Second Luxury type of ID#", use_this_ID, "for start located at Plot", x, y, " in Region#", region_number);
+				end
+			end
+		end
+	end
+
+	-- Handle Special Case Luxuries
+	if self.iNumTypesSpecialCase > 0 then
+		-- Add a special case function for each luxury to be handled as a special case.
+		self:PlaceMarble()
+	end
+
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:PlaceMarble()
+	local marble_already_placed = self.amounts_of_resources_placed[self.marble_ID + 1];
+	local marble_target = math.ceil(self.iNumCivs * 0.75);
+	local res = Map.GetCustomOption(5);
+	if res == 1 then
+		marble_target = math.ceil(self.iNumCivs * 0.5);
+	elseif res == 3 then
+		marble_target = math.ceil(self.iNumCivs * 0.9);
+	end
+	local iNumMarbleToPlace = math.max(2, marble_target - marble_already_placed);
+	local iW, iH = Map.GetGridSize();
+	local iNumLeftToPlace = iNumMarbleToPlace;
+	local iNumPlots = table.maxn(self.marble_list);
+	if iNumPlots < 1 then
+		--print("No eligible plots available to place Marble!");
+		return
+	end
+	-- Main loop
+	for place_resource = 1, iNumMarbleToPlace do
+		for loop, plotIndex in ipairs(self.marble_list) do
+			if self.marbleData[plotIndex] == 0 and self.luxuryData[plotIndex] == 0 then
+				local x = (plotIndex - 1) % iW;
+				local y = (plotIndex - x - 1) / iW;
+				local res_plot = Map.GetPlot(x, y)
+				if res_plot:GetResourceType(-1) == -1 then -- Placing this resource in this plot.
+					res_plot:SetResourceType(self.marble_ID, 1);
+					self.amounts_of_resources_placed[self.marble_ID + 1] = self.amounts_of_resources_placed[self.marble_ID + 1] + 1;
+					--print("-"); print("Placed Marble randomly at Plot", x, y);
+					self.totalLuxPlacedSoFar = self.totalLuxPlacedSoFar + 1;
+					iNumLeftToPlace = iNumLeftToPlace - 1;
+					--print("Still need to place", iNumLeftToPlace, "more units of Marble.");
+					self:PlaceResourceImpact(x, y, 2, 1)
+					self:PlaceResourceImpact(x, y, 7, 6)
+					break
+				end
+			end
+		end
+	end
+	if iNumLeftToPlace > 0 then
+		print("Failed to place", iNumLeftToPlace, "units of Marble.");
+	end
+end
+------------------------------------------------------------------------------
 function StartPlotSystem()
 	-- Get Resources setting input by user.
 	local res = Map.GetCustomOption(5)
