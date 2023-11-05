@@ -21,7 +21,21 @@ function GetMapScriptInfo()
 		IsAdvancedMap = false,
 		IconIndex = 0,
 		SortIndex = 2,
-		CustomOptions = {world_age, temperature, rainfall, sea_level, resources},
+		CustomOptions = {world_age, temperature, rainfall, sea_level,
+			{
+				Name = "TXT_KEY_MAP_OPTION_RESOURCES",	-- Customizing the Resource setting to Default to Strategic Balance.
+				Values = {
+					"TXT_KEY_MAP_OPTION_SPARSE",
+					"TXT_KEY_MAP_OPTION_STANDARD",
+					"TXT_KEY_MAP_OPTION_ABUNDANT",
+					"TXT_KEY_MAP_OPTION_LEGENDARY_START",
+					"TXT_KEY_MAP_OPTION_STRATEGIC_BALANCE",
+					"Strategic Balance With Coal",
+					"TXT_KEY_MAP_OPTION_RANDOM",
+				},
+				DefaultValue = 6,
+				SortPriority = -95,
+			},},
 	}
 end
 ------------------------------------------------------------------------------
@@ -533,12 +547,13 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	
 	-- Adjust amounts, if applicable, based on Resource Setting.
 	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues()
+	local res = Map.GetCustomOption(5)
 
 	-- Adjust appearance rate per Resource Setting chosen by user.
 	local bonus_multiplier = 1;
-	if self.resource_setting == 1 then -- Sparse, so increase the number of tiles per bonus.
+	if res == 1 then -- Sparse, so increase the number of tiles per bonus.
 		bonus_multiplier = 1.5;
-	elseif self.resource_setting == 3 then -- Abundant, so reduce the number of tiles per bonus.
+	elseif res == 3 then -- Abundant, so reduce the number of tiles per bonus.
 		bonus_multiplier = 0.66667;
 	end
 
@@ -700,9 +715,1060 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	local resources_to_place = {
 	{self.deer_ID, 1, 100, 3, 4} };
 	self:ProcessResourceList(25 * bonus_multiplier, 3, self.forest_flat_that_are_not_tundra, resources_to_place)
--- end
--- function AssignStartingPlots:NormalizePlotAreas()
-	self:FixSugarJungles();
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:NormalizeStartLocation(region_number)
+	--[[ This function measures the value of land in two rings around a given start
+	     location, primarily for the purpose of determining how much support the site
+	     requires in the form of Bonus Resources. Numerous assumptions are built in 
+	     to this operation that would need to be adjusted for any modifications to 
+	     terrain or resources types and yields, or to game rules about rivers and 
+	     other map elements. Nothing is hardcoded in a way that puts it out of the 
+	     reach of modders, but any mods including changes to map elements may have a
+	     significant workload involved with rebalancing the start finder and the 
+	     resource distribution to fit them properly to a mod's custom needs. I have
+	     labored to document every function and method in detail to make it as easy
+	     as possible to modify this system.  -- Bob Thomas - April 15, 2010  ]]--
+	-- 
+	local iW, iH = Map.GetGridSize();
+	local start_point_data = self.startingPlots[region_number];
+	local x = start_point_data[1];
+	local y = start_point_data[2];
+	local plot = Map.GetPlot(x, y);
+	local plotIndex = y * iW + x + 1;
+	local isEvenY = true;
+	if y / 2 > math.floor(y / 2) then
+		isEvenY = false;
+	end
+	local wrapX = Map:IsWrapX();
+	local wrapY = Map:IsWrapY();
+	local innerFourFood, innerThreeFood, innerTwoFood, innerHills, innerForest, innerOneHammer, innerOcean = 0, 0, 0, 0, 0, 0, 0;
+	local outerFourFood, outerThreeFood, outerTwoFood, outerHills, outerForest, outerOneHammer, outerOcean = 0, 0, 0, 0, 0, 0, 0;
+	local innerCanHaveBonus, outerCanHaveBonus, innerBadTiles, outerBadTiles = 0, 0, 0, 0;
+	local iNumFoodBonusNeeded = 0;
+	local iNumNativeTwoFoodFirstRing, iNumNativeTwoFoodSecondRing = 0, 0; -- Cities must begin the game with at least three native 2F tiles, one in first ring.
+	local search_table = {};
+	
+	-- Remove any feature Ice from the first ring.
+	self:GenerateLuxuryPlotListsAtCitySite(x, y, 1, true)
+	
+	-- Set up Conditions checks.
+	local alongOcean = false;
+	local nextToLake = false;
+	local isRiver = false;
+	local nearRiver = false;
+	local nearMountain = false;
+	local forestCount, jungleCount = 0, 0;
+	local res = Map.GetCustomOption(5);
+
+	-- Check start plot to see if it's adjacent to saltwater.
+	if self.plotDataIsCoastal[plotIndex] == true then
+		alongOcean = true;
+	end
+	
+	-- Check start plot to see if it's on a river.
+	if plot:IsRiver() then
+		isRiver = true;
+	end
+
+	-- Data Chart for early game tile potentials
+	--
+	-- 4F:	Flood Plains, Grass on fresh water (includes forest and marsh).
+	-- 3F:	Dry Grass, Plains on fresh water (includes forest and jungle), Tundra on fresh water (includes forest), Oasis
+	-- 2F:  Dry Plains, Lake, all remaining Jungles.
+	--
+	-- 1H:	Plains, Jungle on Plains
+
+	-- Adding evaluation of grassland and plains for balance boost of bonus Cows for heavy grass starts. -1/26/2011 BT
+	local iNumGrass, iNumPlains = 0, 0;
+
+	-- Evaluate First Ring
+	if isEvenY then
+		search_table = self.firstRingYIsEven;
+	else
+		search_table = self.firstRingYIsOdd;
+	end
+
+	for loop, plot_adjustments in ipairs(search_table) do
+		local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+		--
+		if searchX < 0 or searchX >= iW or searchY < 0 or searchY >= iH then
+			-- This plot does not exist. It's off the map edge.
+			innerBadTiles = innerBadTiles + 1;
+		else
+			local searchPlot = Map.GetPlot(searchX, searchY)
+			local plotType = searchPlot:GetPlotType()
+			local terrainType = searchPlot:GetTerrainType()
+			local featureType = searchPlot:GetFeatureType()
+			--
+			if plotType == PlotTypes.PLOT_MOUNTAIN then
+				local nearMountain = true;
+				innerBadTiles = innerBadTiles + 1;
+			elseif plotType == PlotTypes.PLOT_OCEAN then
+				if searchPlot:IsLake() then
+					nextToLake = true;
+					if featureType == FeatureTypes.FEATURE_ICE then
+						innerBadTiles = innerBadTiles + 1;
+					else
+						innerTwoFood = innerTwoFood + 1;
+						iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+					end
+				else
+					if featureType == FeatureTypes.FEATURE_ICE then
+						innerBadTiles = innerBadTiles + 1;
+					else
+						innerOcean = innerOcean + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+					end
+				end
+			else -- Habitable plot.
+				if featureType == FeatureTypes.FEATURE_JUNGLE then
+					jungleCount = jungleCount + 1;
+					iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+				elseif featureType == FeatureTypes.FEATURE_FOREST then
+					forestCount = forestCount + 1;
+				end
+				if searchPlot:IsRiver() then
+					nearRiver = true;
+				end
+				if plotType == PlotTypes.PLOT_HILLS then
+					innerHills = innerHills + 1;
+					if featureType == FeatureTypes.FEATURE_JUNGLE then
+						innerTwoFood = innerTwoFood + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+					elseif featureType == FeatureTypes.FEATURE_FOREST then
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_GRASS then
+						iNumGrass = iNumGrass + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						iNumPlains = iNumPlains + 1;
+					end
+				elseif featureType == FeatureTypes.FEATURE_OASIS then
+					innerThreeFood = innerThreeFood + 1;
+					iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+				elseif searchPlot:IsFreshWater() then
+					if terrainType == TerrainTypes.TERRAIN_GRASS then
+						innerFourFood = innerFourFood + 1;
+						iNumGrass = iNumGrass + 1;
+						if featureType ~= FeatureTypes.FEATURE_MARSH then
+							innerCanHaveBonus = innerCanHaveBonus + 1;
+						end
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						end
+						if featureType == FeatureTypes.NO_FEATURE then
+							iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+						end
+					elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
+						innerFourFood = innerFourFood + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+						iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						innerThreeFood = innerThreeFood + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+						iNumPlains = iNumPlains + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						else
+							innerOneHammer = innerOneHammer + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
+						innerThreeFood = innerThreeFood + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
+						innerBadTiles = innerBadTiles + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1; -- Can have Oasis.
+					else -- Snow
+						innerBadTiles = innerBadTiles + 1;
+					end
+				else -- Dry Flatlands
+					if terrainType == TerrainTypes.TERRAIN_GRASS then
+						innerThreeFood = innerThreeFood + 1;
+						iNumGrass = iNumGrass + 1;
+						if featureType ~= FeatureTypes.FEATURE_MARSH then
+							innerCanHaveBonus = innerCanHaveBonus + 1;
+						end
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						end
+						if featureType == FeatureTypes.NO_FEATURE then
+							iNumNativeTwoFoodFirstRing = iNumNativeTwoFoodFirstRing + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						innerTwoFood = innerTwoFood + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+						iNumPlains = iNumPlains + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						else
+							innerOneHammer = innerOneHammer + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
+						innerCanHaveBonus = innerCanHaveBonus + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							innerForest = innerForest + 1;
+						else
+							innerBadTiles = innerBadTiles + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
+						innerBadTiles = innerBadTiles + 1;
+						innerCanHaveBonus = innerCanHaveBonus + 1; -- Can have Oasis.
+					else -- Snow
+						innerBadTiles = innerBadTiles + 1;
+					end
+				end
+			end
+		end
+	end
+				
+	-- Evaluate Second Ring
+	if isEvenY then
+		search_table = self.secondRingYIsEven;
+	else
+		search_table = self.secondRingYIsOdd;
+	end
+
+	for loop, plot_adjustments in ipairs(search_table) do
+		local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+		local plot = Map.GetPlot(x, y);
+		--
+		--
+		if searchX < 0 or searchX >= iW or searchY < 0 or searchY >= iH then
+			-- This plot does not exist. It's off the map edge.
+			outerBadTiles = outerBadTiles + 1;
+		else
+			local searchPlot = Map.GetPlot(searchX, searchY)
+			local plotType = searchPlot:GetPlotType()
+			local terrainType = searchPlot:GetTerrainType()
+			local featureType = searchPlot:GetFeatureType()
+			--
+			if plotType == PlotTypes.PLOT_MOUNTAIN then
+				local nearMountain = true;
+				outerBadTiles = outerBadTiles + 1;
+			elseif plotType == PlotTypes.PLOT_OCEAN then
+				if searchPlot:IsLake() then
+					if featureType == FeatureTypes.FEATURE_ICE then
+						outerBadTiles = outerBadTiles + 1;
+					else
+						outerTwoFood = outerTwoFood + 1;
+						iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+					end
+				else
+					if featureType == FeatureTypes.FEATURE_ICE then
+						outerBadTiles = outerBadTiles + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_COAST then
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						outerOcean = outerOcean + 1;
+					end
+				end
+			else -- Habitable plot.
+				if featureType == FeatureTypes.FEATURE_JUNGLE then
+					jungleCount = jungleCount + 1;
+					iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+				elseif featureType == FeatureTypes.FEATURE_FOREST then
+					forestCount = forestCount + 1;
+				end
+				if searchPlot:IsRiver() then
+					nearRiver = true;
+				end
+				if plotType == PlotTypes.PLOT_HILLS then
+					outerHills = outerHills + 1;
+					if featureType == FeatureTypes.FEATURE_JUNGLE then
+						outerTwoFood = outerTwoFood + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+					elseif featureType == FeatureTypes.FEATURE_FOREST then
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_GRASS then
+						iNumGrass = iNumGrass + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						iNumPlains = iNumPlains + 1;
+					end
+				elseif featureType == FeatureTypes.FEATURE_OASIS then
+					innerThreeFood = innerThreeFood + 1;
+					iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+				elseif searchPlot:IsFreshWater() then
+					if terrainType == TerrainTypes.TERRAIN_GRASS then
+						outerFourFood = outerFourFood + 1;
+						iNumGrass = iNumGrass + 1;
+						if featureType ~= FeatureTypes.FEATURE_MARSH then
+							outerCanHaveBonus = outerCanHaveBonus + 1;
+						end
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						end
+						if featureType == FeatureTypes.NO_FEATURE then
+							iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+						end
+					elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
+						outerFourFood = outerFourFood + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						outerThreeFood = outerThreeFood + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						iNumPlains = iNumPlains + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						else
+							outerOneHammer = outerOneHammer + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
+						outerThreeFood = outerThreeFood + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
+						outerBadTiles = outerBadTiles + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1; -- Can have Oasis.
+					else -- Snow
+						outerBadTiles = outerBadTiles + 1;
+					end
+				else -- Dry Flatlands
+					if terrainType == TerrainTypes.TERRAIN_GRASS then
+						outerThreeFood = outerThreeFood + 1;
+						iNumGrass = iNumGrass + 1;
+						if featureType ~= FeatureTypes.FEATURE_MARSH then
+							outerCanHaveBonus = outerCanHaveBonus + 1;
+						end
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						end
+						if featureType == FeatureTypes.NO_FEATURE then
+							iNumNativeTwoFoodSecondRing = iNumNativeTwoFoodSecondRing + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+						outerTwoFood = outerTwoFood + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						iNumPlains = iNumPlains + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						else
+							outerOneHammer = outerOneHammer + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
+						outerCanHaveBonus = outerCanHaveBonus + 1;
+						if featureType == FeatureTypes.FEATURE_FOREST then
+							outerForest = outerForest + 1;
+						else
+							outerBadTiles = outerBadTiles + 1;
+						end
+					elseif terrainType == TerrainTypes.TERRAIN_DESERT then
+						outerBadTiles = outerBadTiles + 1;
+						outerCanHaveBonus = outerCanHaveBonus + 1; -- Can have Oasis.
+					else -- Snow
+						outerBadTiles = outerBadTiles + 1;
+					end
+				end
+			end
+		end
+	end
+	
+	--[[
+	-- Adjust the hammer situation, if needed.
+	local innerHammerScore = (4 * innerHills) + (2 * innerForest) + innerOneHammer;
+	local outerHammerScore = (2 * outerHills) + outerForest + outerOneHammer;
+	local earlyHammerScore = (2 * innerForest) + outerForest + innerOneHammer + outerOneHammer;
+	-- If drastic shortage, attempt to add a hill to first ring.
+	if (outerHammerScore < 8 and innerHammerScore < 2) or innerHammerScore == 0 then -- Change a first ring plot to Hills.
+		if isEvenY then
+			randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsEven);
+		else
+			randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsOdd);
+		end
+		for attempt = 1, 6 do
+			local plot_adjustments = randomized_first_ring_adjustments[attempt];
+			local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+			-- Attempt to place a Hill at the currently chosen plot.
+			local placedHill = self:AttemptToPlaceHillsAtPlot(searchX, searchY);
+			if placedHill == true then
+				innerHammerScore = innerHammerScore + 4;
+				--print("Added hills next to hammer-poor start plot at ", x, y);
+				break
+			elseif attempt == 6 then
+				--print("FAILED to add hills next to hammer-poor start plot at ", x, y);
+			end
+		end
+	end
+	]]
+	
+	-- Add mandatory Iron, Horse, Oil to every start if Strategic Balance option is enabled.
+	if res == 5 or res == 6 then
+		self:AddStrategicBalanceResources(region_number)
+	end
+	
+	--[[
+	-- If early hammers will be too short, attempt to add a small Horse or Iron to second ring.
+	if innerHammerScore < 3 and earlyHammerScore < 6 then -- Add a small Horse or Iron to second ring.
+		if isEvenY then
+			randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsEven);
+		else
+			randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsOdd);
+		end
+		for attempt = 1, 12 do
+			local plot_adjustments = randomized_second_ring_adjustments[attempt];
+			local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+			-- Attempt to place a Hill at the currently chosen plot.
+			local placedStrategic = self:AttemptToPlaceSmallStrategicAtPlot(searchX, searchY);
+			if placedStrategic == true then
+				break
+			elseif attempt == 12 then
+				--print("FAILED to add small strategic resource near hammer-poor start plot at ", x, y);
+			end
+		end
+	end
+
+	]]
+	
+	-- Rate the food situation.
+	local innerFoodScore = (4 * innerFourFood) + (2 * innerThreeFood) + innerTwoFood;
+	local outerFoodScore = (4 * outerFourFood) + (2 * outerThreeFood) + outerTwoFood;
+	local totalFoodScore = innerFoodScore + outerFoodScore;
+	local nativeTwoFoodTiles = iNumNativeTwoFoodFirstRing + iNumNativeTwoFoodSecondRing;
+
+	--[[ Debug printout of food scores.
+	print("-");
+	print("-- - Start Point in Region #", region_number, " has Food Score of ", totalFoodScore, " with rings of ", innerFoodScore, outerFoodScore);
+	]]--	
+	
+	-- Six levels for Bonus Resource support, from zero to five.
+	if totalFoodScore < 4 and innerFoodScore == 0 then
+		iNumFoodBonusNeeded = 5;
+	elseif totalFoodScore < 6 then
+		iNumFoodBonusNeeded = 4;
+	elseif totalFoodScore < 8 then
+		iNumFoodBonusNeeded = 3;
+	elseif totalFoodScore < 12 and innerFoodScore < 5 then
+		iNumFoodBonusNeeded = 3;
+	elseif totalFoodScore < 17 and innerFoodScore < 9 then
+		iNumFoodBonusNeeded = 2;
+	elseif nativeTwoFoodTiles <= 1 then
+		iNumFoodBonusNeeded = 2;
+	elseif totalFoodScore < 24 and innerFoodScore < 11 then
+		iNumFoodBonusNeeded = 1;
+	elseif nativeTwoFoodTiles == 2 or iNumNativeTwoFoodFirstRing == 0 then
+		iNumFoodBonusNeeded = 1;
+	elseif totalFoodScore < 20 then
+		iNumFoodBonusNeeded = 1;
+	end
+	
+	-- Check for Legendary Start resource option.
+	if res == 4 then
+		iNumFoodBonusNeeded = iNumFoodBonusNeeded + 2;
+	end
+	
+	-- Check to see if a Grass tile needs to be added at an all-plains site with zero native 2-food tiles in first two rings.
+	if nativeTwoFoodTiles == 0 then
+		local odd = self.firstRingYIsOdd;
+		local even = self.firstRingYIsEven;
+		local plot_list = {};
+		-- For notes on how the hex-iteration works, refer to PlaceResourceImpact()
+		local ripple_radius = 2;
+		local currentX = x - ripple_radius;
+		local currentY = y;
+		for direction_index = 1, 6 do
+			for plot_to_handle = 1, ripple_radius do
+			 	if currentY / 2 > math.floor(currentY / 2) then
+					plot_adjustments = odd[direction_index];
+				else
+					plot_adjustments = even[direction_index];
+				end
+				nextX = currentX + plot_adjustments[1];
+				nextY = currentY + plot_adjustments[2];
+				if wrapX == false and (nextX < 0 or nextX >= iW) then
+					-- X is out of bounds.
+				elseif wrapY == false and (nextY < 0 or nextY >= iH) then
+					-- Y is out of bounds.
+				else
+					local realX = nextX;
+					local realY = nextY;
+					if wrapX then
+						realX = realX % iW;
+					end
+					if wrapY then
+						realY = realY % iH;
+					end
+					-- We've arrived at the correct x and y for the current plot.
+					local plot = Map.GetPlot(realX, realY);
+					if plot:GetResourceType(-1) == -1 then -- No resource here, safe to proceed.
+						local plotType = plot:GetPlotType()
+						local terrainType = plot:GetTerrainType()
+						local featureType = plot:GetFeatureType()
+						local plotIndex = realY * iW + realX + 1;
+						-- Now check this plot for eligibility to be converted to flat open grassland.
+						if plotType == PlotTypes.PLOT_LAND then
+							if terrainType == TerrainTypes.TERRAIN_PLAINS then
+								if featureType == FeatureTypes.NO_FEATURE then
+									table.insert(plot_list, plotIndex);
+								end
+							end
+						end
+					end
+				end
+				currentX, currentY = nextX, nextY;
+			end
+		end
+		local iNumConversionCandidates = table.maxn(plot_list);
+		if iNumConversionCandidates == 0 then
+			local randomized_first_ring_adjustments, randomized_second_ring_adjustments, randomized_third_ring_adjustments;
+			if isEvenY then
+				randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsEven);
+			else
+				randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsOdd);
+			end
+			for attempt = 1, 6 do
+				local plot_adjustments = randomized_first_ring_adjustments[attempt];
+				local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+				local placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, false, false, YieldTypes.YIELD_FOOD, self);
+				if placedBonus == true then
+					break;
+				end
+			end
+		else
+			--print("-"); print("*** START HAD NO 2-FOOD TILES, YET ONLY QUALIFIED FOR 2 BONUS; CONVERTING A PLAINS TO GRASS! ***"); print("-");
+			local diceroll = 1 + Map.Rand(iNumConversionCandidates, "Choosing plot to convert to Grass near food-poor Plains start - LUA");
+			local conversionPlotIndex = plot_list[diceroll];
+			local conv_x = (conversionPlotIndex - 1) % iW;
+			local conv_y = (conversionPlotIndex - conv_x - 1) / iW;
+			local plot = Map.GetPlot(conv_x, conv_y);
+			plot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, false)
+			self:PlaceResourceImpact(conv_x, conv_y, 1, 0) -- Disallow strategic resources at this plot, to keep it a farm plot.
+		end
+	end
+
+	--[[
+	-- Add Bonus Resources to food-poor start positions.
+	if iNumFoodBonusNeeded > 0 then
+		local maxBonusesPossible = innerCanHaveBonus + outerCanHaveBonus;
+
+		--print("-");
+		--print("Food-Poor start ", x, y, " needs ", iNumFoodBonusNeeded, " Bonus, with ", maxBonusesPossible, " eligible plots.");
+		--print("-");
+
+		local innerPlaced, outerPlaced = 0, 0;
+		local randomized_first_ring_adjustments, randomized_second_ring_adjustments, randomized_third_ring_adjustments;
+		if isEvenY then
+			randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsEven);
+			randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsEven);
+			randomized_third_ring_adjustments = GetShuffledCopyOfTable(self.thirdRingYIsEven);
+		else
+			randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsOdd);
+			randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsOdd);
+			randomized_third_ring_adjustments = GetShuffledCopyOfTable(self.thirdRingYIsOdd);
+		end
+		local tried_all_first_ring = false;
+		local tried_all_second_ring = false;
+		local tried_all_third_ring = false;
+		local allow_oasis = true; -- Permanent flag. (We don't want to place more than one Oasis per location).
+		local placedOasis; -- Records returning result from each attempt.
+		while iNumFoodBonusNeeded > 0 do
+			if ((innerPlaced < 2 and innerCanHaveBonus > 0) or (res == 4 and innerPlaced < 3 and innerCanHaveBonus > 0))
+			  and tried_all_first_ring == false then
+				-- Add bonus to inner ring.
+				for attempt = 1, 6 do
+					local plot_adjustments = randomized_first_ring_adjustments[attempt];
+					local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+					-- Attempt to place a Bonus at the currently chosen plot.
+					local placedBonus, placedOasis = self:AttemptToPlaceBonusResourceAtPlot(searchX, searchY, allow_oasis);
+					if placedBonus == true then
+						if allow_oasis == true and placedOasis == true then -- First oasis was placed on this pass, so change permission.
+							allow_oasis = false;
+						end
+						--print("Placed a Bonus in first ring at ", searchX, searchY);
+						innerPlaced = innerPlaced + 1;
+						innerCanHaveBonus = innerCanHaveBonus - 1;
+						iNumFoodBonusNeeded = iNumFoodBonusNeeded - 1;
+						break
+					elseif attempt == 6 then
+						tried_all_first_ring = true;
+					end
+				end
+
+			elseif ((innerPlaced + outerPlaced < 5 and outerCanHaveBonus > 0) or (res == 4 and innerPlaced + outerPlaced < 4 and outerCanHaveBonus > 0))
+			  and tried_all_second_ring == false then
+				-- Add bonus to second ring.
+				for attempt = 1, 12 do
+					local plot_adjustments = randomized_second_ring_adjustments[attempt];
+					local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+					-- Attempt to place a Bonus at the currently chosen plot.
+					local placedBonus, placedOasis = self:AttemptToPlaceBonusResourceAtPlot(searchX, searchY, allow_oasis);
+					if placedBonus == true then
+						if allow_oasis == true and placedOasis == true then -- First oasis was placed on this pass, so change permission.
+							allow_oasis = false;
+						end
+						--print("Placed a Bonus in second ring at ", searchX, searchY);
+						outerPlaced = outerPlaced + 1;
+						outerCanHaveBonus = outerCanHaveBonus - 1;
+						iNumFoodBonusNeeded = iNumFoodBonusNeeded - 1;
+						break
+					elseif attempt == 12 then
+						tried_all_second_ring = true;
+					end
+				end
+
+			elseif tried_all_third_ring == false then
+				-- Add bonus to third ring.
+				for attempt = 1, 18 do
+					local plot_adjustments = randomized_third_ring_adjustments[attempt];
+					local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+					-- Attempt to place a Bonus at the currently chosen plot.
+					local placedBonus, placedOasis = self:AttemptToPlaceBonusResourceAtPlot(searchX, searchY, allow_oasis);
+					if placedBonus == true then
+						if allow_oasis == true and placedOasis == true then -- First oasis was placed on this pass, so change permission.
+							allow_oasis = false;
+						end
+						--print("Placed a Bonus in third ring at ", searchX, searchY);
+						iNumFoodBonusNeeded = iNumFoodBonusNeeded - 1;
+						break
+					elseif attempt == 18 then
+						tried_all_third_ring = true;
+					end
+				end
+				
+			else -- Tried everywhere, have to give up.
+				break				
+			end
+		end
+	end
+	]]
+
+
+
+	local startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+		iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, self, true);
+	local randomized_first_ring_adjustments, randomized_second_ring_adjustments;
+	if isEvenY then
+		randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsEven);
+		randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsEven);
+	else
+		randomized_first_ring_adjustments = GetShuffledCopyOfTable(self.firstRingYIsOdd);
+		randomized_second_ring_adjustments = GetShuffledCopyOfTable(self.secondRingYIsOdd);
+	end
+
+	-- Check for heavy grass and light plains. Adding Stone if grass count is high and plains count is low. - May 2011, BT
+	local iNumStoneNeeded = 0;
+	if iNumGrass >= 9 and iNumPlains == 0 and iNumBonuses < 6 then
+		iNumStoneNeeded = 2;
+	elseif iNumGrass >= 6 and iNumPlains <= 4 and iNumBonuses < 6 then
+		iNumStoneNeeded = 1;
+	end
+	if iNumStoneNeeded > 0 then -- Add Stone to this grass start.
+		local stonePlaced, innerPlaced = 0, 0;
+		local tried_all_first_ring = false;
+		local tried_all_second_ring = false;
+		while iNumStoneNeeded > 0 do
+			if innerPlaced < 1 and tried_all_first_ring == false then
+				-- Add bonus to inner ring.
+				for attempt = 1, 6 do
+					local plot_adjustments = randomized_first_ring_adjustments[attempt];
+					local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+					-- Attempt to place Cows at the currently chosen plot.
+					local placedBonus = self:AttemptToPlaceStoneAtGrassPlot(searchX, searchY);
+					if placedBonus == true then
+						--print("Placed Stone in first ring at ", searchX, searchY);
+						innerPlaced = innerPlaced + 1;
+						iNumStoneNeeded = iNumStoneNeeded - 1;
+						break
+					elseif attempt == 6 then
+						tried_all_first_ring = true;
+					end
+				end
+
+			elseif tried_all_second_ring == false then
+				-- Add bonus to second ring.
+				for attempt = 1, 12 do
+					local plot_adjustments = randomized_second_ring_adjustments[attempt];
+					local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+					-- Attempt to place Stone at the currently chosen plot.
+					local placedBonus = self:AttemptToPlaceStoneAtGrassPlot(searchX, searchY);
+					if placedBonus == true then
+						--print("Placed Stone in second ring at ", searchX, searchY);
+						iNumStoneNeeded = iNumStoneNeeded - 1;
+						break
+					elseif attempt == 12 then
+						tried_all_second_ring = true;
+					end
+				end
+
+			else -- Tried everywhere, have to give up.
+				break				
+			end
+		end
+	end
+
+	local bNeedFirstRingBonus = true;
+	for attempt = 1, 6 do
+		local plot_adjustments = randomized_first_ring_adjustments[attempt];
+		local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+		searchPlot = Map.GetPlot(searchX, searchY);
+
+		local plotType, terrainType, featureType, resourceType, isFreshWater,
+		startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
+		startBadTile, earlyBadTile, midBadTile, lateBadTile, bIsBonus = PlotAnalyzer(searchPlot, alongOcean, self);
+		if (startFoodScore + startHammerScore) > 2 then
+			bNeedFirstRingBonus = false;
+		end
+	end
+	if bNeedFirstRingBonus == true then
+		local attempt = 1;
+		while bNeedFirstRingBonus == true and attempt <= 6 do
+			diceroll = 1 + Map.Rand(6, "");
+			local plot_adjustments = randomized_first_ring_adjustments[diceroll];
+			local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+			searchPlot = Map.GetPlot(searchX, searchY);
+			local placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, false, false, YieldTypes.YIELD_FOOD, self);
+			print("searchX = "..tostring(searchX)..", searchY = "..tostring(searchY));
+			print("placedBonus "..tostring(placedBonus));
+			local plotType, terrainType, featureType, resourceType, isFreshWater,
+			startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
+			startBadTile, earlyBadTile, midBadTile, lateBadTile, bIsBonus = PlotAnalyzer(searchPlot, alongOcean, self);
+			print("startScore "..tostring(startFoodScore + startHammerScore));
+			if (startFoodScore + startHammerScore) > 2 then
+				bNeedFirstRingBonus = false;
+			end
+			attempt = attempt + 1;
+		end
+	end
+	print("bNeedFirstRingBonus "..tostring(bNeedFirstRingBonus));
+
+	startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+		iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, self, true);
+
+	local randomized_search_table;
+	if isEvenY then
+		search_table = {
+						{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1},
+						{1, 2}, {1, 1}, {2, 0}, {1, -1}, {1, -2}, {0, -2},
+						{-1, -2}, {-2, -1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2},
+		}
+	else
+		search_table = {
+						{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1},
+						{1, 2}, {2, 1}, {2, 0}, {2, -1}, {1, -2}, {0, -2},
+						{-1, -2}, {-1, -1}, {-2, 0}, {-1, 1}, {-1, 2}, {0, 2},
+		}
+	end
+	randomized_search_table = GetShuffledCopyOfTable(search_table);
+
+	local attempt;
+	local startScore = startFoodScore + startHammerScore;
+	local earlyScore = earlyFoodScore + earlyHammerScore;
+	local midScore = midFoodScore + midHammerScore;
+	local placedBonus, placedOasis, resource_ID = false, false, -1;
+
+	--[[
+	attempt = 1;
+	if iNumHabitableTiles > 6 then
+		while (earlyScore/iNumHabitableTiles < 3/2 or 6*earlyHammerScore < earlyScore) and attempt < 36
+		and (6*iNumHillTiles < iNumHabitableTiles and fastHammerScore >= 9 or 8*iNumHillTiles < iNumHabitableTiles and fastHammerScore < 9) do
+			local plot_adjustments = randomized_search_table[attempt];
+			local searchX, searchY = AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments);
+			if AssignStartingPlots:AttemptToPlaceHillsAtPlot(searchX, searchY) then
+				startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+					iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots, false);
+				earlyScore = earlyFoodScore + earlyHammerScore;
+			end
+			attempt = attempt + 1;
+		end
+	end
+	]]
+	
+	--if iNumHabitableTiles > 0 then
+	for iRunCounter = 1, 8 do
+		attempt = 1;
+		placedBonus = false;
+		while (startScore/(18 - iNumStartBadTiles) < (2 + iRunCounter/18)) and
+			attempt < 18 and not placedBonus and iNumBonuses < 6 do
+			local plot_adjustments = randomized_search_table[attempt];
+			local searchX, searchY = AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments)
+			-- Attempt to place a Bonus at the currently chosen plot.
+			placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, bAllowOasis, alongOcean, YieldTypes.YIELD_FOOD, self);
+			-- local placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, alongOcean, allow_oasis, YieldTypes.YIELD_PRODUCTION, self);
+
+			if placedBonus == true then
+				startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+					iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots, false);
+				earlyScore = earlyFoodScore + earlyHammerScore;
+			end
+			attempt = attempt + 1;
+		end
+	end
+	
+	-- Record conditions at this start location.
+	local results_table = {alongOcean, nextToLake, isRiver, nearRiver, nearMountain, forestCount, jungleCount};
+	self.startLocationConditions[region_number] = results_table;
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:AddStrategicBalanceResources(region_number)
+	-- This function adds the required Strategic Resources to start plots, for
+	-- games that have selected to enable Strategic Resource Balance.
+	local iW, iH = Map.GetGridSize();
+	local start_point_data = self.startingPlots[region_number];
+	local x = start_point_data[1];
+	local y = start_point_data[2];
+	local plot = Map.GetPlot(x, y);
+	local plotIndex = y * iW + x + 1;
+	local wrapX = Map:IsWrapX();
+	local wrapY = Map:IsWrapY();
+	local odd = self.firstRingYIsOdd;
+	local even = self.firstRingYIsEven;
+	local nextX, nextY, plot_adjustments;
+	local iron_list, horse_list, oil_list, coal_list = {}, {}, {}, {};
+	local iron_fallback, horse_fallback, oil_fallback, coal_fallback = {}, {}, {}, {};
+	local radius = 3;
+	local res = Map.GetCustomOption(5);
+	
+	--print("- Adding Strategic Balance Resources for start location in Region#", region_number);
+	
+	for ripple_radius = 1, radius do
+		local ripple_value = radius - ripple_radius + 1;
+		local currentX = x - ripple_radius;
+		local currentY = y;
+		for direction_index = 1, 6 do
+			for plot_to_handle = 1, ripple_radius do
+			 	if currentY / 2 > math.floor(currentY / 2) then
+					plot_adjustments = odd[direction_index];
+				else
+					plot_adjustments = even[direction_index];
+				end
+				nextX = currentX + plot_adjustments[1];
+				nextY = currentY + plot_adjustments[2];
+				if wrapX == false and (nextX < 0 or nextX >= iW) then
+					-- X is out of bounds.
+				elseif wrapY == false and (nextY < 0 or nextY >= iH) then
+					-- Y is out of bounds.
+				else
+					local realX = nextX;
+					local realY = nextY;
+					if wrapX then
+						realX = realX % iW;
+					end
+					if wrapY then
+						realY = realY % iH;
+					end
+					-- We've arrived at the correct x and y for the current plot.
+					local plot = Map.GetPlot(realX, realY);
+					local plotType = plot:GetPlotType()
+					local terrainType = plot:GetTerrainType()
+					local featureType = plot:GetFeatureType()
+					local plotIndex = realY * iW + realX + 1;
+					-- Check this plot for resource placement eligibility.
+					if plotType == PlotTypes.PLOT_HILLS then
+						if ripple_radius < 3 then
+							table.insert(iron_list, plotIndex)
+
+						else
+							table.insert(iron_fallback, plotIndex)
+
+						end
+						if terrainType ~= TerrainTypes.TERRAIN_SNOW and featureType == FeatureTypes.NO_FEATURE then
+							table.insert(horse_fallback, plotIndex)
+						end
+					elseif plotType == PlotTypes.PLOT_LAND then
+						if featureType == FeatureTypes.NO_FEATURE then
+							if terrainType == TerrainTypes.TERRAIN_TUNDRA or terrainType == TerrainTypes.TERRAIN_DESERT then
+								if ripple_radius < 3 then
+									table.insert(oil_list, plotIndex)
+								else
+									table.insert(oil_fallback, plotIndex)
+								end
+								table.insert(iron_fallback, plotIndex)
+								table.insert(horse_fallback, plotIndex)
+							elseif terrainType == TerrainTypes.TERRAIN_PLAINS or terrainType == TerrainTypes.TERRAIN_GRASS then
+								if ripple_radius < 3 then
+									table.insert(horse_list, plotIndex)
+								else
+									table.insert(horse_fallback, plotIndex)
+								end
+								table.insert(iron_fallback, plotIndex)
+								table.insert(oil_fallback, plotIndex)
+							elseif terrainType == TerrainTypes.TERRAIN_SNOW then
+								if ripple_radius < 3 then
+									table.insert(oil_list, plotIndex)
+								else
+									table.insert(oil_fallback, plotIndex)
+								end
+							end
+						elseif featureType == FeatureTypes.FEATURE_MARSH then		
+							if ripple_radius < 3 then
+								table.insert(oil_list, plotIndex)
+							else
+								table.insert(oil_fallback, plotIndex)
+							end
+							table.insert(iron_fallback, plotIndex)
+						elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then		
+							table.insert(horse_fallback, plotIndex)
+							table.insert(oil_fallback, plotIndex)
+						elseif featureType == FeatureTypes.FEATURE_JUNGLE or featureType == FeatureTypes.FEATURE_FOREST then		
+							table.insert(iron_fallback, plotIndex)
+							table.insert(oil_fallback, plotIndex)
+						end
+					end
+					currentX, currentY = nextX, nextY;
+				end
+			end
+		end
+	end
+
+	if res == 6 then
+		local radius = 6;
+		for ripple_radius = 1, radius do
+			local ripple_value = radius - ripple_radius + 1;
+			local currentX = x - ripple_radius;
+			local currentY = y;
+			for direction_index = 1, 6 do
+				for plot_to_handle = 1, ripple_radius do
+			 		if currentY / 2 > math.floor(currentY / 2) then
+						plot_adjustments = odd[direction_index];
+					else
+						plot_adjustments = even[direction_index];
+					end
+					nextX = currentX + plot_adjustments[1];
+					nextY = currentY + plot_adjustments[2];
+					if wrapX == false and (nextX < 0 or nextX >= iW) then
+						-- X is out of bounds.
+					elseif wrapY == false and (nextY < 0 or nextY >= iH) then
+						-- Y is out of bounds.
+					else
+						local realX = nextX;
+						local realY = nextY;
+						if wrapX then
+							realX = realX % iW;
+						end
+						if wrapY then
+							realY = realY % iH;
+						end
+						-- We've arrived at the correct x and y for the current plot.
+						local plot = Map.GetPlot(realX, realY);
+						local plotType = plot:GetPlotType()
+						local terrainType = plot:GetTerrainType()
+						local featureType = plot:GetFeatureType()
+						local plotIndex = realY * iW + realX + 1;
+						-- Check this plot for resource placement eligibility.
+						if plotType == PlotTypes.PLOT_HILLS then
+							if ripple_radius < 6 then
+								table.insert(coal_list, plotIndex)
+							else
+								table.insert(coal_fallback, plotIndex)
+							end
+							if terrainType ~= TerrainTypes.TERRAIN_SNOW and featureType == FeatureTypes.NO_FEATURE then
+								table.insert(horse_fallback, plotIndex)
+							end
+						elseif plotType == PlotTypes.PLOT_LAND then
+							if featureType == FeatureTypes.NO_FEATURE then
+								if terrainType == TerrainTypes.TERRAIN_TUNDRA or terrainType == TerrainTypes.TERRAIN_DESERT then
+									if ripple_radius < 6 then
+										table.insert(coal_list, plotIndex)
+										table.insert(oil_fallback, plotIndex)
+									else
+										table.insert(coal_fallback, plotIndex)
+									end
+								elseif terrainType == TerrainTypes.TERRAIN_PLAINS or terrainType == TerrainTypes.TERRAIN_GRASS then
+									if ripple_radius < 6 then
+										table.insert(coal_list, plotIndex)
+										table.insert(oil_fallback, plotIndex)
+									else
+										table.insert(coal_fallback, plotIndex)
+									end
+								elseif terrainType == TerrainTypes.TERRAIN_SNOW then
+									if ripple_radius < 6 then
+										table.insert(coal_list, plotIndex)
+										table.insert(oil_fallback, plotIndex)
+									else
+										table.insert(coal_fallback, plotIndex)
+									end
+								end
+							elseif featureType == FeatureTypes.FEATURE_MARSH then		
+								if ripple_radius < 4 then
+									table.insert(coal_list, plotIndex)
+									table.insert(oil_fallback, plotIndex)
+								else
+									table.insert(coal_fallback, plotIndex)
+								end
+							elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
+								table.insert(coal_fallback, plotIndex)
+							elseif featureType == FeatureTypes.FEATURE_JUNGLE or featureType == FeatureTypes.FEATURE_FOREST then
+								table.insert(coal_fallback, plotIndex)
+								table.insert(oil_fallback, plotIndex)
+							end
+						end
+						currentX, currentY = nextX, nextY;
+					end
+				end
+			end
+		end
+	end
+
+	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues()
+	coal_amt = 3;
+	local shuf_list;
+	local placed_iron, placed_horse, placed_oil, placed_coal = false, false, false, false;
+
+	if table.maxn(iron_list) > 0 then
+		shuf_list = GetShuffledCopyOfTable(iron_list)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.iron_ID, iron_amt, 1, 1, -1, 0, 0, shuf_list);
+		if iNumLeftToPlace == 0 then
+			placed_iron = true;
+		end
+	end
+	if table.maxn(horse_list) > 0 then
+		shuf_list = GetShuffledCopyOfTable(horse_list)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.horse_ID, horse_amt, 1, 1, -1, 0, 0, shuf_list);
+		if iNumLeftToPlace == 0 then
+			placed_horse = true;
+		end
+	end
+	if table.maxn(oil_list) > 0 then
+		shuf_list = GetShuffledCopyOfTable(oil_list)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.oil_ID, oil_amt, 1, 1, -1, 0, 0, shuf_list);
+		if iNumLeftToPlace == 0 then
+			placed_oil = true;
+		end
+	end
+	
+	if res == 6 then
+		if table.maxn(coal_list) > 0 then
+			shuf_list = GetShuffledCopyOfTable(coal_list)
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.coal_ID, coal_amt, 1, 1, 1, 0, 0, shuf_list);
+			if iNumLeftToPlace == 0 then
+				placed_coal = true;
+			end
+		end
+	end
+
+
+
+	if placed_iron == false and table.maxn(iron_fallback) > 0 then
+		shuf_list = GetShuffledCopyOfTable(iron_fallback)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.iron_ID, iron_amt, 1, 1, -1, 0, 0, shuf_list);
+	end
+	if placed_horse == false and table.maxn(horse_fallback) > 0 then
+		shuf_list = GetShuffledCopyOfTable(horse_fallback)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.horse_ID, horse_amt, 1, 1, -1, 0, 0, shuf_list);
+	end
+	if placed_oil == false and table.maxn(oil_fallback) > 0 then
+		shuf_list = GetShuffledCopyOfTable(oil_fallback)
+		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.oil_ID, oil_amt, 1, 1, -1, 0, 0, shuf_list);
+		print("Fallback Used");
+		if iNumLeftToPlace == 0 then
+			print("All Oil Placed 2nd Attempt");
+		else
+			--print("Not All Oil Placed");
+		end
+	end
+	if res == 6 then
+		if placed_coal == false and table.maxn(coal_fallback) > 0 then
+			shuf_list = GetShuffledCopyOfTable(coal_fallback)
+			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(self.coal_ID, coal_amt, 1, 1, 1, 0, 0, shuf_list);
+		end
+	end
+end
+------------------------------------------------------------------------------
+function NormalizePlotAreas(AssignStartingPlots)
+	AssignStartingPlots:FixSugarJungles();
 
 	local iW, iH = Map.GetGridSize();
 	local map_plots_data = {}
@@ -717,8 +1783,6 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	for iRunCounter = 1, 8 do
 		randomized_map_plots_data = GetShuffledCopyOfTable(map_plots_data);
 		for loop, plot_data in ipairs(randomized_map_plots_data) do
-		--for y = 0, iH - 1 do
-			--for x = 0, iW - 1 do
 			local x, y = plot_data[1], plot_data[2];
 			local plot = Map.GetPlot(x, y);
 			local plotIndex = y * iW + x + 1;
@@ -726,11 +1790,8 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 			if y / 2 > math.floor(y / 2) then
 				isEvenY = false;
 			end
-			if plot:GetPlotType() == PlotTypes.PLOT_LAND or plot:GetPlotType() == PlotTypes.PLOT_HILLS then
+			if plot:GetPlotType() == PlotTypes.PLOT_LAND and plot:GetTerrainType() ~= TerrainTypes.TERRAIN_TUNDRA or plot:GetPlotType() == PlotTypes.PLOT_HILLS then
 				local search_table = {};
-				
-				-- Remove any feature Ice from the first ring.
-				--self:GenerateLuxuryPlotListsAtCitySite(x, y, 1, true)
 				
 				-- Set up Conditions checks.
 				local alongOcean = false;
@@ -742,7 +1803,7 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 				-- local start = Map.GetCustomOption(7);
 			
 				-- Check start plot to see if it's adjacent to saltwater.
-				if self.plotDataIsCoastal[plotIndex] == true then
+				if AssignStartingPlots.plotDataIsCoastal[plotIndex] == true then
 					alongOcean = true;
 				end
 				
@@ -751,10 +1812,9 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 					isRiver = true;
 				end
 
-				local startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
-					iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, self);
+				local startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+					iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots, false);
 
-				local Placed = 0;
 				local randomized_search_table;
 				if isEvenY then
 					search_table = {
@@ -775,7 +1835,6 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 									{-3, 0}, {-2, 1}, {-2, 2}, {-1, 3}, {0, 3}, {1, 3}
 					}
 				end
-				local tried_all = false;
 				randomized_search_table = GetShuffledCopyOfTable(search_table);
 
 				local attempt;
@@ -787,13 +1846,14 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 				--print("AvgearlyScore = "..tostring(earlyScore/(36 - iNumEarlyBadTiles))..", AvgMidScore = "..tostring(midScore/(36 - iNumMidBadTiles)))
 
 				attempt = 1;
-				if iNumHabitableTiles > 0 then
-					while (earlyScore/iNumHabitableTiles < 3/2 or 6*earlyHammerScore < earlyScore) and 6*iNumHillTiles < iNumHabitableTiles and attempt < 36 do
+				if iNumHabitableTiles > 6 then
+					while (earlyScore/iNumHabitableTiles < 3/2 or 6*earlyHammerScore < earlyScore--[[ or 4*iNumBadDesert > iNumHabitableTiles]]) and attempt < 36
+					and (6*iNumHillTiles < iNumHabitableTiles and fastHammerScore >= 9 or 8*iNumHillTiles < iNumHabitableTiles and fastHammerScore < 9) do
 						local plot_adjustments = randomized_search_table[attempt];
-						local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments);
+						local searchX, searchY = AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments);
 						if AssignStartingPlots:AttemptToPlaceHillsAtPlot(searchX, searchY) then
-							startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
-								iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, self);
+							startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+								iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots, false);
 							earlyScore = earlyFoodScore + earlyHammerScore;
 						end
 						attempt = attempt + 1;
@@ -805,21 +1865,20 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 					while (earlyScore/(36 - iNumEarlyBadTiles) < (2 + iRunCounter/36)--[[ or midScore/(36 - iNumMidBadTiles) < (3 + 6/18 + iRunCounter/18)]]) and
 						attempt < 36 and not placedBonus and iNumBonuses < 9 do
 						local plot_adjustments = randomized_search_table[attempt];
-						local searchX, searchY = self:ApplyHexAdjustment(x, y, plot_adjustments)
+						local searchX, searchY = AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments)
 						-- Attempt to place a Bonus at the currently chosen plot.
-						placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, bAllowOasis, YieldTypes.YIELD_FOOD, self);
-						-- local placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, allow_oasis, YieldTypes.YIELD_PRODUCTION, self);
+						placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, bAllowOasis, alongOcean, YieldTypes.YIELD_FOOD, AssignStartingPlots);
+						-- local placedBonus, placedOasis, resource_ID = AttemptToPlaceResource(searchX, searchY, alongOcean, allow_oasis, YieldTypes.YIELD_PRODUCTION, AssignStartingPlots);
 
 						if placedBonus == true then
-							startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
-								iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, self);
+							startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+								iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots, false);
 							earlyScore = earlyFoodScore + earlyHammerScore;
 						end
 						attempt = attempt + 1;
 					end
 				end
 			end
-			--end
 		end
 	end
 end
@@ -925,7 +1984,7 @@ function AssignStartingPlots:AttemptToPlaceBonusResourceAtPlot(x, y, bAllowOasis
 	return false, false
 end
 ------------------------------------------------------------------------------
-function AreaAnalyzer(plot, AssignStartingPlots)
+function AreaAnalyzer(plot, AssignStartingPlots, isStartLocation)
 	local isRiver, isNearMountain,
 	iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles,
 	StartFoodScore, EarlyFoodScore, MidFoodScore, LateFoodScore,
@@ -939,24 +1998,40 @@ function AreaAnalyzer(plot, AssignStartingPlots)
 	if plot:GetY() / 2 > math.floor(plot:GetY() / 2) then
 		isEvenY = false;
 	end
-	if isEvenY then
-		search_table = {
-						{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1},
-						{1, 2}, {1, 1}, {2, 0}, {1, -1}, {1, -2}, {0, -2},
-						{-1, -2}, {-2, -1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2},
-						{1, 3}, {2, 2}, {2, 1}, {3, 0}, {2, -1}, {2, -2},
-						{1, -3}, {0, -3}, {-1, -3}, {-2, -3}, {-2, -2}, {-3, -1},
-						{-3, 0}, {-3, 1}, {-2, 2}, {-2, 3}, {-1, 3}, {0, 3}
-		}
+	if isStartLocation then
+		if isEvenY then
+			search_table = {
+							{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1},
+							{1, 2}, {1, 1}, {2, 0}, {1, -1}, {1, -2}, {0, -2},
+							{-1, -2}, {-2, -1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2},
+			}
+		else
+			search_table = {
+							{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1},
+							{1, 2}, {2, 1}, {2, 0}, {2, -1}, {1, -2}, {0, -2},
+							{-1, -2}, {-1, -1}, {-2, 0}, {-1, 1}, {-1, 2}, {0, 2},
+			}
+		end
 	else
-		search_table = {
-						{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1},
-						{1, 2}, {2, 1}, {2, 0}, {2, -1}, {1, -2}, {0, -2},
-						{-1, -2}, {-1, -1}, {-2, 0}, {-1, 1}, {-1, 2}, {0, 2},
-						{2, 3}, {2, 2}, {3, 1}, {3, 0}, {3, -1}, {2, -2},
-						{2, -3}, {1, -3}, {0, -3}, {-1, -3}, {-2, -2}, {-2, -1},
-						{-3, 0}, {-2, 1}, {-2, 2}, {-1, 3}, {0, 3}, {1, 3}
-		}
+		if isEvenY then
+			search_table = {
+							{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1},
+							{1, 2}, {1, 1}, {2, 0}, {1, -1}, {1, -2}, {0, -2},
+							{-1, -2}, {-2, -1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2},
+							{1, 3}, {2, 2}, {2, 1}, {3, 0}, {2, -1}, {2, -2},
+							{1, -3}, {0, -3}, {-1, -3}, {-2, -3}, {-2, -2}, {-3, -1},
+							{-3, 0}, {-3, 1}, {-2, 2}, {-2, 3}, {-1, 3}, {0, 3}
+			}
+		else
+			search_table = {
+							{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1},
+							{1, 2}, {2, 1}, {2, 0}, {2, -1}, {1, -2}, {0, -2},
+							{-1, -2}, {-1, -1}, {-2, 0}, {-1, 1}, {-1, 2}, {0, 2},
+							{2, 3}, {2, 2}, {3, 1}, {3, 0}, {3, -1}, {2, -2},
+							{2, -3}, {1, -3}, {0, -3}, {-1, -3}, {-2, -2}, {-2, -1},
+							{-3, 0}, {-2, 1}, {-2, 2}, {-1, 3}, {0, 3}, {1, 3}
+			}
+		end
 	end
 
 	local PlotType, TerrainType, FeatureType, ResourceType, IsFreshWater, IsCoastal;
@@ -973,7 +2048,7 @@ function AreaAnalyzer(plot, AssignStartingPlots)
 		searchPlot = Map.GetPlot(searchX, searchY);
 
 		local plotType, terrainType, featureType, resourceType, isFreshWater,
-		istartFoodScore, iearlyFoodScore, imidFoodScore, ilateFoodScore, istartHammerScore, iearlyHammerScore, imidHammerScore, ilateHammerScore,
+		startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
 		startBadTile, earlyBadTile, midBadTile, lateBadTile, bIsBonus = PlotAnalyzer(searchPlot, IsCoastal, AssignStartingPlots);
 
 		PlotType = plotType;
@@ -982,14 +2057,14 @@ function AreaAnalyzer(plot, AssignStartingPlots)
 		ResourceType = resourceType;
 		IsFreshWater = isFreshWater;
 
-		if plotType == PlotTypes.PLOT_LAND and terrainType ~= terrainTypes.TERRAIN_SNOW then
+		if plotType == PlotTypes.PLOT_LAND and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 			iNumLandTiles = iNumLandTiles + 1;
 			iNumHabitableTiles = iNumHabitableTiles + 1;
 		end
 		if bIsBonus then
 			iNumBonuses = iNumBonuses + 1;
 		end
-		if plotType == PlotTypes.PLOT_HILLS and terrainType ~= terrainTypes.TERRAIN_SNOW then
+		if plotType == PlotTypes.PLOT_HILLS and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 			iNumHillTiles = iNumHillTiles + 1;
 			iNumHabitableTiles = iNumHabitableTiles + 1;
 		end
@@ -1002,22 +2077,22 @@ function AreaAnalyzer(plot, AssignStartingPlots)
 			bAllowOasis = true;
 		end
 		if (not startBadTile) then
-			StartFoodScore = StartFoodScore + istartFoodScore;
-			StartHammerScore = StartHammerScore + istartHammerScore;
+			StartFoodScore = StartFoodScore + startFoodScore;
+			StartHammerScore = StartHammerScore + startHammerScore;
 		else
 			iNumStartBadTiles = iNumStartBadTiles + 1;
 		end
 
 		if (not earlyBadTile) then
-			EarlyFoodScore = EarlyFoodScore + iearlyFoodScore;
-			EarlyHammerScore = EarlyHammerScore + iearlyHammerScore;
+			EarlyFoodScore = EarlyFoodScore + earlyFoodScore;
+			EarlyHammerScore = EarlyHammerScore + earlyHammerScore;
 		else
 			iNumEarlyBadTiles = iNumEarlyBadTiles + 1;
 		end
 
 		if (not midBadTile) then
-			MidFoodScore = MidFoodScore + imidFoodScore;
-			MidHammerScore = MidHammerScore + imidHammerScore;
+			MidFoodScore = MidFoodScore + midFoodScore;
+			MidHammerScore = MidHammerScore + midHammerScore;
 		else
 			iNumMidBadTiles = iNumMidBadTiles + 1;
 			if TerrainType == TerrainTypes.TERRAIN_DESERT then
@@ -1026,14 +2101,22 @@ function AreaAnalyzer(plot, AssignStartingPlots)
 		end
 
 		if (not lateBadTile) then
-			LateFoodScore = LateFoodScore + ilateFoodScore;
-			LateHammerScore = LateHammerScore + ilateHammerScore;
+			LateFoodScore = LateFoodScore + lateFoodScore;
+			LateHammerScore = LateHammerScore + lateHammerScore;
 		else
 			iNumLateBadTiles = iNumLateBadTiles + 1;
 		end
+		if featureType == FeatureTypes.FEATURE_JUNGLE or featureType == FeatureTypes.FEATURE_MARSH or
+			featureType == FeatureTypes.FEATURE_FOREST and terrainType == TerrainTypes.TERRAIN_TUNDRA and plotType == PlotTypes.PLOT_HILLS then
+			fastHammerScore = fastHammerScore + 1;
+		elseif featureType == FeatureTypes.FEATURE_FOREST and terrainType == TerrainTypes.TERRAIN_TUNDRA and plotType == PlotTypes.PLOT_LAND then
+			if resourceType == AssignStartingPlots.dye_ID or resourceType == AssignStartingPlots.silver_ID or resourceType == AssignStartingPlots.iron_ID then
+				fastHammerScore = fastHammerScore + 1;
+			end
+		end
 	end
 
-	return StartFoodScore, EarlyFoodScore, MidFoodScore, LateFoodScore, StartHammerScore, EarlyHammerScore, MidHammerScore, LateHammerScore,
+	return StartFoodScore, EarlyFoodScore, MidFoodScore, LateFoodScore, StartHammerScore, EarlyHammerScore, MidHammerScore, LateHammerScore, fastHammerScore,
 	iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, (not HaveOasis and bAllowOasis),
 	iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses;
 end
@@ -1144,7 +2227,7 @@ function PlotAnalyzer(plot, isCoastal, AssignStartingPlots)
 					midHammerScore = midHammerScore + 1;
 					lateHammerScore = lateHammerScore + 1;
 				end
-			elseif plotType == PlotTypes.PLOT_HILLS and terrainType ~= terrainTypes.TERRAIN_SNOW then
+			elseif plotType == PlotTypes.PLOT_HILLS and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 				-- iNumHills = iNumHills + 1;
 				startHammerScore = startHammerScore + 2;
 				earlyHammerScore = earlyHammerScore + 2;
@@ -1161,7 +2244,7 @@ function PlotAnalyzer(plot, isCoastal, AssignStartingPlots)
 					startHammerScore = startHammerScore - 2;
 					earlyHammerScore = earlyHammerScore - 2;
 				end
-			elseif plotType == PlotTypes.PLOT_LAND and terrainType ~= terrainTypes.TERRAIN_SNOW then
+			elseif plotType == PlotTypes.PLOT_LAND and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 				if terrainType == TerrainTypes.TERRAIN_GRASS then
 					-- iNumFlatGrass = iNumFlatGrass + 1;
 					startFoodScore = startFoodScore + 2;
@@ -1226,7 +2309,7 @@ function PlotAnalyzer(plot, isCoastal, AssignStartingPlots)
 						resourceType == -1 then
 					end
 				end
-			elseif terrainType == terrainTypes.TERRAIN_SNOW then
+			elseif terrainType == TerrainTypes.TERRAIN_SNOW then
 				-- iNumSnow = iNumSnow + 1;
 				if resourceType == AssignStartingPlots.coal_ID or
 					resourceType == AssignStartingPlots.aluminum_ID or
@@ -1333,16 +2416,16 @@ function PlotAnalyzer(plot, isCoastal, AssignStartingPlots)
 					resourceType == AssignStartingPlots.uranium_ID or
 					resourceType == -1 then
 					if isFreshWater then
-						if featureType ~= FeatureTypes.FEATURE_OASIS and terrainType ~= terrainTypes.TERRAIN_SNOW then
+						if featureType ~= FeatureTypes.FEATURE_OASIS and terrainType ~= TerrainTypes.TERRAIN_SNOW then
 							midFoodScore = midFoodScore + 2;
 							lateFoodScore = lateFoodScore + 2;
 						end
 					else
 						if plotType == PlotTypes.PLOT_LAND then
-							if terrainType ~= terrainTypes.TERRAIN_SNOW and terrainType ~= terrainTypes.TERRAIN_TUNDRA then
+							if terrainType ~= TerrainTypes.TERRAIN_SNOW and terrainType ~= TerrainTypes.TERRAIN_TUNDRA then
 								midFoodScore = midFoodScore + 1;
 								lateFoodScore = lateFoodScore + 2;
-							elseif terrainType == terrainTypes.TERRAIN_TUNDRA and featureType == FeatureTypes.FEATURE_FOREST then
+							elseif terrainType == TerrainTypes.TERRAIN_TUNDRA and featureType == FeatureTypes.FEATURE_FOREST then
 								if resourceType == AssignStartingPlots.coal_ID or
 									resourceType == AssignStartingPlots.aluminum_ID or
 									resourceType == AssignStartingPlots.oil_ID or
@@ -1370,7 +2453,7 @@ function PlotAnalyzer(plot, isCoastal, AssignStartingPlots)
 	startBadTile, earlyBadTile, midBadTile, lateBadTile, bIsBonus;
 end
 ------------------------------------------------------------------------------
-function AttemptToPlaceResource(x, y, bAllowOasis, yieldType, start_plot_database)
+function AttemptToPlaceResource(x, y, bAllowOasis, bIsCoastal, yieldType, start_plot_database)
 	-- Returns two booleans. First is true if something was placed. Second true if Oasis placed.
 	--print("-"); print("Attempting to place a Bonus at: ", x, y);
 	--local start_plot_database = AssignStartingPlots.Create();
@@ -1407,7 +2490,7 @@ function AttemptToPlaceResource(x, y, bAllowOasis, yieldType, start_plot_databas
 			if plotType == PlotTypes.PLOT_LAND then
 				if featureType == FeatureTypes.NO_FEATURE then
 					if terrainType == TerrainTypes.TERRAIN_DESERT then
-						if not plot:IsFreshWater() then
+						if not plot:IsFreshWater() and not plot:IsCoastalLand() then
 							plot:SetFeatureType(FeatureTypes.FEATURE_OASIS, -1);
 							--print("Placed Oasis.");
 							return true, true, -1
@@ -1479,7 +2562,7 @@ function AttemptToPlaceResource(x, y, bAllowOasis, yieldType, start_plot_databas
 				start_plot_database.amounts_of_resources_placed[start_plot_database.wheat_ID + 1] = start_plot_database.amounts_of_resources_placed[start_plot_database.wheat_ID + 1] + 1;
 				return true, false, start_plot_database.wheat_ID
 			end
-		--[[elseif plotType == PlotTypes.PLOT_OCEAN then
+		elseif plotType == PlotTypes.PLOT_OCEAN and bIsCoastal then
 			if terrainType == TerrainTypes.TERRAIN_COAST and featureType == FeatureTypes.NO_FEATURE then
 				if plot:IsLake() == false then -- Place Fish
 					plot:SetResourceType(start_plot_database.fish_ID, 1);
@@ -1487,7 +2570,7 @@ function AttemptToPlaceResource(x, y, bAllowOasis, yieldType, start_plot_databas
 					start_plot_database.amounts_of_resources_placed[start_plot_database.fish_ID + 1] = start_plot_database.amounts_of_resources_placed[start_plot_database.fish_ID + 1] + 1;
 					return true, false, start_plot_database.fish_ID
 				end
-			end]]
+			end
 		end	
 	elseif yieldType == YieldTypes.YIELD_PRODUCTION then
 		if featureType == FeatureTypes.FEATURE_JUNGLE then -- Place Iron
@@ -1542,8 +2625,8 @@ function AddRivers()
 	local passConditions = {
 		
 		function(plot)
-			local startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore,
-						iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots:Create());
+			local startFoodScore, earlyFoodScore, midFoodScore, lateFoodScore, startHammerScore, earlyHammerScore, midHammerScore, lateHammerScore, fastHammerScore,
+						iNumStartBadTiles, iNumEarlyBadTiles, iNumMidBadTiles, iNumLateBadTiles, iNumBadDesert, bAllowOasis, iNumLandTiles, iNumHillTiles, iNumHabitableTiles, iNumBonuses = AreaAnalyzer(plot, AssignStartingPlots:Create(), false);
 			local area = plot:Area();
 			local plotsPerRiverEdge = GameDefines["PLOTS_PER_RIVER_EDGE"];
 			plotsPerRiverEdge =  4;
@@ -1627,7 +2710,7 @@ end
 function StartPlotSystem()
 	-- Get Resources setting input by user.
 	local res = Map.GetCustomOption(5)
-	if res == 6 then
+	if res == 7 then
 		res = 1 + Map.Rand(3, "Random Resources Option - Lua");
 	end
 
@@ -1653,5 +2736,8 @@ function StartPlotSystem()
 
 	print("Placing Resources and City States.");
 	start_plot_database:PlaceResourcesAndCityStates()
+
+	NormalizePlotAreas(start_plot_database);
+
 end
 ------------------------------------------------------------------------------
