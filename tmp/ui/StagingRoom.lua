@@ -676,22 +676,6 @@ function UpdatePlayer( slotInstance, playerInfo )
 		PopulateSlotTypePulldown( slotInstance.SlotTypePulldown, playerID, g_slotTypeOptions );
 		-------------------------------------------------------------
 	
-		-------------------------------------------------------------
-		-- NEW: check if player has any community remarks
-		local netID = GetNetID(playerID);
-		if g_CommunityRemarks[netID] then
-			local tstrTooltip = {};
-			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
-			for _,i in ipairs(g_CommunityRemarks[netID]) do
-				table.insert(tstrTooltip, i.Tooltip);
-			end
-			slotInstance.CommunityRemarkSign:SetHide(false);
-			slotInstance.CommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
-		else
-			slotInstance.CommunityRemarkSign:SetHide(true);
-		end
-		-------------------------------------------------------------
-
         local bIsHuman  = (PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_TAKEN);
         local bIsLocked = (PreGame.GetSlotClaim( playerID ) == SlotClaim.SLOTCLAIM_RESERVED) or
                           (PreGame.GetSlotClaim( playerID ) == SlotClaim.SLOTCLAIM_ASSIGNED);
@@ -746,6 +730,22 @@ function UpdatePlayer( slotInstance, playerInfo )
 						bSlotTypeDisabled = true;
 						bCantChangeCiv = true;
 						bCantChangeTeam = true;
+
+		-- NEW: check if player has any community remarks
+		local tstrTooltip = {};
+		local netID = GetNetID(playerID);
+		if g_CommunityRemarks[netID] then
+			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
+			for _,i in ipairs(g_CommunityRemarks[netID]) do
+				table.insert(tstrTooltip, i.Tooltip);
+			end
+			slotInstance.CommunityRemarkSign:SetHide(false);
+			slotInstance.CommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
+		else
+			slotInstance.CommunityRemarkSign:SetHide(true);
+		end
+		-----------------------------------------------------------
+
           end
           
           if(Network.IsPlayerConnected(playerID)) then 
@@ -990,9 +990,9 @@ function UpdateLocalPlayer( playerInfo )
 
 	-----------------------------------------------------------
 	-- NEW: check if local player has any community remarks
+	local tstrTooltip = {};
 	local netID = GetNetID(Matchmaking.GetLocalID());
 	if g_CommunityRemarks[netID] then
-		local tstrTooltip = {};
 		table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
 		for _,i in ipairs(g_CommunityRemarks[netID]) do
 			table.insert(tstrTooltip, i.Tooltip);
