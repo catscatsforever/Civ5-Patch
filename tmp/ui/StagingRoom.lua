@@ -680,8 +680,8 @@ function UpdatePlayer( slotInstance, playerInfo )
 		-- NEW: check if player has any community remarks
 		local netID = GetNetID(playerID);
 		if g_CommunityRemarks[netID] then
-			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
 			local tstrTooltip = {};
+			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
 			for _,i in ipairs(g_CommunityRemarks[netID]) do
 				table.insert(tstrTooltip, i.Tooltip);
 			end
