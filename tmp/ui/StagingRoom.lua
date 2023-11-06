@@ -695,7 +695,24 @@ function UpdatePlayer( slotInstance, playerInfo )
         local bCantChangeCiv;		-- Can't change civilization
         local bCantChangeTeam;	-- can't change teams
         
-				local bSlotTypeDisabled;
+		local bSlotTypeDisabled;
+
+		-- NEW: check if player has any community remarks
+		local tstrTooltip = {};
+		local netID = GetNetID(playerID);
+		if ( not bIsHotSeat and bIsHuman ) then
+			if g_CommunityRemarks[netID] then
+				table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
+				for _,i in ipairs(g_CommunityRemarks[netID]) do
+					table.insert(tstrTooltip, i.Tooltip);
+				end
+				slotInstance.CommunityRemarkSign:SetHide(false);
+				slotInstance.CommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
+			end
+		else
+			slotInstance.CommunityRemarkSign:SetHide(true);
+		end
+		-----------------------------------------------------------
 
         if( bIsHuman ) then	
 					TruncateString(slotInstance.PlayerNameLabel, slotInstance.PlayerNameBox:GetSizeX() - 
@@ -731,20 +748,7 @@ function UpdatePlayer( slotInstance, playerInfo )
 						bCantChangeCiv = true;
 						bCantChangeTeam = true;
 
-		-- NEW: check if player has any community remarks
-		local tstrTooltip = {};
-		local netID = GetNetID(playerID);
-		if g_CommunityRemarks[netID] then
-			table.insert(tstrTooltip, Locale.ConvertTextKey('TXT_KEY_COMMUNITY_REMARKS_HEADLINE'));
-			for _,i in ipairs(g_CommunityRemarks[netID]) do
-				table.insert(tstrTooltip, i.Tooltip);
-			end
-			slotInstance.CommunityRemarkSign:SetHide(false);
-			slotInstance.CommunityRemarkSign:SetToolTipString(table.concat(tstrTooltip, '[ENDCOLOR][NEWLINE]'));
-		else
-			slotInstance.CommunityRemarkSign:SetHide(true);
-		end
-		-----------------------------------------------------------
+		
 
           end
           
