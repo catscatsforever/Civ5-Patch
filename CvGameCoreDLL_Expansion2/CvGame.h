@@ -457,7 +457,7 @@ public:
 #ifdef statistis_stuff_VARIANT
 	void addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY);
 #endif
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 	void addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue);
 #endif
 	void clearReplayMessageMap();

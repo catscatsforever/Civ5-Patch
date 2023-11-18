@@ -7285,7 +7285,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 			saveReplay();
 			showEndGameSequence();
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
 			Database::Connection db;
@@ -9852,7 +9852,7 @@ void CvGame::addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const
 	}
 }
 #endif
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 void CvGame::addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue)
 {
 

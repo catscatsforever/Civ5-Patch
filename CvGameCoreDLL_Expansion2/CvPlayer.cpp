@@ -21348,7 +21348,7 @@ const char* CvPlayer::getReplayDataSetName(unsigned int idx) const
 	return NULL;
 }
 
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 //	--------------------------------------------------------------------------------
 const char* CvPlayer::getReplayDataSetDesc(unsigned int idx) const
 {

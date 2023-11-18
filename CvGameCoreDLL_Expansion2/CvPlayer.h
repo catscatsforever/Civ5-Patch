@@ -1363,7 +1363,7 @@ public:
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 	const char* getReplayDataSetDesc(unsigned int uiDataSet) const;
 #endif
 	unsigned int getReplayDataSetIndex(const char* szDataSetName);
