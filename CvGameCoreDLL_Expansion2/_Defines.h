@@ -754,41 +754,114 @@
 // don't forget to mark changes here
 //
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_BELIEFS 1000
+# define BUMP_SAVE_VERSION_BELIEFS 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_CITY 1000
+# define BUMP_SAVE_VERSION_CITY 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_ESPIONAGE 1000
+# define BUMP_SAVE_VERSION_ESPIONAGE 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_GAME 1000
+// 1001: v7.3b (adds replay events)
+# define BUMP_SAVE_VERSION_GAME 1001
 // 1000: v7.0 (initial)
 // 1001: v7.3 (adds Workers Bully Turn)
-#define BUMP_SAVE_VERSION_MINORAI 1001
+# define BUMP_SAVE_VERSION_MINORAI 1001
 // 1000: v7.0 (initial)
 // 1001: v7.2 (adds ENHANCED_GRAPHS)
 // 1002: v7.2a (adds maya boost GP counters)
-#define BUMP_SAVE_VERSION_PLAYER 1002
+# define BUMP_SAVE_VERSION_PLAYER 1002
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_POLICIES 1000
+# define BUMP_SAVE_VERSION_POLICIES 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_TEAM 1000
+# define BUMP_SAVE_VERSION_TEAM 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_TECHS 1000
+# define BUMP_SAVE_VERSION_TECHS 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_TRAITS 1000
+# define BUMP_SAVE_VERSION_TRAITS 1000
 // 1000: v7.0 (initial)
-#define BUMP_SAVE_VERSION_UNIT 1000
+# define BUMP_SAVE_VERSION_UNIT 1000
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
-#define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
+# define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 // 1000: v7.2 (initial, adds m_iTimeMilliseconds)
 // 1001: v7.3b (adds m_iExtraData1, m_iExtraData2)
-#define BUMP_SAVE_VERSION_REPLAYMESSAGE 1001
+# define BUMP_SAVE_VERSION_REPLAYMESSAGE 1001
+// 1000: v7.3b (initial)
+# define BUMP_SAVE_VERSION_REPLAYEVENT 1000
 #endif
 ///
 #define ENHANCED_GRAPHS
 ///
 // #define statistic_stuff
 // #define statistis_stuff_VARIANT
+// 
+#define REPLAY_EVENTS
+enum ReplayEventTypes
+{
+	REPLAYEVENT_AdvancedStartAction,
+	REPLAYEVENT_AutoMission,
+	REPLAYEVENT_BarbarianRansom,
+	REPLAYEVENT_ChangeWar,
+	REPLAYEVENT_IgnoreWarning,
+	REPLAYEVENT_CityBuyPlot,
+	REPLAYEVENT_CityDoTask,
+	REPLAYEVENT_CityPopOrder,
+	REPLAYEVENT_CityPurchase,
+	REPLAYEVENT_CityPushOrder,
+	REPLAYEVENT_CitySwapOrder,
+	REPLAYEVENT_ChooseElection,
+	REPLAYEVENT_DestroyUnit,
+	REPLAYEVENT_DiplomacyFromUI,
+	REPLAYEVENT_DiploVote,
+	REPLAYEVENT_DoCommand,
+	REPLAYEVENT_ExtendedGame,
+	REPLAYEVENT_FoundPantheon,
+	REPLAYEVENT_FoundReligion,
+	REPLAYEVENT_EnhanceReligion,
+	REPLAYEVENT_MoveSpy,
+	REPLAYEVENT_StageCoup,
+	REPLAYEVENT_FaithPurchase,
+	REPLAYEVENT_LeagueVoteEnact,
+	REPLAYEVENT_LeagueVoteRepeal,
+	REPLAYEVENT_LeagueVoteAbstain,
+	REPLAYEVENT_LeagueProposeEnact,
+	REPLAYEVENT_LeagueProposeRepeal,
+	REPLAYEVENT_LeagueEditName,
+	REPLAYEVENT_SetSwappableGreatWork,
+	REPLAYEVENT_SwapGreatWorks,
+	REPLAYEVENT_MoveGreatWorks,
+	REPLAYEVENT_ChangeIdeology,
+	REPLAYEVENT_GiftUnit,
+	REPLAYEVENT_LaunchSpaceship,
+	REPLAYEVENT_LiberatePlayer,
+	REPLAYEVENT_MinorCivBullyGold,
+	REPLAYEVENT_MinorCivBullyUnit,
+	REPLAYEVENT_MinorCivGiftGold,
+	REPLAYEVENT_MinorCivGiftTileImprovement,
+	REPLAYEVENT_MinorCivBuyout,
+	REPLAYEVENT_MinorNoUnitSpawning,
+	REPLAYEVENT_PlayerDealFinalized,
+	REPLAYEVENT_PlayerOption,
+	REPLAYEVENT_PledgeMinorProtection,
+	REPLAYEVENT_PushMission,
+	REPLAYEVENT_GreatPersonChoice,
+	REPLAYEVENT_MayaBonusChoice,
+	REPLAYEVENT_FaithGreatPersonChoice,
+	REPLAYEVENT_GoodyChoice,
+	REPLAYEVENT_ArchaeologyChoice,
+	REPLAYEVENT_IdeologyChoice,
+	REPLAYEVENT_RenameCity,
+	REPLAYEVENT_RenameUnit,
+	REPLAYEVENT_Research,
+	REPLAYEVENT_ReturnCivilian,
+	REPLAYEVENT_SellBuilding,
+	REPLAYEVENT_SetCityAIFocus,
+	REPLAYEVENT_SetCityAvoidGrowth,
+	REPLAYEVENT_SwapUnits,
+	REPLAYEVENT_UpdateCityCitizens,
+	REPLAYEVENT_UpdatePolicies,
+
+	NUM_REPLAYEVENTS
+};
+
 // Adds timestamp for replay messages, saves chat messages
 #define REPLAY_MESSAGE_EXTENDED
 // Extended replay messages: pseudo-enums
@@ -797,7 +870,7 @@
 // Must be defined only ONCE and account for all ReplayMessageTypes additions
 #define NUM_REPLAY_MESSAGE_TYPES 8
 ///
-#define DEV_RECORDING_STATISTICS
+//#define DEV_RECORDING_STATISTICS
 // use PreGame.GetNickName with encoded value to retrieve user's SteamId
 #define PREGAMEAPI_GET_NETID
 /*OTHER CHANGES END*/
