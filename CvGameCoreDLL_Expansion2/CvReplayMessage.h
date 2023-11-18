@@ -66,3 +66,26 @@ private:
 };
 
 #endif
+#ifdef REPLAY_EVENTS
+class CvReplayEvent
+{
+public:
+	static unsigned int Version();	//used for serialization.
+
+	CvReplayEvent();
+	CvReplayEvent(int eType, std::vector<int> vNumArgs, CvString strArg = "");
+	CvReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vNumArgs, CvString strArg = "");
+
+	virtual ~CvReplayEvent();
+
+	void read(FDataStream& kStream, unsigned int uiVersion);
+	void write(FDataStream& kStream) const;
+	int m_eEventType;
+	PlayerTypes m_ePlayer;
+	int m_iTurn;
+	int m_iTimestamp;
+	std::vector<int> m_vNumericArgs;
+	CvString m_strStringData;
+private:
+};
+#endif

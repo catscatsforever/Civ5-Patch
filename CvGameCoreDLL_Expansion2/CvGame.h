@@ -23,6 +23,9 @@
 class CvPlot;
 class CvCity;
 class CvReplayMessage;
+#ifdef REPLAY_EVENTS
+class CvReplayEvent;
+#endif
 class CvReplayInfo;
 class CvSiteEvaluatorForSettler;
 class CvSiteEvaluatorForStart;
@@ -457,12 +460,21 @@ public:
 #ifdef statistis_stuff_VARIANT
 	void addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY);
 #endif
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
 	void addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue);
+	void exportReplayDatasets();
 #endif
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
+#ifdef REPLAY_EVENTS
+	void clearReplayEventMap();
+	void addReplayEvent(int eType, std::vector<int> vNumArgs, CvString strArg = "");
+	void addReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vNumArgs, CvString strArg = "");
+	uint getNumReplayEvents() const;
+	const CvReplayEvent* getReplayEvent(uint i) const;
+	void exportReplayEvents();
+#endif
 
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
@@ -753,6 +765,10 @@ protected:
 
 	typedef std::vector<CvReplayMessage> ReplayMessageList;
 	ReplayMessageList m_listReplayMessages;
+#ifdef REPLAY_EVENTS
+	typedef std::vector< CvReplayEvent > ReplayEventList;
+	ReplayEventList m_listReplayEvents;
+#endif
 
 	int m_iNumSessions;
 

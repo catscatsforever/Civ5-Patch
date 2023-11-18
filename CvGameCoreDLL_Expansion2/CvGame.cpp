@@ -60,6 +60,11 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
+#if defined (DEV_RECORDING_STATISTICS) || defined (REPLAY_EVENTS)
+# include <winsqlite3.h>
+# pragma comment(lib, "winsqlite3.lib")
+#endif
+
 // Public Functions...
 // must be included after all other headers
 #include "LintFree.h"
@@ -996,6 +1001,9 @@ void CvGame::uninit()
 	m_jonRand.uninit();
 
 	clearReplayMessageMap();
+#ifdef REPLAY_EVENTS
+	clearReplayEventMap();
+#endif
 
 	m_aPlotExtraYields.clear();
 	m_aPlotExtraCosts.clear();
@@ -7285,7 +7293,12 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 			saveReplay();
 			showEndGameSequence();
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
+			exportReplayDatasets();
+# ifdef REPLAY_EVENTS
+			exportReplayEvents();
+# endif
+			/**
 			CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 			strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
 			Database::Connection db;
@@ -7415,7 +7428,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 						}
 						else
 							SLOG("ERROR Belief Key");
-					}*/
+					}*//*
 				}
 			}
 
@@ -7455,6 +7468,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				}
 			}
 			SLOG("Civ5FinishedGameDatabase END");
+			**/
 #endif
 		}
 
@@ -9852,7 +9866,8 @@ void CvGame::addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const
 	}
 }
 #endif
-#ifdef DEV_RECORDDING_STATISTCS
+#ifdef DEV_RECORDING_STATISTICS
+//	--------------------------------------------------------------------------------
 void CvGame::addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue)
 {
 
@@ -9902,6 +9917,191 @@ void CvGame::addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, c
 		SLOG("ERROR opening db");
 	}
 }
+
+//	--------------------------------------------------------------------------------
+void CvGame::exportReplayDatasets()
+{
+	DWORD t1 = timeGetTime();
+	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+	strUTF8DatabasePath += "Civ5FinishedGameDatabase.db";
+
+	sqlite3* db;
+	sqlite3_stmt* stmt;
+	int rc;
+	char* err = NULL;
+	uint uiSeed = (uint)CvPreGame::mapRandomSeed();
+	int iValue;
+
+	if (sqlite3_open_v2(strUTF8DatabasePath.c_str(), &db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, NULL) == SQLITE_OK)
+	{
+		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &err);
+
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS ReplayDataSetsChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, ReplayDataSetID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS PoliciesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, PolicyID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS TechnologiesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, TechnologyID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS BuildingClassesChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, BuildingClassID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS BeliefsChanges (DataSetID INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, BeliefID INTEGER NOT NULL, CivID INTEGER NOT NULL, Value INTEGER);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS DataSets (DataSetID INTEGER NOT NULL);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS CivKeys (CivID INTEGER NOT NULL, CivKey TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS ReplayDataSetKeys (ReplayDataSetID INTEGER NOT NULL, ReplayDataSetKey TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS PolicyKeys (PolicyID INTEGER NOT NULL, PolicyKey TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS TechnologyKeys (TechnologyID INTEGER NOT NULL, TechnologyKey TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS BuildingClassKeys (BuildingClassID INTEGER NOT NULL, BuildingClassKey TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS BeliefKeys (BeliefID INTEGER NOT NULL, BeliefKey TEXT);", NULL, 0, &err);
+
+		struct QueryFrame {
+			uint uiRangeLeft;
+			uint uiRangeRight;
+			CvString strQuery;
+		};
+		const int iNumDatasetTables = 5;
+		QueryFrame aQueries[iNumDatasetTables] = {
+			{ 0, 71, "REPLACE INTO ReplayDataSetsChanges (DataSetID, GameSeed, Turn, ReplayDataSetID, CivID, Value) VALUES (?, ?, ?, ?, ?, ?);" },
+			{ 71, 182, "REPLACE INTO PoliciesChanges (DataSetID, GameSeed, Turn, PolicyID, CivID, Value) VALUES (?, ?, ?, ?, ?, ?);" },
+			{ 182, 263, "REPLACE INTO TechnologiesChanges (DataSetID, GameSeed, Turn, TechnologyID, CivID, Value) VALUES (?, ?, ?, ?, ?, ?);" },
+			{ 263, 385, "REPLACE INTO BuildingClassesChanges (DataSetID, GameSeed, Turn, BuildingClassID, CivID, Value) VALUES (?, ?, ?, ?, ?, ?);" },
+			{ 385, -1, "REPLACE INTO BeliefsChanges (DataSetID, GameSeed, Turn, BeliefID, CivID, Value) VALUES (?, ?, ?, ?, ?, ?);" }
+		};
+
+		for (int i = 0; i < iNumDatasetTables; i++) {
+			const char* sQuery = aQueries[i].strQuery.c_str();
+			uint uiLeft = aQueries[i].uiRangeLeft;
+			uint uiRight = aQueries[i].uiRangeRight;
+
+			rc = sqlite3_prepare_v2(db, sQuery, -1, &stmt, NULL);
+			if (rc != SQLITE_OK)
+			{
+				SLOG("prepare failed: %s", sqlite3_errmsg(db));
+			}
+			for (uint uiTurn = (uint)GC.getGame().getStartTurn() + 1; uiTurn < (uint)(GC.getGame().getStartTurn() + GC.getGame().getElapsedGameTurns()); uiTurn++)
+			{
+				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+				{
+					PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+					CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+					int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
+					if (kPlayer.isEverAlive())
+					{
+						if (uiRight == -1)
+							uiRight = kPlayer.getNumReplayDataSets();
+						for (uint uiDataSet = uiLeft; uiDataSet < uiRight; uiDataSet++)
+						{
+							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
+							if (szDataSetName != NULL)
+							{
+								int ID;
+								if (i == 0)
+								{
+									ID = (int)uiDataSet + 1;
+								}
+								else
+								{
+									ID = GC.getInfoTypeForString(szDataSetName, true);
+								}
+								if (uiTurn == (uint)GC.getGame().getStartTurn() + 1)
+								{
+									iValue = kPlayer.getReplayDataValue(uiDataSet, uiTurn);
+								}
+								else if (kPlayer.getReplayDataValue(uiDataSet, uiTurn - 1) != kPlayer.getReplayDataValue(uiDataSet, uiTurn))
+								{
+									iValue = kPlayer.getReplayDataValue(uiDataSet, uiTurn) - kPlayer.getReplayDataValue(uiDataSet, uiTurn - 1);
+								}
+								else
+								{
+									continue;
+								}
+
+								sqlite3_bind_int(stmt, 1, uiDataSet);
+								sqlite3_bind_int(stmt, 2, uiSeed);
+								sqlite3_bind_int(stmt, 3, uiTurn);
+								sqlite3_bind_int(stmt, 4, ID);
+								sqlite3_bind_int(stmt, 5, CivID);
+								sqlite3_bind_int(stmt, 6, iValue);
+								rc = sqlite3_step(stmt);
+								if (rc != SQLITE_DONE) {
+									SLOG("execution step failed or has another row ready: %s", sqlite3_errmsg(db));
+								}
+								sqlite3_reset(stmt);
+							}
+						}
+					}
+				}
+			}
+			sqlite3_finalize(stmt);
+		}
+
+		sqlite3_exec(db, "END TRANSACTION", NULL, 0, &err);
+		sqlite3_close(db);
+		SLOG("export to db DONE in %fs", (float)(timeGetTime() - t1) / 1000);
+	}
+	else
+	{
+		SLOG("ERROR opening db");
+	}
+}
+#endif
+#ifdef REPLAY_EVENTS
+
+//	--------------------------------------------------------------------------------
+void CvGame::exportReplayEvents()
+{
+	DWORD t1 = timeGetTime();
+	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
+	strUTF8DatabasePath += "_Civ5ReplayEvents.db";
+
+	sqlite3* db;
+	sqlite3_stmt* stmt;
+	int rc;
+	char* err = NULL;
+	uint uiSeed = (uint)CvPreGame::mapRandomSeed();
+
+	if (sqlite3_open_v2(strUTF8DatabasePath.c_str(), &db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, NULL) == SQLITE_OK)
+	{
+		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &err);
+
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS ReplayEvents (ReplayEventType INTEGER NOT NULL, GameSeed INTEGER NOT NULL, Turn INTEGER NOT NULL, TimeStamp INTEGER, PlayerID INTEGER NOT NULL, Num1 INTEGER, Num2 INTEGER, Num3 INTEGER, Num4 INTEGER, Num5 INTEGER, Num6 INTEGER, Num7 INTEGER, Num8 INTEGER, Num9 INTEGER, Num10 INTEGER, str TEXT);", NULL, 0, &err);
+		sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS ReplayEventKeys (ReplayEventType INTEGER NOT NULL, ReplayEventDescription TEXT, Num1Desc TEXT, Num2Desc TEXT, Num3Desc TEXT, Num4Desc TEXT, Num5Desc TEXT, Num6Desc TEXT, Num7Desc TEXT, Num8Desc TEXT, Num9Desc TEXT, Num10Desc TEXT, StrDesc TEXT);", NULL, 0, &err);
+
+		const char* strQuery = "REPLACE INTO ReplayEvents (ReplayEventType, GameSeed, Turn, TimeStamp, PlayerID, Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num10, Str) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		rc = sqlite3_prepare_v2(db, strQuery, -1, &stmt, NULL);
+		if (rc != SQLITE_OK)
+		{
+			SLOG("prepare failed: %s", sqlite3_errmsg(db));
+		}
+		for (uint i = 0; i < getNumReplayEvents(); i++)
+		{
+			CvReplayEvent event = (*getReplayEvent(i));
+			sqlite3_bind_int(stmt, 1, event.m_eEventType);
+			sqlite3_bind_int(stmt, 2, uiSeed);
+			sqlite3_bind_int(stmt, 3, event.m_iTurn);
+			sqlite3_bind_int(stmt, 4, event.m_iTimestamp);
+			sqlite3_bind_int(stmt, 5, event.m_ePlayer);
+			for (uint j = 0; j < 10; j++)
+			{
+				if (j < event.m_vNumericArgs.size())
+				{
+					int iArg = event.m_vNumericArgs.at(j);
+					sqlite3_bind_int(stmt, 6 + j, iArg);
+				}
+			}
+			sqlite3_bind_text(stmt, 16, event.m_strStringData.c_str(), event.m_strStringData.length(), SQLITE_TRANSIENT);
+			rc = sqlite3_step(stmt);
+			if (rc != SQLITE_DONE) {
+				SLOG("execution step failed or has another row ready: %s", sqlite3_errmsg(db));
+			}
+			sqlite3_clear_bindings(stmt);
+			sqlite3_reset(stmt);
+		}
+		sqlite3_finalize(stmt);
+		sqlite3_exec(db, "END TRANSACTION", NULL, 0, &err);
+		sqlite3_close(db);
+		SLOG("export to db DONE in %fs", (float)(timeGetTime() - t1) / 1000);
+	}
+	else
+	{
+		SLOG("ERROR opening db");
+	}
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -9926,6 +10126,44 @@ const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 
 	return NULL;
 }
+#ifdef REPLAY_EVENTS
+
+//	--------------------------------------------------------------------------------
+void CvGame::clearReplayEventMap()
+{
+	m_listReplayEvents.clear();
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::addReplayEvent(int eType, std::vector<int> vNumArgs, CvString strArg)
+{
+	CvReplayEvent event(eType, vNumArgs, strArg);
+	m_listReplayEvents.push_back(event);
+}
+//	--------------------------------------------------------------------------------
+void CvGame::addReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vNumArgs, CvString strArg)
+{
+	CvReplayEvent event(eType, ePlayer, vNumArgs, strArg);
+	m_listReplayEvents.push_back(event);
+}
+
+//	--------------------------------------------------------------------------------
+uint CvGame::getNumReplayEvents() const
+{
+	return m_listReplayEvents.size();
+}
+
+//	--------------------------------------------------------------------------------
+const CvReplayEvent* CvGame::getReplayEvent(uint i) const
+{
+	if (i < m_listReplayEvents.size())
+	{
+		return &(m_listReplayEvents[i]);
+	}
+
+	return NULL;
+}
+#endif
 
 // Private Functions...
 
@@ -9980,7 +10218,7 @@ void CvGame::Read(FDataStream& kStream)
 	// m_uiInitialTime not saved
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_fPreviousTurnLen;
@@ -9994,7 +10232,7 @@ void CvGame::Read(FDataStream& kStream)
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_fTimeElapsed;
@@ -10068,7 +10306,7 @@ void CvGame::Read(FDataStream& kStream)
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreatedCount);
 #ifdef DUEL_WORLD_WONDERS_SAME_TURN
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	if (uiVersion >= 1000)
 	{
 # endif
 		BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassCreationTurn);
@@ -10136,7 +10374,29 @@ void CvGame::Read(FDataStream& kStream)
 			message.read(kStream, uiReplayMessageVersion);
 			m_listReplayMessages.push_back(message);
 		}
+#ifdef REPLAY_EVENTS
+		clearReplayEventMap();
 
+		unsigned int uiReplayEventVersion = 1;
+		iSize = 0;
+
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		if (uiVersion >= 1001)
+		{
+# endif
+			kStream >> uiReplayEventVersion;
+
+			kStream >> iSize;
+			for (int i = 0; i < iSize; i++)
+			{
+				CvReplayEvent event;
+				event.read(kStream, uiReplayEventVersion);
+				m_listReplayEvents.push_back(event);
+			}
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+		}
+# endif
+#endif
 	}
 
 	kStream >> m_iNumSessions;
@@ -10183,7 +10443,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> *m_pGameTrade;
 #ifdef MP_PLAYERS_VOTING_SYSTEM
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_GAME)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> *m_pMPVotingSystem;
@@ -10372,6 +10632,17 @@ void CvGame::Write(FDataStream& kStream) const
 	{
 		(*it).write(kStream);
 	}
+#ifdef REPLAY_EVENTS
+	const int iSize2 = m_listReplayEvents.size();
+	kStream << CvReplayEvent::Version();
+	kStream << iSize2;
+
+	ReplayEventList::const_iterator it2;
+	for (it2 = m_listReplayEvents.begin(); it2 != m_listReplayEvents.end(); ++it2)
+	{
+		(*it2).write(kStream);
+	}
+#endif
 
 	kStream << m_iNumSessions;
 

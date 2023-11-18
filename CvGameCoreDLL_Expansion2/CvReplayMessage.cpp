@@ -249,3 +249,81 @@ void CvReplayMessage::write(FDataStream& kStream) const
 	kStream << m_strText;
 }
 //------------------------------------------------------------------------------
+#ifdef REPLAY_EVENTS
+CvReplayEvent::CvReplayEvent()
+	: m_iTurn(-1)
+	, m_iTimestamp(0)
+	, m_eEventType(0)
+	, m_strStringData("")
+	, m_ePlayer(NO_PLAYER)
+{
+	std::vector<int> vEmpty;
+	m_vNumericArgs = vEmpty;
+}
+CvReplayEvent::CvReplayEvent(int eType, std::vector<int> vNumArgs, CvString strArg)
+	: m_eEventType(eType)
+	, m_vNumericArgs(vNumArgs)
+	, m_strStringData(strArg)
+	, m_ePlayer(NO_PLAYER)
+{
+	m_iTurn = GC.getGame().getElapsedGameTurns();
+	m_iTimestamp = static_cast<int>(GC.getGame().getTimeElapsed() * 1000);
+}
+CvReplayEvent::CvReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vNumArgs, CvString strArg)
+	: m_eEventType(eType)
+	, m_vNumericArgs(vNumArgs)
+	, m_strStringData(strArg)
+	, m_ePlayer(ePlayer)
+{
+	m_iTurn = GC.getGame().getElapsedGameTurns();
+	m_iTimestamp = static_cast<int>(GC.getGame().getTimeElapsed() * 1000);
+}
+CvReplayEvent::~CvReplayEvent()
+{
+}
+//------------------------------------------------------------------------------
+unsigned int CvReplayEvent::Version()
+{
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	return BUMP_SAVE_VERSION_REPLAYEVENT;
+# else
+	return 1;
+# endif
+}
+//------------------------------------------------------------------------------
+void CvReplayEvent::read(FDataStream& kStream, unsigned int uiVersion)
+{
+	UNREFERENCED_PARAMETER(uiVersion);
+
+	kStream >> (int)m_eEventType;
+	kStream >> m_ePlayer;
+	kStream >> m_iTurn;
+	kStream >> m_iTimestamp;
+	int iSize = -1;
+	kStream >> iSize;
+	if (iSize > 0)
+	{
+		for (int i = 0; i < iSize; ++i)
+		{
+			int iArg;
+			kStream >> iArg;
+			m_vNumericArgs.push_back(iArg);
+		}
+	}
+	kStream >> m_strStringData;
+}
+//------------------------------------------------------------------------------
+void CvReplayEvent::write(FDataStream& kStream) const
+{
+	kStream << (int)m_eEventType;
+	kStream << m_ePlayer;
+	kStream << m_iTurn;
+	kStream << m_iTimestamp;
+	kStream << (int)m_vNumericArgs.size();
+	for (std::vector<int>::const_iterator it = m_vNumericArgs.begin(); it != m_vNumericArgs.end(); ++it)
+	{
+		kStream << *it;
+	}
+	kStream << m_strStringData;
+}
+#endif
