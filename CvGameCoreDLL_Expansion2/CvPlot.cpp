@@ -3904,10 +3904,24 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 #ifdef FIX_DO_ATTACK_SUBMARINES_IN_SHADOW_OF_WAR
 						if(!pLoopUnit->isInvisible(pUnit->getTeam(), false))
 						{
+#ifdef TRADE_UNITS_DO_NOT_CAUSES_REPOSITION
+							if (!pLoopUnit->isTrade())
+							{
+								iNumUnitsOfSameType++;
+							}
+#else
+							iNumUnitsOfSameType++;
+#endif
+						}
+#else
+#ifdef TRADE_UNITS_DO_NOT_CAUSES_REPOSITION
+						if (!pLoopUnit->isTrade())
+						{
 							iNumUnitsOfSameType++;
 						}
 #else
 						iNumUnitsOfSameType++;
+#endif
 #endif
 					}
 				}
