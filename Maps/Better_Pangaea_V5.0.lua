@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --	FILE:	 Pangaea.lua
---	AUTHOR:  Bob Thomas
+--	AUTHOR:  Bob Thomas 12gram
 --	PURPOSE: Global map script - Simulates a Pan-Earth Supercontinent.
 --           This is one of Civ5's featured map scripts.
 ------------------------------------------------------------------------------
