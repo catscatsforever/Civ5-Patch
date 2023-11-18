@@ -794,6 +794,7 @@
 // #define statistis_stuff_VARIANT
 // 
 #define REPLAY_EVENTS
+#ifdef REPLAY_EVENTS
 enum ReplayEventTypes
 {
 	REPLAYEVENT_AdvancedStartAction,
@@ -861,6 +862,7 @@ enum ReplayEventTypes
 
 	NUM_REPLAYEVENTS
 };
+#endif
 
 // Adds timestamp for replay messages, saves chat messages
 #define REPLAY_MESSAGE_EXTENDED
