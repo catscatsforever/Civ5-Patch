@@ -6025,11 +6025,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 #ifdef FREE_GREAT_PERSON
 							GetCityCitizens()->DoSpawnGreatPerson(eFreeUnitType, false /*bIncrementCount*/, false);
-#ifdef ENHANCED_GRAPHS
-							owningPlayer.ChangeNumProphetsTotal(1);
-#endif
 #else
 							GetCityCitizens()->DoSpawnGreatPerson(eFreeUnitType, true /*bIncrementCount*/, true);
+#endif
+#ifdef ENHANCED_GRAPHS
+							owningPlayer.ChangeNumProphetsTotal(1);
 #endif
 						}
 						else
@@ -13621,6 +13621,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementWritersFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumWritersTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
@@ -13642,6 +13645,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementArtistsFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumArtistsTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -13663,6 +13669,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementMusiciansFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumMusiciansTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
@@ -13684,6 +13693,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementScientistsFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumScientistsTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -13705,6 +13717,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementMerchantsFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumMerchantsTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
@@ -13726,6 +13741,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementEngineersFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumEngineersTotal(1);
+#endif
+				}
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
@@ -13747,6 +13766,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementGeneralsFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumGeneralsTotal(1);
+#endif
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
@@ -13768,6 +13790,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				}
 #else
 				kPlayer.incrementAdmiralsFromFaith();
+#ifdef ENHANCED_GRAPHS
+				kPlayer.ChangeNumAdmiralsTotal(1);
+#endif
 #endif
 				CvPlot *pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(pUnit);
 				if (pUnit->plot() != pSpawnPlot)
