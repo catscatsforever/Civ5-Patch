@@ -739,11 +739,13 @@ void CvPlot::verifyUnitValidPlot()
 							// Unit not allowed to be here
 							if(getNumFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
 							{
+#ifndef AVOID_UNIT_SPLIT_MID_TURN
 								if (!pLoopUnit->jumpToNearestValidPlot())
 								{
 									pLoopUnit->kill(false);
 									pLoopUnit = NULL;
 								}
+#endif
 							}
 							
 							if (pLoopUnit != NULL)
