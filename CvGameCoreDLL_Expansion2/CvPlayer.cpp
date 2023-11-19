@@ -6557,7 +6557,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	CvPlot* pBestPlot = NULL;
 	CvString strBuffer;
 	CvString strTempBuffer;
+#ifndef FLAT_SCIENCE_FROM_TECH_RUIN
 	TechTypes eBestTech;
+#endif
 	UnitTypes eUnit;
 	int iGold;
 	int iOffset;
@@ -6997,6 +6999,23 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Tech
 	if(kGoodyInfo.isTech())
 	{
+#ifdef FLAT_SCIENCE_FROM_TECH_RUIN
+		int iValue = 45;
+		iValue *= GC.getGame().getGameSpeedInfo().getResearchPercent();
+		iValue /= 100;
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		if (eCurrentTech == NO_TECH)
+		{
+			changeOverflowResearch(iValue);
+		}
+		else
+		{
+			GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
+		}
+#ifdef AUI_PLAYER_FIX_RECEIVE_GOODY_MESSAGE
+		strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), iValue);
+#endif
+#else
 		iBestValue = 0;
 		eBestTech = NO_TECH;
 
@@ -7055,6 +7074,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		GET_TEAM(getTeam()).setHasTech(eBestTech, true, GetID(), true, true);
 		GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eBestTech, true);
+#endif
 	}
 
 	// Units
