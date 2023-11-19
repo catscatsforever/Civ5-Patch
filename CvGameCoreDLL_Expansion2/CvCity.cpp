@@ -9902,11 +9902,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 
 #ifdef CREATIVE_EXPRESSION_SCIENCE_MOD
-	if (getPopulation() > 19)
+	if (getPopulation() >= 22)
 	{
 		if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
 		{
-			iTempMod = 25;
+			iTempMod = 22;
 			iModifier += iTempMod;
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_LARGEPOP_SCIENCEMOD", iTempMod);
