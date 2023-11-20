@@ -34,6 +34,7 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 	if (pActivePlayer ~= nil) then
 		if (Status == 1) then
 			if iType == 1001 then
+				Game.SetGameState(GameplayGameStateTypes.GAMESTATE_OVER);
 				if Matchmaking.IsHost() then
 					Matchmaking.KickPlayer(SubjectId)
 				end
@@ -41,10 +42,11 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 					Events.EndGameShow(EndGameTypes.Loss, -1)
 				end
 			elseif iType ==1002 then
-				Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())
+				--Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())
+				Game.SetWinner(Players[SubjectId]:GetTeam(), GameInfoTypes.VICTORY_DIPLOMATIC); 
 			elseif iType ==1003 then
-				print('calling SCRAP screen iType=', iType)
-				Events.EndGameShow(-1, Players[Game.GetActivePlayer()]:GetTeam())  -- scrap screen
+				--Events.EndGameShow(-1, Players[Game.GetActivePlayer()]:GetTeam())  -- scrap screen
+				Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
 			end
 		end
 		if Id == g_MPVotingSystemLastId then

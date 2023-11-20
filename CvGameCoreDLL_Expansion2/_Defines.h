@@ -798,7 +798,7 @@
 ///
 // #define statistic_stuff
 // #define statistis_stuff_VARIANT
-// 
+// A more flexible alternative to Replay Messages; primarily for statistics purposes
 #define REPLAY_EVENTS
 #ifdef REPLAY_EVENTS
 enum ReplayEventTypes
