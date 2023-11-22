@@ -57,6 +57,7 @@ Controls.MainMenuButton:RegisterCallback( Mouse.eLClick, OnMainMenu );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnBack()
+	-- NEW: always allow back
 	if (m_bAllowBack) then
 		Network.SendExtendedGame();
 		UIManager:DequeuePopup( ContextPtr );
@@ -183,7 +184,9 @@ function OnDisplay( type, team )
 		elseif( type == EndGameTypes.Time ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_TIME" ) );
 	    	victoryType = "VICTORY_TIME";
-		elseif( type == -1 ) then
+	    end
+	    -- NEW: scrap victory
+		if( Game.GetVictory() == GameInfoTypes.VICTORY_SCRAP ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_SCRAP" ) );
 	    	victoryType = "VICTORY_SCRAP";
 		end
@@ -191,7 +194,8 @@ function OnDisplay( type, team )
 		if(victoryType ~= nil and PreGame.GetGameOption("GAMEOPTION_NO_EXTENDED_PLAY") ~= 1)then
 			Controls.BackButton:SetDisabled( false );
 		else
-			Controls.BackButton:SetDisabled( true );
+			-- NEW: always allow back
+			--Controls.BackButton:SetDisabled( true );
 			m_bAllowBack = false;
 		end
 			
@@ -209,7 +213,8 @@ function OnDisplay( type, team )
     	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_LOSS" ) );
     	Controls.BackgroundImage:UnloadTexture();
     	Controls.BackgroundImage:SetTexture( "Victory_Defeat.dds" );
-		Controls.BackButton:SetDisabled( true );
+    	-- NEW: always allow back
+		--Controls.BackButton:SetDisabled( true );
 		if (not Game:IsNetworkMultiPlayer() and player:IsAlive() and PreGame.GetGameOption("GAMEOPTION_NO_EXTENDED_PLAY") ~= 1) then
 			if( type == EndGameTypes.Technology ) then
 				Controls.BackButton:SetDisabled( false );
@@ -248,7 +253,7 @@ function OnDisplay( type, team )
 	g_AnimUpdate = ZoomOutEffect{
 		SplashControl = Controls.BackgroundImage, 
 		ScaleFactor = 0.5,
-		AnimSeconds = type == -1 and 25 or 3
+		AnimSeconds = Game.GetVictory() == GameInfoTypes.VICTORY_SCRAP and 25 or 3
 	};
 	
 	UIManager:QueuePopup( ContextPtr, PopupPriority.EndGameMenu );
