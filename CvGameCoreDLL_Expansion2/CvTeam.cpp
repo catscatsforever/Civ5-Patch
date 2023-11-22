@@ -5786,6 +5786,29 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 #endif
+#ifdef NEW_OTTOMAN_UA
+						if (strcmp(GET_PLAYER(eLoopPlayer).getCivilizationTypeKey(), "CIVILIZATION_OTTOMAN") == 0)
+						{
+							if (pLoopCity->isCapital())
+							{
+								if (eIndex == (TechTypes)GC.getInfoTypeForString("TECH_BRONZE_WORKING", true))
+								{
+									pLoopCity->GetCityBuildings()->SetNumRealBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_BARRACKS", true), 0);
+									pLoopCity->GetCityBuildings()->SetNumFreeBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_BARRACKS", true), 1);
+								}
+								else if (eIndex == (TechTypes)GC.getInfoTypeForString("TECH_STEEL", true))
+								{
+									pLoopCity->GetCityBuildings()->SetNumRealBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_ARMORY", true), 0);
+									pLoopCity->GetCityBuildings()->SetNumFreeBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_ARMORY", true), 1);
+								}
+								else if (eIndex == (TechTypes)GC.getInfoTypeForString("TECH_MILITARY_SCIENCE", true))
+								{
+									pLoopCity->GetCityBuildings()->SetNumRealBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_MILITARY_ACADEMY", true), 0);
+									pLoopCity->GetCityBuildings()->SetNumFreeBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_MILITARY_ACADEMY", true), 1);
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
