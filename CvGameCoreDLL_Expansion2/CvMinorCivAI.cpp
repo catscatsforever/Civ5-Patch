@@ -4072,7 +4072,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount *= /*20*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_ROUTE();
 			iCount /= 100;
 		}
-		if(eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME || eTrait == MINOR_CIV_TRAIT_MANUFACTORY)						// Maritime or Manufactory
+#else
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#endif
 		{
 			iCount *= /*120*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_ROUTE();
 			iCount /= 100;
@@ -4087,7 +4091,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// CONNECT A RESOURCE
 	else if(eQuest == MINOR_CIV_QUEST_CONNECT_RESOURCE)
 	{
-		if(eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME || eTrait == MINOR_CIV_TRAIT_MANUFACTORY)						// Maritime or Manufactory
+#else
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#endif
 		{
 			iCount *= /*200*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_CONNECT_RESOURCE();
 			iCount /= 100;
@@ -4102,7 +4110,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// CONSTRUCT A WONDER
 	else if(eQuest == MINOR_CIV_QUEST_CONSTRUCT_WONDER)
 	{
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED || eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)						// Cultured or Scientific
+#else
 		if(eTrait == MINOR_CIV_TRAIT_CULTURED)						// Cultured
+#endif
 		{
 			iCount *= /*300*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_CULTURED_CONSTRUCT_WONDER();
 			iCount /= 100;
@@ -4112,7 +4124,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// GREAT PERSON
 	else if(eQuest == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
-		if(eTrait == MINOR_CIV_TRAIT_CULTURED)						// Cultured
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED || eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)						// Cultured or Scientific
+#else
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED)						// Cultured
+#endif
 		{
 			iCount *= /*300*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_CULTURED_GREAT_PERSON();
 			iCount /= 100;
@@ -4142,7 +4158,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// FIND ANOTHER PLAYER
 	else if(eQuest == MINOR_CIV_QUEST_FIND_PLAYER)
 	{
-		if(eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME || eTrait == MINOR_CIV_TRAIT_MANUFACTORY)						// Maritime or Manufactory
+#else
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME)						// Maritime
+#endif
 		{
 			iCount *= /*300*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_FIND_PLAYER();
 			iCount /= 100;
@@ -4199,7 +4219,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount *= /*200*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_PLEDGE_TO_PROTECT();
 			iCount /= 100;
 		}
+#ifdef NEW_CITY_STATES_TYPES
+		else if (eTrait == MINOR_CIV_TRAIT_CULTURED || eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)  // Military?  We don't have one of those!
+#else
 		else if(eTrait == MINOR_CIV_TRAIT_CULTURED)  // Military?  We don't have one of those!
+#endif
 		{
 			iCount *= /*350*/ GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_CULTURED_PLEDGE_TO_PROTECT();
 			iCount /= 100;
@@ -4239,7 +4263,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount *= 250; //antonjs: todo: xml
 			iCount /= 100;
 		}
+#ifdef NEW_CITY_STATES_TYPES
+		else if (eTrait == MINOR_CIV_TRAIT_MARITIME || eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+#else
 		else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
+#endif
 		{
 			iCount *= 200; //antonjs: todo: xml
 			iCount /= 100;
@@ -4264,7 +4292,11 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// Trade Route
 	else if(eQuest == MINOR_CIV_QUEST_TRADE_ROUTE)
 	{
+#ifdef NEW_CITY_STATES_TYPES
+		if (eTrait == MINOR_CIV_TRAIT_MARITIME || eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+#else
 		if(eTrait == MINOR_CIV_TRAIT_MARITIME)
+#endif
 		{
 			iCount *= 200; //xml
 			iCount /= 100;
@@ -4303,6 +4335,22 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount /= 100;
 		}
 	}
+#ifdef NEW_CITY_STATES_TYPES
+	// CONTEST TECHS
+	else if (eQuest == MINOR_CIV_QUEST_CONTEST_TECHS)
+	{
+		if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
+		{
+			iCount *= 200; //antonjs: todo: XML
+			iCount /= 100;
+		}
+		else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iCount += 50; //antonjs: todo: XML
+			iCount /= 100;
+		}
+	}
+#else
 	// CONTEST TECHS
 	else if(eQuest == MINOR_CIV_QUEST_CONTEST_TECHS)
 	{
@@ -4312,6 +4360,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount /= 100;
 		}
 	}
+#endif
 
 	// KILL A CAMP
 	else if(eQuest == MINOR_CIV_QUEST_KILL_CAMP)
@@ -6246,6 +6295,38 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 	{
 	}
+#ifdef NEW_CITY_STATES_TYPES
+	// Scientific
+	if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
+	{
+	}
+	// Manufactory
+	else if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+	{
+		int iCapitalProductionTimes100 = 0;
+		int iOtherCitiesProductionTimes100 = 0;
+
+		if (bFriends)	// Friends bonus
+		{
+			iCapitalProductionTimes100 += GetFriendsCapitalProductionBonus(ePlayer);
+			iOtherCitiesProductionTimes100 += GetFriendsOtherCityProductionBonus(ePlayer);
+		}
+		if (bAllies)		// Allies bonus
+		{
+			iCapitalProductionTimes100 += GetAlliesCapitalProductionBonus(ePlayer);
+			iOtherCitiesProductionTimes100 += GetAlliesOtherCityProductionBonus(ePlayer);
+		}
+
+		if (!bAdd)		// Flip amount of we're taking bonuses away
+		{
+			iCapitalProductionTimes100 = -iCapitalProductionTimes100;
+			iOtherCitiesProductionTimes100 = -iOtherCitiesProductionTimes100;
+		}
+
+		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
+		GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+	}
+#endif
 
 	if(ePlayer == GC.getGame().getActivePlayer())
 	{
@@ -6917,6 +6998,92 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			}
 		}
 	}
+
+#ifdef NEW_CITY_STATES_TYPES
+	// SCIENTIFIC
+	else if(eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
+	{
+		// Friends
+		if(IsFriends(ePlayer))
+		{
+			int iOldScience = GetScienceFlatFriendshipBonus(ePlayer);
+			int iNewScience = GetScienceFlatFriendshipBonus(ePlayer, eNewEra);
+
+			if(iOldScience != iNewScience)
+			{
+				bSomethingChanged = true;
+			}
+		}
+
+		// Allies
+		if(IsAllies(ePlayer))
+		{
+			int iOldScience = GetScienceFlatFriendshipBonus(ePlayer);
+			int iNewScience = GetScienceFlatFriendshipBonus(ePlayer, eNewEra);
+
+			if(iOldScience != iNewScience)
+			{
+				bSomethingChanged = true;
+			}
+		}
+	}
+
+	// MANUFACTORY
+	if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+	{
+		// Friends
+		if (IsFriends(ePlayer))
+		{
+			int iOldProduction, iNewProduction;
+
+			// Capital
+			iOldProduction = GetFriendsCapitalProductionBonus(ePlayer);
+			iNewProduction = GetFriendsCapitalProductionBonus(ePlayer, eNewEra);
+
+			if (iOldProduction != iNewProduction)
+			{
+				bSomethingChanged = true;
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+			}
+
+			// Other Cities
+			iOldProduction = GetFriendsOtherCityProductionBonus(ePlayer);
+			iNewProduction = GetFriendsOtherCityProductionBonus(ePlayer, eNewEra);
+
+			if (iOldProduction != iNewProduction)
+			{
+				bSomethingChanged = true;
+				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+			}
+		}
+
+		// Allies
+		if (IsAllies(ePlayer))
+		{
+			int iOldProduction, iNewProduction;
+
+			// Capital
+			iOldProduction = GetAlliesCapitalProductionBonus(ePlayer);
+			iNewProduction = GetAlliesCapitalProductionBonus(ePlayer);
+
+			if (iOldProduction != iNewProduction)
+			{
+				bSomethingChanged = true;
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+			}
+
+			// Other Cities
+			iOldProduction = GetAlliesOtherCityProductionBonus(ePlayer);
+			iNewProduction = GetAlliesOtherCityProductionBonus(ePlayer);
+
+			if (iOldProduction != iNewProduction)
+			{
+				bSomethingChanged = true;
+				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+			}
+		}
+	}
+#endif
 
 	return bSomethingChanged;
 }
@@ -7847,6 +8014,257 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 
 	return iNumTurns / 100;
 }
+
+#ifdef NEW_CITY_STATES_TYPES
+// Flat science bonus when Friends with a minor
+int CvMinorCivAI::GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
+{
+	//antonjs: consider: here it was assumed that this CS is scientific type, which is nice for me prototyping, but later maybe add in a check for this
+	int iScienceBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if (eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+
+	// Industrial era or Later
+	if (eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += 8;
+	}
+
+	// Medieval era or later
+	else if (eCurrentEra >= eMedieval)
+	{
+		iScienceBonus += 4;
+	}
+
+	// Pre-Medieval
+	else
+	{
+		iScienceBonus += 2;
+	}
+
+	return iScienceBonus;
+}
+
+// Flat science bonus when Allies with a minor
+int CvMinorCivAI::GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
+{
+	//antonjs: consider: here it was assumed that this CS is scientific type, which is nice for me prototyping, but later maybe add in a check for this
+	int iScienceBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if (eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+
+	// Industrial era or Later
+	if (eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += 8;
+	}
+
+	// Medieval era or later
+	else if (eCurrentEra >= eMedieval)
+	{
+		iScienceBonus += 4;
+	}
+
+	// Pre-Medieval
+	else
+	{
+		iScienceBonus += 2;
+	}
+
+	return iScienceBonus;
+}
+
+/// Flat-rate science bonus
+int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
+
+	// Don't give a bonus to a minor civ player
+	if (ePlayer >= MAX_MAJOR_CIVS)
+		return 0;
+
+	// Only give a bonus if we are Scientific trait
+	if (GetTrait() != MINOR_CIV_TRAIT_SCIENTIFIC)
+		return 0;
+
+	int iAmount = 0;
+
+	if (IsAllies(ePlayer))
+		iAmount += GetScienceFlatAlliesBonus(ePlayer);
+
+	if (IsFriends(ePlayer))
+		iAmount += GetScienceFlatFriendshipBonus(ePlayer);
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iAmount *= (iModifier + 100);
+		iAmount /= 100;
+	}
+
+	return iAmount;
+}
+
+int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
+
+	int iAmount = 0;
+
+	iAmount += GetCurrentScienceFlatBonus(ePlayer);
+
+	return iAmount;
+}
+
+// Production bonus when Friends with a minor - additive with general city bonus
+int CvMinorCivAI::GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
+{
+	int iBonus;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if (eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+	// Medieval era or sooner
+	if (eCurrentEra < eRenaissance)
+		iBonus = 200;
+
+	// Renaissance era or later
+	else
+		iBonus = 200;
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iBonus *= (iModifier + 100);
+		iBonus /= 100;
+	}
+
+	return iBonus;
+}
+
+// Production bonus when Friends with a minor
+int CvMinorCivAI::GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
+{
+	int iBonus;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if (eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+	// Medieval era or sooner
+	if (eCurrentEra < eRenaissance)
+		iBonus = 0;
+
+	// Renaissance era or later
+	else
+		iBonus = 0;
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iBonus *= (iModifier + 100);
+		iBonus /= 100;
+	}
+
+	return iBonus;
+}
+
+// Production bonus when Allies with a minor - additive with general city bonus
+int CvMinorCivAI::GetAlliesCapitalProductionBonus(PlayerTypes ePlayer)
+{
+	int iBonus = 100;
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iBonus *= (iModifier + 100);
+		iBonus /= 100;
+	}
+
+	return iBonus;
+}
+
+// Production bonus when Allies with a minor
+int CvMinorCivAI::GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer)
+{
+	int iBonus = 100;
+
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iBonus *= (iModifier + 100);
+		iBonus /= 100;
+	}
+
+	return iBonus;
+}
+
+/// How much are we getting RIGHT NOW (usually 0)
+int CvMinorCivAI::GetCurrentCapitalProductionBonus(PlayerTypes ePlayer)
+{
+	// This guy isn't Maritime
+	if (GetTrait() != MINOR_CIV_TRAIT_MANUFACTORY)
+		return 0;
+
+	int iAmount = 0;
+
+	if (IsAllies(ePlayer))
+	{
+		iAmount += GetAlliesCapitalProductionBonus(ePlayer);
+		iAmount += GetAlliesOtherCityProductionBonus(ePlayer);
+	}
+
+	if (IsFriends(ePlayer))
+	{
+		iAmount += GetFriendsCapitalProductionBonus(ePlayer);
+		iAmount += GetFriendsOtherCityProductionBonus(ePlayer);
+	}
+
+	return iAmount;
+}
+
+/// How much are we getting RIGHT NOW (usually 0)
+int CvMinorCivAI::GetCurrentOtherCityProductionBonus(PlayerTypes ePlayer)
+{
+	// This guy isn't Maritime
+	if (GetTrait() != MINOR_CIV_TRAIT_MANUFACTORY)
+		return 0;
+
+	int iAmount = 0;
+
+	if (IsAllies(ePlayer))
+		iAmount += GetAlliesOtherCityProductionBonus(ePlayer);
+
+	if (IsFriends(ePlayer))
+		iAmount += GetFriendsOtherCityProductionBonus(ePlayer);
+
+	return iAmount;
+}
+#endif
 
 /// Has this minor been bought out by someone?
 bool CvMinorCivAI::IsBoughtOut() const
@@ -10006,6 +10424,83 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 			strDetailedInfo << iFaithBonusAmount;
 		}
 	}
+#ifdef NEW_CITY_STATES_TYPES
+	if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
+	{
+		int iScienceBonusAmount = 0;
+		if (bFriends)
+		{
+			iScienceBonusAmount += GetScienceFlatFriendshipBonus(ePlayer);
+		}
+		if (bAllies)
+		{
+			iScienceBonusAmount += GetScienceFlatAlliesBonus(ePlayer);
+		}
+		if (!bAdd)
+		{
+			iScienceBonusAmount = -iScienceBonusAmount;
+		}
+
+		if (bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_SCIENCE");
+			strDetailedInfo << iScienceBonusAmount;
+		}
+		else if (bFriends && bAdd)		// Now Friends
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_SCIENCE");
+			strDetailedInfo << iScienceBonusAmount;
+		}
+		else if (!bAdd)		// Bonus diminished (or removed)
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_SCIENCE");
+			strDetailedInfo << iScienceBonusAmount;
+		}
+	}
+	else if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+	{
+		int iCapitalProductionTimes100 = 0;
+		int iOtherCitiesProductionTimes100 = 0;
+
+		if (bFriends)	// Friends bonus
+		{
+			iCapitalProductionTimes100 += GetFriendsCapitalProductionBonus(ePlayer);
+			iOtherCitiesProductionTimes100 += GetFriendsOtherCityProductionBonus(ePlayer);
+		}
+		if (bAllies)		// Allies bonus
+		{
+			iCapitalProductionTimes100 += GetAlliesCapitalProductionBonus(ePlayer);
+			iOtherCitiesProductionTimes100 += GetAlliesOtherCityProductionBonus(ePlayer);
+		}
+
+		if (!bAdd)		// Flip amount of we're taking bonuses away
+		{
+			iCapitalProductionTimes100 = -iCapitalProductionTimes100;
+			iOtherCitiesProductionTimes100 = -iOtherCitiesProductionTimes100;
+		}
+
+		// Now that we've changed the gameplay, add together the two so the DISPLAY looks right
+		iCapitalProductionTimes100 += iOtherCitiesProductionTimes100;
+		float fCapitalProduction = float(iCapitalProductionTimes100) / 100;
+		float fOtherCitiesProduction = float(iOtherCitiesProductionTimes100) / 100;
+
+		if (bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MANUFACTORY");
+			strDetailedInfo << fCapitalProduction << fOtherCitiesProduction;
+		}
+		else if (bFriends && bAdd)		// Now Friends
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MANUFACTORY");
+			strDetailedInfo << fCapitalProduction << fOtherCitiesProduction;
+		}
+		else if (!bAdd)		// Bonus diminished (or removed)
+		{
+			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MANUFACTORY");
+			strDetailedInfo << fCapitalProduction << fOtherCitiesProduction;
+		}
+	}
+#endif
 
 	return strDetailedInfo.toUTF8();
 }

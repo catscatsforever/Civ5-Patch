@@ -317,6 +317,12 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 			table_insert( tips, L("TXT_KEY_CSTATE_FOOD_BONUS", capitalFoodBonus, otherCityFoodBonus) )
 		end
 
+		local capitalProductionBonus = minorPlayer:GetCurrentCapitalProductionBonus(majorPlayerID) / 100
+		local otherCityProductionBonus = minorPlayer:GetCurrentOtherCityProductionBonus(majorPlayerID) / 100
+		if capitalProductionBonus ~= 0 or otherCityProductionBonus ~= 0 then
+			table_insert( tips, L("TXT_KEY_CSTATE_PRODUCTION_BONUS", capitalProductionBonus, otherCityProductionBonus) )
+		end
+
 		local unitSpawnEstimate = minorPlayer:GetCurrentSpawnEstimate(majorPlayerID)
 		if unitSpawnEstimate ~= 0 then
 			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )

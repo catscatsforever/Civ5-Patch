@@ -1588,7 +1588,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ITR", ( g_activePlayer:GetScienceFromCitiesTimes100(false) - g_activePlayer:GetScienceFromCitiesTimes100(true) ) / 100 )
 
 		-- Science from Other Players
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
+		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", (g_activePlayer:GetScienceFromOtherPlayersTimes100() + g_activePlayer:GetSciencePerTurnFromMinorCivsTimes100()) / 100 )
 
 		-- Science from Religion
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RELIGION", g_activePlayer:GetSciencePerTurnFromReligionTimes100() / 100 )

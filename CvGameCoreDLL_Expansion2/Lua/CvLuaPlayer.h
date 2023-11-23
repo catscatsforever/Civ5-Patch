@@ -577,6 +577,10 @@ protected:
 	static int lGetMinorCivCurrentFaithBonus(lua_State* L);
 	static int lGetCurrentCapitalFoodBonus(lua_State* L);
 	static int lGetCurrentOtherCityFoodBonus(lua_State* L);
+#ifdef NEW_CITY_STATES_TYPES
+	static int lGetCurrentCapitalProductionBonus(lua_State* L);
+	static int lGetCurrentOtherCityProductionBonus(lua_State* L);
+#endif
 	static int lGetCurrentSpawnEstimate(lua_State* L);
 	static int lGetCurrentScienceFriendshipBonusTimes100(lua_State* L);
 	static int lIsPeaceBlocked(lua_State* L);
@@ -645,6 +649,9 @@ protected:
 	static int lGetScienceTimes100(lua_State* L);
 #ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 	static int lGetSciencePerTurnFromReligionTimes100(lua_State* L);
+#endif
+#ifdef NEW_CITY_STATES_TYPES
+	static int lGetSciencePerTurnFromMinorCivsTimes100(lua_State* L);
 #endif
 	static int lGetScienceFromCitiesTimes100(lua_State* L);
 	static int lGetScienceFromOtherPlayersTimes100(lua_State* L);

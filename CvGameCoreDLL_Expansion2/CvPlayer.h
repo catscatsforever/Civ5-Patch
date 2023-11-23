@@ -1147,6 +1147,11 @@ public:
 	int GetScience() const;
 	int GetScienceTimes100() const;
 
+#ifdef NEW_CITY_STATES_TYPES
+	int GetSciencePerTurnFromMinorCivsTimes100() const;
+	int GetSciencePerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+#endif
+
 #ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 	int GetSciencePerTurnFromReligionTimes100() const;
 #endif

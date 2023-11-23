@@ -18503,9 +18503,45 @@ int CvPlayer::GetScienceTimes100() const
 	iValue += GetSciencePerTurnFromReligionTimes100();
 #endif
 
+#ifdef NEW_CITY_STATES_TYPES
+	iValue += GetSciencePerTurnFromMinorCivsTimes100();
+#endif
+
 	return max(iValue, 0);
 }
 
+#ifdef NEW_CITY_STATES_TYPES
+//	--------------------------------------------------------------------------------
+/// Science per turn from all minor civs
+int CvPlayer::GetSciencePerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetSciencePerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+// Science per turn from a minor civ
+int CvPlayer::GetSciencePerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		// Includes flat bonus and any bonus from scientific buildings
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentScienceBonus(GetID());
+		iAmount *= 100;
+	}
+
+	return iAmount;
+}
+#endif
 
 #ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 //	--------------------------------------------------------------------------------

@@ -466,7 +466,8 @@ function ScienceTipHandler( control )
 	
 		-- Science from Other Players
 		local iScienceFromOtherPlayers = pPlayer:GetScienceFromOtherPlayersTimes100();
-		if (iScienceFromOtherPlayers ~= 0) then
+		local iSciencePerTurnFromMinorCivs = pPlayer:GetSciencePerTurnFromMinorCivsTimes100();
+		if (iScienceFromOtherPlayers + iSciencePerTurnFromMinorCivs ~= 0) then
 		
 			-- Add separator for non-initial entries
 			if (bFirstEntry) then
@@ -475,7 +476,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_MINORS", iScienceFromOtherPlayers / 100);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_MINORS", (iScienceFromOtherPlayers + iSciencePerTurnFromMinorCivs) / 100);
 		end
 	
 		-- Science from Happiness

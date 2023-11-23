@@ -332,6 +332,13 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_FOOD_BONUS", iCapitalFoodBonus, iOtherCityFoodBonus);
 		end
 		
+		local iCapitalProductionBonus = pMinor:GetCurrentCapitalProductionBonus(iMajor) / 100;
+		local iOtherCityProductionBonus = pMinor:GetCurrentOtherCityProductionBonus(iMajor) / 100;
+		if (iCapitalProductionBonus ~= 0 or iOtherCityProductionBonus ~= 0) then
+			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
+			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_PRODUCTION_BONUS", iCapitalProductionBonus, iOtherCityProductionBonus);
+		end
+		
 		local iCurrentSpawnEstimate = pMinor:GetCurrentSpawnEstimate(iMajor);
 		if (iCurrentSpawnEstimate ~= 0) then
 			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";

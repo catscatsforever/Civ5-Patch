@@ -460,6 +460,22 @@ public:
 	int GetSpawnBaseTurns(PlayerTypes ePlayer);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
+#ifdef NEW_CITY_STATES_TYPES
+	// Science bonuses
+	int GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetCurrentScienceFlatBonus(PlayerTypes ePlayer);
+	int GetCurrentScienceBonus(PlayerTypes ePlayer);
+
+	// Production bonuses
+	int GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer);
+	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer);
+	int GetCurrentCapitalProductionBonus(PlayerTypes ePlayer);
+	int GetCurrentOtherCityProductionBonus(PlayerTypes ePlayer);
+#endif
+
 	// Buyout by major civ (Austria UA)
 	bool IsBoughtOut() const;
 	PlayerTypes GetMajorBoughtOutBy() const;

@@ -589,6 +589,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentFaithBonus);
 	Method(GetCurrentCapitalFoodBonus);
 	Method(GetCurrentOtherCityFoodBonus);
+#ifdef NEW_CITY_STATES_TYPES
+	Method(GetCurrentCapitalProductionBonus);
+	Method(GetCurrentOtherCityProductionBonus);
+#endif
 	Method(GetCurrentSpawnEstimate);
 	Method(GetCurrentScienceFriendshipBonusTimes100);
 	Method(IsPeaceBlocked);
@@ -658,6 +662,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 	Method(GetSciencePerTurnFromReligionTimes100);
+#endif
+#ifdef NEW_CITY_STATES_TYPES
+	Method(GetSciencePerTurnFromMinorCivsTimes100);
 #endif
 	Method(GetScienceFromCitiesTimes100);
 	Method(GetScienceFromOtherPlayersTimes100);
@@ -6440,6 +6447,24 @@ int CvLuaPlayer::lGetCurrentOtherCityFoodBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentOtherCityFoodBonus(ePlayer));
 	return 1;
 }
+#ifdef NEW_CITY_STATES_TYPES
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCurrentCapitalProductionBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCapitalProductionBonus(ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCurrentOtherCityProductionBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentOtherCityProductionBonus(ePlayer));
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCurrentSpawnEstimate(lua_State* L)
 {
@@ -6882,6 +6907,13 @@ int CvLuaPlayer::lGetScienceTimes100(lua_State* L)
 int CvLuaPlayer::lGetSciencePerTurnFromReligionTimes100(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromReligionTimes100);
+}
+#endif
+#ifdef NEW_CITY_STATES_TYPES
+//int GetSciencePerTurnFromMinorCivsTimes100();
+int CvLuaPlayer::lGetSciencePerTurnFromMinorCivsTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivsTimes100);
 }
 #endif
 //int GetScienceFromCitiesTimes100();

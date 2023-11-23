@@ -6267,7 +6267,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				PromotionTypes eEliteForces =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_COMBAT_BONUS", true /*bHideAssert*/);
 				changeFreePromotionCount(eEliteForces, iChange);
 			}
-			
 		}
 #endif
 #ifdef CITY_RANGE_MODIFIER

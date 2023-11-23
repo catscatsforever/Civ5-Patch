@@ -3867,7 +3867,19 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	////////////////////////////////////
 	else
 	{
+#ifdef NEW_CITY_STATES_TYPES
+		// Minor is scientific
+		if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_SCIENTIFIC) 
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += 5;
+		}
+		else
+		{
+			bCheckIfGoodWarTarget = true;
+		}
+#else
 		bCheckIfGoodWarTarget = true;
+#endif
 	}
 
 	// See if this minor is on same continent as a major power we want to attack
@@ -12111,6 +12123,12 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iValue += -70; //antonjs: todo: xml
 					}
+#ifdef NEW_CITY_STATES_TYPES
+					else if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC && IsGoingForSpaceshipVictory())
+					{
+						iValue += -70; //antonjs: todo: xml
+					}
+#endif
 					else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 					{
 						if(bNeedHappiness)
