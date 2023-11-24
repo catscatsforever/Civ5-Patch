@@ -85,6 +85,14 @@ g_WorldReligionSortOptions = {
 		SortType = "numeric",
 		CurrentDirection = nil,
 	},
+	{
+		Button = Controls.WRSortByNumFollowers,
+		ImageControl = Controls.WRSortByNumFollowersImage,
+		Column = "NumFollowers",
+		DefaultDirection = "desc",
+		SortType = "numeric",
+		CurrentDirection = nil,
+	},
 };
 
 
@@ -466,6 +474,7 @@ function RefreshWorldReligions()
 					HolyCity= Locale.Lookup(holyCityName),
 					Founder = Locale.Lookup(civName),
 					NumCities = Game.GetNumCitiesFollowing(eReligion),
+					NumFollowers = Game.GetNumFollowers(eReligion),
 				});
 			end
 		end
@@ -483,6 +492,7 @@ function RefreshWorldReligions()
 			entry.HolyCityName:SetText(v.HolyCity);
 			entry.Founder:SetText(v.Founder);
 			entry.NumberOfCities:SetText(v.NumCities);
+			entry.NumberOfFollowers:SetText(v.NumFollowers);
 			IconHookup(v.ReligionIconIndex, 48, v.ReligionIconAtlas, entry.WorldReligionIcon);
 			CivIconHookup(v.FounderID, 45, entry.FounderIcon, entry.FounderIconBG, entry.FounderIconShadow, true, true );
 		end

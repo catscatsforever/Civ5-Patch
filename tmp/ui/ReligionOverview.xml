@@ -24,14 +24,14 @@
   <Instance Name="WorldReligionInstance">
     <Box Size="930,30" Color="0,0,0,0" ID="Base">
       <Stack StackGrowth="Right">
-        <Box Size="239,30" Color="0,0,0,0">
+        <Box Size="199,30" Color="0,0,0,0">
           <Image Anchor="L,C" Size="48,48" Offset="0,0" Texture="assets/DLC/Expansion/UI/Art/Icons/ReligiousSymbolsWhite48_Expansion.dds" ID="WorldReligionIcon"/>
           <Label Anchor="L,C" Offset="55,0" Font="TwCenMT18" TruncateWidth="180" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="ReligionName" />
         </Box>
-        <Box Size="237,30" Color="0,0,0,0">
+        <Box Size="197,30" Color="0,0,0,0">
           <Label Anchor="C,C" Font="TwCenMT18" TruncateWidth="230" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HolyCityName" />
         </Box>
-        <Box Size="274,30" Color="0,0,0,0">
+        <Box Size="234,30" Color="0,0,0,0">
           <Box Size="45,45" Anchor="L,C" Color="0,0,0,0">
             <Image ID="FounderIconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
             <Image ID="FounderIconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
@@ -41,8 +41,11 @@
           <Label Anchor="L,C" Offset="50,0" Font="TwCenMT18" TruncateWidth="224" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Founder" />
 
         </Box>
-        <Box Size="180,30" Color="0,0,0,0">
+        <Box Size="150,30" Color="0,0,0,0">
           <Label Anchor="C,C" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NumberOfCities" />
+        </Box>
+        <Box Size="150,30" Color="0,0,0,0">
+          <Label Anchor="C,C" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NumberOfFollowers" />
         </Box>
       </Stack>
     </Box>
@@ -220,24 +223,29 @@
               <Stack StackGrowth="Bottom" Padding="10" ID="WorldReligionsStack">
                 <Box Size="935,23" Color="0,0,0,150">
                   <Stack Anchor="L,T" StackGrowth="Right">
-                    <Box Anchor="L,T" Color="0,0,0,0"  Size="239,24" >
+                    <Box Anchor="L,T" Color="0,0,0,0"  Size="199,24" >
                       <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_RELIGION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByReligion" Hidden="0" >
                         <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByReligionImage" />
                       </TextButton>
                     </Box>
-                    <Box Anchor="L,T" Color="0,0,0,0" Size="237,24" >
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="197,24" >
                       <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_HOLY_CITY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByHolyCity" Hidden="0" >
                         <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByHolyCityImage" />
                       </TextButton>
                     </Box>
-                    <Box Anchor="L,T" Color="0,0,0,0" Size="237,24" >
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="234,24" >
                       <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_FOUNDER" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByFounder" Hidden="0" >
                         <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByFounderImage" />
                       </TextButton>
                     </Box>
-                    <Box Anchor="L,T" Color="0,0,0,0" Size="237,24" >
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="150,24" >
                       <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_NUMBER_OF_CITIES" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByNumCities" Hidden="0" >
                         <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByNumCitiesImage" />
+                      </TextButton>
+                    </Box>
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="150,24" >
+                      <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_NUMBER_OF_FOLLOWERS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByNumFollowers" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByNumFollowersImage" />
                       </TextButton>
                     </Box>
                   </Stack>
