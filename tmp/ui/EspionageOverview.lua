@@ -55,6 +55,10 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 0},
 		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
+	TXT_KEY_SPY_STATE_SCHMOOZING = {
+		IconOffset = {x = 45, y = 0},
+		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
+	},
 }
 	
 -- Agent text color based on agent activity.
@@ -460,6 +464,8 @@ function RelocateAgent(agentID, city)
 
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_DEAD")) then
 		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", agent.Rank, agent.Name);
+	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_SCHMOOZING")) then
+		strActivityTT = Locale.Lookup("TXT_KEY_SPY_STATE_SCHMOOZING_TT", agent.Rank, agent.Name, city:GetName());	
 	else
 		print("falling out");
 		print(agent.AgentActivity);

@@ -899,11 +899,36 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			pCityEspionage->ResetProgress(ePlayer);
 			pSpy->m_eSpyState = SPY_STATE_SCHMOOZE;
+#ifdef NEW_DIPLOMATS_MISSIONS
+			int iPotentialRate = CalcPerTurn(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
+			int iGoal = CalcRequired(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
+			pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
+			pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
+			pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
+#endif
 		}
 		break;
 	case SPY_STATE_SCHMOOZE:
 		if(pSpy->m_eSpyState != SPY_STATE_DEAD)
 		{
+#ifdef NEW_DIPLOMATS_MISSIONS
+			pCityEspionage->Process(ePlayer);
+			if (pCityEspionage->HasReachedGoal(ePlayer))
+			{
+				int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
+				pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+				LevelUpSpy(uiSpyIndex);
+				iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
+				pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+				pCityEspionage->ResetProgress(ePlayer);
+				pSpy->m_eSpyState = SPY_STATE_SCHMOOZE;
+				int iPotentialRate = CalcPerTurn(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
+				int iGoal = CalcRequired(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
+				pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
+				pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
+				pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
+			}
+#endif
 			UncoverIntrigue(uiSpyIndex);
 		}
 		break;
@@ -950,7 +975,12 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 	// if we just established surveillance in the city, turn the lights on
 	if(HasEstablishedSurveillance(uiSpyIndex) && !bHadSurveillance)
 	{
+#ifdef NEW_DIPLOMATS_MISSIONS
+		int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
+		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+#else
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 	}
 }
 
@@ -1455,7 +1485,12 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	// turn off visibility of city
 	if(bHadSurveillance)
 	{
+#ifdef NEW_DIPLOMATS_MISSIONS
+		int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
+		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+#else
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 	}
 
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;
@@ -1600,7 +1635,11 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 	break;
 	case SPY_STATE_SCHMOOZE:
 	{
+#ifdef NEW_DIPLOMATS_MISSIONS
+		return 1;
+#else
 		return 0;
+#endif
 	}
 	break;
 	}
@@ -1664,6 +1703,26 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 	{
 		return (iSpyTurnsToMakeIntroductions * GC.getGame().getGameSpeedInfo().getLeaguePercent()) / 100;
 	}
+#ifdef NEW_DIPLOMATS_MISSIONS
+	case SPY_STATE_SCHMOOZE:
+	{
+		if (pCity)
+		{
+			if (m_aSpyList[iSpyIndex].m_eRank == SPY_RANK_RECRUIT)
+			{
+				return ESPIONAGE_SCHMOOZE_LEVEL_UP_BASE_COST - pCity->getPopulation();
+			}
+			else if (m_aSpyList[iSpyIndex].m_eRank == SPY_RANK_AGENT)
+			{
+				return ESPIONAGE_SCHMOOZE_LEVEL_UP_BASE_COST + 10 - pCity->getPopulation();
+			}
+			/*else if (m_aSpyList[iSpyIndex].m_eRank == SPY_RANK_SPECIAL_AGENT)
+			{
+				return 0;
+			}*/
+		}
+	}
+#endif
 	break;
 	}
 
@@ -1776,6 +1835,37 @@ bool CvPlayerEspionage::IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer)
 
 	return false;
 }
+
+#ifdef NEW_DIPLOMATS_MISSIONS
+int CvPlayerEspionage::SurveillanceSightRange(CvCity* pCity)
+{
+	CvAssertMsg(pCity, "pCity is null");
+	if (!pCity)
+	{
+		return -1;
+	}
+
+	int iX = pCity->getX();
+	int iY = pCity->getY();
+
+	for (uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
+	{
+		if (m_aSpyList[uiSpy].m_iCityX == iX && m_aSpyList[uiSpy].m_iCityY == iY && HasEstablishedSurveillance(uiSpy))
+		{
+			if (m_aSpyList[uiSpy].m_bIsDiplomat)
+			{
+					return m_aSpyList[uiSpy].m_eRank - pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)) + 1;
+			}
+			else
+			{
+				return GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE();
+			}
+		}
+	}
+
+	return -1;
+}
+#endif
 
 bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
 {
@@ -2266,9 +2356,29 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 		break;
 	case SPY_STATE_COUNTER_INTEL:
 	case SPY_STATE_SCHMOOZE:
+#ifdef NEW_DIPLOMATS_MISSIONS
+		pCity = GetCityWithSpy(uiSpyIndex);
+		CvAssertMsg(pCity, "GetCityWithSpy returned null. Has the wrong task");
+		if (!pCity)
+		{
+			return -1;
+		}
+		pCityEspionage = pCity->GetCityEspionage();
+		iAmountLeft = pCityEspionage->m_aiGoal[ePlayer] - pCityEspionage->m_aiAmount[ePlayer];
+		if (pCityEspionage->m_aiRate[ePlayer] != 0)
+		{
+			iTurnsLeft = iAmountLeft / pCityEspionage->m_aiRate[ePlayer];
+			if (iAmountLeft % pCityEspionage->m_aiRate[ePlayer] > 0)
+			{
+				iTurnsLeft++;
+			}
+		}
+		return iTurnsLeft;
+#else
 		// no end time
 		return -1;
 		break;
+#endif
 	case SPY_STATE_DEAD:
 		// no end time
 		return -1;
@@ -2324,9 +2434,23 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		break;
 	case SPY_STATE_COUNTER_INTEL:
 	case SPY_STATE_SCHMOOZE:
+#ifdef NEW_DIPLOMATS_MISSIONS
+		pCity = GetCityWithSpy(uiSpyIndex);
+		if (pCity)
+		{
+			pCityEspionage = pCity->GetCityEspionage();
+			CvAssertMsg(pCityEspionage->m_aiGoal[ePlayer] != 0, "Trying to div by zero!");
+			if (pCityEspionage->m_aiGoal[ePlayer] != 0)
+			{
+				return (pCityEspionage->m_aiAmount[ePlayer] * 100) / pCityEspionage->m_aiGoal[ePlayer];
+			}
+	}
+		return -1;
+#else
 		// no end time
 		return -1;
 		break;
+#endif
 	case SPY_STATE_DEAD:
 		// no end time
 		return -1;

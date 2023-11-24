@@ -162,6 +162,9 @@ public:
 	bool HasEstablishedSurveillance(uint uiSpyIndex);
 	bool HasEstablishedSurveillanceInCity(CvCity* pCity);
 	bool IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer);
+#ifdef NEW_DIPLOMATS_MISSIONS
+	int SurveillanceSightRange(CvCity* pCity);
+#endif
 
 	bool IsDiplomat (uint uiSpyIndex);
 	bool IsSchmoozing (uint uiSpyIndex);

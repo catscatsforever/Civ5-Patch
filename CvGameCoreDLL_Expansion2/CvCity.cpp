@@ -5995,6 +5995,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	CvTeam& owningTeam = GET_TEAM(getTeam());
 	CvCivilizationInfo& thisCiv = getCivilizationInfo();
 
+#ifdef NEW_DIPLOMATS_MISSIONS
+	if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true))
+	{
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			int iSurveillanceSightRange = GET_PLAYER((PlayerTypes)iI).GetEspionage()->SurveillanceSightRange(this);
+			if (iSurveillanceSightRange > 0)
+			{
+				plot()->changeAdjacentSight(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange + 1, false, NO_INVISIBLE, NO_DIRECTION, false);
+				plot()->changeAdjacentSight(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+			}
+		}
+	}
+#endif
+
 	if(!(owningTeam.isObsoleteBuilding(eBuilding)) || bObsolete)
 	{
 		// One-shot items

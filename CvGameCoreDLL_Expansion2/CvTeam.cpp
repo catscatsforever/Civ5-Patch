@@ -1141,8 +1141,10 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
 		CancelResearchAgreement(eTeam);
 		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
+#ifndef NEW_DIPLOMATS_MISSIONS
 		EvacuateDiplomatsAtTeam(eTeam);
 		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
+#endif
 	}
 
 	// Bump Units out of places they shouldn't be
