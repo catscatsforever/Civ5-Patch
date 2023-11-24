@@ -109,8 +109,10 @@ REM -------------------------------------------------
 set text="-- modified by bc1 from 1.0.3.144 brave new world code"
 FIND %text% "%cd%\UI_bc1\CityStatePopup\CityStateDiploPopup.lua" && (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityStateDiploPopup.lua" "%cd%\%patchfolder%\UI\CityStateDiploPopup.lua"
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\CityStateDiploPopup.xml" "%cd%\%patchfolder%\UI\CityStateDiploPopup.xml"
 ) || (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityStateDiploPopup.lua" "%cd%\%patchfolder%\UI\CityStateDiploPopup.lua"
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityStateDiploPopup.xml" "%cd%\%patchfolder%\UI\CityStateDiploPopup.xml"
 )
 REM -------------------------------------------------
 set text="-- coded by bc1 from 1.0.3.276 brave new world code"
