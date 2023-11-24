@@ -7000,7 +7000,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(kGoodyInfo.isTech())
 	{
 #ifdef FLAT_SCIENCE_FROM_TECH_RUIN
-		int iValue = 45;
+		int iValue = 38;
 		iValue *= GC.getGame().getGameSpeedInfo().getResearchPercent();
 		iValue /= 100;
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
