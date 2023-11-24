@@ -525,7 +525,7 @@
 ///
 #define DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 ///
-// #define NO_FAITH_FROM_MEETING_CS
+#define NO_FAITH_FROM_MEETING_CS
 ///
 #define PEACE_BLOCKED_WITH_MINORS
 // coup chances now use base influence instead of effective influence (which would be -60 during war)
