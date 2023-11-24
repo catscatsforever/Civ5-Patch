@@ -1021,7 +1021,6 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #ifdef ENHANCED_GRAPHS
 	// -8 -- increment num times opened demographics
 	if (iUnitID == -8) {
-		SLOG("DEMO OPENED");
 		GET_PLAYER(ePlayer).ChangeNumTimesOpenedDemographics(1);
 	}
 	else
