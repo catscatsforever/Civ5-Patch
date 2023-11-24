@@ -8927,6 +8927,20 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			sFactors += strNegativeFactor.toUTF8();
 		}
 	}
+#ifdef NEW_CITY_STATES_TYPES
+	if (GetTrait() == MINOR_CIV_TRAIT_MANUFACTORY)
+	{
+		int iManufactoryScore = -10;
+		iScore += iManufactoryScore;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iManufactoryScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MANUFACTORY";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
+#endif
 
 	if (sTooltipSink != NULL)
 	{
