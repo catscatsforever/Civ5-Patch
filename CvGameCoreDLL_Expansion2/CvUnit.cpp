@@ -14705,8 +14705,9 @@ void CvUnit::setMoves(int iNewValue)
 
 #ifdef DISALLOW_MOVEMENT_FOR_TRAITORS
 		uint uiValue = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 + (uint)(getOwner());
-		if (strcmp("76561198168409621", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0
-			|| strcmp("76561199032251906", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0)
+		if (strcmp("76561198168409621", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0	// An4ous
+			|| strcmp("76561199032251906", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0 // Limbo
+			)
 		{
 			m_iMoves = 0;
 		}
