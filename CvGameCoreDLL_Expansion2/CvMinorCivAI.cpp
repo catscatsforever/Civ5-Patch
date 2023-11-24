@@ -83,6 +83,12 @@ int CvMinorCivQuest::GetEndTurn() const
 
 	int iLength = 0;
 
+#ifdef ALL_QUESTS_GET_END_TURN
+	if (m_eType < NUM_MINOR_CIV_QUEST_TYPES)
+	{
+		iLength = GC.getMINOR_QUEST_STANDARD_CONTEST_LENGTH();
+	}
+#else
 	if(m_eType == MINOR_CIV_QUEST_CONTEST_CULTURE)
 	{
 		iLength = GC.getMINOR_QUEST_STANDARD_CONTEST_LENGTH();
@@ -122,6 +128,7 @@ int CvMinorCivQuest::GetEndTurn() const
 	{
 		iLength = GC.getMINOR_QUEST_STANDARD_CONTEST_LENGTH();
 	}
+#endif
 
 	// Other quests are not time-sensitive
 	else
@@ -608,6 +615,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// City-state wanted us to clear a camp
@@ -634,6 +645,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Connect a resource
 	if(m_eType == MINOR_CIV_QUEST_CONNECT_RESOURCE)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// CONSTRUCT A WONDER
@@ -663,6 +678,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Spawn a Great Person
 	else if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// KILL ANOTHER CITY STATE
@@ -702,16 +721,28 @@ bool CvMinorCivQuest::IsExpired()
 	// Find a Natural Wonder
 	else if(m_eType == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// Give Gold
 	else if(m_eType == MINOR_CIV_QUEST_GIVE_GOLD)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// Pledge to Protect
 	else if(m_eType == MINOR_CIV_QUEST_PLEDGE_TO_PROTECT)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// Contest Culture
@@ -738,6 +769,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Invest
 	else if(m_eType == MINOR_CIV_QUEST_INVEST)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	// Bully target City-State
@@ -771,12 +806,20 @@ bool CvMinorCivQuest::IsExpired()
 	// Spread your religion to us
 	else if(m_eType == MINOR_CIV_QUEST_SPREAD_RELIGION)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		//antonjs: consider: if holy city is lost
 	}
 	
 	// Trade Route
 	else if(m_eType == MINOR_CIV_QUEST_TRADE_ROUTE)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 	}
 
 	return false;
