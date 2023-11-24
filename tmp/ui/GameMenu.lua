@@ -170,6 +170,7 @@ function OnShowHide( isHide, isInit )
 	
 	local bCanRetire = (Game and not isTutorialOrMultiplayer and Game.CanDoControl(ControlTypes.CONTROL_RETIRE));
 	local bShowRetire = Game and (not isTutorialOrMultiplayer) and (Game.GetGameTurn() > startTurn);
+	bShowRetire = false;
 	
 	local bCanRestart = (Game and not isTutorialOrMultiplayer and not isScenario and Game.CanDoControl(ControlTypes.CONTROL_RESTART_GAME));
 	

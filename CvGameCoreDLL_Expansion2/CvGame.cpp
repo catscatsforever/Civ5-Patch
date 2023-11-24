@@ -3465,7 +3465,7 @@ bool CvGame::canDoControl(ControlTypes eControl)
 
 	case CONTROL_RESTART_GAME:
 		{
-			if(!isGameMultiPlayer() && getGameTurn() == getStartTurn())
+			if(!isGameMultiPlayer()/* && getGameTurn() == getStartTurn()*/)
 			{
 				return true;
 			}
