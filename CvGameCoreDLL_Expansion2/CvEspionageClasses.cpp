@@ -1296,6 +1296,14 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 		return false;
 	}
 
+#ifdef NEW_DIPLOMATS_MISSIONS
+	// check to see if the city finished the Great Firewall
+	if (pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_GREAT_FIREWALL", true)) > 0)
+	{
+		return false;
+	}
+#endif
+
 	return true;
 }
 

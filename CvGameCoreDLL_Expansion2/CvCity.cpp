@@ -6008,6 +6008,49 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 	}
+	if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_GREAT_FIREWALL", true))
+	{
+		PlayerTypes ePlayer1 = getOwner();
+		for (int iPlayer2 = 0; iPlayer2 < MAX_MAJOR_CIVS; iPlayer2++)
+		{
+			PlayerTypes ePlayer2 = (PlayerTypes)iPlayer2;
+			if (GET_PLAYER(ePlayer2).getTeam() == GET_PLAYER(ePlayer1).getTeam())
+			{
+				continue;
+			}
+
+			int iSpyIndex = GET_PLAYER(ePlayer1).GetEspionage()->GetSpyIndexInCity(this);
+			if (iSpyIndex != -1)
+			{
+				CvNotifications* pNotifications = GET_PLAYER(ePlayer1).GetNotifications();
+				if (pNotifications)
+				{
+					CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
+					int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
+					CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
+					if (GET_PLAYER(ePlayer1).GetEspionage()->IsMyDiplomatVisitingThem(ePlayer2, true))
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_FIREWALL");
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_FIREWALL_TT");
+						strNotification << pEspionage->GetSpyRankName(eSpyRank);
+						strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+						strNotification << this->getNameKey();
+						pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+					else
+					{
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_FIREWALL");
+						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_FIREWALL_TT");
+						strNotification << pEspionage->GetSpyRankName(eSpyRank);
+						strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+						strNotification << this->getNameKey();
+						pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
+				}
+				GET_PLAYER(ePlayer1).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
+			}
+		}
+	}
 #endif
 
 	if(!(owningTeam.isObsoleteBuilding(eBuilding)) || bObsolete)
