@@ -3442,9 +3442,64 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		int iWonderVotes = GET_PLAYER(ePlayer).GetExtraLeagueVotes();
 		iVotes += iWonderVotes;
 
+#ifdef VOTES_FOR_MOST_RELIGION_FOLLOWERS
+		int iWorldReligionVotes = 0;
+		EraTypes eGameEra = LeagueHelpers::GetGameEraForTrigger();
+		if (eGameEra > (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+		{
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			int iMostFollowers = 0;
+			int iSecondMostFollowers = 0;
+			ReligionTypes eFoundedReligion = NO_RELIGION;
+			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				PlayerTypes loopPlayer = (PlayerTypes)iI;
+				if (GET_PLAYER(loopPlayer).isAlive() && GET_PLAYER(loopPlayer).isHuman())
+				{
+					eFoundedReligion = pReligions->GetFounderBenefitsReligion(loopPlayer);
+					if (eFoundedReligion > RELIGION_PANTHEON)
+					{
+						if (iMostFollowers == iSecondMostFollowers)
+						{
+							if (pReligions->GetNumFollowers(eFoundedReligion) > iMostFollowers)
+							{
+								iMostFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+							}
+						}
+						else
+						{
+							if (pReligions->GetNumFollowers(eFoundedReligion) >= iMostFollowers)
+							{
+								iSecondMostFollowers = iMostFollowers;
+								iMostFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+							}
+							else if (pReligions->GetNumFollowers(eFoundedReligion) > iSecondMostFollowers)
+							{
+								iSecondMostFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+							}
+						}
+					}
+				}
+			}
+
+			eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+			if (eFoundedReligion > RELIGION_PANTHEON)
+			{
+				if (pReligions->GetNumFollowers(eFoundedReligion) == iMostFollowers)
+				{
+					iWorldReligionVotes = 2;
+				}
+				else if (pReligions->GetNumFollowers(eFoundedReligion) == iSecondMostFollowers && iMostFollowers > iSecondMostFollowers)
+				{
+					iWorldReligionVotes = 1;
+				}
+			}
+		}
+#else
 		// World Religion
 		int iWorldReligionVotes = GetExtraVotesForFollowingReligion(ePlayer);
 		iVotes += iWorldReligionVotes;
+#endif
 
 		// World Ideology
 		int iWorldIdeologyVotes = GetExtraVotesForFollowingIdeology(ePlayer);
@@ -3497,16 +3552,33 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_POLICY_VOTES");
-				// sTemp << iWonderVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
+#ifdef VOTES_FOR_MOST_RELIGION_FOLLOWERS
+			if (iWorldReligionVotes > 0)
+			{
+				if (iWorldReligionVotes == 2)
+				{
+					Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MOST_RELIGION_VOTES");
+					sTemp << iWorldReligionVotes;
+					pMember->sVoteSources += sTemp.toUTF8();
+				}
+				else
+				{
+					Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_SECOND_MOST_RELIGION_VOTES");
+					sTemp << iWorldReligionVotes;
+					pMember->sVoteSources += sTemp.toUTF8();
+				}
+			}
+#else
 			if (iWorldReligionVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_WORLD_RELIGION_VOTES");
 				sTemp << iWorldReligionVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
+#endif
 			if (iWorldIdeologyVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_WORLD_IDEOLOGY_VOTES");
