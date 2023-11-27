@@ -538,6 +538,12 @@
 #define WORKER_BULLY_RESRICTION
 ///
 #define NEW_CITY_STATES_TYPES
+// New City States pseudo-enums
+#define MINOR_CIV_TRAIT_SCIENTIFIC 5
+#define MINOR_CIV_TRAIT_MANUFACTORY 6
+// IMPORTANT
+// Must be defined only ONCE and account for all MinorCivTraitTypes additions
+#define NUM_MINOR_CIV_TRAIT_TYPES 7
 ///
 #define ALL_QUESTS_GET_END_TURN
 /*CITY-STATES CHANGES END*/
