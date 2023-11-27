@@ -247,14 +247,6 @@ void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCity
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCityID, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
-	vArgs.push_back(eUnitType);
-	vArgs.push_back(eBuildingType);
-	vArgs.push_back(eProjectType);
-	GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchase, ePlayer, vArgs);
-#endif
 	ResponseCityPurchase(ePlayer, iCityID, eUnitType, eBuildingType, eProjectType, NO_YIELD);
 }
 //------------------------------------------------------------------------------
@@ -267,7 +259,18 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 	vArgs.push_back(eBuildingType);
 	vArgs.push_back(eProjectType);
 	vArgs.push_back(ePurchaseYield);
-	GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchase, ePlayer, vArgs);
+	if (eUnitType != NO_UNIT)
+	{
+		GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchaseUnit, ePlayer, vArgs);
+	}
+	else if (eBuildingType != NO_BUILDING)
+	{
+		GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchaseBuilding, ePlayer, vArgs);
+	}
+	else
+	{
+		GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchase, ePlayer, vArgs);
+	}
 #endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -531,19 +534,10 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(eReligion);
-	vArgs.push_back(eBelief1);
-	vArgs.push_back(eBelief2);
-	vArgs.push_back(iCityX);
-	vArgs.push_back(iCityY);
-	CvString StrArg = szCustomName;
-	GC.getGame().addReplayEvent(REPLAYEVENT_EnhanceReligion, ePlayer, vArgs, StrArg);
-#endif
 	CvGame& kGame(GC.getGame());
 #ifdef REPLAY_MESSAGE_EXTENDED
 	// -1 -- adds chat message to replay
+	// goes to Replay Messages instead of Replay Events
 	if (eReligion == -1)
 	{
 		CvString strText = szCustomName;
@@ -554,6 +548,16 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 	}
 	else
 	{
+#endif
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(eReligion);
+		vArgs.push_back(eBelief1);
+		vArgs.push_back(eBelief2);
+		vArgs.push_back(iCityX);
+		vArgs.push_back(iCityY);
+		CvString StrArg = szCustomName;
+		GC.getGame().addReplayEvent(REPLAYEVENT_EnhanceReligion, ePlayer, vArgs, StrArg);
 #endif
 		CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
@@ -716,6 +720,7 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 	std::vector<int> vArgs;
 	vArgs.push_back(eLeague);
 	vArgs.push_back(eResolution);
+	vArgs.push_back(iChoice);
 	GC.getGame().addReplayEvent(REPLAYEVENT_LeagueProposeEnact, eProposer, vArgs);
 #endif
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
@@ -934,12 +939,6 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes eMinor, int iUnitID)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(eMinor);
-	vArgs.push_back(iUnitID);
-	GC.getGame().addReplayEvent(REPLAYEVENT_GiftUnit, ePlayer, vArgs);
-#endif
 #ifdef MP_PLAYERS_VOTING_SYSTEM
 	// -2 -- irr
 	// -3 -- cc
@@ -948,23 +947,43 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	// -6 -- vote no
 	CvGame& game = GC.getGame();
 	CvMPVotingSystem* pkMPVotingSystem = game.GetMPVotingSystem();
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(eMinor);
+	vArgs.push_back(iUnitID);
+#endif
 	switch (iUnitID) {
 	case -2:
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalIrr, ePlayer, vArgs);
+#endif
 		game.GetMPVotingSystem()->AddProposal(PROPOSAL_IRR, ePlayer, ePlayer);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(ePlayer).getName()).GetCString());
 		return;
 	case -3:
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalCc, ePlayer, vArgs);
+#endif
 		pkMPVotingSystem->AddProposal(PROPOSAL_CC, ePlayer, eMinor);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(ePlayer).getName(), GET_PLAYER(eMinor).getName()).GetCString());
 		return;
 	case -4:
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalScrap, ePlayer, vArgs);
+#endif
 		pkMPVotingSystem->AddProposal(PROPOSAL_SCRAP, ePlayer, NO_PLAYER);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(ePlayer).getName()).GetCString());
 		return;
 	case -5:
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalYes, ePlayer, vArgs);
+#endif
 		pkMPVotingSystem->DoVote((int)eMinor, ePlayer, true);
 		return;
 	case -6:
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalNo, ePlayer, vArgs);
+#endif
 		pkMPVotingSystem->DoVote((int)eMinor, ePlayer, false);
 		return;
 	default:
@@ -974,6 +993,9 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #ifdef TURN_TIMER_RESET_BUTTON
 	// here we intercept response, when UnitID equals -1 we agree to reset timer
 	if (iUnitID == -1) {
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_ResetTimer, ePlayer, vArgs);
+#endif
 		GC.getGame().resetTurnTimer(true);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_TIMER_RESET", GET_PLAYER(ePlayer).getName()).GetCString());
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -989,6 +1011,9 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	if (iUnitID == -7) {
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_PauseTimer, ePlayer, vArgs);
+#endif
 		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if(!GC.getGame().m_bIsPaused)
@@ -1021,12 +1046,18 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #ifdef ENHANCED_GRAPHS
 	// -8 -- increment num times opened demographics
 	if (iUnitID == -8) {
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_OpenDemoScreen, ePlayer, vArgs);
+#endif
 		GET_PLAYER(ePlayer).ChangeNumTimesOpenedDemographics(1);
 	}
 	else
 #endif
 #if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(ENHANCED_GRAPHS)
 	{
+#endif
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_GiftUnit, ePlayer, vArgs);
 #endif
 		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
@@ -1137,10 +1168,10 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 {
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
+	vArgs.push_back(eFromPlayer);
 	vArgs.push_back(eToPlayer);
-	vArgs.push_back(eActBy);
 	vArgs.push_back(bAccepted);
-	GC.getGame().addReplayEvent(REPLAYEVENT_PlayerDealFinalized, eFromPlayer, vArgs);
+	GC.getGame().addReplayEvent(REPLAYEVENT_PlayerDealFinalized, eActBy, vArgs);
 #endif
 	CvGame& game = GC.getGame();
 	PlayerTypes eActivePlayer = game.getActivePlayer();
@@ -1429,6 +1460,7 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	vArgs.push_back(eTech);
 	vArgs.push_back(iDiscover);
 	vArgs.push_back(bShift);
+	vArgs.push_back(NO_PLAYER);
 	GC.getGame().addReplayEvent(REPLAYEVENT_Research, ePlayer, vArgs);
 #endif
 	ResponseResearch(ePlayer, eTech, iDiscover, NO_PLAYER, bShift);
@@ -1436,20 +1468,20 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, PlayerTypes ePlayerToStealFrom, bool bShift)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(eTech);
-	vArgs.push_back(iDiscover);
-	vArgs.push_back(bShift);
-	vArgs.push_back(ePlayerToStealFrom);
-	GC.getGame().addReplayEvent(REPLAYEVENT_Research, ePlayer, vArgs);
-#endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 
 	// Free tech
 	if(iDiscover > 0)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(eTech);
+		vArgs.push_back(iDiscover);
+		vArgs.push_back(bShift);
+		vArgs.push_back(ePlayerToStealFrom);
+		GC.getGame().addReplayEvent(REPLAYEVENT_FreeTech, ePlayer, vArgs);
+#endif
 		// Make sure we can research this tech for free
 		if(kPlayer.GetPlayerTechs()->CanResearchForFree(eTech))
 		{
@@ -1468,6 +1500,14 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	// Stealing tech
 	else if(ePlayerToStealFrom != NO_PLAYER)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(eTech);
+		vArgs.push_back(iDiscover);
+		vArgs.push_back(bShift);
+		vArgs.push_back(ePlayerToStealFrom);
+		GC.getGame().addReplayEvent(REPLAYEVENT_StealTech, ePlayer, vArgs);
+#endif
 		// make sure we can still take a tech
 		CvAssertMsg(kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0, "No techs to steal from player");
 		CvAssertMsg(kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].size() > 0, "No techs to be stolen from this player");
@@ -1514,6 +1554,14 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	// Normal tech
 	else
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(eTech);
+		vArgs.push_back(iDiscover);
+		vArgs.push_back(bShift);
+		vArgs.push_back(ePlayerToStealFrom);
+		GC.getGame().addReplayEvent(REPLAYEVENT_Research, ePlayer, vArgs);
+#endif
 		CvPlayerTechs* pPlayerTechs = kPlayer.GetPlayerTechs();
 		CvTeamTechs* pTeamTechs = kTeam.GetTeamTechs();
 

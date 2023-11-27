@@ -882,6 +882,19 @@ enum ReplayEventTypes
 	REPLAYEVENT_SwapUnits,
 	REPLAYEVENT_UpdateCityCitizens,
 	REPLAYEVENT_UpdatePolicies,
+	/// 
+	REPLAYEVENT_CityPurchaseUnit,
+	REPLAYEVENT_CityPurchaseBuilding,
+	REPLAYEVENT_FreeTech,
+	REPLAYEVENT_StealTech,
+	REPLAYEVENT_ProposalIrr,
+	REPLAYEVENT_ProposalCc,
+	REPLAYEVENT_ProposalScrap,
+	REPLAYEVENT_ProposalYes,
+	REPLAYEVENT_ProposalNo,
+	REPLAYEVENT_ResetTimer,
+	REPLAYEVENT_PauseTimer,
+	REPLAYEVENT_OpenDemoScreen,
 
 	NUM_REPLAYEVENTS
 };
