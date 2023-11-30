@@ -538,6 +538,12 @@
 #define WORKER_BULLY_RESRICTION
 ///
 #define NEW_CITY_STATES_TYPES
+// New City States pseudo-enums
+#define MINOR_CIV_TRAIT_SCIENTIFIC 5
+#define MINOR_CIV_TRAIT_MANUFACTORY 6
+// IMPORTANT
+// Must be defined only ONCE and account for all MinorCivTraitTypes additions
+#define NUM_MINOR_CIV_TRAIT_TYPES 7
 ///
 #define ALL_QUESTS_GET_END_TURN
 /*CITY-STATES CHANGES END*/
@@ -876,6 +882,19 @@ enum ReplayEventTypes
 	REPLAYEVENT_SwapUnits,
 	REPLAYEVENT_UpdateCityCitizens,
 	REPLAYEVENT_UpdatePolicies,
+	/// 
+	REPLAYEVENT_CityPurchaseUnit,
+	REPLAYEVENT_CityPurchaseBuilding,
+	REPLAYEVENT_FreeTech,
+	REPLAYEVENT_StealTech,
+	REPLAYEVENT_ProposalIrr,
+	REPLAYEVENT_ProposalCc,
+	REPLAYEVENT_ProposalScrap,
+	REPLAYEVENT_ProposalYes,
+	REPLAYEVENT_ProposalNo,
+	REPLAYEVENT_ResetTimer,
+	REPLAYEVENT_PauseTimer,
+	REPLAYEVENT_OpenDemoScreen,
 
 	NUM_REPLAYEVENTS
 };

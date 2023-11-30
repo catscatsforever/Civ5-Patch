@@ -9928,40 +9928,40 @@ void CvGame::addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, c
 	Database::Connection db;
 	if (db.Open(strUTF8DatabasePath.c_str(), Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 	{
-		CvString sQuery;
+		CvString strQuery;
 		if (uiDataSet < 71)
 		{
 			int ID = (int)uiDataSet + 1;
 			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
-			CvString::format(sQuery, "REPLACE INTO ReplayDataSetsChanges (DataSetID, GameSeed, Turn, ReplayDataSetID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+			CvString::format(strQuery, "REPLACE INTO ReplayDataSetsChanges (DataSetID, GameSeed, Turn, ReplayDataSetID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
 		}
 		if (71 <= uiDataSet && uiDataSet < 182)
 		{
 			int ID = GC.getInfoTypeForString(szDataName, true);
 			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
-			CvString::format(sQuery, "REPLACE INTO PoliciesChanges (DataSetID, GameSeed, Turn, PolicyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+			CvString::format(strQuery, "REPLACE INTO PoliciesChanges (DataSetID, GameSeed, Turn, PolicyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
 		}
 		if (182 <= uiDataSet && uiDataSet < 263)
 		{
 			int ID = GC.getInfoTypeForString(szDataName, true);
 			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
-			CvString::format(sQuery, "REPLACE INTO TechnologiesChanges (DataSetID, GameSeed, Turn, TechnologyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+			CvString::format(strQuery, "REPLACE INTO TechnologiesChanges (DataSetID, GameSeed, Turn, TechnologyID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
 		}
 		if (263 <= uiDataSet && uiDataSet < 385)
 		{
 			int ID = GC.getInfoTypeForString(szDataName, true);
 			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
-			CvString::format(sQuery, "REPLACE INTO BuildingClassesChanges (DataSetID, GameSeed, Turn, BuildingClassID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+			CvString::format(strQuery, "REPLACE INTO BuildingClassesChanges (DataSetID, GameSeed, Turn, BuildingClassID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
 		}
 		if (385 <= uiDataSet && uiDataSet < 454)
 		{
 			int ID = GC.getInfoTypeForString(szDataName, true);
 			int CivID = (int)GET_PLAYER(ePlayer).getCivilizationType();
-			CvString::format(sQuery, "REPLACE INTO BeliefsChanges (DataSetID, GameSeed, Turn, BeliefID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
+			CvString::format(strQuery, "REPLACE INTO BeliefsChanges (DataSetID, GameSeed, Turn, BeliefID, CivID, Value) VALUES (%d, %d, %d, %d, %d, %d)", uiDataSet, (uint)CvPreGame::mapRandomSeed(), uiTurn, ID, CivID, iValue);
 		}
-		// CvString::format(sQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, DataSetDesc, Value) VALUES (%d, %d, '%s', '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szDataName, szDataDesc, iValue);
-		SLOG("%s", sQuery.c_str());
-		db.Execute(sQuery.c_str());
+		// CvString::format(strQuery, "REPLACE INTO seed%d (DataSetIndex, Turn, Player, DataSetName, DataSetDesc, Value) VALUES (%d, %d, '%s', '%s', '%s', %d)", (uint)CvPreGame::mapRandomSeed(), uiDataSet, uiTurn, Player, szDataName, szDataDesc, iValue);
+		SLOG("%s", strQuery.c_str());
+		db.Execute(strQuery.c_str());
 	}
 	else
 	{
@@ -10015,11 +10015,11 @@ void CvGame::exportReplayDatasets()
 		};
 
 		for (int i = 0; i < iNumDatasetTables; i++) {
-			const char* sQuery = aQueries[i].strQuery.c_str();
+			const char* szQuery = aQueries[i].strQuery.c_str();
 			uint uiLeft = aQueries[i].uiRangeLeft;
 			uint uiRight = aQueries[i].uiRangeRight;
 
-			rc = sqlite3_prepare_v2(db, sQuery, -1, &stmt, NULL);
+			rc = sqlite3_prepare_v2(db, szQuery, -1, &stmt, NULL);
 			if (rc != SQLITE_OK)
 			{
 				SLOG("prepare failed: %s", sqlite3_errmsg(db));
@@ -10037,8 +10037,8 @@ void CvGame::exportReplayDatasets()
 							uiRight = kPlayer.getNumReplayDataSets();
 						for (uint uiDataSet = uiLeft; uiDataSet < uiRight; uiDataSet++)
 						{
-							const CvString& szDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
-							if (szDataSetName != NULL)
+							const CvString& strDataSetName = kPlayer.getReplayDataSetName(uiDataSet);
+							if (strDataSetName != NULL)
 							{
 								int ID;
 								if (i == 0)
@@ -10047,7 +10047,7 @@ void CvGame::exportReplayDatasets()
 								}
 								else
 								{
-									ID = GC.getInfoTypeForString(szDataSetName, true);
+									ID = GC.getInfoTypeForString(strDataSetName, true);
 								}
 								if (uiTurn == (uint)GC.getGame().getStartTurn() + 1)
 								{

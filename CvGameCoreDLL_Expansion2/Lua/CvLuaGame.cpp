@@ -249,6 +249,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetReplayMessages);
 	Method(GetNumReplayMessages);
 	Method(GetReplayInfo);
+#ifdef REPLAY_EVENTS
+	Method(GetReplayEventsOfType);
+#endif
 
 	Method(SaveReplay);
 
@@ -1707,6 +1710,66 @@ int CvLuaGame::lGetReplayMessages(lua_State* L)
 
 	return 1;
 }
+#ifdef REPLAY_EVENTS
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetReplayEventsOfType(lua_State* L)
+{
+	unsigned int iType = luaL_checkint(L, 1);
+
+	CvGame& game = GC.getGame();
+	const unsigned int nEvents = game.getNumReplayEvents();
+
+	lua_createtable(L, nEvents, 0);
+	const int events_t = lua_gettop(L);
+	int events_idx = 1;
+
+	for (unsigned int i = 0; i < nEvents; i++)
+	{
+		const CvReplayEvent* pEvent = game.getReplayEvent(i);
+		
+		if (iType == pEvent->m_eEventType)
+		{
+			lua_createtable(L, 0, 15);
+			const int t = lua_gettop(L);
+
+			lua_pushinteger(L, pEvent->m_ePlayer);
+			lua_setfield(L, t, "Player");
+
+			lua_pushinteger(L, pEvent->m_iTurn);
+			lua_setfield(L, t, "Turn");
+
+			lua_pushinteger(L, pEvent->m_iTimestamp);
+			lua_setfield(L, t, "Timestamp");
+
+			lua_pushinteger(L, pEvent->m_eEventType);
+			lua_setfield(L, t, "Type");
+
+			const CvString& text = pEvent->m_strStringData;
+			if (text.GetLength() > 0)
+			{
+				lua_pushstring(L, text.c_str());
+				lua_setfield(L, t, "Text");
+			}
+
+			const uint nNumericArgs = pEvent->m_vNumericArgs.size();
+			lua_pushstring(L, "NumericArgs");
+			lua_createtable(L, nNumericArgs, 0);
+			for (uint j = 0; j < nNumericArgs; j++)
+			{
+				int iArg = pEvent->m_vNumericArgs.at(j);
+
+				lua_pushinteger(L, iArg);
+				lua_rawseti(L, -2, j + 1);
+			}
+			lua_rawset(L, -3);
+
+			lua_rawseti(L, events_t, events_idx++);
+		}
+	}
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //uint getNumReplayMessages();
 int CvLuaGame::lGetNumReplayMessages(lua_State* L)
