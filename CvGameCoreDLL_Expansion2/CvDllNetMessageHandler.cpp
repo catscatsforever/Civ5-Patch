@@ -66,13 +66,18 @@ void CvDllNetMessageHandler::ResponseAdvancedStartAction(PlayerTypes ePlayer, Ad
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitID)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
-	GC.getGame().addReplayEvent(REPLAYEVENT_AutoMission, ePlayer, vArgs);
-#endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
+	GC.getGame().addReplayEvent(REPLAYEVENT_AutoMission, ePlayer, vArgs);
+#endif
 	if(pkUnit)
 	{
 		pkUnit->AutoMission();
@@ -81,13 +86,19 @@ void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitI
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iOptionChosen, int iUnitID)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(iOptionChosen);
-	vArgs.push_back(iUnitID);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	GC.getGame().addReplayEvent(REPLAYEVENT_BarbarianRansom, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	// Pay ransom
 	if(iOptionChosen == 0)
@@ -152,15 +163,20 @@ void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamType
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityID, int iX, int iY)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(iX);
 	vArgs.push_back(iY);
 	GC.getGame().addReplayEvent(REPLAYEVENT_CityBuyPlot, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity != NULL)
 	{
 		CvPlot* pkPlot = NULL;
@@ -192,9 +208,16 @@ void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityI
 void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
 {
 
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(eTask);
 	vArgs.push_back(iData1);
 	vArgs.push_back(iData2);
@@ -204,8 +227,6 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 	vArgs.push_back(bCtrl);
 	GC.getGame().addReplayEvent(REPLAYEVENT_CityDoTask, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 
 	if(pkCity != NULL)
 	{
@@ -231,14 +252,19 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCityID, int iNum)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(iNum);
 	GC.getGame().addReplayEvent(REPLAYEVENT_CityPopOrder, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity != NULL)
 	{
 		pkCity->popOrder(iNum);
@@ -252,9 +278,16 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCityID, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, int ePurchaseYield)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(eUnitType);
 	vArgs.push_back(eBuildingType);
 	vArgs.push_back(eProjectType);
@@ -272,8 +305,6 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 		GC.getGame().addReplayEvent(REPLAYEVENT_CityPurchase, ePlayer, vArgs);
 	}
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
 	{
 		pkCity->Purchase(eUnitType, eBuildingType, eProjectType, static_cast<YieldTypes>(ePurchaseYield));
@@ -282,9 +313,16 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(eOrder);
 	vArgs.push_back(iData);
 	vArgs.push_back(bAlt);
@@ -292,8 +330,6 @@ void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCit
 	vArgs.push_back(bCtrl);
 	GC.getGame().addReplayEvent(REPLAYEVENT_CityPushOrder, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity != NULL)
 	{
 		pkCity->pushOrder(eOrder, iData, -1, bAlt, bShift, bCtrl);
@@ -302,14 +338,19 @@ void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCit
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCitySwapOrder(PlayerTypes ePlayer, int iCityID, int iNum)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(iNum);
 	GC.getGame().addReplayEvent(REPLAYEVENT_CitySwapOrder, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity != NULL)
 	{
 		pkCity->swapOrder(iNum);
@@ -329,13 +370,18 @@ void CvDllNetMessageHandler::ResponseChooseElection(PlayerTypes ePlayer, int iSe
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitID)
 {
-#ifdef REPLAY_EVENTS
-	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
-	GC.getGame().addReplayEvent(REPLAYEVENT_DestroyUnit, ePlayer, vArgs);
-#endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
+	GC.getGame().addReplayEvent(REPLAYEVENT_DestroyUnit, ePlayer, vArgs);
+#endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
@@ -384,17 +430,22 @@ void CvDllNetMessageHandler::ResponseDiploVote(PlayerTypes ePlayer, PlayerTypes 
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	vArgs.push_back(eCommand);
 	vArgs.push_back(iData1);
 	vArgs.push_back(iData2);
 	vArgs.push_back(bAlt);
 	GC.getGame().addReplayEvent(REPLAYEVENT_DoCommand, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	CvGame& game = GC.getGame();
 	if (game.isGameMultiPlayer() && kPlayer.isHuman() && !game.getHasReceivedFirstMission())
@@ -589,16 +640,29 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(iSpyIndex);
 	vArgs.push_back(iTargetPlayer);
-	vArgs.push_back(iTargetCity);
-	vArgs.push_back(bAsDiplomat);
-	GC.getGame().addReplayEvent(REPLAYEVENT_MoveSpy, ePlayer, vArgs);
+	if (iTargetCity == -1)
+	{
+		GC.getGame().addReplayEvent(REPLAYEVENT_ExtractSpy, ePlayer, vArgs);
+	}
+	else
+	{
+		int iPlotNum = -1;
+		CvCity* pCity = GET_PLAYER((PlayerTypes)iTargetPlayer).getCity(iTargetCity);
+		if (pCity != NULL)
+		{
+			iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+		}
+		vArgs.push_back(iPlotNum);
+		vArgs.push_back(bAsDiplomat);
+		GC.getGame().addReplayEvent(REPLAYEVENT_MoveSpy, ePlayer, vArgs);
+	}
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
 	if(pPlayerEspionage)
 	{
@@ -908,10 +972,23 @@ void CvDllNetMessageHandler::ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCi
 {
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCity1);
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity1 = kPlayer.getCity(iCity1);
+	CvCity* pkCity2 = kPlayer.getCity(iCity2);
+	int iPlotNum1 = -1;
+	int iPlotNum2 = -1;
+	if (pkCity1 != NULL)
+	{
+		iPlotNum1 = pkCity1->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	if (pkCity2 != NULL)
+	{
+		iPlotNum2 = pkCity2->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum1);
 	vArgs.push_back(iBuildingClass1);
 	vArgs.push_back(iWorkIndex1);
-	vArgs.push_back(iCity2);
+	vArgs.push_back(iPlotNum2);
 	vArgs.push_back(iBuildingClass2);
 	vArgs.push_back(iWorkIndex2);
 	GC.getGame().addReplayEvent(REPLAYEVENT_MoveGreatWorks, ePlayer, vArgs);
@@ -950,7 +1027,6 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(eMinor);
-	vArgs.push_back(iUnitID);
 #endif
 	switch (iUnitID) {
 	case -2:
@@ -1011,13 +1087,13 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	if (iUnitID == -7) {
-#ifdef REPLAY_EVENTS
-		GC.getGame().addReplayEvent(REPLAYEVENT_PauseTimer, ePlayer, vArgs);
-#endif
 		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if(!GC.getGame().m_bIsPaused)
 			{
+#ifdef REPLAY_EVENTS
+				GC.getGame().addReplayEvent(REPLAYEVENT_PauseTimer, ePlayer, vArgs);
+#endif
 				GC.getGame().m_fCurrentTurnTimerPauseDelta += GC.getGame().m_curTurnTimer.Stop();
 				GC.getGame().m_timeSinceGameTurnStart.Stop();
 				GC.getGame().m_bIsPaused = true;
@@ -1025,6 +1101,9 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 			}
 			else
 			{
+#ifdef REPLAY_EVENTS
+				GC.getGame().addReplayEvent(REPLAYEVENT_UnpauseTimer, ePlayer, vArgs);
+#endif
 				GC.getGame().resetTurnTimer(true);
 				GC.getGame().m_timeSinceGameTurnStart.StartWithOffset(GC.getGame().getTimeElapsed());
 				GC.getGame().m_curTurnTimer.StartWithOffset(GC.getGame().getTimeElapsed());
@@ -1056,10 +1135,16 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(ENHANCED_GRAPHS)
 	{
 #endif
+		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
+		int iUnitType = -1;
+		if (pkUnit)
+		{
+			iUnitType = pkUnit->getUnitType();
+		}
+		vArgs.push_back(iUnitType);
 		GC.getGame().addReplayEvent(REPLAYEVENT_GiftUnit, ePlayer, vArgs);
 #endif
-		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
 
 #if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(ENHANCED_GRAPHS)
@@ -1088,7 +1173,14 @@ void CvDllNetMessageHandler::ResponseLiberatePlayer(PlayerTypes ePlayer, PlayerT
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(eLiberatedPlayer);
-	vArgs.push_back(iCityID);
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	GC.getGame().addReplayEvent(REPLAYEVENT_LiberatePlayer, ePlayer, vArgs);
 #endif
 	GET_PLAYER(ePlayer).DoLiberatePlayer(eLiberatedPlayer, iCityID);
@@ -1265,9 +1357,18 @@ void CvDllNetMessageHandler::ResponsePledgeMinorProtection(PlayerTypes ePlayer, 
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
 {
+	CvUnit::dispatchingNetMessage(true);
+
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	vArgs.push_back(eMission);
 	vArgs.push_back(iData1);
 	vArgs.push_back(iData2);
@@ -1275,10 +1376,6 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	vArgs.push_back(bShift);
 	GC.getGame().addReplayEvent(REPLAYEVENT_PushMission, ePlayer, vArgs);
 #endif
-	CvUnit::dispatchingNetMessage(true);
-
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	CvGame& game = GC.getGame();
@@ -1382,17 +1479,22 @@ void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer,
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseGoodyChoice(PlayerTypes ePlayer, int iPlotX, int iPlotY, GoodyTypes eGoody, int iUnitID)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+	CvUnit* pUnit = kPlayer.getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(iPlotX);
 	vArgs.push_back(iPlotY);
 	vArgs.push_back(eGoody);
-	vArgs.push_back(iUnitID);
+	int iUnitType = -1;
+	if (pUnit)
+	{
+		iUnitType = pUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	GC.getGame().addReplayEvent(REPLAYEVENT_GoodyChoice, ePlayer, vArgs);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
-	CvUnit* pUnit = kPlayer.getUnit(iUnitID);
 	kPlayer.receiveGoody(pPlot, eGoody, pUnit);
 }
 
@@ -1421,14 +1523,19 @@ void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyB
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID, const char* szName)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pkCity != NULL)
+	{
+		iPlotNum = pkCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	CvString strArg = szName;
 	GC.getGame().addReplayEvent(REPLAYEVENT_RenameCity, ePlayer, vArgs, strArg);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvCity* pkCity = kPlayer.getCity(iCityID);
 	if(pkCity)
 	{
 		CvString strName = szName;
@@ -1438,14 +1545,19 @@ void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseRenameUnit(PlayerTypes ePlayer, int iUnitID, const char* szName)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	CvString strArg = szName;
 	GC.getGame().addReplayEvent(REPLAYEVENT_RenameUnit, ePlayer, vArgs, strArg);
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 	if(pkUnit)
 	{
 		CvString strName = szName;
@@ -1586,7 +1698,14 @@ void CvDllNetMessageHandler::ResponseReturnCivilian(PlayerTypes ePlayer, PlayerT
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(eToPlayer);
-	vArgs.push_back(iUnitID);
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	vArgs.push_back(bReturn);
 	GC.getGame().addReplayEvent(REPLAYEVENT_ReturnCivilian, ePlayer, vArgs);
 #endif
@@ -1595,13 +1714,18 @@ void CvDllNetMessageHandler::ResponseReturnCivilian(PlayerTypes ePlayer, PlayerT
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCityID, BuildingTypes eBuilding)
 {
+	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pCity != NULL)
+	{
+		iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(eBuilding);
 	GC.getGame().addReplayEvent(REPLAYEVENT_SellBuilding, ePlayer, vArgs);
 #endif
-	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
@@ -1622,13 +1746,18 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCityID, CityAIFocusTypes eFocus)
 {
+	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pCity != NULL)
+	{
+		iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(eFocus);
 	GC.getGame().addReplayEvent(REPLAYEVENT_SetCityAIFocus, ePlayer, vArgs);
 #endif
-	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity != NULL)
 	{
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
@@ -1641,13 +1770,18 @@ void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCi
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int iCityID, bool bAvoidGrowth)
 {
+	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pCity != NULL)
+	{
+		iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	vArgs.push_back(bAvoidGrowth);
 	GC.getGame().addReplayEvent(REPLAYEVENT_SetCityAvoidGrowth, ePlayer, vArgs);
 #endif
-	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity != NULL)
 	{
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
@@ -1660,9 +1794,18 @@ void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
 {
+	CvUnit::dispatchingNetMessage(true);
+
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iUnitID);
+	int iUnitType = -1;
+	if (pkUnit)
+	{
+		iUnitType = pkUnit->getUnitType();
+	}
+	vArgs.push_back(iUnitType);
 	vArgs.push_back(eMission);
 	vArgs.push_back(iData1);
 	vArgs.push_back(iData2);
@@ -1670,10 +1813,6 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 	vArgs.push_back(bShift);
 	GC.getGame().addReplayEvent(REPLAYEVENT_SwapUnits, ePlayer, vArgs);
 #endif
-	CvUnit::dispatchingNetMessage(true);
-
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
 	if(pkUnit != NULL)
 	{
@@ -1719,12 +1858,17 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int iCityID)
 {
+	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
-	vArgs.push_back(iCityID);
+	int iPlotNum = -1;
+	if (pCity != NULL)
+	{
+		iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+	}
+	vArgs.push_back(iPlotNum);
 	GC.getGame().addReplayEvent(REPLAYEVENT_UpdateCityCitizens, ePlayer, vArgs);
 #endif
-	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(NULL != pCity && pCity->GetCityCitizens())
 	{
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
@@ -1743,13 +1887,15 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	vArgs.push_back(bNOTPolicyBranch);
 	vArgs.push_back(iPolicyID);
 	vArgs.push_back(bValue);
-	GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicies, ePlayer, vArgs);
 #endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	// Policy Update
 	if(bNOTPolicyBranch)
 	{
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicies, ePlayer, vArgs);
+#endif
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyID);
 		if(bValue)
 		{
@@ -1764,6 +1910,9 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	// Policy Branch Update
 	else
 	{
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicyBranch, ePlayer, vArgs);
+#endif
 		const PolicyBranchTypes eBranch = static_cast<PolicyBranchTypes>(iPolicyID);
 		CvPlayerPolicies* pPlayerPolicies = kPlayer.GetPlayerPolicies();
 

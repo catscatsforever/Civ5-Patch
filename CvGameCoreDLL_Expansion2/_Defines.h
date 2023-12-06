@@ -895,6 +895,9 @@ enum ReplayEventTypes
 	REPLAYEVENT_ResetTimer,
 	REPLAYEVENT_PauseTimer,
 	REPLAYEVENT_OpenDemoScreen,
+	REPLAYEVENT_ExtractSpy,
+	REPLAYEVENT_UpdatePolicyBranch,
+	REPLAYEVENT_UnpauseTimer,
 
 	NUM_REPLAYEVENTS
 };
