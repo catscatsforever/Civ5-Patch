@@ -1729,7 +1729,7 @@ int CvLuaGame::lGetReplayEventsOfType(lua_State* L)
 		
 		if (iType == pEvent->m_eEventType)
 		{
-			lua_createtable(L, 0, 15);
+			lua_createtable(L, 0, 6);
 			const int t = lua_gettop(L);
 
 			lua_pushinteger(L, pEvent->m_ePlayer);
@@ -1752,7 +1752,6 @@ int CvLuaGame::lGetReplayEventsOfType(lua_State* L)
 			}
 
 			const uint nNumericArgs = pEvent->m_vNumericArgs.size();
-			lua_pushstring(L, "NumericArgs");
 			lua_createtable(L, nNumericArgs, 0);
 			for (uint j = 0; j < nNumericArgs; j++)
 			{
@@ -1761,7 +1760,7 @@ int CvLuaGame::lGetReplayEventsOfType(lua_State* L)
 				lua_pushinteger(L, iArg);
 				lua_rawseti(L, -2, j + 1);
 			}
-			lua_rawset(L, -3);
+			lua_setfield(L, t, "NumericArgs");
 
 			lua_rawseti(L, events_t, events_idx++);
 		}
