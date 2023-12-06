@@ -640,16 +640,29 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(iSpyIndex);
 	vArgs.push_back(iTargetPlayer);
-	vArgs.push_back(iTargetCity);
-	vArgs.push_back(bAsDiplomat);
-	GC.getGame().addReplayEvent(REPLAYEVENT_MoveSpy, ePlayer, vArgs);
+	if (iTargetCity == -1)
+	{
+		GC.getGame().addReplayEvent(REPLAYEVENT_ExtractSpy, ePlayer, vArgs);
+	}
+	else
+	{
+		int iPlotNum = -1;
+		CvCity* pCity = GET_PLAYER((PlayerTypes)iTargetPlayer).getCity(iTargetCity);
+		if (pCity != NULL)
+		{
+			iPlotNum = pCity->plot()->GetPlotIndex();  // define city global ID by its coordinate
+		}
+		vArgs.push_back(iPlotNum);
+		vArgs.push_back(bAsDiplomat);
+		GC.getGame().addReplayEvent(REPLAYEVENT_MoveSpy, ePlayer, vArgs);
+	}
 #endif
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
 	if(pPlayerEspionage)
 	{
@@ -1074,13 +1087,13 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	if (iUnitID == -7) {
-#ifdef REPLAY_EVENTS
-		GC.getGame().addReplayEvent(REPLAYEVENT_PauseTimer, ePlayer, vArgs);
-#endif
 		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if(!GC.getGame().m_bIsPaused)
 			{
+#ifdef REPLAY_EVENTS
+				GC.getGame().addReplayEvent(REPLAYEVENT_PauseTimer, ePlayer, vArgs);
+#endif
 				GC.getGame().m_fCurrentTurnTimerPauseDelta += GC.getGame().m_curTurnTimer.Stop();
 				GC.getGame().m_timeSinceGameTurnStart.Stop();
 				GC.getGame().m_bIsPaused = true;
@@ -1088,6 +1101,9 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 			}
 			else
 			{
+#ifdef REPLAY_EVENTS
+				GC.getGame().addReplayEvent(REPLAYEVENT_UnpauseTimer, ePlayer, vArgs);
+#endif
 				GC.getGame().resetTurnTimer(true);
 				GC.getGame().m_timeSinceGameTurnStart.StartWithOffset(GC.getGame().getTimeElapsed());
 				GC.getGame().m_curTurnTimer.StartWithOffset(GC.getGame().getTimeElapsed());
@@ -1871,13 +1887,15 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	vArgs.push_back(bNOTPolicyBranch);
 	vArgs.push_back(iPolicyID);
 	vArgs.push_back(bValue);
-	GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicies, ePlayer, vArgs);
 #endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	// Policy Update
 	if(bNOTPolicyBranch)
 	{
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicies, ePlayer, vArgs);
+#endif
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyID);
 		if(bValue)
 		{
@@ -1892,6 +1910,9 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	// Policy Branch Update
 	else
 	{
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_UpdatePolicyBranch, ePlayer, vArgs);
+#endif
 		const PolicyBranchTypes eBranch = static_cast<PolicyBranchTypes>(iPolicyID);
 		CvPlayerPolicies* pPlayerPolicies = kPlayer.GetPlayerPolicies();
 
