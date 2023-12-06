@@ -117,7 +117,7 @@ function OnVictoryScreenOpen()
 	elseif victory == GameInfoTypes.VICTORY_SCRAP then
 		endgametype = 11;
 	end
-	Events.EndGameShow( endgametype, Game.GetWinner() );
+	Events.EndGameShow( endgametype, -2 );
 end
 Controls.VictoryScreenButton:RegisterCallback( Mouse.eLClick, OnVictoryScreenOpen );
 

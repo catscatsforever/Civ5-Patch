@@ -123,6 +123,12 @@ ContextPtr:SetUpdate( OnUpdate );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnDisplay( type, team )
+	-- NEW: skip sound and animations if opened again via button
+	local bSkipIntro = false;
+	if team == -2 then
+		bSkipIntro = true;
+		team = Game.GetWinner();
+	end
 
 	if(not ContextPtr:IsHidden()) then
 		return;
@@ -250,11 +256,16 @@ function OnDisplay( type, team )
 	local sizeY = Controls.EndGameText:GetSizeY();
 	Controls.GameOverContainer:SetSizeY(sizeY + 30);
 	
-	g_AnimUpdate = ZoomOutEffect{
-		SplashControl = Controls.BackgroundImage, 
-		ScaleFactor = 0.5,
-		AnimSeconds = Game.GetVictory() == GameInfoTypes.VICTORY_SCRAP and 25 or 3
-	};
+	-- NEW: skip sound and animations if opened again via button
+	if bSkipIntro == true then
+		m_strAudio = nil;
+	else
+		g_AnimUpdate = ZoomOutEffect{
+			SplashControl = Controls.BackgroundImage, 
+			ScaleFactor = 0.5,
+			AnimSeconds = Game.GetVictory() == GameInfoTypes.VICTORY_SCRAP and 25 or 3
+		};
+	end
 	
 	UIManager:QueuePopup( ContextPtr, PopupPriority.EndGameMenu );
 	
