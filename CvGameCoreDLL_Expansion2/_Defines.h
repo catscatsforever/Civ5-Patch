@@ -820,7 +820,8 @@
 // 1000: v7.0 (initial)
 # define BUMP_SAVE_VERSION_TRAITS 1000
 // 1000: v7.0 (initial)
-# define BUMP_SAVE_VERSION_UNIT 1000
+// 1001: v8.0 (adds NEW_WRITERS_CULTURE_BOMB)
+# define BUMP_SAVE_VERSION_UNIT 1001
 // 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 # define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
 // 1000: v7.2 (initial, adds m_iTimeMilliseconds)
