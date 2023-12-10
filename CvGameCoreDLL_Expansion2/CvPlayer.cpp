@@ -23649,10 +23649,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 											pNewUnit->SetCultureBombStrength(GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), pNewUnit->getUnitInfo().GetBaseCultureTurnsToCount()));
 										}
 #endif
+#ifndef FIX_TOURISM_BLAST_FROM_POLICIES
 										if (pNewUnit->getUnitInfo().GetOneShotTourism() > 0)
 										{
 											pNewUnit->SetTourismBlastStrength(GetCulture()->GetTourismBlastStrength(pNewUnit->getUnitInfo().GetOneShotTourism()));
 										}
+#endif
 
 										pNewUnit->jumpToNearestValidPlot();
 									}							
@@ -23674,6 +23676,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifdef ENHANCED_GRAPHS
 										ChangeNumMusiciansTotal(1);
 #endif
+#ifdef FIX_TOURISM_BLAST_FROM_POLICIES
+										if (pNewUnit->getUnitInfo().GetOneShotTourism() > 0)
+										{
+											pNewUnit->SetTourismBlastStrength(GetCulture()->GetTourismBlastStrength(pNewUnit->getUnitInfo().GetOneShotTourism()));
+										}
+#endif
+
 										pNewUnit->jumpToNearestValidPlot();
 									}
 #if defined SEPARATE_GREAT_PEOPLE || defined SWEDEN_UA_REWORK

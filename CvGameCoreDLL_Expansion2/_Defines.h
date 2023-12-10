@@ -658,6 +658,8 @@
 #define AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
 /// Fixes already corrupted saves leading to turn skip in simultaneous mode.
 #define AUTOSAVE_FIX_PREVENT_TURN_SKIP
+///
+#define FIX_TOURISM_BLAST_FROM_POLICIES
 /*BUGS FIXES END*/
 
 
