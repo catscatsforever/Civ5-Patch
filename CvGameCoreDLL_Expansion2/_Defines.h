@@ -465,6 +465,8 @@
 #define SWEDEN_UA_REWORK
 ///
 #define BRAZIL_UA_REWORK
+///
+#define SIAM_UA_REWORK
 /// Golden age combat bonus modifier now applies only during attack
 #define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 /*UA CHANGES END*/

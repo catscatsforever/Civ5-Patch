@@ -7387,6 +7387,16 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 		iAmount += GetHappinessFlatAlliesBonus(ePlayer);
 	if(IsFriends(ePlayer))
 		iAmount += GetHappinessFlatFriendshipBonus(ePlayer);
+
+#ifdef SIAM_UA_REWORK
+	// Modify the bonus if called for by our trait
+	int iModifier = 2*GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iAmount *= (iModifier + 100);
+		iAmount /= 100;
+	}
+#endif
 	return iAmount;
 }
 
@@ -8019,6 +8029,16 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	// If relations are at allied level then reduce spawn counter
 	if(IsAllies(ePlayer))
 		iNumTurns += /*-3*/ (GC.getALLIES_EXTRA_TURNS_UNIT_SPAWN() * 100);
+
+#ifdef SIAM_UA_REWORK
+	// Modify the bonus if called for by our trait
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	if (iModifier > 0)
+	{
+		iNumTurns *= 100;
+		iNumTurns /= (100 + iModifier);
+	}
+#endif
 
 	// Modify for Game Speed
 	iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
