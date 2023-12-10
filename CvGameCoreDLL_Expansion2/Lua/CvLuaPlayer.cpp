@@ -582,6 +582,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentCulturePerBuildingBonus);
 	Method(GetCurrentCultureBonus); // DEPRECATED
 	Method(GetMinorCivCurrentCultureBonus);
+#ifdef NEW_CITY_STATES_TYPES
+	Method(GetMinorCivCurrentScienceBonus);
+#endif
 	Method(GetMinorCivHappinessFriendshipBonus); // DEPRECATED
 	Method(GetMinorCivCurrentHappinessFlatBonus);
 	Method(GetMinorCivCurrentHappinessPerLuxuryBonus);
@@ -6386,6 +6389,16 @@ int CvLuaPlayer::lGetMinorCivCurrentCultureBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureBonus(ePlayer));
 	return 1;
 }
+#ifdef NEW_CITY_STATES_TYPES
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 // antonjs: Deprecated, kept here for backwards compatibility
 int CvLuaPlayer::lGetMinorCivHappinessFriendshipBonus(lua_State* L)

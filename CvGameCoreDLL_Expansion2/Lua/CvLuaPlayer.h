@@ -570,6 +570,9 @@ protected:
 	static int lGetMinorCivCurrentCulturePerBuildingBonus(lua_State* L);
 	static int lGetCurrentCultureBonus(lua_State* L); // DEPRECATED, use lGetMinorCivCurrentCultureBonus instead
 	static int lGetMinorCivCurrentCultureBonus(lua_State* L);
+#ifdef NEW_CITY_STATES_TYPES
+	static int lGetMinorCivCurrentScienceBonus(lua_State* L);
+#endif
 	static int lGetMinorCivHappinessFriendshipBonus(lua_State* L); // DEPRECATED
 	static int lGetMinorCivCurrentHappinessFlatBonus(lua_State* L);
 	static int lGetMinorCivCurrentHappinessPerLuxuryBonus(lua_State* L);

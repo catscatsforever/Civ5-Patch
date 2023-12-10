@@ -8089,11 +8089,26 @@ int CvMinorCivAI::GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eA
 	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
+	EraTypes eModern = (EraTypes)GC.getInfoTypeForString("ERA_MODERN", true);
 	EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 	EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Modern era or Later
+	if (eCurrentEra >= eModern)
+	{
+		iScienceBonus += 18;
+	}
 
 	// Industrial era or Later
-	if (eCurrentEra >= eIndustrial)
+	else if (eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += 12;
+	}
+
+	// Renaissance era or Later
+	else if (eCurrentEra >= eRenaissance)
 	{
 		iScienceBonus += 8;
 	}
@@ -8101,10 +8116,16 @@ int CvMinorCivAI::GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eA
 	// Medieval era or later
 	else if (eCurrentEra >= eMedieval)
 	{
-		iScienceBonus += 4;
+		iScienceBonus += 5;
 	}
 
-	// Pre-Medieval
+	// Classical era or Later
+	else if (eCurrentEra >= eClassical)
+	{
+		iScienceBonus += 3;
+	}
+
+	// Pre-Classical
 	else
 	{
 		iScienceBonus += 2;
@@ -8123,11 +8144,26 @@ int CvMinorCivAI::GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssum
 	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
+	EraTypes eModern = (EraTypes)GC.getInfoTypeForString("ERA_MODERN", true);
 	EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+	EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 	EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+	EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+	// Modern era or Later
+	if (eCurrentEra >= eModern)
+	{
+		iScienceBonus += 18;
+	}
 
 	// Industrial era or Later
-	if (eCurrentEra >= eIndustrial)
+	else if (eCurrentEra >= eIndustrial)
+	{
+		iScienceBonus += 12;
+	}
+
+	// Renaissance era or Later
+	else if (eCurrentEra >= eRenaissance)
 	{
 		iScienceBonus += 8;
 	}
@@ -8135,10 +8171,16 @@ int CvMinorCivAI::GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssum
 	// Medieval era or later
 	else if (eCurrentEra >= eMedieval)
 	{
-		iScienceBonus += 4;
+		iScienceBonus += 5;
 	}
 
-	// Pre-Medieval
+	// Classical era or Later
+	else if (eCurrentEra >= eClassical)
+	{
+		iScienceBonus += 3;
+	}
+
+	// Pre-Classical
 	else
 	{
 		iScienceBonus += 2;
@@ -8257,7 +8299,7 @@ int CvMinorCivAI::GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTyp
 // Production bonus when Allies with a minor - additive with general city bonus
 int CvMinorCivAI::GetAlliesCapitalProductionBonus(PlayerTypes ePlayer)
 {
-	int iBonus = 100;
+	int iBonus = 0;
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();

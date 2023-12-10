@@ -328,9 +328,9 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
 		end
 
-		local scienceBonusTimes100 = minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID)
-		if scienceBonusTimes100 ~= 0 then
-			table_insert( tips, L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonusTimes100 / 100) )
+		local scienceBonusTimes = minorPlayer:GetMinorCivCurrentScienceBonus(majorPlayerID) + minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID) / 100
+		if scienceBonusTimes ~= 0 then
+			table_insert( tips, L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonusTimes) )
 		end
 
 		if gk_mode then

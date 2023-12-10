@@ -345,10 +345,10 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_MILITARY_BONUS", iCurrentSpawnEstimate);
 		end
 		
-		local iScienceBonus = pMinor:GetCurrentScienceFriendshipBonusTimes100(iMajor);
+		local iScienceBonus = pMinor:GetMinorCivCurrentScienceBonus(iMajor) + pMinor:GetCurrentScienceFriendshipBonusTimes100(iMajor) / 100;
 		if (iScienceBonus ~= 0) then
 			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_SCIENCE_BONUS", iScienceBonus / 100);
+			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_SCIENCE_BONUS", iScienceBonus);
 		end
 		
 		local iHappinessBonus = pMinor:GetMinorCivCurrentHappinessBonus(iMajor);
