@@ -1824,7 +1824,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiTurnLastWorkerBullied;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
-	else if (uiVersion == 1000)
+	else if (uiVersion >= 1000)
 	{
 		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
@@ -6208,25 +6208,25 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	}
 	else
 	{
-	if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
-	{
-		bAdd = false;
-		bAllies = true;
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
+		if (eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
 		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(ePlayer);
-			args->Push(false);
-			args->Push(iOldFriendship);
-			args->Push(iNewFriendship);
+			bAdd = false;
+			bAllies = true;
 
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(m_pPlayer->GetID());
+				args->Push(ePlayer);
+				args->Push(false);
+				args->Push(iOldFriendship);
+				args->Push(iNewFriendship);
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+			}
 		}
-	}
 	}
 #endif
 
