@@ -82,7 +82,7 @@ g_WorldReligionSortOptions = {
 		ImageControl = Controls.WRSortByNumCitiesImage,
 		Column = "NumCities",
 		DefaultDirection = "desc",
-		SortType = "numeric",
+		SortType = "Numeric",
 		CurrentDirection = nil,
 	},
 	{
@@ -90,7 +90,7 @@ g_WorldReligionSortOptions = {
 		ImageControl = Controls.WRSortByNumFollowersImage,
 		Column = "NumFollowers",
 		DefaultDirection = "desc",
-		SortType = "numeric",
+		SortType = "Numeric",
 		CurrentDirection = nil,
 	},
 };
