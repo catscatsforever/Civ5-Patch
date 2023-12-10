@@ -11358,7 +11358,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#ifndef CLAUZEWITZS_LEGACY
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
+#endif
+
+#ifdef CLAUZEWITZS_LEGACY_RANGE_MODIFIER
 	// Temporary attack bonus (Policies, etc.)
 	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 	{
