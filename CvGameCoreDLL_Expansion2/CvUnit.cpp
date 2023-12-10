@@ -5961,6 +5961,9 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 	}
 
 	bool bResult = GET_PLAYER(getOwner()).GetTrade()->CreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType);
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+	GET_PLAYER(getOwner()).updateYield();
+#endif
 	return bResult;
 }
 
@@ -6240,6 +6243,10 @@ bool CvUnit::plunderTradeRoute()
 
 	// right now, plunder the first unit
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+	PlayerTypes ePlayer = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
+	GET_PLAYER(ePlayer).updateYield();
+#endif
 	return true;
 }
 

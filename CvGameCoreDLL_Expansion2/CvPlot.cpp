@@ -7520,6 +7520,22 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 	iYield = calculateNatureYield(eYield, ((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
 
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+	if (getOwner() != NO_PLAYER)
+	{
+		if (eYield == YIELD_GOLD)
+		{
+			if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CARAVANS", true /*bHideAssert*/)))
+			{
+				if (GET_PLAYER(getOwner()).GetTrade()->GetNumPlayerPlotTradeRoutes(this) > 0)
+				{
+					iYield += 1;
+				}
+			}
+		}
+	}
+#endif
+
 	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
 		int iCultureBoost = calculateImprovementYieldChange(eImprovement, eYield, ePlayer);

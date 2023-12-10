@@ -4488,6 +4488,9 @@ void CvPlayer::doTurn()
 			if(!isMinorCiv())
 			{
 				GetTrade()->DoTurn();
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+				updateYield();
+#endif
 			}
 		}
 	}

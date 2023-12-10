@@ -3761,6 +3761,49 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 	return aToolTips;
 }
 
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+int CvPlayerTrade::GetNumPlayerPlotTradeRoutes(CvPlot* pPlot)
+{
+	int iNumTradeRoutes = 0;
+
+	if (!pPlot)
+	{
+		return iNumTradeRoutes;
+	}
+
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+	int iX = pPlot->getX();
+	int iY = pPlot->getY();
+
+	Localization::String strResult;
+
+	for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+	{
+		if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+		{
+			continue;
+		}
+
+		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+
+		if (pConnection->m_eOriginOwner == ePlayer)
+		{
+			for (uint uiPlotIndex = 0; uiPlotIndex < pConnection->m_aPlotList.size(); uiPlotIndex++)
+			{
+				if (pConnection->m_aPlotList[uiPlotIndex].m_iX == iX && pConnection->m_aPlotList[uiPlotIndex].m_iY == iY)
+				{
+					iNumTradeRoutes++;
+					break;
+				}
+			}
+		}
+	}
+
+	return iNumTradeRoutes;
+}
+#endif
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvPlayerTrade& writeTo)
 {
