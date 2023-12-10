@@ -1610,6 +1610,13 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			// JON: Need to update this block to work with new system
 			else if(pPlot->getOwner() == GetOwner())
 			{
+#ifdef CITIZENS_CITY_OVERRIDE_BUG_FIX
+				if (pPlot->getWorkingCity()->GetCityCitizens()->IsForcedWorkingPlot(pPlot))
+				{
+					pPlot->getWorkingCity()->GetCityCitizens()->SetForcedWorkingPlot(pPlot, false);
+				}
+#endif
+
 				// Can't take away forced plots from puppet Cities
 				if(pPlot->getWorkingCityOverride() != NULL)
 				{
