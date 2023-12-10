@@ -232,6 +232,8 @@
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
 ///
+#define NEW_WRITERS_CULTURE_BOMB
+///
 #define DISCOVER_AMONT_SCIENCE_MODIFIER
 /// After second turn of Great Scientist appearance bulb amount slowly decrease to 0 every turn
 #define DECREASE_BULB_AMOUNT_OVER_TIME

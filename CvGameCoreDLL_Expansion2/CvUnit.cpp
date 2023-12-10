@@ -268,6 +268,9 @@ CvUnit::CvUnit() :
 	, m_iTradeMissionGoldModifier(0)
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	, m_iCultureBombStrength(0)
+#endif
 	, m_iTourismBlastStrength(0)
 #ifdef NEW_SCIENTISTS_BULB
 	, m_iResearchBulbAmount(0)
@@ -649,6 +652,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
+
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		SetCultureBombStrength(kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), getUnitInfo().GetBaseCultureTurnsToCount()));
+	}
+#endif
+
 	if (getUnitInfo().GetOneShotTourism() > 0)
 	{
 		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
@@ -1216,6 +1227,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	SetCultureBombStrength(pUnit->GetCultureBombStrength());
+#endif
 	SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
 #ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
 #ifdef NEW_SCIENTISTS_BULB
@@ -8888,6 +8902,9 @@ int CvUnit::getGivePoliciesCulture()
 	CvPlot* pPlot = plot();
 	if(canGivePolicies(pPlot))
 	{
+#ifdef NEW_WRITERS_CULTURE_BOMB
+		iValue = GetCultureBombStrength();
+#else
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 		// Culture boost based on previous turns
@@ -8897,6 +8914,7 @@ int CvUnit::getGivePoliciesCulture()
 			// Calculate boost
 			iValue = kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		}
+#endif
 
 		// Modify based on game speed
 		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
@@ -17546,6 +17564,20 @@ void CvUnit::SetGreatWork(GreatWorkType eGreatWork)
 	m_eGreatWork = eGreatWork;
 }
 
+#ifdef NEW_WRITERS_CULTURE_BOMB
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCultureBombStrength() const
+{
+	return m_iCultureBombStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCultureBombStrength(int iValue)
+{
+	m_iCultureBombStrength = iValue;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetTourismBlastStrength() const
 {
@@ -18627,6 +18659,26 @@ void CvUnit::read(FDataStream& kStream)
 		}
 	}
 
+#ifdef NEW_WRITERS_CULTURE_BOMB
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	{
+#endif
+		kStream >> m_iCultureBombStrength;
+
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion >= 1001)
+	{
+		kStream >> m_iCultureBombStrength;
+	}
+	else
+	{
+		m_iCultureBombStrength = 0;
+	}
+#endif
+#endif
+
 	if (uiVersion >= 7)
 	{
 		kStream >> m_iTourismBlastStrength;
@@ -18645,6 +18697,11 @@ void CvUnit::read(FDataStream& kStream)
 		kStream >> m_iScientistBirthTurn;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
+	else if (uiVersion >= 1000)
+	{
+		kStream >> m_iResearchBulbAmount;
+		kStream >> m_iScientistBirthTurn;
+	}
 	else
 	{
 		m_iResearchBulbAmount = 0;
@@ -18659,6 +18716,10 @@ void CvUnit::read(FDataStream& kStream)
 # endif
 		kStream >> m_bInstaHealLocked;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion >= 1000)
+	{
+		kStream >> m_bInstaHealLocked;
 	}
 	else
 	{
@@ -18780,6 +18841,10 @@ void CvUnit::write(FDataStream& kStream) const
 	{
 		kStream << (uint)0;
 	}
+
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	kStream << m_iCultureBombStrength;
+#endif
 
 	kStream << m_iTourismBlastStrength;
 	

@@ -209,7 +209,7 @@ void CvReplayMessage::read(FDataStream& kStream, unsigned int uiVersion)
 		kStream >> m_iExtraData2;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
-	else if (uiVersion == 1000)
+	else if (uiVersion >= 1000)
 	{
 		kStream >> m_iTimeMilliseconds;
 		m_iExtraData1 = 0;

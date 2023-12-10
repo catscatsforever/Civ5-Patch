@@ -23643,6 +23643,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										ChangeNumWritersTotal(1);
 #endif
 
+#ifdef NEW_WRITERS_CULTURE_BOMB
+										if (pNewUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+										{
+											pNewUnit->SetCultureBombStrength(GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), pNewUnit->getUnitInfo().GetBaseCultureTurnsToCount()));
+										}
+#endif
 										if (pNewUnit->getUnitInfo().GetOneShotTourism() > 0)
 										{
 											pNewUnit->SetTourismBlastStrength(GetCulture()->GetTourismBlastStrength(pNewUnit->getUnitInfo().GetOneShotTourism()));

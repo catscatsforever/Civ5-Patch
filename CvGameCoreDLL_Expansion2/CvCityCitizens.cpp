@@ -2739,6 +2739,13 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 	}
 
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	if (newUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+	{
+		newUnit->SetCultureBombStrength(kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), newUnit->getUnitInfo().GetBaseCultureTurnsToCount()));
+	}
+#endif
+
 	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
 	{
 		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));

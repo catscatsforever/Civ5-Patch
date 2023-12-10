@@ -1034,6 +1034,10 @@ public:
 	void setName(const CvString strNewValue);
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	int GetCultureBombStrength() const;
+	void SetCultureBombStrength(int iValue);
+#endif
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 #ifdef NEW_SCIENTISTS_BULB
@@ -1504,6 +1508,9 @@ protected:
 		
 	CvString m_strName;
 	GreatWorkType m_eGreatWork;
+#ifdef NEW_WRITERS_CULTURE_BOMB
+	int m_iCultureBombStrength;
+#endif
 	int m_iTourismBlastStrength;
 #ifdef NEW_SCIENTISTS_BULB
 	int m_iResearchBulbAmount;

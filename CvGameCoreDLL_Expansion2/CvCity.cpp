@@ -13637,6 +13637,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				pUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 			}
 
+#ifdef NEW_WRITERS_CULTURE_BOMB
+			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
+			{
+				pUnit->SetCultureBombStrength(kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), pUnit->getUnitInfo().GetBaseCultureTurnsToCount()));
+			}
+#endif
+
 			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
 			{
 				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
