@@ -626,7 +626,7 @@ OnOptionsChanged()
 Events.GameOptionsChanged.Add( OnOptionsChanged )
 
 -- NEW: disable chatpull in tournament mode
-if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+if PreGame.GetGameOption("GAMEOPTION_DISABLE_CHAT") > 0 then
     Controls.ChatPull:SetDisabled(true);
 end
 
