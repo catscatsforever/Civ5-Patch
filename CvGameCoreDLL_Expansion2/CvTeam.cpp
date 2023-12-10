@@ -5431,7 +5431,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bTechRevealsHiddenArtifacts = pHiddenArtifactResource->getTechReveal() == eIndex;
 			}
 
-			if(bTechRevealsArtifacts | bTechRevealsHiddenArtifacts)
+			if(bTechRevealsArtifacts || bTechRevealsHiddenArtifacts)
 			{
 				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 				const int iNumPlots = GC.getMap().numPlots();
