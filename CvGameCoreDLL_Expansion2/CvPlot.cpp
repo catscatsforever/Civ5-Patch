@@ -1660,6 +1660,31 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 
 }
 
+#ifdef NEW_DIPLOMATS_MISSIONS
+void CvPlot::changeSightInRing(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible)
+{
+	if (iRange < 0)
+	{
+		return;
+	}
+
+	for (int iI = -iRange; iI <= iRange; iI++)
+	{
+		for (int jJ = -iRange; jJ <= iRange; jJ++)
+		{
+			CvPlot* pPlotToCheck = GC.getMap().plot(getX() + iI, getY() + jJ);
+			if (pPlotToCheck != NULL)
+			{
+				if (plotDistance(getX(), getY(), pPlotToCheck->getX(), pPlotToCheck->getY()) <= iRange)
+				{
+					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+				}
+			}
+		}
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {

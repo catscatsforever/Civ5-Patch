@@ -6000,8 +6000,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			int iSurveillanceSightRange = GET_PLAYER((PlayerTypes)iI).GetEspionage()->SurveillanceSightRange(this);
 			if (iSurveillanceSightRange > 0)
 			{
-				plot()->changeAdjacentSight(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange + 1, false, NO_INVISIBLE, NO_DIRECTION, false);
-				plot()->changeAdjacentSight(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+				plot()->changeSightInRing(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange + iChange, false, NO_INVISIBLE);
+				plot()->changeSightInRing(GET_PLAYER((PlayerTypes)iI).getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
 			}
 		}
 	}
@@ -6016,21 +6016,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				continue;
 			}
 
-			int iSpyIndex = GET_PLAYER(ePlayer1).GetEspionage()->GetSpyIndexInCity(this);
+			int iSpyIndex = GET_PLAYER(ePlayer2).GetEspionage()->GetSpyIndexInCity(this);
 			if (iSpyIndex != -1)
 			{
-				CvNotifications* pNotifications = GET_PLAYER(ePlayer1).GetNotifications();
+				CvNotifications* pNotifications = GET_PLAYER(ePlayer2).GetNotifications();
 				if (pNotifications)
 				{
-					CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
+					CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer2).GetEspionage();
 					int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
 					CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
-					if (GET_PLAYER(ePlayer1).GetEspionage()->IsMyDiplomatVisitingThem(ePlayer2, true))
+					if (GET_PLAYER(ePlayer2).GetEspionage()->IsMyDiplomatVisitingThem(ePlayer1, true))
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_FIREWALL");
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_FIREWALL_TT");
 						strNotification << pEspionage->GetSpyRankName(eSpyRank);
-						strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+						strNotification << GET_PLAYER(ePlayer2).getCivilizationInfo().getSpyNames(iSpyName);
 						strNotification << this->getNameKey();
 						pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
@@ -6039,12 +6039,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_FIREWALL");
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_FIREWALL_TT");
 						strNotification << pEspionage->GetSpyRankName(eSpyRank);
-						strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+						strNotification << GET_PLAYER(ePlayer2).getCivilizationInfo().getSpyNames(iSpyName);
 						strNotification << this->getNameKey();
 						pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
 				}
-				GET_PLAYER(ePlayer1).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
+				GET_PLAYER(ePlayer2).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
 			}
 		}
 	}
@@ -9958,7 +9958,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #ifdef CREATIVE_EXPRESSION_SCIENCE_MOD
 	if (getPopulation() >= 22)
 	{
-		if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
+		if (eIndex == YIELD_SCIENCE && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
 		{
 			iTempMod = 22;
 			iModifier += iTempMod;

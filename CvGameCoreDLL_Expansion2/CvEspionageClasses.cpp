@@ -916,10 +916,10 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			if (pCityEspionage->HasReachedGoal(ePlayer))
 			{
 				int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
-				pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+				pCity->plot()->changeSightInRing(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE);
 				LevelUpSpy(uiSpyIndex);
 				iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
-				pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+				pCity->plot()->changeSightInRing(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
 				pCityEspionage->ResetProgress(ePlayer);
 				pSpy->m_eSpyState = SPY_STATE_SCHMOOZE;
 				int iPotentialRate = CalcPerTurn(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
@@ -977,7 +977,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 	{
 #ifdef NEW_DIPLOMATS_MISSIONS
 		int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
-		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+		pCity->plot()->changeSightInRing(m_pPlayer->getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
 #else
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION, false);
 #endif
@@ -1471,6 +1471,9 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 
 	int iCityX = m_aSpyList[uiSpyIndex].m_iCityX;
 	int iCityY = m_aSpyList[uiSpyIndex].m_iCityY;
+#ifdef NEW_DIPLOMATS_MISSIONS
+	int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(GC.getMap().plot(iCityX, iCityY)->getPlotCity());
+#endif
 
 	m_aSpyList[uiSpyIndex].m_iCityX = -1;
 	m_aSpyList[uiSpyIndex].m_iCityY = -1;
@@ -1494,8 +1497,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	if(bHadSurveillance)
 	{
 #ifdef NEW_DIPLOMATS_MISSIONS
-		int iSurveillanceSightRange = m_pPlayer->GetEspionage()->SurveillanceSightRange(pCity);
-		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+		pCity->plot()->changeSightInRing(m_pPlayer->getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE);
 #else
 		pCity->plot()->changeAdjacentSight(m_pPlayer->getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION, false);
 #endif

@@ -142,6 +142,9 @@ public:
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
+#ifdef NEW_DIPLOMATS_MISSIONS
+	void changeSightInRing(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible);
+#endif
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
