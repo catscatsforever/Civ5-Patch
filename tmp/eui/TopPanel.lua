@@ -2440,7 +2440,11 @@ if civ5_mode then
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then
 					tips:insert( L"TXT_KEY_TP_GOLDEN_AGE_EFFECT_NO_CULTURE" )
 				else
-					tips:insert( L"TXT_KEY_TP_GOLDEN_AGE_EFFECT" )
+					if g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
+						tips:insert( L"TXT_KEY_TP_GOLDEN_AGE_EFFECT_BRAZIL" )
+					else
+						tips:insert( L"TXT_KEY_TP_GOLDEN_AGE_EFFECT" )
+					end
 				end
 				if bnw_mode and g_activePlayer:GetGoldenAgeTurns() > 0 and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( "" )

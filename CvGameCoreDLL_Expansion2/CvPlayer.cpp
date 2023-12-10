@@ -10438,12 +10438,17 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
 	{
-		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 #ifdef BRAZIL_UA_REWORK
 		if (GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
 		{
-			iCulturePerTurn += ((iCulturePerTurn * 10) / 100);
+			iCulturePerTurn += (((10 + iCulturePerTurn) * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 		}
+		else
+		{
+			iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
+		}
+#else
+		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 #endif
 	}
 
