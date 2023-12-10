@@ -6208,6 +6208,24 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 
+#ifdef NO_PILLAGE_CARGO_TREASURE_FLEETS
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			int iTradeConnectionIndex = pTrade->GetIndexFromID(aiTradeUnitsAtPlot[0]);
+			PlayerTypes ePlayer = pTrade->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
+
+			if (iTradeConnectionIndex < 0)
+			{
+				return false;
+			}
+
+			TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[iTradeConnectionIndex]);
+			DomainTypes eDomain = pTradeConnection->m_eDomain;
+			if (eDomain == DOMAIN_SEA && GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_TREASURE_FLEETS", true /*bHideAssert*/)))
+			{
+				return false;
+			}
+#endif
+
 			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
 			{
