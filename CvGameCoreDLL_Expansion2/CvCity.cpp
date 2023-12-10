@@ -4859,6 +4859,10 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 				}
 			}
 		}
+#ifdef MANDATE_OF_HEAVEN_ALL_PURCHASES
+		int iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
+		iCost = iCost * iMultiplier / 100;
+#endif
 	}
 
 	// ALL OTHERS
@@ -4870,11 +4874,15 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
 		iCost = iCost * iMultiplier / 100;
 
+#ifndef MANDATE_OF_HEAVEN_ALL_PURCHASES
 		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 		{
+#endif
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 			iCost = iCost * iMultiplier / 100;
+#ifndef MANDATE_OF_HEAVEN_ALL_PURCHASES
 		}
+#endif
 	}
 
 	// Adjust for game speed
