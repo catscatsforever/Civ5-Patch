@@ -3454,7 +3454,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
 				PlayerTypes loopPlayer = (PlayerTypes)iI;
-				if (GET_PLAYER(loopPlayer).isAlive() && GET_PLAYER(loopPlayer).isHuman())
+				if (GET_PLAYER(loopPlayer).isAlive())
 				{
 					eFoundedReligion = pReligions->GetFounderBenefitsReligion(loopPlayer);
 					if (eFoundedReligion > RELIGION_PANTHEON)
@@ -3495,6 +3495,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				}
 			}
 		}
+		iVotes += iWorldReligionVotes;
 #else
 		// World Religion
 		int iWorldReligionVotes = GetExtraVotesForFollowingReligion(ePlayer);
