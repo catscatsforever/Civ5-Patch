@@ -4386,5 +4386,11 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 	}
 // #endif
 
+#ifdef MORE_FREE_IDEOLOGY_TENETS
+	if (eBranch == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM() || eBranch == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY() || eBranch == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+	{
+		iFreePolicies++;
+	}
+#endif
 	return iFreePolicies;
 }
