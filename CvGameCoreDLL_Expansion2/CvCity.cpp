@@ -8162,6 +8162,10 @@ int CvCity::getJONSCulturePerTurn() const
 	if(getNumWorldWonders() > 0)
 		iModifier += GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
 
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	iModifier += 10 * GET_TEAM(getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
+#endif
+
 	// Puppet?
 	if(IsPuppet())
 	{
@@ -10001,6 +10005,16 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 		}
 	}
+
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		iTempMod = 10 * GET_TEAM(getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
+		iModifier += iTempMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_FROM_FUTURE_TECH_RESEARCHES", iTempMod);
+	}
+#endif
 
 	// Religion Yield Rate Modifier
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();

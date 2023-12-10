@@ -10758,6 +10758,10 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 #endif
 
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
+#endif
+
 	////////////////////////
 	// KNOWN BATTLE PLOT
 	////////////////////////

@@ -6340,6 +6340,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		changeEmbarkedExtraMoves(pTech->GetEmbarkedMoveChange() * iChange);
 	}
 
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	if (pTech->IsRepeat())
+	{
+		changeEmbarkedAllWaterPassage(iChange);
+	}
+#endif
+
 	for(iI = 0; iI < GC.getNumRouteInfos(); iI++)
 	{
 		changeRouteChange(((RouteTypes)iI), (GC.getRouteInfo((RouteTypes) iI)->getTechMovementChange(eTech) * iChange));
@@ -6356,6 +6363,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	{
 		changeExtraMoves(((DomainTypes)iI), (pTech->GetDomainExtraMoves(iI) * iChange));
 	}
+
+#ifdef FUTURE_TECH_RESEARCHING_BONUSES
+	if (pTech->IsEmbarkedAllWaterPassage())
+	{
+		changeEmbarkedAllWaterPassage(iChange);
+	}
+#endif
 
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{

@@ -1949,6 +1949,8 @@ local function GetCultureTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
 	end
 
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FUTURE_TECH_BONUS", 10 * Teams[cityOwner:GetTeam()]:GetTeamTechs():GetTechCount(80) or 0 )
+
 	-- Puppet modifier
 	local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
 	if puppetMod ~= 0 then
