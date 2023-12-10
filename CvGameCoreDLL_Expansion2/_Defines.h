@@ -360,8 +360,55 @@
 ///
 #define CREATIVE_EXPRESSION_SCIENCE_MOD
 ///
-#define VOTES_FOR_MOST_RELIGION_FOLLOWERS
 /*POLICIES CHANGES END*/
+
+
+
+/*RELIGION CHANGES START*/
+// Allow lake feature yield boosts from religion - this is a huge cheat so I don't have to code a whole new table for "fake features" which 
+// is what lakes are categorized under. In NQMod, ice has no belief bonuses, and so I'm overriding FEATURE_ICE to be used for lakes instead.
+#define NQ_LAKE_BELIEF_BONUSES
+///
+#define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
+///
+#define BELIEF_WORLD_CHURCH_PER_FOLLOWERS
+///
+#define BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+///
+#define BELIEF_PILGRIMAGE_PER_CITY
+///
+#define BELIEF_DANCE_AURORA_NERF
+/// allow religion one-shots (like deus vult, religious settlements, dharma)
+#define NQ_ALLOW_RELIGION_ONE_SHOTS
+/// allow golden ages from beliefs
+#define NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
+// extra trade routes from beliefs
+#define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+///
+#define PROPHET_CAN_FOUND_EXTRA_RELIGION
+///
+#define UNITY_OF_PROPHETS_EXTRA_PROPHETS
+///
+#define REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+///
+#define GP_RATE_MODIFIER_FROM_BELIEF
+///
+#define UNDERGROUND_SECT_REWORK
+///
+#define BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
+///
+#define BELIEF_GREAT_WORK_YIELD_CHANGES
+///
+#define BELIEF_SPECIALIST_YIELD_CHANGES
+///
+#define BELIEF_HURRY_MODIFIERS
+///
+#define BELIEF_MESSENGER_OF_GODS_FIX
+///
+#define RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
+///
+#define NEW_PAPAL_PRIMACY
+/*RELIGION CHANGES END*/
 
 
 
@@ -459,54 +506,6 @@
 ///
 #define AI_CANT_COUP
 /*AI CHANGES END*/
-
-
-
-/*RELIGION CHANGES START*/
-// Allow lake feature yield boosts from religion - this is a huge cheat so I don't have to code a whole new table for "fake features" which 
-// is what lakes are categorized under. In NQMod, ice has no belief bonuses, and so I'm overriding FEATURE_ICE to be used for lakes instead.
-#define NQ_LAKE_BELIEF_BONUSES
-///
-#define BELIEF_PEACE_LOVING_PER_PEACE_FULL_FOLLOWERS
-///
-#define BELIEF_WORLD_CHURCH_PER_FOLLOWERS
-///
-#define BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
-///
-#define BELIEF_PILGRIMAGE_PER_CITY
-///
-#define BELIEF_DANCE_AURORA_NERF
-/// allow religion one-shots (like deus vult, religious settlements, dharma)
-#define NQ_ALLOW_RELIGION_ONE_SHOTS
-/// allow golden ages from beliefs
-#define NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
-// extra trade routes from beliefs
-#define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
-///
-#define PROPHET_CAN_FOUND_EXTRA_RELIGION
-///
-#define UNITY_OF_PROPHETS_EXTRA_PROPHETS
-///
-#define REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
-///
-#define GP_RATE_MODIFIER_FROM_BELIEF
-///
-#define UNDERGROUND_SECT_REWORK
-///
-#define BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
-///
-#define BELIEF_GREAT_WORK_YIELD_CHANGES
-///
-#define BELIEF_SPECIALIST_YIELD_CHANGES
-///
-#define BELIEF_HURRY_MODIFIERS
-///
-#define BELIEF_MESSENGER_OF_GODS_FIX
-///
-#define RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
-///
-#define NEW_PAPAL_PRIMACY
-/*RELIGION CHANGES END*/
 
 
 
@@ -700,6 +699,8 @@
 #define LEAGUE_PROJECT_REWARD_TIER_3_THRESHOLD
 ///
 #define PROJECT_COST_PER_PLAYER_ROUND_TO_5
+///
+#define VOTES_FOR_MOST_RELIGION_FOLLOWERS
 /*LEAGUE CHANGES END*/
 
 
