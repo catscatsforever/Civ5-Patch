@@ -18577,6 +18577,19 @@ int CvPlayer::GetSciencePerTurnFromReligionTimes100() const
 					iReligionSciencePerTurn += (iFollowers / iTemp);
 				}
 			}
+
+#ifdef SCIENCE_FROM_PIETY_FINISHER
+			iTemp = X_FOLLOWERS;
+			if (GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_PIETY_FINISHER", true /*bHideAssert*/)))
+			{
+				int iFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+				if (iFollowers > 0)
+				{
+					iReligionSciencePerTurn += (iFollowers / iTemp);
+				}
+			}
+#endif
+
 			iReligionSciencePerTurn *= 100;
 			return iReligionSciencePerTurn;
 		}
