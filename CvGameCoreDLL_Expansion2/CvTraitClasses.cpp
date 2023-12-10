@@ -2196,7 +2196,11 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 #else
 int CvPlayerTraits::GetCapitalBuildingDiscount()
 {
-	return m_iCapitalBuildingModifier;
+	if (m_iCapitalBuildingModifier > 0)
+	{
+		return m_iCapitalBuildingModifier;
+	}
+	return 0;
 #endif
 }
 
