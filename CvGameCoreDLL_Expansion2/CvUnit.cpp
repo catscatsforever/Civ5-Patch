@@ -17591,17 +17591,7 @@ void CvUnit::SetTourismBlastStrength(int iValue)
 }
 
 #ifdef NEW_SCIENTISTS_BULB
-//	--------------------------------------------------------------------------------
-int CvUnit::GetResearchBulbAmount() const
-{
-	return m_iResearchBulbAmount;
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::SetResearchBulbAmount(int iValue)
-{
-	m_iResearchBulbAmount = iValue;
-}
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
 //	--------------------------------------------------------------------------------
 int CvUnit::GetScientistBirthTurn() const
 {
@@ -17614,8 +17604,23 @@ void CvUnit::SetScientistBirthTurn(int iValue)
 	m_iScientistBirthTurn = iValue;
 }
 
+#else
+//	--------------------------------------------------------------------------------
+int CvUnit::GetResearchBulbAmount() const
+{
+	return m_iResearchBulbAmount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetResearchBulbAmount(int iValue)
+{
+	m_iResearchBulbAmount = iValue;
+}
+
+#endif
 #endif
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
+//	--------------------------------------------------------------------------------
 bool CvUnit::isInstaHealLocked() const
 {
 	return m_bInstaHealLocked;
@@ -17627,7 +17632,6 @@ void CvUnit::setInstaHealLocked(bool bNewValue)
 	m_bInstaHealLocked = bNewValue;
 }
 
-//	--------------------------------------------------------------------------------
 #endif
 //	--------------------------------------------------------------------------------
 std::string CvUnit::getScriptData() const

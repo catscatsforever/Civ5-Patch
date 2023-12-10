@@ -1041,10 +1041,13 @@ public:
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 #ifdef NEW_SCIENTISTS_BULB
-	int GetResearchBulbAmount() const;
-	void SetResearchBulbAmount(int iValue);
+#ifdef DECREASE_BULB_AMOUNT_OVER_TIME
 	int GetScientistBirthTurn() const;
 	void SetScientistBirthTurn(int iValue);
+#else
+	int GetResearchBulbAmount() const;
+	void SetResearchBulbAmount(int iValue);
+#endif
 #endif
 
 	// Arbitrary Script Data
