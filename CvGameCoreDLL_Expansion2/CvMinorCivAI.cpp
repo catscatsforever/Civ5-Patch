@@ -6292,6 +6292,14 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Cultured
 	if(eTrait == MINOR_CIV_TRAIT_CULTURED)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 	}
 	// Militaristic
 	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
@@ -6306,6 +6314,14 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Maritime
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 		int iCapitalFoodTimes100 = 0;
 		int iOtherCitiesFoodTimes100 = 0;
 
@@ -6332,20 +6348,52 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 		GET_PLAYER(ePlayer).DoUpdateHappiness();
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 	}
 #ifdef NEW_CITY_STATES_TYPES
 	// Scientific
 	if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 	}
 	// Manufactory
 	else if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (bAdd)
+		{
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(ePlayer) == -1)
+				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
+		}
+#endif
 		int iCapitalProductionTimes100 = 0;
 		int iOtherCitiesProductionTimes100 = 0;
 
@@ -7789,6 +7837,23 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 
 	int iNumTurns = GetSpawnBaseTurns(ePlayer);
 
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+	if (iNumTurns > 0)
+	{
+		// Add some randomness
+		int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN();
+		iNumTurns += GC.getGame().getJonRandNum(iRand, "Rand turns for Friendly Minor unit spawn");
+
+		// If we're biasing the result then decrease the number of turns
+		if (bBias)
+		{
+			iNumTurns *= /*50*/ GC.getUNIT_SPAWN_BIAS_MULTIPLIER();
+			iNumTurns /= 100;
+		}
+
+		SetUnitSpawnCounter(ePlayer, iNumTurns);
+	}
+#else
 	// Add some randomness
 	int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN();
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "Rand turns for Friendly Minor unit spawn");
@@ -7801,6 +7866,7 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 	}
 
 	SetUnitSpawnCounter(ePlayer, iNumTurns);
+#endif
 }
 
 // How long before we spawn a free unit for ePlayer?
@@ -7841,6 +7907,9 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 
 	// Must be Militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)))
+#endif
 		return false;
 
 	// Can't be at war!
@@ -8009,6 +8078,14 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 			{
 				DoSpawnUnit(eMajor);
 			}
+
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+			if (GetUnitSpawnCounter(eMajor) == -1)
+			{
+				DoSeedUnitSpawnCounter(eMajor, /*bBias*/ true);
+			}
+#endif
 		}
 	}
 }
@@ -8020,6 +8097,21 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	if(!IsFriends(ePlayer))
 		return 0;
 
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+	int iNumTurns;
+	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC && GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER) == 0)
+	{
+		iNumTurns = 0;
+	}
+	else
+	{
+		iNumTurns = /*19*/ GC.getFRIENDS_BASE_TURNS_UNIT_SPAWN() * 100;
+	}
+
+	if (iNumTurns > 0)
+		if (IsAllies(ePlayer))
+			iNumTurns += /*-3*/ (GC.getALLIES_EXTRA_TURNS_UNIT_SPAWN() * 100);
+#else
 	// This guy isn't militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
@@ -8029,6 +8121,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	// If relations are at allied level then reduce spawn counter
 	if(IsAllies(ePlayer))
 		iNumTurns += /*-3*/ (GC.getALLIES_EXTRA_TURNS_UNIT_SPAWN() * 100);
+#endif
 
 #ifdef SIAM_UA_REWORK
 	// Modify the bonus if called for by our trait
@@ -8049,7 +8142,11 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	int iPolicyMod = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER);
 	if(iPolicyMod > 0)
 	{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+		if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+#else
 		if(GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()))
+#endif
 		{
 			iNumTurns *= 100;
 			iNumTurns /= (100 + iPolicyMod);
@@ -8066,14 +8163,24 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 	if(!IsFriends(ePlayer))
 		return 0;
 
+#ifndef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
 	// This guy isn't militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
+#endif
 
 	int iNumTurns = GetSpawnBaseTurns(ePlayer) * 100;
 
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+	if (iNumTurns > 0)
+	{
+		int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN() * 100;
+		iNumTurns += (iRand / 2);
+	}
+#else
 	int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN() * 100;
 	iNumTurns += (iRand / 2);
+#endif
 
 	return iNumTurns / 100;
 }
@@ -9936,8 +10043,12 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		}
 		else if (!IsAtWarWithPlayersTeam(ePlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(eTeam))
 		{
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+			if (IsFriends(ePlayer) && GetSpawnBaseTurns(ePlayer) > 0)
+#else
 			// If ePlayer is also at war with eTeam, we might shorten the unit spawn timer
 			if (IsFriends(ePlayer) && GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+#endif
 			{
 				int iBaseSpawnTurns = GetSpawnBaseTurns(ePlayer); // May be significantly less now with common enemy due to social policy
 				iBaseSpawnTurns = MAX(iBaseSpawnTurns, 1);

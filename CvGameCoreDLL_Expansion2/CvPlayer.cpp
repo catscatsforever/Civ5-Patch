@@ -23494,6 +23494,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 #endif
+#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+	if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/))
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinorCivLoop = (PlayerTypes)iMinorCivLoop;
+			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()) && GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->GetUnitSpawnCounter((PlayerTypes)GetID()) == -1)
+			{
+				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->DoSeedUnitSpawnCounter((PlayerTypes)GetID());
+			}
+		}
+	}
+#endif
 
 	// Free Techs
 	int iNumFreeTechs = pPolicy->GetNumFreeTechs() * iChange;
