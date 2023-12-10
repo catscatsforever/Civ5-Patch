@@ -5419,6 +5419,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 
 	// From traits
 #ifdef ROME_UA_REWORK
+	iTempMod = 0;
 	if(!isCapital())
 	{
 		if(m_bRouteToCapitalConnectedThisTurn)
@@ -5430,10 +5431,6 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalBuildingDiscount();
 			}
 		}
-	}
-	else
-	{
-		iTempMod = 0;
 	}
 #else
 	iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding);
