@@ -124,7 +124,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
 #ifdef CITY_RANGE_MODIFIER
-	m_iCitytAttackRangeModifier(0),
+	m_iCityAttackRangeModifier(0),
 #endif
 	m_bTeamShare(false),
 	m_bWater(false),
@@ -363,7 +363,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
 #ifdef CITY_RANGE_MODIFIER
-	m_iCitytAttackRangeModifier = kResults.GetInt("CitytAttackRangeModifier");
+	m_iCityAttackRangeModifier = kResults.GetInt("CityAttackRangeModifier");
 #endif
 
 	m_bArtInfoCulturalVariation = kResults.GetBool("ArtInfoCulturalVariation");
@@ -1342,10 +1342,9 @@ int CvBuildingEntry::GetPortraitIndex() const
 }
 
 #ifdef CITY_RANGE_MODIFIER
-/// index of portrait in the texture sheet
-int CvBuildingEntry::GetCitytAttackRangeModifier() const
+int CvBuildingEntry::getCityAttackRangeModifier() const
 {
-	return m_iCitytAttackRangeModifier;
+	return m_iCityAttackRangeModifier;
 }
 #endif
 

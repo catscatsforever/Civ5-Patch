@@ -195,7 +195,7 @@ public:
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
 #ifdef CITY_RANGE_MODIFIER
-	int GetCitytAttackRangeModifier() const;
+	int getCityAttackRangeModifier() const;
 #endif
 	bool IsTeamShare() const;
 	bool IsWater() const;
@@ -411,7 +411,7 @@ private:
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
 #ifdef CITY_RANGE_MODIFIER
-	int m_iCitytAttackRangeModifier;
+	int m_iCityAttackRangeModifier;
 #endif
 
 	bool m_bTeamShare;

@@ -444,7 +444,7 @@ protected:
 	static int lCanRangeStrikeNow(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
 #ifdef CITY_RANGE_MODIFIER
-	static int lGetCitytAttackRangeModifier(lua_State* L);
+	static int lGetCityAttackRangeModifier(lua_State* L);
 #endif
 	static int lHasPerformedRangedStrikeThisTurn(lua_State* L);
 	static int lRangeCombatUnitDefense(lua_State* L);

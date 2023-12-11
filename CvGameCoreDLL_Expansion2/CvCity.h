@@ -336,8 +336,8 @@ public:
 	void changeGreatPeopleRateModifier(int iChange);
 
 #ifdef CITY_RANGE_MODIFIER
-	int getCitytAttackRangeModifier() const;
-	void changeCitytAttackRangeModifier(int iChange);
+	int getCityAttackRangeModifier() const;
+	void changeCityAttackRangeModifier(int iChange);
 #endif
 
 	// Culture stuff
@@ -842,7 +842,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iBaseGreatPeopleRate;
 	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
 #ifdef CITY_RANGE_MODIFIER
-	FAutoVariable<int, CvCity> m_iCitytAttackRangeModifier;
+	FAutoVariable<int, CvCity> m_iCityAttackRangeModifier;
 #endif
 	FAutoVariable<int, CvCity> m_iJONSCultureStored;
 	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
