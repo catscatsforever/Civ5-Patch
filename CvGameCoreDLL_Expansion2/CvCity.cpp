@@ -14640,7 +14640,7 @@ void CvCity::read(FDataStream& kStream)
 		kStream >> m_iCityAttackRangeModifier;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
-	if (uiVersion >= 1000)
+	else if (uiVersion >= 1000)
 	{
 		kStream >> m_iCityAttackRangeModifier;
 	}
@@ -14659,7 +14659,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iCityCurrentExtraAttack;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
-	if (uiVersion >= 1001)
+	else if (uiVersion >= 1001)
 	{
 		kStream >> m_iCityExtraAttack;
 		kStream >> m_iCityCurrentExtraAttack;
