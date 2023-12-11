@@ -7684,6 +7684,22 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
+#ifdef GREECE_UA_REWORK
+			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+			{
+				if (pWorkingCity != NULL && isMountain() && !IsNaturalWonder())
+				{
+					if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
+					{
+						iYield += 1;
+					}
+					else if (eYield == YIELD_FAITH)
+					{
+						iYield += 3;
+					}
+				}
+			}
+#endif
 		}
 
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
