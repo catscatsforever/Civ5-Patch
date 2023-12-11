@@ -3561,7 +3561,12 @@ int CvLuaCity::lUpdateStrengthValue(lua_State* L)
 int CvLuaCity::lGetStrengthValue(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
+#ifdef CORRECT_ATTACK_CITY_STRENGTH
+	const bool bForRangeStrike = lua_toboolean(L, 2);
+	const int iResult = pkCity->getStrengthValue(bForRangeStrike);
+#else
 	const int iResult = pkCity->getStrengthValue();
+#endif
 
 	lua_pushinteger(L, iResult);
 	return 1;

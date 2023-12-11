@@ -166,7 +166,8 @@ end
 function UpdateCityStats(pCity)
 	
 	-- Strength
-	local strength = math.floor(pCity:GetStrengthValue() / 100);
+	-- Correct Attack City Strength
+	local strength = math.floor(pCity:GetStrengthValue(false) / 100);
 	
 	strength = strength .. " [ICON_STRENGTH]";
 	Controls.UnitStrengthBox:SetHide(false);
@@ -311,7 +312,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, nil);
 		end
 		
-		iTheirStrength = pCity:GetStrengthValue();
+		-- Correct Attack City Strength
+		iTheirStrength = pCity:GetStrengthValue(false);
 		
 		if (iMyStrength > 0) then
 			
@@ -1728,7 +1730,8 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityMaxHP = myCity:GetMaxHitPoints();
 	local myCityCurHP = myCity:GetDamage();
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
-	local myCityStrength = myCity:GetStrengthValue();
+	-- Correct Attack City Strength
+	local myCityStrength = myCity:GetStrengthValue(true);
 	
 	local theirUnitMaxHP = GameDefines["MAX_HIT_POINTS"];
 	local theirUnitCurHP = theirUnit:GetDamage();
@@ -2043,7 +2046,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		-- end
 
 		-- Future Tech bonus
-		local pTeam = Teams[pMyPlayer:GetTeam()];
+		local pTeam = Teams[pTheirPlayer:GetTeam()];
 		local iModifier = 10 * pTeam:GetTeamTechs():GetTechCount(80);
 		if (iModifier > 0) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
