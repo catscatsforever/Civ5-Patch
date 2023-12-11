@@ -130,6 +130,10 @@ CvCity::CvCity() :
 #ifdef CITY_RANGE_MODIFIER
 	, m_iCityAttackRangeModifier("CvCity::m_iCityAttackRangeModifier", m_syncArchive)
 #endif
+#ifdef CITY_EXTRA_ATTACK
+	, m_iCityExtraAttack("CvCity::m_iCityExtraAttack", m_syncArchive)
+	, m_iCityCurrentExtraAttack("CvCity::m_iCityCurrentExtraAttack", m_syncArchive)
+#endif
 	, m_iJONSCultureStored("CvCity::m_iJONSCultureStored", m_syncArchive, true)
 	, m_iJONSCultureLevel("CvCity::m_iJONSCultureLevel", m_syncArchive)
 	, m_iJONSCulturePerTurnFromBuildings("CvCity::m_iJONSCulturePerTurnFromBuildings", m_syncArchive)
@@ -669,6 +673,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iGreatPeopleRateModifier = 0;
 #ifdef CITY_RANGE_MODIFIER
 	m_iCityAttackRangeModifier = 0;
+#endif
+#ifdef CITY_EXTRA_ATTACK
+	m_iCityExtraAttack = 0;
+	m_iCityCurrentExtraAttack = 0;
 #endif
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
@@ -1494,6 +1502,9 @@ void CvCity::doTurn()
 
 	setDrafted(false);
 	setMadeAttack(false);
+#ifdef CITY_EXTRA_ATTACK
+	changeCityCurrentExtraAttack(-getCityCurrentExtraAttack() + getCityExtraAttack());
+#endif
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
 	DoUpdateFeatureSurrounded();
@@ -6342,6 +6353,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifdef CITY_RANGE_MODIFIER
 		changeCityAttackRangeModifier(pBuildingInfo->getCityAttackRangeModifier() * iChange);
 #endif
+#ifdef CITY_EXTRA_ATTACK
+		changeCityExtraAttack(pBuildingInfo->GetCityExtraAttack() * iChange);
+		changeCityCurrentExtraAttack(pBuildingInfo->GetCityExtraAttack()* iChange);
+#endif
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeFreeExperience(pBuildingInfo->GetFreeExperience() * iChange);
@@ -7981,6 +7996,36 @@ void CvCity::changeCityAttackRangeModifier(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iCityAttackRangeModifier = (m_iCityAttackRangeModifier + iChange);
+}
+#endif
+
+#ifdef CITY_EXTRA_ATTACK
+//	--------------------------------------------------------------------------------
+int CvCity::getCityExtraAttack() const
+{
+	VALIDATE_OBJECT
+	return m_iCityExtraAttack;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeCityExtraAttack(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iCityExtraAttack = (m_iCityExtraAttack + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getCityCurrentExtraAttack() const
+{
+	VALIDATE_OBJECT
+	return m_iCityCurrentExtraAttack;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeCityCurrentExtraAttack(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iCityCurrentExtraAttack = (m_iCityCurrentExtraAttack + iChange);
 }
 #endif
 
@@ -14605,6 +14650,27 @@ void CvCity::read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef CITY_EXTRA_ATTACK
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	{
+# endif
+	kStream >> m_iCityExtraAttack;
+	kStream >> m_iCityCurrentExtraAttack;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	if (uiVersion >= 1001)
+	{
+		kStream >> m_iCityExtraAttack;
+		kStream >> m_iCityCurrentExtraAttack;
+	}
+	else
+	{
+		m_iCityExtraAttack = 0;
+		m_iCityCurrentExtraAttack = 0;
+	}
+# endif
+#endif
 	kStream >> m_iJONSCultureStored;
 	kStream >> m_iJONSCultureLevel;
 	kStream >> m_iJONSCulturePerTurnFromBuildings;
@@ -14973,6 +15039,10 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iGreatPeopleRateModifier;
 #ifdef CITY_RANGE_MODIFIER
 	kStream << m_iCityAttackRangeModifier;
+#endif
+#ifdef CITY_EXTRA_ATTACK
+	kStream << m_iCityExtraAttack;
+	kStream << m_iCityCurrentExtraAttack;
 #endif
 	kStream << m_iJONSCultureStored;
 	kStream << m_iJONSCultureLevel;
@@ -15373,7 +15443,11 @@ bool CvCity::canRangeStrike() const
 	VALIDATE_OBJECT
 
 	// Can't shoot more than once per turn
+#ifdef CITY_EXTRA_ATTACK
+	if(getCityCurrentExtraAttack() == 0 && isMadeAttack())
+#else
 	if(isMadeAttack())
+#endif
 		return false;
 
 	// Can't shoot when in resistance
@@ -15566,6 +15640,12 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 		return eResult;
 	}
 
+#ifdef CITY_EXTRA_ATTACK
+	if (isMadeAttack())
+	{
+		changeCityCurrentExtraAttack(-1);
+	}
+#endif
 	setMadeAttack(true);
 
 	// No City

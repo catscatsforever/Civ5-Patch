@@ -630,6 +630,8 @@
 ///
 #define CITY_EXTRA_HEAL // ToDo: XML Stuff
 ///
+#define CITY_EXTRA_ATTACK
+///
 #define BUILDING_BARN
 /*CITIES CHANGES END*/
 
@@ -810,7 +812,8 @@
 // 1000: v7.0 (initial)
 # define BUMP_SAVE_VERSION_BELIEFS 1000
 // 1000: v7.0 (initial)
-# define BUMP_SAVE_VERSION_CITY 1000
+// 1001: v8.0 (adds CITY_EXTRA_ATTACK)
+# define BUMP_SAVE_VERSION_CITY 1001
 // 1000: v7.0 (initial)
 # define BUMP_SAVE_VERSION_ESPIONAGE 1000
 // 1000: v7.0 (initial)

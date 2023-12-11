@@ -3630,7 +3630,16 @@ int CvLuaCity::lGetCityAttackRangeModifier(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lHasPerformedRangedStrikeThisTurn(lua_State* L)
 {
+
+#ifdef CITY_EXTRA_ATTACK
+	CvCity* pkCity = GetInstance(L);
+	const bool bResult = (pkCity->getCityCurrentExtraAttack() == 0) && pkCity->isMadeAttack();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvCity::isMadeAttack);
+#endif
 }
 //------------------------------------------------------------------------------
 int CvLuaCity::lRangeCombatUnitDefense(lua_State* L)

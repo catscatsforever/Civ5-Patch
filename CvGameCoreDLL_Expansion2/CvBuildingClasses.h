@@ -197,6 +197,9 @@ public:
 #ifdef CITY_RANGE_MODIFIER
 	int getCityAttackRangeModifier() const;
 #endif
+#ifdef CITY_EXTRA_ATTACK
+	int GetCityExtraAttack() const;
+#endif
 	bool IsTeamShare() const;
 	bool IsWater() const;
 	bool IsRiver() const;
@@ -412,6 +415,9 @@ private:
 	int m_iPortraitIndex;
 #ifdef CITY_RANGE_MODIFIER
 	int m_iCityAttackRangeModifier;
+#endif
+#ifdef CITY_EXTRA_ATTACK
+	int m_iCityExtraAttack;
 #endif
 
 	bool m_bTeamShare;
