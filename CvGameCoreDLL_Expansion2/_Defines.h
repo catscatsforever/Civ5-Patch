@@ -628,6 +628,8 @@
 ///
 #define CITY_RANGE_MODIFIER
 ///
+#define CITY_EXTRA_HEAL // ToDo: XML Stuff
+///
 #define BUILDING_BARN
 /*CITIES CHANGES END*/
 

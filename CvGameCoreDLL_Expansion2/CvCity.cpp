@@ -1478,6 +1478,13 @@ void CvCity::doTurn()
 		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
 		iBuildingDefense /= 100;
 		iHitsHealed += iBuildingDefense / 500;
+#ifdef CITY_EXTRA_HEAL
+		iHitsHealed /= 2;
+		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_CASTLE")) > 0 || m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_MUGHAL_FORT")) > 0)
+		{
+			iHitsHealed *= 3;
+		}
+#endif
 		changeDamage(-iHitsHealed);
 	}
 	if(getDamage() < 0)
