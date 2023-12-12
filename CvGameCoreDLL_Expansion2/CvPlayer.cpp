@@ -23150,7 +23150,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeGetMinorFriendshipDecayMod(pPolicy->GetMinorFriendshipDecayMod() * iChange);
 	ChangeMinorScienceAlliesCount(pPolicy->IsMinorScienceAllies() * iChange);
 	ChangeMinorResourceBonusCount(pPolicy->IsMinorResourceBonus() * iChange);
+#ifndef RESETTLEMENT_CHANGE_GLOBAL_POP
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
+#endif
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
@@ -23781,6 +23783,29 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+
+#ifdef RESETTLEMENT_CHANGE_GLOBAL_POP
+	// Global Pop change
+	if (pPolicy->GetNewCityExtraPopulation() != 0)
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+
+		for (iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			{
+				if (iI == GetID())
+				{
+					for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+					{
+						pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetNewCityExtraPopulation())));
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Great People bonus from Allied city-states
 	if(pPolicy->IsMinorGreatPeopleAllies())
