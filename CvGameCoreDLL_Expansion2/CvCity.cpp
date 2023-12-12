@@ -6070,7 +6070,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
 				}
-				GET_PLAYER(ePlayer2).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
+				GET_PLAYER(ePlayer2).GetEspionage()->ExtractSpyFromCity(iSpyIndex);
 			}
 		}
 	}
