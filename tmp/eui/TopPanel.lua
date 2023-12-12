@@ -2088,7 +2088,7 @@ if civ5_mode then
 			local naturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders()
 			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
-			local FutureTechHappiness = g_activeTeam:GetTeamTechs():GetTechCount(80);
+			local FutureTechHappiness = 5 * g_activeTeam:GetTeamTechs():GetTechCount(80);
 			local totalHappiness = g_activePlayer:GetHappiness()
 			local happinessFromVassals = g_activePlayer.GetHappinessFromVassals and g_activePlayer:GetHappinessFromVassals() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - FutureTechHappiness - happinessFromVassals	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
