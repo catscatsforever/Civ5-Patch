@@ -119,7 +119,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  	end
 
  	for thisResourceInfo in GameInfo.Resources(string.format("TechReveal = '%s'", techType)) do
- 		if (thisResourceInfo.ID ~= 35) then
+ 		if (thisResourceInfo.ID ~= 39) then
 	 		-- if this tech grants this player the ability to reveal this resource
 			local buttonName = "B"..tostring(buttonNum);
 			local thisButton = thisTechButtonInstance[buttonName];

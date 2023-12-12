@@ -434,7 +434,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- resources revealed by this tech
 	for row in GameInfo.Resources{ TechReveal = techType } do
-		if (row.ID ~= 35) then
+		if (row.ID ~= 39) then
 			if not addSmallArtButton( AdjustArtOnGrantedResourceButton, row ) then
 				break
 			end
