@@ -7908,7 +7908,7 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 	// Must be Militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 #ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
-		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)))
+		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)) && IsAllies(ePlayer))
 #endif
 		return false;
 
