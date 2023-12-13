@@ -1,5 +1,8 @@
 -------------------------------------------------------------------
--- edit: extended replay messages for EUI & vanilla UI
+-- edit:
+--     extended replay messages
+--     alternative graph colors
+-- for EUI & vanilla UI
 -------------------------------------------------------------------
 include("InstanceManager");
 include("IconSupport");
@@ -674,10 +677,11 @@ Panels = {
 				end
 					
 				function DetermineGraphColor(playerColor)
-					if(IsUniqueColor(GameInfo.Colors[playerColor.PrimaryColor])) then
-						return GameInfo.Colors[playerColor.PrimaryColor];
-					elseif(IsUniqueColor(GameInfo.Colors[playerColor.SecondaryColor])) then
+					-- NEW: first priority for secondary color
+					if(IsUniqueColor(GameInfo.Colors[playerColor.SecondaryColor])) then
 						return GameInfo.Colors[playerColor.SecondaryColor];
+					elseif(IsUniqueColor(GameInfo.Colors[playerColor.PrimaryColor])) then
+						return GameInfo.Colors[playerColor.PrimaryColor];
 					else
 						for color in GameInfo.Colors() do
 							if(IsUniqueColor(color)) then
