@@ -217,7 +217,7 @@ Panels = {
 				
 				local h,s,l = HSLFromColor(usedColor.Red, usedColor.Green, usedColor.Blue);
 				
-				print(l);
+				--print(l);
 				if(l < 0.4) then
 					--usedColor = ColorFromHSL(h, s, 0.5);
 					--print("CONVERT");
@@ -575,12 +575,14 @@ Panels = {
 				
 				for i,v in ipairs(playerInfos) do
 					local graphLegend = panel.GraphLegendsByPlayer[i];
-					local isHidden = not graphLegend.ShowHide:IsChecked();
-				
-					panel.SegmentsByPlayer[i] = DrawGraph(v, panel.PlayerGraphColors[i], indexName, graphWidth, minTurn, maxTurn, YScale, minScore); 
-					if(isHidden == true) then
-						for _, instance in ipairs(panel.SegmentsByPlayer[i]) do
-							instance.LineSegment:SetHide(true);					
+					if graphLegend ~= nil then
+						local isHidden = not graphLegend.ShowHide:IsChecked();
+					
+						panel.SegmentsByPlayer[i] = DrawGraph(v, panel.PlayerGraphColors[i], indexName, graphWidth, minTurn, maxTurn, YScale, minScore); 
+						if(isHidden == true) then
+							for _, instance in ipairs(panel.SegmentsByPlayer[i]) do
+								instance.LineSegment:SetHide(true);					
+							end
 						end
 					end
 				end
@@ -983,7 +985,7 @@ Panels = {
 				-- mapHeight
 				-- turnLabel
 				
-				print("Drawing Map at Turn " .. currentTurn);
+				--print("Drawing Map at Turn " .. currentTurn);
 				
 				turnLabel:LocalizeAndSetText("TXT_KEY_TP_TURN_COUNTER", currentTurn);
 				
