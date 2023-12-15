@@ -246,6 +246,7 @@ protected:
 	static int lGetReplayInfo(lua_State* L);
 #ifdef REPLAY_EVENTS
 	static int lGetReplayEventsOfType(lua_State* L);
+	static int lGetReplayEventsOfTypes(lua_State* L);
 #endif
 
 	static int lSaveReplay(lua_State* L);

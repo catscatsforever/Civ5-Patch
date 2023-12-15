@@ -251,6 +251,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetReplayInfo);
 #ifdef REPLAY_EVENTS
 	Method(GetReplayEventsOfType);
+	Method(GetReplayEventsOfTypes);
 #endif
 
 	Method(SaveReplay);
@@ -1728,6 +1729,70 @@ int CvLuaGame::lGetReplayEventsOfType(lua_State* L)
 		const CvReplayEvent* pEvent = game.getReplayEvent(i);
 		
 		if (iType == pEvent->m_eEventType)
+		{
+			lua_createtable(L, 0, 6);
+			const int t = lua_gettop(L);
+
+			lua_pushinteger(L, pEvent->m_ePlayer);
+			lua_setfield(L, t, "Player");
+
+			lua_pushinteger(L, pEvent->m_iTurn);
+			lua_setfield(L, t, "Turn");
+
+			lua_pushinteger(L, pEvent->m_iTimestamp);
+			lua_setfield(L, t, "Timestamp");
+
+			lua_pushinteger(L, pEvent->m_eEventType);
+			lua_setfield(L, t, "Type");
+
+			const CvString& text = pEvent->m_strStringData;
+			if (text.GetLength() > 0)
+			{
+				lua_pushstring(L, text.c_str());
+				lua_setfield(L, t, "Text");
+			}
+
+			const uint nNumericArgs = pEvent->m_vNumericArgs.size();
+			lua_createtable(L, nNumericArgs, 0);
+			for (uint j = 0; j < nNumericArgs; j++)
+			{
+				int iArg = pEvent->m_vNumericArgs.at(j);
+
+				lua_pushinteger(L, iArg);
+				lua_rawseti(L, -2, j + 1);
+			}
+			lua_setfield(L, t, "NumericArgs");
+
+			lua_rawseti(L, events_t, events_idx++);
+		}
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetReplayEventsOfTypes(lua_State* L)
+{
+	std::vector<int> v;
+	const int len = lua_objlen(L, -1);
+	for (int i = 1; i <= len; ++i) {
+		lua_pushinteger(L, i);
+		lua_gettable(L, -2);
+		v.push_back(luaL_checkint(L, -1));
+		lua_pop(L, 1);
+	}
+
+	CvGame& game = GC.getGame();
+	const unsigned int nEvents = game.getNumReplayEvents();
+
+	lua_createtable(L, nEvents, 0);
+	const int events_t = lua_gettop(L);
+	int events_idx = 1;
+
+	for (unsigned int i = 0; i < nEvents; i++)
+	{
+		const CvReplayEvent* pEvent = game.getReplayEvent(i);
+
+		if (std::find(v.begin(), v.end(), pEvent->m_eEventType) != v.end())
 		{
 			lua_createtable(L, 0, 6);
 			const int t = lua_gettop(L);
