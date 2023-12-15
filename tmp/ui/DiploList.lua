@@ -571,6 +571,10 @@ function InitMinorCivList()
         		controlTable.MinorType:LocalizeAndSetText( "TXT_KEY_CITY_STATE_MERCANTILE_ADJECTIVE" );
         	elseif(iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
         		controlTable.MinorType:LocalizeAndSetText( "TXT_KEY_CITY_STATE_RELIGIOUS_ADJECTIVE" );
+        	elseif(iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_SCIENTIFIC) then
+        		controlTable.MinorType:LocalizeAndSetText( "TXT_KEY_CITY_STATE_SCIENTIFIC_ADJECTIVE" );
+        	elseif(iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MANUFACTORY) then
+        		controlTable.MinorType:LocalizeAndSetText( "TXT_KEY_CITY_STATE_MANUFACTORY_ADJECTIVE" );
         	end
 
 			civType = pOtherPlayer:GetCivilizationType();
