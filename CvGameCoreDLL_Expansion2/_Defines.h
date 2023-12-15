@@ -676,6 +676,8 @@
 #define CITIZENS_CITY_OVERRIDE_BUG_FIX
 ///
 #define CORRECT_ATTACK_CITY_STRENGTH
+/// Vanilla typo
+#define FIX_CVTEAM_BITWISE_OR_MISUSE
 /*BUGS FIXES END*/
 
 
@@ -861,6 +863,7 @@
 #ifdef REPLAY_EVENTS
 enum ReplayEventTypes
 {
+	// Network actions
 	REPLAYEVENT_AdvancedStartAction,
 	REPLAYEVENT_AutoMission,
 	REPLAYEVENT_BarbarianRansom,
@@ -939,6 +942,32 @@ enum ReplayEventTypes
 	REPLAYEVENT_ExtractSpy,
 	REPLAYEVENT_UpdatePolicyBranch,
 	REPLAYEVENT_UnpauseTimer,
+
+	// Gameplay events
+	REPLAYEVENT_CityUnitComplete,
+	REPLAYEVENT_CityBuildingComplete,
+	REPLAYEVENT_CityGrowth,
+	REPLAYEVENT_CityStarvation,
+	REPLAYEVENT_CityBorderGrowth,
+	REPLAYEVENT_UnitDisbanded,
+	REPLAYEVENT_UnitKilledInCombat,
+	REPLAYEVENT_UnitPromotion,
+	REPLAYEVENT_UnitUpgrade,
+	REPLAYEVENT_ImprovementFinished,
+	REPLAYEVENT_GoodyHut,
+	REPLAYEVENT_NaturalWonderDiscovered,
+	REPLAYEVENT_CircumnavigatedGlobe,
+	REPLAYEVENT_MeetTeam,
+	REPLAYEVENT_TechAcquired,
+	REPLAYEVENT_AdvanceEra,
+	REPLAYEVENT_SpyCoupResult,
+	REPLAYEVENT_SpyOperationResult,
+	REPLAYEVENT_MinorQuestComplete,
+	REPLAYEVENT_MinorAllyChanged,
+	REPLAYEVENT_MinorFriendChanged,
+	REPLAYEVENT_CongressHostChange,
+	REPLAYEVENT_CongressEnactedProposalsChange,
+	REPLAYEVENT_MPProposalResult,
 
 	NUM_REPLAYEVENTS
 };

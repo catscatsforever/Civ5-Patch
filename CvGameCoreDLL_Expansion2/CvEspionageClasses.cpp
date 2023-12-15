@@ -634,6 +634,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 			}
 
+#ifdef REPLAY_EVENTS
+			std::vector<int> vArgs;
+			vArgs.push_back(static_cast<int>(uiSpyIndex));
+			vArgs.push_back(static_cast<int>(pCity->getOwner()));
+			vArgs.push_back(pCity->plot()->GetPlotIndex());
+			vArgs.push_back(static_cast<int>(pCityEspionage->m_aiResult[ePlayer]));
+			GC.getGame().addReplayEvent(REPLAYEVENT_SpyOperationResult, m_pPlayer->GetID(), vArgs);
+#endif
 			// spy killed in action
 			if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_KILLED)
 			{
@@ -2305,6 +2313,14 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(static_cast<int>(uiSpyIndex));
+	vArgs.push_back(static_cast<int>(pCity->getOwner()));
+	vArgs.push_back(pCity->plot()->GetPlotIndex());
+	vArgs.push_back(static_cast<int>(bAttemptSuccess));
+	GC.getGame().addReplayEvent(REPLAYEVENT_SpyCoupResult, m_pPlayer->GetID(), vArgs);
+#endif
 
 	//Achievements!
 	if(bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())

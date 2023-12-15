@@ -1489,6 +1489,12 @@ bool CvMinorCivQuest::DoFinishQuest()
 	}
 
 	pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer);
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(static_cast<int>(pMinor->GetID()));
+	vArgs.push_back(static_cast<int>(m_eType));
+	GC.getGame().addReplayEvent(REPLAYEVENT_MinorQuestComplete, m_eAssignedPlayer, vArgs);
+#endif
 
 	return true;
 }
@@ -6130,6 +6136,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(m_pPlayer->GetID()));
+		vArgs.push_back(static_cast<int>(true));
+		GC.getGame().addReplayEvent(REPLAYEVENT_MinorFriendChanged, ePlayer, vArgs);
+#endif
 	}
 	// Remove Friends bonus
 	else if(bWasAboveFriendsThreshold && !bNowAboveFriendsThreshold)
@@ -6150,6 +6162,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(m_pPlayer->GetID()));
+		vArgs.push_back(static_cast<int>(false));
+		GC.getGame().addReplayEvent(REPLAYEVENT_MinorFriendChanged, ePlayer, vArgs);
+#endif
 	}
 
 	// Resolve Allies status
@@ -6182,6 +6200,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(m_pPlayer->GetID()));
+		vArgs.push_back(static_cast<int>(true));
+		GC.getGame().addReplayEvent(REPLAYEVENT_MinorAllyChanged, ePlayer, vArgs);
+#endif
 	}
 	// Remove Allies bonus
 	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
@@ -6202,6 +6226,12 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(m_pPlayer->GetID()));
+		vArgs.push_back(static_cast<int>(false));
+		GC.getGame().addReplayEvent(REPLAYEVENT_MinorAllyChanged, ePlayer, vArgs);
+#endif
 
 	}
 #ifdef NO_AI_ALLYING_CS

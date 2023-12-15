@@ -2,6 +2,7 @@
 -- edit:
 --     extended replay messages
 --     alternative graph colors
+--     Replay Events
 -- for EUI & vanilla UI
 -------------------------------------------------------------------
 include("InstanceManager");
@@ -174,8 +175,11 @@ g_GraphHorizontalMarkers = {
 g_ReplayMessageInstanceManager = InstanceManager:new("ReplayMessageInstance", "Base", Controls.ReplayMessageStack);
 g_GraphLegendInstanceManager = InstanceManager:new("GraphLegendInstance", "GraphLegend", Controls.GraphLegendStack);
 g_LineSegmentInstanceManager = InstanceManager:new("GraphLineInstance","LineSegment", Controls.GraphCanvas);
+-- NEW: Replay Events
+g_ReplayEventInstanceManager = InstanceManager:new("ReplayEventInstance", "Base", Controls.ReplayEventStack);
 
 g_ReplayInfo = {};
+g_ReplayEventCategories = {};
 
 Panels = {
 	{
@@ -213,7 +217,7 @@ Panels = {
 				
 				local h,s,l = HSLFromColor(usedColor.Red, usedColor.Green, usedColor.Blue);
 				
-				print(l);
+				--print(l);
 				if(l < 0.4) then
 					--usedColor = ColorFromHSL(h, s, 0.5);
 					--print("CONVERT");
@@ -571,12 +575,14 @@ Panels = {
 				
 				for i,v in ipairs(playerInfos) do
 					local graphLegend = panel.GraphLegendsByPlayer[i];
-					local isHidden = not graphLegend.ShowHide:IsChecked();
-				
-					panel.SegmentsByPlayer[i] = DrawGraph(v, panel.PlayerGraphColors[i], indexName, graphWidth, minTurn, maxTurn, YScale, minScore); 
-					if(isHidden == true) then
-						for _, instance in ipairs(panel.SegmentsByPlayer[i]) do
-							instance.LineSegment:SetHide(true);					
+					if graphLegend ~= nil then
+						local isHidden = not graphLegend.ShowHide:IsChecked();
+					
+						panel.SegmentsByPlayer[i] = DrawGraph(v, panel.PlayerGraphColors[i], indexName, graphWidth, minTurn, maxTurn, YScale, minScore); 
+						if(isHidden == true) then
+							for _, instance in ipairs(panel.SegmentsByPlayer[i]) do
+								instance.LineSegment:SetHide(true);					
+							end
 						end
 					end
 				end
@@ -979,7 +985,7 @@ Panels = {
 				-- mapHeight
 				-- turnLabel
 				
-				print("Drawing Map at Turn " .. currentTurn);
+				--print("Drawing Map at Turn " .. currentTurn);
 				
 				turnLabel:LocalizeAndSetText("TXT_KEY_TP_TURN_COUNTER", currentTurn);
 				
@@ -1048,6 +1054,16 @@ Panels = {
 			panel:SetCurrentTurn(panel.CurrentTurn);
 		end,
 	},
+
+	-- NEW: Replay Events
+	{
+		Title = Locale.Lookup("TXT_KEY_REPLAY_VIEWER_EVENTS_TITLE"),
+		Tooltip = Locale.Lookup("TXT_KEY_REPLAY_VIEWER_EVENTS_TT"),
+		Panel = Controls.EventsPanel,
+		Refresh = function(panel)
+			SetCurrentEventCategory(GameInfo.ReplayEventCategories.REPLAYEVENTCATEGORY_CITY.ID);
+		end,
+	},
 };
 
 CurrentPanelIndex = 1;
@@ -1102,6 +1118,176 @@ function SetCurrentGraphDataSet(dataSetIndex)
 	local graphPanel = Panels[2];
 	graphPanel.CurrentGraphDataSetIndex = dataSetIndex;
 	graphPanel:DrawGraph();
+end
+
+-- NEW: Replay Events
+function Desc(tbl, at) return tbl[at] and (tbl[at].Description and Locale.Lookup(tbl[at].Description) or tbl[at].Type) end;
+function ShortDesc (tbl, at) return tbl[at] and (tbl[at].ShortDescription and Locale.Lookup(tbl[at].ShortDescription) or tbl[at].Type) end;
+function ChooseDesc(tbl, at) return tbl[at] and (tbl[at].ChooseDescription and Locale.Lookup(tbl[at].ChooseDescription) or tbl[at].Type) end;
+function AsIs(v) return v end;
+function PolicyDesc(arg) return (GameInfo.Policies[arg].Description and Locale.Lookup(GameInfo.Policies[arg].Description) or GameInfo.Policies[arg].Type or '??') .. ' (' .. Locale.Lookup(GameInfo.Policies[arg] and GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType] and GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType].Description or GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType].Type or '??') .. ')'	end;
+local typeDefs =  -- runtime optimization
+{
+	'Num1Type',
+	'Num2Type',
+	'Num3Type',
+	'Num4Type',
+	'Num5Type',
+	'Num6Type',
+	'Num7Type',
+	'Num8Type',
+	'Num9Type',
+	'Num10Type'
+}
+
+eventNumArgTypeToPreparedString = 
+{
+	[-1] = AsIs,
+
+	AsIs,  -- AdvancedStartActionType
+	function(arg) return Desc(GameInfo.ArchaeologyChoices, arg) end, -- ArchaeologyChoiceType
+	function(arg) return ShortDesc(GameInfo.Beliefs, arg) end,  -- BeliefType
+	function(arg) return Desc(GameInfo.Buildings, arg) end,  -- BuildingType
+	function(arg) return Desc(GameInfo.CityFocuses, arg) end,  -- CityAIFocusType
+	AsIs,  -- CityID -- replaced with plot index
+	function(arg) return Desc(GameInfo.Commands, arg) end,  -- CommandType
+	function(arg) return Desc(GameInfo.AutoFaithPurchaseTypes, arg) end,  -- FaithPurchaseType
+	AsIs,  -- FromUIDiploEventType
+	function(arg) return ChooseDesc(GameInfo.GoodyHuts, arg) end,  -- GoodyType
+	function(arg) return Desc(GameInfo.LeagueSpecialSessions, arg) end,  -- LeagueType
+	function(arg) return Desc(GameInfo.Missions, arg) end,  -- MissionType
+	AsIs,  -- OrderType
+	function(arg) return Desc(GameInfo.PlayerOptions, arg) end,  -- PlayerOptionType
+	function(arg) return arg == -1 and 'NO_PLAYER' or Players[arg] and Players[arg]:GetName() or Locale.Lookup('TXT_KEY_MULTIPLAYER_DEFAULT_PLAYER_NAME', arg) end,  -- PlayerType
+	function(arg) return Desc(GameInfo.PolicyBranchTypes, arg) end,  -- PolicyBranchType
+	PolicyDesc,  -- PolicyID
+	function(arg) return Desc(GameInfo.Projects, arg) end,  -- ProjectType
+	function(arg) return Desc(GameInfo.Religions, arg) end,  -- ReligionType
+	function(arg) return Desc(GameInfo.Resolutions, arg) end,  -- ResolutionType
+	AsIs,  -- TaskType -- TODO
+	function(arg) return arg == -1 and 'NO_TEAM' or Teams[arg] and Teams[arg]:GetName() or Locale.Lookup('TXT_KEY_MULTIPLAYER_DEFAULT_TEAM_NAME', arg) end,  -- TeamType
+	function(arg) return Desc(GameInfo.Technologies, arg) end,  -- TechType
+	function(arg) return Desc(GameInfo.Units, arg) end,  -- UnitType
+	function(arg) return Desc(GameInfo.Units, arg) end,  -- UnitID -- replaced with UnitType
+	function(arg) return Desc(GameInfo.Victories, arg) end,  -- VictoryType
+	function(arg) return Desc(GameInfo.Yields, arg) end,  -- YieldType
+	function(arg) return Desc(GameInfo.BuildingClasses, arg) end,  -- BuildingClass
+	AsIs,  -- MPVotingSystemProposalType
+	function(arg) return Desc(GameInfo.UnitPromotions, arg) end,  -- PromotionType
+	function(arg) return Desc(GameInfo.Improvements, arg) end,  -- ImprovementType
+	function(arg) return Desc(GameInfo.Features, arg) end,  -- FeatureType
+	function(arg) return Desc(GameInfo.Eras, arg) end,  -- EraType
+	AsIs,  -- SpyResultType
+	AsIs,  -- MinorCivQuestType
+};
+function SetCurrentEventCategory(category)
+	-- First, determine the best player colors to use.
+	-- Certain players use dark player colors and as such we can't use that as the text color on 
+	-- a black background :(				
+	local function MakeColorVector(c) 
+		return {
+			x = c.Red,
+			y = c.Green,
+			z = c.Blue,
+			w = 1.0
+		};
+	end
+	
+	local defaultColor = {
+		Red = 1.0,
+		Green = 1.0,
+		Blue = 200/255,
+	};
+	
+	local defaultColorVector = MakeColorVector(defaultColor);
+			
+	local function DetermineBestMessageColor(primaryColor, secondaryColor)
+				
+		local usedColor = secondaryColor;
+		if(ColorIsWhite(usedColor) or ColorIsBlack(usedColor)) then
+			usedColor = primaryColor;
+		end
+		return usedColor;
+	end		
+			
+	local playerColorVectors = {};
+	for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
+		local playerColor = GameInfo.PlayerColors[player.PlayerColor];
+		if(playerColor ~= nil) then
+			
+			local primaryColor = GameInfo.Colors[playerColor.PrimaryColor];
+			local secondaryColor = GameInfo.Colors[playerColor.SecondaryColor];
+		
+			local color = DetermineBestMessageColor(primaryColor, secondaryColor);
+			playerColorVectors[i] = MakeColorVector(color);
+			
+		end	
+	end		
+
+	local eventsPulldownButton = Controls.ReplayEventsPulldown:GetButton();
+	eventsPulldownButton:LocalizeAndSetText(GameInfo.ReplayEventCategories[category].Name or '??');
+	
+	
+	g_ReplayEventInstanceManager:ResetInstances();
+	for i,event in ipairs(Game.GetReplayEventsOfTypes(g_ReplayEventCategories[category])) do
+		local ds = GameInfo.ReplayEvents[event.Type];
+		local eventInstance = g_ReplayEventInstanceManager:GetInstance();
+		
+		eventInstance.EventText2:SetHide(true);
+		
+		local args = event.NumericArgs;
+		for ix,arg in ipairs(args) do
+			local argType = ds[typeDefs[ix]] or -1;
+			if eventNumArgTypeToPreparedString[argType] then
+				args[ix] = eventNumArgTypeToPreparedString[argType](arg) or '--';
+			end
+		end
+		args[#args + 1] = event.Text and string.format('"%s" ', event.Text) or '';
+		text = string.format('T%d (%.3fs) - ', event.Turn, event.Timestamp / 1000) ..
+			Locale.Lookup(ds.Description,
+				event.Player == -1 and 'NO_PLAYER' or Players[event.Player] and Players[event.Player]:GetName() or ('Player#' .. event.Player),
+				unpack(args)
+			);
+		
+		if(event.Player > -1) then					
+			local playerInfo = g_ReplayInfo.PlayerInfo[event.Player + 1];
+			if(playerInfo ~= nil) then
+				local colorVector = playerColorVectors[event.Player + 1];
+				local h,s,l = HSLFromColor(colorVector.x, colorVector.y, colorVector.z);
+				if(l < 0.4) then
+					eventInstance.EventText2:SetHide(false);
+				end
+				eventInstance.EventText:SetColor(colorVector, 0);
+			else
+				eventInstance.EventText:SetColor(defaultColorVector, 0);
+			end
+		end
+		
+		eventInstance.EventText:SetText(text);
+		eventInstance.EventText2:SetText(text);
+		
+		local baseWidth, baseHeight = eventInstance.Base:GetSizeVal();
+		local msgWidth, msgHeight = eventInstance.EventText:GetSizeVal();
+		
+		eventInstance.LineLeft:SetHide(false);
+		eventInstance.LineRight:SetHide(false);
+	
+		
+		local newHeight = msgHeight + 10;	
+		eventInstance.Base:SetSizeVal(baseWidth, newHeight);			
+	end
+	
+	-- Add empty text to padd the bottom.
+	local bottomPadding = g_ReplayEventInstanceManager:GetInstance();
+	bottomPadding.EventText:SetText(" ");
+	bottomPadding.EventText2:SetText(" ");
+	
+	bottomPadding.LineLeft:SetHide(true);
+	bottomPadding.LineRight:SetHide(true);
+	
+	Controls.ReplayEventStack:CalculateSize();
+	Controls.ReplayEventStack:ReprocessAnchoring();
+	Controls.ReplayEventScrollPanel:CalculateInternalSize();
 end
 
 function Refresh()
@@ -1229,6 +1415,34 @@ end
 
 RefreshGraphDataSets();
 	
+-- NEW: Replay Events
+function RefreshEventsPulldown()		
+	
+	local eventsPulldown = Controls.ReplayEventsPulldown;
+	eventsPulldown:ClearEntries();
+	
+	local pullEntries = {};
+	for row in GameInfo.ReplayEventCategories() do
+		table.insert(pullEntries, {Locale.Lookup(row.Name), row.ID});
+	end	
+	
+	table.sort(pullEntries, function(a,b) return Locale.Compare(a[1], b[1]) == -1; end);
+	
+	for i,v in ipairs(pullEntries) do
+		local controlTable = {};
+		eventsPulldown:BuildEntry( "InstanceOne", controlTable );
+		controlTable.Button:LocalizeAndSetText(v[1]);
+
+		controlTable.Button:RegisterCallback(Mouse.eLClick, function()
+			SetCurrentEventCategory(v[2]);
+		end);
+	end
+	eventsPulldown:CalculateInternals();
+	
+end
+
+RefreshEventsPulldown();
+
 LuaEvents.ReplayViewer_LoadReplay.Add(function(file)
 	print("Loading Replay - " .. file);
 	g_ReplayInfo = UI.GetReplayInfo(file);
@@ -1320,7 +1534,17 @@ function GenerateReplayInfoFromCurrentGame()
 		table.insert(replayMessages, {Turn = message.Turn, Text = message.Text, Type = message.Type, Player = playerMap[message.Player], Plots = message.Plots, Timestamp = message.Timestamp, Data1 = message.Data1, Data2 = message.Data2});
 	end
 	g_ReplayInfo.Messages = replayMessages;
-	
+
+	-- NEW: populate replay categories with matching replay event types
+	for event in GameInfo.ReplayEvents() do
+		if event.Category ~= nil and event.Visible == true then
+			if g_ReplayEventCategories[event.Category] == nil then
+				g_ReplayEventCategories[event.Category] = {};
+			end
+			table.insert(g_ReplayEventCategories[event.Category], event.ID );
+		end
+	end
+
 	-- Populate Plots
 	local plots = {};
 	for i = 0, Map.GetNumPlots() - 1, 1 do

@@ -3766,6 +3766,10 @@ void CvLeague::SetHostMember(PlayerTypes ePlayer)
 					m_eHost = ePlayer;
 					it->bEverBeenHost = true;
 					UpdateName();
+#ifdef REPLAY_EVENTS
+					std::vector<int> vArgs;
+					GC.getGame().addReplayEvent(REPLAYEVENT_CongressHostChange, ePlayer, vArgs);
+#endif
 				}
 			}
 			else
@@ -5947,6 +5951,13 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 		CvAssertMsg(!IsProjectActive(eProject), "Trying to start a League Project that is already active. Please send Anton your save file and version.");
 		StartProject(eProject);
 	}
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(pProposal->GetID());
+	vArgs.push_back(static_cast<int>(pProposal->GetType()));
+	vArgs.push_back(static_cast<int>(true));
+	GC.getGame().addReplayEvent(REPLAYEVENT_CongressEnactedProposalsChange, NO_PLAYER, vArgs);
+#endif
 
 	m_iNumResolutionsEverEnacted++;
 }
@@ -5974,6 +5985,13 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 			}
 			it--;
 			iFound++;
+#ifdef REPLAY_EVENTS
+			std::vector<int> vArgs;
+			vArgs.push_back(pProposal->GetID());
+			vArgs.push_back(static_cast<int>(pProposal->GetType()));
+			vArgs.push_back(static_cast<int>(false));
+			GC.getGame().addReplayEvent(REPLAYEVENT_CongressEnactedProposalsChange, NO_PLAYER, vArgs);
+#endif
 		}
 	}
 	CvAssertMsg(iFound == 1, "Unexpected number of active resolutions with this ID. Please send Anton your save file and version.");
@@ -11229,6 +11247,14 @@ void CvMPVotingSystem::DoTurn()
 					args->Push((int)it->eStatus);
 					LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemProposalResult", args.get(), bResult);
 				}
+#ifdef REPLAY_EVENTS
+				std::vector<int> vArgs;
+				vArgs.push_back(it->iID);
+				vArgs.push_back(it->eType);
+				vArgs.push_back(it->eProposalSubject);
+				vArgs.push_back(it->eStatus);
+				GC.getGame().addReplayEvent(REPLAYEVENT_MPProposalResult, it->eProposalOwner, vArgs);
+#endif
 
 				CvString sMessage;
 				CvString sSummary;
@@ -11415,6 +11441,14 @@ void CvMPVotingSystem::DoCheckVoters(int iProposalID)
 						args->Push((int)GetProposalStatus(iProposalID));
 						LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemProposalResult", args.get(), bResult);
 					}
+#ifdef REPLAY_EVENTS
+					std::vector<int> vArgs;
+					vArgs.push_back(iProposalID);
+					vArgs.push_back(static_cast<int>(GetProposalType(iProposalID)));
+					vArgs.push_back(static_cast<int>(GetProposalSubject(iProposalID)));
+					vArgs.push_back(static_cast<int>(GetProposalStatus(iProposalID)));
+					GC.getGame().addReplayEvent(REPLAYEVENT_MPProposalResult, GetProposalOwner(iProposalID), vArgs);
+#endif
 
 					CvString sMessage;
 					CvString sSummary;
@@ -11512,6 +11546,14 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 			args->Push((int)GetProposalStatus(iProposalID));
 			LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemProposalResult", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(iProposalID);
+		vArgs.push_back(static_cast<int>(GetProposalType(iProposalID)));
+		vArgs.push_back(static_cast<int>(GetProposalSubject(iProposalID)));
+		vArgs.push_back(static_cast<int>(GetProposalStatus(iProposalID)));
+		GC.getGame().addReplayEvent(REPLAYEVENT_MPProposalResult, GetProposalOwner(iProposalID), vArgs);
+#endif
 
 		kActivePlayer.GetNotifications()->Dismiss(GetProposalUIid(iProposalID), false);
 		CvString sMessage;

@@ -41,6 +41,20 @@
 
 		</Box>
 	</Instance>
+	
+	<Instance Name="ReplayEventInstance" >
+
+		<Box Anchor="L,C"  Size="890,63" Color="0,0,0,0"  Offset="0,0" StateOffsetIncrement="0,0" ID="Base" >
+
+			<Label Anchor="L,T" Offset="0,5" ColorSet="Gray_Chat" Font="TwCenMT18" FontStyle="Base" WrapWidth="890" String="" ID="EventText" >
+				<Label Anchor="L,T" Color0="White,120" Color1="Black"  Offset="0,0 " Font="TwCenMT18" FontStyle="Base" WrapWidth="890" String="" ID="EventText2" />
+			</Label>
+
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,1" ID="LineLeft" />
+			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,1" ID="LineRight"/>
+
+		</Box>
+	</Instance>
 
 	<Grid ID="FrontEndReplayViewer" Size="960,628" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140">
 		<!--Screen Title-->
@@ -226,6 +240,19 @@
 			<GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="10,0" StateOffsetIncrement="0,0" ID="PlayPauseButton"  >
 				<Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_REPLAY_PLAYPAUSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
 			</GridButton>
+		</Box>
+		
+		<Box ID="EventsPanel" Offset="0,35" Color="0,0,0,0" Size="920,405" Hidden="1">
+			<ScrollPanel Offset="0,0" Anchor="L,T" AutoScrollBar="0" Size="920,405" Vertical="1" ID="ReplayEventScrollPanel" >
+
+				<ScrollBar Style="VertSlider" Length="369" Offset="0,18" Anchor="R,T" AnchorSide="I,I" />
+				<UpButton  Offset="0,0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="I,I" />
+				<DownButton Offset="0,385" Style="ScrollBarDown"  Anchor="R,T" AnchorSide="I,I" />
+
+				<Stack Anchor="L,T"  Offset="10,0" Size="260,216" StackGrowth="Bottom" Padding="1" ID="ReplayEventStack" />
+			</ScrollPanel>
+			
+			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="330" Size="500,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="ReplayEventsPulldown" />
 		</Box>
 
 		<Image Anchor="C,T" Offset="0,450" Texture="HorizontalTrim.dds" Size="920,5" />

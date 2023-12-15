@@ -1716,6 +1716,15 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "TeamMeet", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		if (isHuman() && (eTeam != GetID()) && GET_TEAM(eTeam).isEverAlive())
+		{
+			std::vector<int> vArgs;
+			vArgs.push_back(static_cast<int>(eTeam));
+			vArgs.push_back(static_cast<int>(GetID()));
+			GC.getGame().addReplayEvent(REPLAYEVENT_MeetTeam, NO_PLAYER, vArgs);
+		}
+#endif
 	}
 }
 
@@ -5431,7 +5440,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bTechRevealsHiddenArtifacts = pHiddenArtifactResource->getTechReveal() == eIndex;
 			}
 
-			if(bTechRevealsArtifacts || bTechRevealsHiddenArtifacts)
+#ifdef FIX_CVTEAM_BITWISE_OR_MISUSE
+			if (bTechRevealsArtifacts || bTechRevealsHiddenArtifacts)
+#else
+			if(bTechRevealsArtifacts | bTechRevealsHiddenArtifacts)
+#endif
 			{
 				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 				const int iNumPlots = GC.getMap().numPlots();
@@ -5899,6 +5912,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					//kPopup.setText(localizedText.toUTF8());
 					DLLUI->AddPopup(kPopup);
 				}
+#ifdef REPLAY_EVENTS
+				if (isHuman())
+				{
+					std::vector<int> vArgs;
+					vArgs.push_back(static_cast<int>(GetID()));
+					vArgs.push_back(static_cast<int>(eIndex));
+					GC.getGame().addReplayEvent(REPLAYEVENT_TechAcquired, NO_PLAYER, vArgs);
+				}
+#endif
 			}
 		}
 
@@ -6182,6 +6204,14 @@ void CvTeam::testCircumnavigated()
 						bool bResult = false;
 						LuaSupport::CallHook(pkScriptSystem, "CircumnavigatedGlobe", args.get(), bResult);
 					}
+#ifdef REPLAY_EVENTS
+					if (GET_TEAM(eTeamID).isHuman())
+					{
+						std::vector<int> vArgs;
+						vArgs.push_back(static_cast<int>(eTeamID));
+						GC.getGame().addReplayEvent(REPLAYEVENT_CircumnavigatedGlobe, NO_PLAYER, vArgs);
+					}
+#endif
 				}
 			}
 		}
@@ -6728,6 +6758,15 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
 						DLLUI->AddPopup(kPopupInfo);
 					}
+#ifdef REPLAY_EVENTS
+					if (isHuman())
+					{
+						std::vector<int> vArgs;
+						vArgs.push_back(static_cast<int>(GetID()));
+						vArgs.push_back(static_cast<int>(eNewValue));
+						GC.getGame().addReplayEvent(REPLAYEVENT_AdvanceEra, NO_PLAYER, vArgs);
+					}
+#endif
 
 					//Notify Everyone
 					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
