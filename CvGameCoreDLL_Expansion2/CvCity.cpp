@@ -8125,6 +8125,16 @@ void CvCity::DoJONSCultureLevelIncrease()
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		if (GET_PLAYER(getOwner()).isHuman())
+		{
+			std::vector<int> vArgs;
+			vArgs.push_back(plot()->GetPlotIndex());
+			vArgs.push_back(pPlotToAcquire->getX());
+			vArgs.push_back(pPlotToAcquire->getY());
+			GC.getGame().addReplayEvent(REPLAYEVENT_CityBorderGrowth, getOwner(), vArgs);
+		}
+#endif
 	}
 }
 
@@ -12402,6 +12412,15 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					bool bResult;
 					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
 				}
+#ifdef REPLAY_EVENTS
+				if (kOwner.isHuman())
+				{
+					std::vector<int> vArgs;
+					vArgs.push_back(plot()->GetPlotIndex());
+					vArgs.push_back(static_cast<int>(GET_PLAYER(getOwner()).getUnit(iResult)->getUnitType()));
+					GC.getGame().addReplayEvent(REPLAYEVENT_CityUnitComplete, getOwner(), vArgs);
+				}
+#endif
 
 				iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 
@@ -12472,6 +12491,15 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					bool bScriptResult;
 					LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
 				}
+#ifdef REPLAY_EVENTS
+				if (kOwner.isHuman())
+				{
+					std::vector<int> vArgs;
+					vArgs.push_back(plot()->GetPlotIndex());
+					vArgs.push_back(static_cast<int>(eConstructBuilding));
+					GC.getGame().addReplayEvent(REPLAYEVENT_CityBuildingComplete, getOwner(), vArgs);
+				}
+#endif
 
 				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
@@ -14071,6 +14099,15 @@ void CvCity::doGrowth()
 		{
 			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
+#ifdef REPLAY_EVENTS
+			if (GET_PLAYER(getOwner()).isHuman())
+			{
+				std::vector<int> vArgs;
+				vArgs.push_back(plot()->GetPlotIndex());
+				vArgs.push_back(getPopulation());
+				GC.getGame().addReplayEvent(REPLAYEVENT_CityGrowth, getOwner(), vArgs);
+			}
+#endif
 
 			// Only show notification if the city is small
 #ifndef NQ_ALWAYS_SHOW_POP_GROWTH_NOTIFICATION
@@ -14098,6 +14135,15 @@ void CvCity::doGrowth()
 		if(getPopulation() > 1)
 		{
 			changePopulation(-1);
+#ifdef REPLAY_EVENTS
+			if (GET_PLAYER(getOwner()).isHuman())
+			{
+				std::vector<int> vArgs;
+				vArgs.push_back(plot()->GetPlotIndex());
+				vArgs.push_back(getPopulation());
+				GC.getGame().addReplayEvent(REPLAYEVENT_CityStarvation, getOwner(), vArgs);
+			}
+#endif
 		}
 	}
 }

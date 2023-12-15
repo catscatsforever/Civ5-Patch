@@ -8395,6 +8395,18 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 						bool bResult = false;
 						LuaSupport::CallHook(pkScriptSystem, "NaturalWonderDiscovered", args.get(), bResult);
 					}
+#ifdef REPLAY_EVENTS
+					if (GET_TEAM(eTeam).isHuman())
+					{
+						std::vector<int> vArgs;
+						vArgs.push_back(static_cast<int>(eTeam));
+						vArgs.push_back(static_cast<int>(getFeatureType()));
+						vArgs.push_back(getX());
+						vArgs.push_back(getY());
+						vArgs.push_back(static_cast<int>(getNumMajorCivsRevealed() == 0)); // bFirst
+						GC.getGame().addReplayEvent(REPLAYEVENT_NaturalWonderDiscovered, NO_PLAYER, vArgs);
+					}
+#endif
 
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_FOUND_NATURAL_WONDER");
 					strText << iNumNaturalWondersLeft;
@@ -9156,6 +9168,16 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "BuildFinished", args.get(), bResult);
 			}
+#ifdef REPLAY_EVENTS
+			if (GET_PLAYER(ePlayer).isHuman())
+			{
+				std::vector<int> vArgs;
+				vArgs.push_back(getX());
+				vArgs.push_back(getY());
+				vArgs.push_back(static_cast<int>(eImprovement));
+				GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, ePlayer, vArgs);
+			}
+#endif
 		}
 	}
 

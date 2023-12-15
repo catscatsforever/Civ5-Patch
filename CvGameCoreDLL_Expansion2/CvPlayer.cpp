@@ -7198,6 +7198,15 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			}
 		}
 	}
+#ifdef REPLAY_EVENTS
+	if (isHuman())
+	{
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(eGoody));
+		vArgs.push_back(pUnit ? static_cast<int>(pUnit->getUnitType()) : -1);
+		GC.getGame().addReplayEvent(REPLAYEVENT_GoodyHut, GetID(), vArgs);
+	}
+#endif
 
 	if(!strBuffer.empty() && GC.getGame().getActivePlayer() == GetID())
 	{
@@ -14541,6 +14550,15 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "UnitKilledInCombat", args.get(), bResult);
 	}
+#ifdef REPLAY_EVENTS
+	if (isHuman())
+	{
+		std::vector<int> vArgs;
+		vArgs.push_back(static_cast<int>(eKilledPlayer));
+		vArgs.push_back(static_cast<int>(eUnitType));
+		GC.getGame().addReplayEvent(REPLAYEVENT_UnitKilledInCombat, GetID(), vArgs);
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -18836,6 +18854,14 @@ void CvPlayer::DoDeficit()
 						Localization::String locSummary = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED_S");
 						pNotifications->Add(NOTIFICATION_UNIT_DIED, locString.toUTF8(), locSummary.toUTF8(), pLandUnit->getX(), pLandUnit->getY(), pLandUnit->getUnitType(), GetID());
 					}
+#ifdef REPLAY_EVENTS
+					if (isHuman())
+					{
+						std::vector<int> vArgs;
+						vArgs.push_back(static_cast<int>(pLandUnit->getUnitType()));
+						GC.getGame().addReplayEvent(REPLAYEVENT_UnitDisbanded, GetID(), vArgs);
+					}
+#endif
 
 					pLandUnit->scrap();
 					GetMilitaryAI()->LogDeficitScrapUnit(pLandUnit);
@@ -18852,6 +18878,14 @@ void CvPlayer::DoDeficit()
 						Localization::String locSummary = Localization::Lookup("TXT_KEY_NTFN_UNIT_DISBANDED_S");
 						pNotifications->Add(NOTIFICATION_UNIT_DIED, locString.toUTF8(), locSummary.toUTF8(), pNavalUnit->getX(), pNavalUnit->getY(), pNavalUnit->getUnitType(), GetID());
 					}
+#ifdef REPLAY_EVENTS
+					if (isHuman())
+					{
+						std::vector<int> vArgs;
+						vArgs.push_back(static_cast<int>(pNavalUnit->getUnitType()));
+						GC.getGame().addReplayEvent(REPLAYEVENT_UnitDisbanded, GetID(), vArgs);
+					}
+#endif
 
 					pNavalUnit->scrap();
 					GetMilitaryAI()->LogDeficitScrapUnit(pNavalUnit);

@@ -9535,6 +9535,15 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "UnitPromoted", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		if (GET_PLAYER(getOwner()).isHuman())
+		{
+			std::vector<int> vArgs;
+			vArgs.push_back(static_cast<int>(getUnitType()));
+			vArgs.push_back(static_cast<int>(ePromotion));
+			GC.getGame().addReplayEvent(REPLAYEVENT_UnitPromotion, getOwner(), vArgs);
+		}
+#endif
 	}
 
 	testPromotionReady();
@@ -9958,6 +9967,15 @@ CvUnit* CvUnit::DoUpgrade()
 			bool bResult;
 			LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 		}
+#ifdef REPLAY_EVENTS
+		if (thisPlayer.isHuman())
+		{
+			std::vector<int> vArgs;
+			vArgs.push_back(static_cast<int>(getUnitType()));
+			vArgs.push_back(static_cast<int>(pNewUnit->getUnitType()));
+			GC.getGame().addReplayEvent(REPLAYEVENT_UnitUpgrade, getOwner(), vArgs);
+		}
+#endif
 
 		pNewUnit->convert(this, true);
 		pNewUnit->setupGraphical();
