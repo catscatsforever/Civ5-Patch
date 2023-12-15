@@ -1804,7 +1804,12 @@ void CvPlot::updateSight(bool bIncrement)
 				PlayerTypes ePlayer = (PlayerTypes)ui;
 				if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pCity))
 				{
+#ifdef NEW_DIPLOMATS_MISSIONS
+					int iSurveillanceSightRange = GET_PLAYER(ePlayer).GetEspionage()->SurveillanceSightRange(pCity);
+					changeSightInRing(GET_PLAYER(ePlayer).getTeam(), iSurveillanceSightRange, bIncrement, NO_INVISIBLE);
+#else
 					changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), bIncrement, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 				}
 			}
 		}
@@ -4919,7 +4924,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						PlayerTypes ePlayer = (PlayerTypes)ui;
 						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
+#ifdef NEW_DIPLOMATS_MISSIONS
+							int iSurveillanceSightRange = GET_PLAYER(ePlayer).GetEspionage()->SurveillanceSightRange(pOldCity);
+							changeSightInRing(GET_PLAYER(ePlayer).getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE);
+#else
 							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), false, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 						}
 					}
 				}
@@ -5086,7 +5096,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						PlayerTypes ePlayer = (PlayerTypes)ui;
 						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
+#ifdef NEW_DIPLOMATS_MISSIONS
+							int iSurveillanceSightRange = GET_PLAYER(ePlayer).GetEspionage()->SurveillanceSightRange(pOldCity);
+							changeSightInRing(GET_PLAYER(ePlayer).getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
+#else
 							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), GC.getESPIONAGE_SURVEILLANCE_SIGHT_RANGE(), true, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 						}
 					}
 				}
