@@ -57,6 +57,10 @@ IF EXIST "%cd%\UI_bc1\Improvements\SocialPolicyPopup.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
 )
 REM -------------------------------------------------
+IF NOT EXIST "%cd%\UI_bc1\NotificationPanel\DiploList.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploList.lua" "%cd%\%patchfolder%\UI\DiploList.lua"
+)
+REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\LeaderHead\TradeLogic.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\TradeLogic.lua" "%cd%\%patchfolder%\UI\TradeLogic.lua"
 ) ELSE (
