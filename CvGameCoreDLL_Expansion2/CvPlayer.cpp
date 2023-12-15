@@ -13000,7 +13000,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			{
 				iPopulation++; // Round up
 #ifdef UNIVERSAL_SUFFRAGE_TWO_THIRD_UNHAPPINESS
-				iPopulation == iPopulation * 2 / 3;
+				iPopulation = iPopulation * 2 / 3;
 #else
 				iPopulation /= 2;
 #endif
