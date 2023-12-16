@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V8.0
+set patchfolder=Tournament Mod V8.0a
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -55,6 +55,10 @@ IF EXIST "%cd%\UI_bc1\Improvements\SocialPolicyPopup.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
 ) ELSE (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SocialPolicyPopup.lua" "%cd%\%patchfolder%\UI\SocialPolicyPopup.lua"
+)
+REM -------------------------------------------------
+IF NOT EXIST "%cd%\UI_bc1\NotificationPanel\DiploList.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\DiploList.lua" "%cd%\%patchfolder%\UI\DiploList.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\LeaderHead\TradeLogic.lua" (
