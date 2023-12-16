@@ -6274,9 +6274,11 @@ bool CvUnit::plunderTradeRoute()
 	}
 
 	// right now, plunder the first unit
-	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
 #ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
 	PlayerTypes ePlayer = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
+#endif
+	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
 	GET_PLAYER(ePlayer).updateYield();
 #endif
 	return true;
