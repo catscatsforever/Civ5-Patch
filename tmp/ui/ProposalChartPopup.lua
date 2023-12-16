@@ -34,7 +34,6 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 	if (pActivePlayer ~= nil) then
 		if (Status == 1) then
 			if iType == 1001 then
-				Game.SetGameState(GameplayGameStateTypes.GAMESTATE_OVER);
 				if Matchmaking.IsHost() then
 					Matchmaking.KickPlayer(SubjectId)
 				end
