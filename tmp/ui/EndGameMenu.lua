@@ -58,11 +58,9 @@ Controls.MainMenuButton:RegisterCallback( Mouse.eLClick, OnMainMenu );
 ----------------------------------------------------------------
 function OnBack()
 	-- NEW: always allow back
-	if (m_bAllowBack) then
-		Network.SendExtendedGame();
-		UIManager:DequeuePopup( ContextPtr );
-		Controls.BackgroundImage:UnloadTexture();	
-	end
+	Network.SendExtendedGame();
+	UIManager:DequeuePopup( ContextPtr );
+	Controls.BackgroundImage:UnloadTexture();
 end
 Controls.BackButton:RegisterCallback( Mouse.eLClick, OnBack );
 
