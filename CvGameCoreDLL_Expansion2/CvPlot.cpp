@@ -8419,7 +8419,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 						vArgs.push_back(getX());
 						vArgs.push_back(getY());
 						vArgs.push_back(static_cast<int>(getNumMajorCivsRevealed() == 0)); // bFirst
-						GC.getGame().addReplayEvent(REPLAYEVENT_NaturalWonderDiscovered, NO_PLAYER, vArgs);
+						GC.getGame().addReplayEvent(REPLAYEVENT_NaturalWonderDiscovered, GET_TEAM(eTeam).getLeaderID(), vArgs);
 					}
 #endif
 
@@ -9005,6 +9005,16 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				setImprovementType(eImprovement, ePlayer);
+#ifdef REPLAY_EVENTS
+				if (GET_PLAYER(ePlayer).isHuman())
+				{
+					std::vector<int> vArgs;
+					vArgs.push_back(getX());
+					vArgs.push_back(getY());
+					vArgs.push_back(static_cast<int>(eImprovement));
+					GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, ePlayer, vArgs);
+				}
+#endif
 
 				// Unowned plot, someone has to foot the bill
 				if(getOwner() == NO_PLAYER)
@@ -9183,16 +9193,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "BuildFinished", args.get(), bResult);
 			}
-#ifdef REPLAY_EVENTS
-			if (GET_PLAYER(ePlayer).isHuman())
-			{
-				std::vector<int> vArgs;
-				vArgs.push_back(getX());
-				vArgs.push_back(getY());
-				vArgs.push_back(static_cast<int>(eImprovement));
-				GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, ePlayer, vArgs);
-			}
-#endif
 		}
 	}
 
