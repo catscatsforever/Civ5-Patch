@@ -6144,6 +6144,11 @@ void CvPlayer::disband(CvCity* pCity)
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
 
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(pCity->plot()->GetPlotIndex());
+	GC.getGame().addReplayEvent(REPLAYEVENT_PlotNewCityName, GetID(), vArgs, "NO_CITY");
+#endif
 	pCity->kill();
 
 	if(pPlot)

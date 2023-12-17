@@ -10840,6 +10840,11 @@ void CvCity::setName(const char* szNewValue, bool bFound)
 			doFoundMessage();
 		}
 	}
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(plot()->GetPlotIndex());
+	GC.getGame().addReplayEvent(REPLAYEVENT_PlotNewCityName, getOwner(), vArgs, strName.IsEmpty() ? "NO_CITY_NAME" : strName);
+#endif
 }
 
 

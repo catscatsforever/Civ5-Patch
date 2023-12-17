@@ -968,6 +968,7 @@ enum ReplayEventTypes
 	REPLAYEVENT_CongressHostChange,
 	REPLAYEVENT_CongressEnactedProposalsChange,
 	REPLAYEVENT_MPProposalResult,
+	REPLAYEVENT_PlotNewCityName,  // Special event to track city name changes
 
 	NUM_REPLAYEVENTS
 };
