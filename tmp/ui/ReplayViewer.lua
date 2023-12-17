@@ -180,6 +180,7 @@ g_ReplayEventInstanceManager = InstanceManager:new("ReplayEventInstance", "Base"
 
 g_ReplayInfo = {};
 g_ReplayEventCategories = {};
+g_plotCityNameChanges = {};
 
 Panels = {
 	{
@@ -1126,6 +1127,23 @@ function ShortDesc (tbl, at) return tbl[at] and (tbl[at].ShortDescription and Lo
 function ChooseDesc(tbl, at) return tbl[at] and (tbl[at].ChooseDescription and Locale.Lookup(tbl[at].ChooseDescription) or tbl[at].Type) end;
 function AsIs(v) return v end;
 function PolicyDesc(arg) return (GameInfo.Policies[arg].Description and Locale.Lookup(GameInfo.Policies[arg].Description) or GameInfo.Policies[arg].Type or '??') .. ' (' .. Locale.Lookup(GameInfo.Policies[arg] and GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType] and GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType].Description or GameInfo.PolicyBranchTypes[GameInfo.Policies[arg].PolicyBranchType].Type or '??') .. ')'	end;
+function PlotToCityName(plot, turn, timestamp) 
+	if g_plotCityNameChanges[plot] then
+		if #g_plotCityNameChanges[plot] == 1 then
+			return g_plotCityNameChanges[plot][1].Name;
+		else
+			local t1,t2,i,n=-1,-1,2,g_plotCityNameChanges[plot][1].Name;
+			while g_plotCityNameChanges[plot][i] and (t1<turn or t1==turn and t2<timestamp) do
+				t1=g_plotCityNameChanges[plot][i].Turn; t2=g_plotCityNameChanges[plot][i].Timestamp;
+				if (t1<turn or t1==turn and t2<timestamp) then n=g_plotCityNameChanges[plot][i].Name end;
+				i = i + 1;
+			end;
+			return n;
+		end
+	else
+		return '??'
+	end
+end
 local typeDefs =  -- runtime optimization
 {
 	'Num1Type',
@@ -1138,7 +1156,7 @@ local typeDefs =  -- runtime optimization
 	'Num8Type',
 	'Num9Type',
 	'Num10Type'
-}
+}	
 
 eventNumArgTypeToPreparedString = 
 {
@@ -1149,7 +1167,7 @@ eventNumArgTypeToPreparedString =
 	function(arg) return ShortDesc(GameInfo.Beliefs, arg) end,  -- BeliefType
 	function(arg) return Desc(GameInfo.Buildings, arg) end,  -- BuildingType
 	function(arg) return Desc(GameInfo.CityFocuses, arg) end,  -- CityAIFocusType
-	AsIs,  -- CityID -- replaced with plot index
+	PlotToCityName,  -- CityID
 	function(arg) return Desc(GameInfo.Commands, arg) end,  -- CommandType
 	function(arg) return Desc(GameInfo.AutoFaithPurchaseTypes, arg) end,  -- FaithPurchaseType
 	AsIs,  -- FromUIDiploEventType
@@ -1172,13 +1190,13 @@ eventNumArgTypeToPreparedString =
 	function(arg) return Desc(GameInfo.Victories, arg) end,  -- VictoryType
 	function(arg) return Desc(GameInfo.Yields, arg) end,  -- YieldType
 	function(arg) return Desc(GameInfo.BuildingClasses, arg) end,  -- BuildingClass
-	AsIs,  -- MPVotingSystemProposalType
+	function(arg) return Desc(GameInfo.MPProposals, arg) end,  -- MPVotingSystemProposalType
 	function(arg) return Desc(GameInfo.UnitPromotions, arg) end,  -- PromotionType
 	function(arg) return Desc(GameInfo.Improvements, arg) end,  -- ImprovementType
 	function(arg) return Desc(GameInfo.Features, arg) end,  -- FeatureType
 	function(arg) return Desc(GameInfo.Eras, arg) end,  -- EraType
-	AsIs,  -- SpyResultType
-	AsIs,  -- MinorCivQuestType
+	function(arg) return Desc(GameInfo.SpyResults, arg) end,  -- SpyResultType
+	function(arg) return Desc(GameInfo.MinorCivQuests, arg) end,  -- MinorCivQuestType
 };
 function SetCurrentEventCategory(category)
 	-- First, determine the best player colors to use.
@@ -1210,7 +1228,7 @@ function SetCurrentEventCategory(category)
 		return usedColor;
 	end		
 			
-	local playerColorVectors = {};
+	local playerColorVectors = {[0] = defaultColorVector};
 	for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
 		local playerColor = GameInfo.PlayerColors[player.PlayerColor];
 		if(playerColor ~= nil) then
@@ -1237,9 +1255,9 @@ function SetCurrentEventCategory(category)
 		
 		local args = event.NumericArgs;
 		for ix,arg in ipairs(args) do
-			local argType = ds[typeDefs[ix]] or -1;
+			local argType = ds[typeDefs[ix]];
 			if eventNumArgTypeToPreparedString[argType] then
-				args[ix] = eventNumArgTypeToPreparedString[argType](arg) or '--';
+				args[ix] = eventNumArgTypeToPreparedString[argType](arg, event.Turn, event.Timestamp) or '--';
 			end
 		end
 		args[#args + 1] = event.Text and string.format('"%s" ', event.Text) or '';
@@ -1248,19 +1266,17 @@ function SetCurrentEventCategory(category)
 				event.Player == -1 and 'NO_PLAYER' or Players[event.Player] and Players[event.Player]:GetName() or ('Player#' .. event.Player),
 				unpack(args)
 			);
-		
-		if(event.Player > -1) then					
-			local playerInfo = g_ReplayInfo.PlayerInfo[event.Player + 1];
-			if(playerInfo ~= nil) then
-				local colorVector = playerColorVectors[event.Player + 1];
-				local h,s,l = HSLFromColor(colorVector.x, colorVector.y, colorVector.z);
-				if(l < 0.4) then
-					eventInstance.EventText2:SetHide(false);
-				end
-				eventInstance.EventText:SetColor(colorVector, 0);
-			else
-				eventInstance.EventText:SetColor(defaultColorVector, 0);
+						
+		local playerInfo = g_ReplayInfo.PlayerInfo[event.Player + 1];
+		if(playerInfo ~= nil) then
+			local colorVector = playerColorVectors[event.Player + 1];
+			local h,s,l = HSLFromColor(colorVector.x, colorVector.y, colorVector.z);
+			if(l < 0.4) then
+				eventInstance.EventText2:SetHide(false);
 			end
+			eventInstance.EventText:SetColor(colorVector, 0);
+		else
+			eventInstance.EventText:SetColor(defaultColorVector, 0);
 		end
 		
 		eventInstance.EventText:SetText(text);
@@ -1543,6 +1559,14 @@ function GenerateReplayInfoFromCurrentGame()
 			end
 			table.insert(g_ReplayEventCategories[event.Category], event.ID );
 		end
+	end
+
+	-- NEW: populate g_plotCityNameChanges
+	for i,event in ipairs(Game.GetReplayEventsOfType(GameInfo.ReplayEvents.REPLAYEVENT_PlotNewCityName.ID)) do
+		if not g_plotCityNameChanges[event.NumericArgs[1]] then
+			g_plotCityNameChanges[event.NumericArgs[1]] = {};
+		end
+		table.insert(g_plotCityNameChanges[event.NumericArgs[1]], { Turn = event.Turn, Timestamp = event.Timestamp, Name = (event.Text or '??') });
 	end
 
 	-- Populate Plots
