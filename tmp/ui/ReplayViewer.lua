@@ -690,7 +690,8 @@ Panels = {
 					elseif(IsUniqueColor(GameInfo.Colors[playerColor.PrimaryColor])) then
 						return GameInfo.Colors[playerColor.PrimaryColor];
 					else
-						for color in GameInfo.Colors() do
+						-- NEW: avoid blank colors: use playable civs color set; also randomize it
+						for color in GameInfo.Colors("ID > 149 ORDER BY RANDOM()") do
 							if(IsUniqueColor(color)) then
 								return color;
 							end
