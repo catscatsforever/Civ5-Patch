@@ -18689,16 +18689,12 @@ void CvUnit::read(FDataStream& kStream)
 
 #ifdef NEW_WRITERS_CULTURE_BOMB
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	if (uiVersion >= 1001)
 	{
 #endif
 		kStream >> m_iCultureBombStrength;
 
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else if (uiVersion >= 1001)
-	{
-		kStream >> m_iCultureBombStrength;
 	}
 	else
 	{
@@ -18718,17 +18714,12 @@ void CvUnit::read(FDataStream& kStream)
 
 #ifdef NEW_SCIENTISTS_BULB
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iResearchBulbAmount;
 		kStream >> m_iScientistBirthTurn;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else if (uiVersion >= 1000)
-	{
-		kStream >> m_iResearchBulbAmount;
-		kStream >> m_iScientistBirthTurn;
 	}
 	else
 	{
@@ -18739,15 +18730,11 @@ void CvUnit::read(FDataStream& kStream)
 #endif
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_UNIT)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_bInstaHealLocked;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else if (uiVersion >= 1000)
-	{
-		kStream >> m_bInstaHealLocked;
 	}
 	else
 	{

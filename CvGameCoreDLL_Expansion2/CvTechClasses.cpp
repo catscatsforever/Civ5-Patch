@@ -1832,7 +1832,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
 #ifdef HAS_TECH_BY_HUMAN
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-		if (uiVersion >= BUMP_SAVE_VERSION_TECHS)
+		if (uiVersion >= 1000)
 		{
 # endif
 			CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechByHuman, iNumActiveTechs, paTechIDs);
@@ -1849,7 +1849,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 #endif
 #ifdef CAN_PROPOSE_ENACT_UPDATES_ONCE_PER_SESSION
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-		if (uiVersion >= BUMP_SAVE_VERSION_TECHS)
+		if (uiVersion >= 1000)
 		{
 # endif
 			CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTechForLeague, iNumActiveTechs, paTechIDs);

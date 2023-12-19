@@ -2202,7 +2202,7 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchUnlocked, uiPolicyBranchCount);
 #ifdef POLICY_BRANCH_UNLOCKING_TURN
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_POLICIES)
+	if (uiVersion >= 1000)
 	{
 # endif
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiPolicyBranchUnlockingTurn, uiPolicyBranchCount);
@@ -2220,7 +2220,7 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchBlocked, uiPolicyBranchCount);
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_POLICIES)
+	if (uiVersion >= 1000)
 	{
 # endif
 		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabPolicyBranchNotificationLocked, uiPolicyBranchCount);

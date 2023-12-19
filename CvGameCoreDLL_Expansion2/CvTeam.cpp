@@ -7136,7 +7136,7 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iDefensivePactTradingAllowedCount;
 #ifdef DEF_PACT_COUNT
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_TEAM)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iDefensivePactCount;
@@ -7151,7 +7151,7 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iResearchAgreementTradingAllowedCount;
 #ifdef RES_AGR_COUNT
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_TEAM)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iResearchAgreementCount;

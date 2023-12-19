@@ -14685,7 +14685,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iGreatPeopleRateModifier;
 #ifdef CITY_RANGE_MODIFIER
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iCityAttackRangeModifier;
@@ -14703,17 +14703,12 @@ void CvCity::read(FDataStream& kStream)
 #endif
 #ifdef CITY_EXTRA_ATTACK
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_CITY)
+	if (uiVersion >= 1001)
 	{
 # endif
 	kStream >> m_iCityExtraAttack;
 	kStream >> m_iCityCurrentExtraAttack;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else if (uiVersion >= 1001)
-	{
-		kStream >> m_iCityExtraAttack;
-		kStream >> m_iCityCurrentExtraAttack;
 	}
 	else
 	{

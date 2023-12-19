@@ -1824,18 +1824,11 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiTurnLastBullied;
 #ifdef WORKER_BULLY_RESRICTION
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	if (uiVersion >= 1001)
 	{
 # endif
 	kStream >> m_aiTurnLastWorkerBullied;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	}
-	else if (uiVersion >= 1000)
-	{
-		for (uint iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-		{
-			m_aiTurnLastWorkerBullied[iI] = -1;
-		}
 	}
 	else
 	{
@@ -1856,7 +1849,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 
 #ifdef DECREASE_INFLUENCE_IF_BULLYING_SOMEONE_WE_ARE_PROTECTING
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	if (uiVersion >= 1000)
 	{
 # endif
 	kStream >> m_bPledgeRevoked;
@@ -1873,7 +1866,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 #endif
 #ifdef PEACE_BLOCKED_WITH_MINORS
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_MINORAI)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iTurnPeaceBlockedWithMinor;

@@ -11699,16 +11699,16 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMPVotingSystem& writeTo)
 		loadFrom >> temp.iID;
 		loadFrom >> temp.iUIid;
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-		if (uiVersion >= BUMP_SAVE_VERSION_MP_VOTING_SYSTEM)
+		if (uiVersion >= 1000)
 #endif
 		loadFrom >> temp.iCreationTurn;
-		loadFrom >> temp.iExpirationCounter;
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-		if (uiVersion < BUMP_SAVE_VERSION_MP_VOTING_SYSTEM)
+		else
 		{
 			temp.iCreationTurn = temp.iExpirationCounter - 2;
 		}
 #endif
+		loadFrom >> temp.iExpirationCounter;
 		loadFrom >> temp.eType;
 		loadFrom >> temp.eStatus;
 		loadFrom >> temp.eProposalOwner;

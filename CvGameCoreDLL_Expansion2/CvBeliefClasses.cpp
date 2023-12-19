@@ -1858,7 +1858,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_iMissionaryStrengthModifier;
 #ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iExtraTradeRoutes;
@@ -1872,7 +1872,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iGoldenAgeTurns;
@@ -1902,7 +1902,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	}
 #ifdef GP_RATE_MODIFIER_FROM_BELIEF
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_BELIEFS)
+	if (uiVersion >= 1000)
 	{
 # endif
 		kStream >> m_iGreatPeopleRateModifier;

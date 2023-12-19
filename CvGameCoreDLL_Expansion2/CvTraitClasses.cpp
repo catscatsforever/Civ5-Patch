@@ -2899,7 +2899,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 #ifdef PORTUGAL_UA_REWORK
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_TRAITS)
+	if (uiVersion >= 1000)
 	{
 # endif
 		ArrayWrapper<int> kYieldChangeLuxuryResourcesWrapper(NUM_YIELD_TYPES, m_iYieldChangeLuxuryResources);
@@ -2921,7 +2921,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 #ifdef RUSSIA_UA_REWORK
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= BUMP_SAVE_VERSION_TRAITS)
+	if (uiVersion >= 1000)
 	{
 # endif
 		ArrayWrapper<int> kRiverCityYieldChangeWrapper(NUM_YIELD_TYPES, m_iRiverCityYieldChange);
