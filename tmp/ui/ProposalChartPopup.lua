@@ -34,11 +34,9 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 	if (pActivePlayer ~= nil) then
 		if (Status == 1) then
 			if iType == 1001 then
+				-- defeat screen comes with NetworkKickedPopup
 				if Matchmaking.IsHost() then
 					Matchmaking.KickPlayer(SubjectId)
-				end
-				if Game.GetActivePlayer() == SubjectId then
-					Events.EndGameShow(EndGameTypes.Loss, -1)
 				end
 			elseif iType ==1002 then
 				--Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())

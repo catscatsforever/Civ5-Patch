@@ -276,57 +276,144 @@ public:
 	int GetNumUnitsSuppliedByHandicap() const;
 	int GetNumUnitsSuppliedByCities() const;
 	int GetNumUnitsSuppliedByPopulation() const;
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 	int GetNumTrainedUnits() const;
 	void ChangeNumTrainedUnits(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMKILLEDUNITS
 	int GetNumKilledUnits() const;
 	void ChangeNumKilledUnits(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMLOSTUNITS
 	int GetNumLostUnits() const;
 	void ChangeNumLostUnits(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOUNITS
 	int GetUnitsDamageDealt() const;
 	void ChangeUnitsDamageDealt(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYUNITS
 	int GetUnitsDamageTaken() const;
 	void ChangeUnitsDamageTaken(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOCITIES
 	int GetCitiesDamageDealt() const;
 	void ChangeCitiesDamageDealt(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYCITIES
 	int GetCitiesDamageTaken() const;
 	void ChangeCitiesDamageTaken(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 	int GetNumScientistsTotal() const;
 	void ChangeNumScientistsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 	int GetNumEngineersTotal() const;
 	void ChangeNumEngineersTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 	int GetNumMerchantsTotal() const;
 	void ChangeNumMerchantsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 	int GetNumWritersTotal() const;
 	void ChangeNumWritersTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 	int GetNumAristsTotal() const;
 	void ChangeNumArtistsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 	int GetNumMusiciansTotal() const;
 	void ChangeNumMusiciansTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 	int GetNumGeneralsTotal() const;
 	void ChangeNumGeneralsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 	int GetNumAdmiralsTotal() const;
 	void ChangeNumAdmiralsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 	int GetNumProphetsTotal() const;
 	void ChangeNumProphetsTotal(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
 	int GetProductionGoldFromWonders() const;
 	void ChangeProductionGoldFromWonders(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_TOTALCHOPS
 	int GetNumChops() const;
 	void ChangeNumChops(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
 	int GetNumTimesOpenedDemographics() const;
 	void ChangeNumTimesOpenedDemographics(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNSCIENTISTS
 	bool GetMayaBoostScientist() const;
 	void SetMayaBoostScientist(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNENGINEERS
 	bool GetMayaBoostEngineers() const;
 	void SetMayaBoostEngineers(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMERCHANTS
 	bool GetMayaBoostMerchants() const;
 	void SetMayaBoostMerchants(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNWRITERS
 	bool GetMayaBoostWriters() const;
 	void SetMayaBoostWriters(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNARTISTS
 	bool GetMayaBoostArtists() const;
 	void SetMayaBoostArtists(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 	bool GetMayaBoostMusicians() const;
 	void SetMayaBoostMusicians(bool bValue);
+#endif
+#ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
+	int GetScientistsTotalScienceBoost() const;
+	void ChangeScientistsTotalScienceBoost(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_ENGINEERSTOTALHURRYBOOST
+	int GetEngineersTotalHurryBoost() const;
+	void ChangeEngineersTotalHurryBoost(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+	int GetMerchantsTotalTradeBoost() const;
+	void ChangeMerchantsTotalTradeBoost(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_WRITERSTOTALCULTUREBOOST
+	int GetWritersTotalCultureBoost() const;
+	void ChangeWritersTotalCultureBoost(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_MUSICIANSTOTALTOURISMBOOST
+	int GetMusiciansTotalTourismBoost() const;
+	void ChangeMusiciansTotalTourismBoost(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_POPULATIONLOSTFROMNUKES
+	int GetNumPopulationLostFromNukes() const;
+	void ChangeNumPopulationLostFromNukes(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_CSQUESTSCOMPLETED
+	int GetNumCSQuestsCompleted() const;
+	void ChangeNumCSQuestsCompleted(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+	int GetNumAlliedCS() const;
+	void ChangeNumAlliedCS(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
+	int GetTimesEnteredCityScreen() const;
+	void ChangeTimesEnteredCityScreen(int Change);
+#endif
+#ifdef EG_REPLAYDATASET_HAPPINESSFROMTRADEDEALS
+	int GetNumHappinessFromTradeDeals() const;
 #endif
 
 	int GetNumUnitsOutOfSupply() const;
@@ -561,7 +648,7 @@ public:
 	void ChangeEspionageModifier(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
 	int GetNumStolenScience() const;
 	void ChangeNumStolenScience(int iChange);
 #endif
@@ -1724,33 +1811,110 @@ protected:
 	int m_iHappinessPerXPolicies;
 	int m_iEspionageModifier;
 	int m_iSpyStartingRank;
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
 	int m_iNumStolenScience;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 	int m_iNumTrainedUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMKILLEDUNITS
 	int m_iNumKilledUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMLOSTUNITS
 	int m_iNumLostUnits;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOUNITS
 	int m_iUnitsDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYUNITS
 	int m_iUnitsDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOCITIES
 	int m_iCitiesDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYCITIES
 	int m_iCitiesDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 	int m_iNumScientistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 	int m_iNumEngineersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 	int m_iNumMerchantsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 	int m_iNumWritersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 	int m_iNumArtistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 	int m_iNumMusiciansTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 	int m_iNumGeneralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 	int m_iNumAdmiralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 	int m_iNumProphetsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
 	int m_iProductionGoldFromWonders;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALCHOPS
 	int m_iNumChops;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
 	int m_iNumTimesOpenedDemographics;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNSCIENTISTS
 	int m_bMayaBoostScientist;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNENGINEERS
 	int m_bMayaBoostEngineers;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMERCHANTS
 	int m_bMayaBoostMerchants;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNWRITERS
 	int m_bMayaBoostWriters;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNARTISTS
 	int m_bMayaBoostArtists;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 	int m_bMayaBoostMusicians;
+#endif
+#ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
+	int m_iScientistsTotalScienceBoost;
+#endif
+#ifdef EG_REPLAYDATASET_ENGINEERSTOTALHURRYBOOST
+	int m_iEngineersTotalHurryBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+	int m_iMerchantsTotalTradeBoost;
+#endif
+#ifdef EG_REPLAYDATASET_WRITERSTOTALCULTUREBOOST
+	int m_iWritersTotalCultureBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MUSICIANSTOTALTOURISMBOOST
+	int m_iMusiciansTotalTourismBoost;
+#endif
+#ifdef EG_REPLAYDATASET_POPULATIONLOSTFROMNUKES
+	int m_iNumPopulationLostFromNukes;
+#endif
+#ifdef EG_REPLAYDATASET_CSQUESTSCOMPLETED
+	int m_iNumCSQuestsCompleted;
+#endif
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+	int m_iNumAlliedCS;
+#endif
+#ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
+	int m_iTimesEnteredCityScreen;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;

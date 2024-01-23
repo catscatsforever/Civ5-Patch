@@ -246,16 +246,6 @@ function OnDisplay()
 
 	local trait = GameInfo.MinorCivilizations[minorCivType].MinorCivTrait
 	Controls.TitleIcon:SetTexture(GameInfo.MinorCivTraits[trait].TraitTitleIcon)
-	if (GameInfo.MinorCivTraits[trait].ID == 5) then
-		Controls.TitleIconScientific:SetHide(false);
-	else
-		Controls.TitleIconScientific:SetHide(true);
-	end
-	if (GameInfo.MinorCivTraits[trait].ID == 6) then
-		Controls.TitleIconManufactory:SetHide(false);
-	else
-		Controls.TitleIconManufactory:SetHide(true);
-	end
 
 	-- Set Background Image
 	Controls.BackgroundImage:SetTexture( GameInfo.MinorCivTraits[trait].BackgroundImage )

@@ -444,7 +444,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 		if (!kPlayer.isHuman())
 		{
 #ifdef CAN_FOUND_OR_ENHANCE_OR_SPREAD_REL_ONLY_HUMAN
-			if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			if (!GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			{
 #endif
 			BeliefTypes eReformationBelief = kPlayer.GetReligionAI()->ChooseReformationBelief();

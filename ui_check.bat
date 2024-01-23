@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V8.0b
+set patchfolder=Tournament Mod V8.1g
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -42,12 +42,15 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EspionageOverview.lua" "%cd%\%pa
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitList.lua" "%cd%\%patchfolder%\UI\UnitList.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitList.xml" "%cd%\%patchfolder%\UI\UnitList.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Highlights.xml" "%cd%\%patchfolder%\UI\Highlights.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NetworkKickedPopup.lua" "%cd%\%patchfolder%\UI\NetworkKickedPopup.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
 FIND %text% "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" && (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitFlagManager.xml" "%cd%\%patchfolder%\UI\UnitFlagManager.xml"
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
 ) || (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.xml" "%cd%\%patchfolder%\UI\UnitFlagManager.xml"
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua"
 )
 REM -------------------------------------------------
@@ -71,6 +74,10 @@ IF EXIST "%cd%\UI_bc1\ToolTips\InfoTooltipInclude.lua" (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\EUI_tooltip_library.lua" "%cd%\%patchfolder%\UI\EUI_tooltip_library.lua"
 ) ELSE (
   ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\InfoTooltipInclude.lua" "%cd%\%patchfolder%\UI\InfoTooltipInclude.lua"
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\ToolTips\InfoTooltipInclude.lua" (
+  ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\eui\EUI_unit_include.lua" "%cd%\%patchfolder%\UI\EUI_unit_include.lua"
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\PlotHelp\PlotHelpManager.lua" (

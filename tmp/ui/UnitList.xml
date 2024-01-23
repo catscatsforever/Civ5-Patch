@@ -148,7 +148,7 @@
         </Box>
 
 		<!-- NEW: expandable Unit List size for EUI & vanilla UI -->
-		<Slider ID="VerticalSizeDragArea" Anchor="L,B" Vertical="1" Texture="Blank.dds" Length="32" Size="390,1" Offset="0,10" />
+		<Slider ID="VerticalSizeDragArea" Anchor="L,B" Vertical="1" Texture="Blank.dds" BranchAlpha="0" Length="32" Size="390,1" Offset="0,10" />
 
         <TextButton Offset="0,22" Anchor="C,B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="CloseButton" />
 

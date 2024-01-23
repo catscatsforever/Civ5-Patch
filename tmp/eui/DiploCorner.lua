@@ -1,10 +1,13 @@
 -------------------------------------------------
 -- Diplomacy and Advisors Buttons that float out in the screen
 -------------------------------------------------
--- edit: Ingame Hotkey Manager – extended controls
--- edit: Larger Espionage Overview option for EUI
--- edit: Tournament mode for EUI
--- edit: Restore messages on game load for EUI
+-- edit:
+--     Ingame Hotkey Manager – extended controls
+--     Larger Espionage Overview option
+--     Tournament mode
+--     Restore messages on game load
+--     Emote Picker Menu
+-- for EUI
 -------------------------------------------------
 g_needsUpdate = true;
 g_bWaitForKeyUp = false;
@@ -240,7 +243,7 @@ function SendChat( text )
         else
             iTarget = ChatTargetTypes.CHATTARGET_ALL;
         end
-        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text, iTarget, iToPlayerOrTeam, -1, -1);
+        Network.SendEnhanceReligion(Game.GetActivePlayer(), -1, text:sub(1,127), iTarget, iToPlayerOrTeam, -1, -1);
         Network.SendChat( text, g_iChatTeam, g_iChatPlayer );
     end
     Controls.ChatEntry:ClearString();
@@ -646,5 +649,17 @@ function LoadChatMessages()
         end
     end
 end
+
+-- NEW: populate Emote Picker
+Controls.EmotePickerButton:RegisterCallback( Mouse.eLClick, function() Controls.EmotePicker:SetHide(not Controls.EmotePicker:IsHidden()) end );
+for i in GameInfo.IconFontMapping('1 ORDER BY LENGTH(IconFontTexture), rowid') do
+    local ins = {};
+    ContextPtr:BuildInstanceForControl('EmoteInstance', ins, Controls.EmoteStack);
+    local emoteText = string.format('[%s]', i.IconName);
+    ins.EmoteButton:SetText(emoteText);
+    ins.EmoteButton:RegisterCallback( Mouse.eLClick, function() Controls.ChatEntry:TakeFocus(); Controls.ChatEntry:SetText(Controls.ChatEntry:GetText() .. emoteText); return true; end );
+end
+Controls.EmotesScrollPanel:ReprocessAnchoring()
+Controls.EmotesScrollPanel:CalculateInternalSize()
 
 LoadChatMessages();

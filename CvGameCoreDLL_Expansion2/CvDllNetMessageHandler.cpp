@@ -1122,7 +1122,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	}
 	else
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
 	// -8 -- increment num times opened demographics
 	if (iUnitID == -8) {
 #ifdef REPLAY_EVENTS
@@ -1132,7 +1132,17 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	}
 	else
 #endif
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(ENHANCED_GRAPHS)
+#ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
+	// -9 -- increment num times entered city screen
+	if (iUnitID == -9) {
+#ifdef REPLAY_EVENTS
+		GC.getGame().addReplayEvent(REPLAYEVENT_EnterCityScreen, ePlayer, vArgs);
+#endif
+		GET_PLAYER(ePlayer).ChangeTimesEnteredCityScreen(1);
+	}
+	else
+#endif
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN)
 	{
 #endif
 		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
@@ -1147,7 +1157,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
 
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(ENHANCED_GRAPHS)
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN)
 	}
 #endif
 }
@@ -1451,7 +1461,7 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 	if(pCity)
 #endif
 	{
-#ifdef ENHANCED_GRAPHS
+#if defined EG_REPLAYDATASET_NUMOFBORNSCIENTISTS || defined EG_REPLAYDATASET_NUMOFBORNENGINEERS || defined EG_REPLAYDATASET_NUMOFBORNMERCHANTS || defined EG_REPLAYDATASET_NUMOFBORNWRITERS || defined EG_REPLAYDATASET_NUMOFBORNARTISTS || defined EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, true);
 #else
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
@@ -1639,7 +1649,7 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 				{
 					if(kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() > 0)
 					{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
 						int iStolenScience = std::min(kPlayer.GetPlayerTechs()->GetResearchCost(eTech) - kTeam.GetTeamTechs()->GetResearchProgress(eTech), kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom][kPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].size() - 1]);
 						kTeam.GetTeamTechs()->ChangeResearchProgress(eTech, iStolenScience, ePlayer);
 						kPlayer.ChangeNumStolenScience(iStolenScience);

@@ -58,11 +58,12 @@ function OnUpdate( fDTime )
     end
     
     local bHasMouseOver = Controls.TheBox:HasMouseOver();
-    
-    if( bHasMouseOver ) then
-        m_pPlotHelpText:SetHide( false );
-    else
-        m_pPlotHelpText:SetHide( true );
+    if m_pPlotHelpText then
+        if( bHasMouseOver ) then 
+            m_pPlotHelpText:SetHide( false );
+        else
+            m_pPlotHelpText:SetHide( true );
+        end
     end
     
     

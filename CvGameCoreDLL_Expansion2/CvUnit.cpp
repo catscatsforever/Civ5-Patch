@@ -1325,10 +1325,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		}
 	}
 
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMKILLEDUNITS
 	if (getUnitCombatType() != NO_UNITCOMBAT && ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER)
 	{
 		GET_PLAYER(ePlayer).ChangeNumKilledUnits(1);
+	}
+#endif
+#ifdef EG_REPLAYDATASET_NUMLOSTUNITS
+	if (getUnitCombatType() != NO_UNITCOMBAT && ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER)
+	{
 		GET_PLAYER(getOwner()).ChangeNumLostUnits(1);
 	}
 #endif
@@ -7387,6 +7392,9 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 #else
 	if(GET_TEAM(getTeam()).isMinorCiv())
 #endif
+	{
+		return false;
+	}
 
 	if(isDelayedDeath())
 	{
@@ -7906,6 +7914,9 @@ bool CvUnit::discover()
 
 	// Beakers boost based on previous turns
 	int iBeakersBonus = getDiscoverAmount();
+#ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
+	pPlayer->ChangeScientistsTotalScienceBoost(iBeakersBonus);
+#endif
 	TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
 	if(eCurrentTech == NO_TECH)
 	{
@@ -8139,6 +8150,9 @@ bool CvUnit::hurry()
 
 	if(pCity != NULL)
 	{
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+		GET_PLAYER(getOwner()).ChangeEngineersTotalHurryBoost(getHurryProduction(pPlot));
+#endif
 		pCity->changeProduction(getHurryProduction(pPlot));
 	}
 
@@ -8266,6 +8280,9 @@ bool CvUnit::trade()
 		return false;
 
 	int iTradeGold = getTradeGold(pPlot);
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+	GET_PLAYER(getOwner()).ChangeMerchantsTotalTradeBoost(iTradeGold);
+#endif
 	
 	GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iTradeGold);
 
@@ -8941,6 +8958,9 @@ bool CvUnit::givePolicies()
 	int iCultureBonus = getGivePoliciesCulture();
 	if (iCultureBonus != 0)
 	{
+#ifdef EG_REPLAYDATASET_WRITERSTOTALCULTUREBOOST
+		kPlayer.ChangeWritersTotalCultureBoost(iCultureBonus);
+#endif
 		kPlayer.changeJONSCulture(iCultureBonus);
 		// Refresh - we might get to pick a policy this turn
 #ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
@@ -9060,6 +9080,9 @@ bool CvUnit::blastTourism()
 	}
 
 	int iTourismBlast = getBlastTourism();
+#ifdef EG_REPLAYDATASET_MUSICIANSTOTALTOURISMBOOST
+	GET_PLAYER(getOwner()).ChangeMusiciansTotalTourismBoost(iTourismBlast);
+#endif
 
 	int iTourismBlastPercentOthers = m_pUnitInfo->GetOneShotTourismPercentOthers();
 	PlayerTypes eOwner = pPlot->getOwner();
@@ -14747,11 +14770,16 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT;
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYUNITS
 	if (ePlayer != NO_PLAYER && getUnitCombatType() != NO_UNITCOMBAT && iChange > 0)
 	{
-		GET_PLAYER(ePlayer).ChangeUnitsDamageDealt(iChange);
-		GET_PLAYER(getOwner()).ChangeUnitsDamageTaken(iChange);
+		GET_PLAYER(getOwner()).ChangeUnitsDamageTaken(min(iChange, GetCurrHitPoints()));
+	}
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOUNITS
+	if (ePlayer != NO_PLAYER && getUnitCombatType() != NO_UNITCOMBAT && iChange > 0)
+	{
+		GET_PLAYER(ePlayer).ChangeUnitsDamageDealt(min(iChange, GetCurrHitPoints()));
 	}
 #endif
 	return setDamage((getDamage() + iChange), ePlayer, fAdditionalTextDelay, pAppendText);
@@ -14774,21 +14802,7 @@ void CvUnit::setMoves(int iNewValue)
 	{
 		CvPlot* pPlot = plot();
 
-#ifdef DISALLOW_MOVEMENT_FOR_TRAITORS
-		uint uiValue = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 + (uint)(getOwner());
-		if (strcmp("76561198168409621", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0	// An4ous
-			|| strcmp("76561199032251906", CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str()) == 0 // Limbo
-			)
-		{
-			m_iMoves = 0;
-		}
-		else
-		{
-			m_iMoves = iNewValue;
-		}
-#else
 		m_iMoves = iNewValue;
-#endif
 
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ getMoves() <= 0);

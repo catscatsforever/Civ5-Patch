@@ -9133,7 +9133,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 					if(iProduction > 0)
 					{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALCHOPS
 						GET_PLAYER(pCity->getOwner()).ChangeNumChops(iProduction);
 #endif
 						pCity->changeFeatureProduction(iProduction);

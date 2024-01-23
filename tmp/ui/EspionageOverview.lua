@@ -459,8 +459,8 @@ function RelocateAgent(agentID, city)
 		local iFinalChance = iBaseChance;
 		iFinalChance = (iBaseChance * (100 + iRankChance)) / 100;
 		iFinalChance = (iFinalChance * (100 + iPolicyChance)) / 100;
-		strActivityTT = strActivityTT .. "[NEWLINE]";
-		strActivityTT = strActivityTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUNTER_INTEL_SUM_TT", iFinalChance);
+		--strActivityTT = strActivityTT .. "[NEWLINE]";
+		--strActivityTT = strActivityTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUNTER_INTEL_SUM_TT", iFinalChance);
 
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_DEAD")) then
 		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", agent.Rank, agent.Name);
@@ -667,8 +667,8 @@ function RefreshAgents()
 				local iFinalChance = iBaseChance;
 				iFinalChance = (iBaseChance * (100 + iRankChance)) / 100;
 				iFinalChance = (iFinalChance * (100 + iPolicyChance)) / 100;
-				strActivityTT = strActivityTT .. "[NEWLINE]";
-				strActivityTT = strActivityTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUNTER_INTEL_SUM_TT", iFinalChance);
+				--strActivityTT = strActivityTT .. "[NEWLINE]";
+				--strActivityTT = strActivityTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUNTER_INTEL_SUM_TT", iFinalChance);
 			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_DEAD")) then
 				strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
 			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS")) then
@@ -1409,7 +1409,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			local pMyTeam = Teams[Game.GetActiveTeam()]
 			
 			local bCheckDiplomat = false;
-			if (city:IsCapital() and (not Players[v.PlayerID]:IsMinorCiv()) and (not pMyTeam:IsAtWar(city:GetTeam()))) then
+			if (city:IsCapital() and (not Players[v.PlayerID]:IsMinorCiv())) then
 				bCheckDiplomat = true;
 			end 
 

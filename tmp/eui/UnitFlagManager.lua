@@ -50,7 +50,7 @@ local UnitMoving = UnitMoving
 local GetPlotNumUnits = Map_GetPlot(0,0).GetNumLayerUnits or Map_GetPlot(0,0).GetNumUnits
 local GetPlotUnit = Map_GetPlot(0,0).GetLayerUnit or Map_GetPlot(0,0).GetUnit
 
-local g_ScrapControls = Controls.AirCraftFlags --!!! TODO
+local g_ScrapControls = Controls.ScrapControls
 local g_AirCraftFlags = Controls.AirCraftFlags
 local g_CivilianFlags = Controls.CivilianFlags
 local g_MilitaryFlags = Controls.MilitaryFlags
@@ -217,8 +217,9 @@ local function UpdatePlotFlags( plot )
 			flag = g_UnitFlags[ unit:GetOwner() ][ unit:GetID() ]
 			if flag and flag.m_Plot then
 				if unit:IsCargo() then
+					table_insert( aflags, flag )
 				elseif flag.m_IsAirCraft then
-					table_insert( aflags, unit )
+					table_insert( aflags, flag )
 				elseif unit:IsGarrisoned() then
 					table_insert( gflags, flag )
 				else
@@ -259,8 +260,9 @@ local function UpdatePlotFlags( plot )
 			-- DebugFlag( flag,"candidate is aircraft?", flag and flag.m_IsAirCraft ) end
 			if flag and flag.m_Plot then
 				if unit:IsCargo() then
+					table_insert( aflags, flag )
 				elseif flag.m_IsAirCraft then
-					table_insert( aflags, unit )
+					table_insert( aflags, flag )
 				else
 					table_insert( flags, flag )
 				end
@@ -280,32 +282,111 @@ local function UpdatePlotFlags( plot )
 		end
 	end
 	n = #aflags
-	-- DebugPrint( n,"airbase flags found") end
-	local plotIndex = plot:GetPlotIndex()
-	flag = g_AirbaseFlags[ plotIndex ]
-	if n > 0 then
-		if not flag then
-			flag = table_remove( g_spareAirbaseFlags )
-			if flag then
-				flag.Anchor:ChangeParent( g_AirbaseControls )
-			else
-				flag = {}
-				ContextPtr:BuildInstanceForControl( "AirbaseFlag", flag, g_AirbaseControls )
-				flag.Button:RegisterCallback( Mouse.eLClick, AirbaseFlagClicked )
+	if city then
+		-- DebugPrint( n,"airbase flags found") end
+		local plotIndex = plot:GetPlotIndex()
+		flag = g_AirbaseFlags[ plotIndex ]
+		if n > 0 then
+			if not flag then
+				flag = table_remove( g_spareAirbaseFlags )
+				if flag then
+					flag.Anchor:ChangeParent( g_AirbaseControls )
+				else
+					flag = {}
+					ContextPtr:BuildInstanceForControl( "AirbaseFlag", flag, g_AirbaseControls )
+					flag.Button:RegisterCallback( Mouse.eLClick, AirbaseFlagClicked )
+				end
+				g_AirbaseFlags[ plotIndex ] = flag
+				local x, y, z = GridToWorld( plot:GetX(), plot:GetY() )
+				flag.Anchor:SetWorldPositionVal( x, y, z + 35 ) -- World Position Offset
+				flag.Button:SetVoid1( plotIndex )
 			end
-			g_AirbaseFlags[ plotIndex ] = flag
-			local x, y, z = GridToWorld( plot:GetX(), plot:GetY() )
-			flag.Anchor:SetWorldPositionVal( x, y, z + 35 ) -- World Position Offset
-			flag.Button:SetVoid1( plotIndex )
+			flag.Anchor:SetHide( not plot:IsVisible( g_activeTeamID, true ) )
+			flag.Button:SetText( n )
+			flag.Button:LocalizeAndSetToolTip( "TXT_KEY_STATIONED_AIRCRAFT", n )
+		elseif flag then
+			g_AirbaseFlags[ plotIndex ] = nil
+			flag.Anchor:ChangeParent( g_ScrapControls )
+			table_insert( g_spareAirbaseFlags, flag )
 		end
-		flag.Anchor:SetHide( not plot:IsVisible( g_activeTeamID, true ) )
-		flag.Button:SetText( n )
-		flag.Button:LocalizeAndSetToolTip( "TXT_KEY_STATIONED_AIRCRAFT", n )
-	elseif flag then
-		g_AirbaseFlags[ plotIndex ] = nil
-		flag.Anchor:ChangeParent( g_ScrapControls )
-		table_insert( g_spareAirbaseFlags, flag )
 	end
+	--
+	--local transportUnit = selectedUnit:GetTransportUnit()
+	local cargoUnit, cargoFlag
+	local airbase = {}
+	local transportnits = {}
+	for i = 0, GetPlotNumUnits( plot ) - 1 do
+		cargoUnit = GetPlotUnit( plot, i )
+		cargoFlag = g_UnitFlags[ cargoUnit:GetOwner() ][ cargoUnit:GetID() ]
+		if cargoFlag and cargoFlag.m_IsAirCraft and not cargoUnit:GetTransportUnit() then
+			table_insert( airbase, cargoFlag )
+		end
+		if cargoFlag and not cargoFlag.m_IsAirCraft then
+			table_insert( transportnits, cargoFlag )
+		end
+	end
+	if city then
+		DebugPrint("#aflags ", #aflags)
+		-- DebugPrint( n, "aircraft found") end
+		if #aflags > 0 then
+			local a = math_min( 0.5, 2.7 / #aflags )
+			local a0 = -a*(#aflags+1)/2 - math_pi/2
+			local r = math_max( 80, 14 + 11*#aflags )
+			for i = 1, #aflags do
+				-- DebugFlag( cargoFlag, "adding aircraft to airbase at position", i ) end
+				aflags[i].Container:SetOffsetVal( math_cos( a*i + a0 )*r, math_sin( a*i + a0 )*r )
+				SetFlagParent( aflags[i] )
+			end
+		end
+	else
+		DebugPrint("#airbase ", #airbase)
+		-- DebugPrint( n, "aircraft found") end
+		if #airbase > 0 then
+			local a = math_min( 0.5, 2.7 / #airbase )
+			local a0 = -a*(#airbase+1)/2 - math_pi/2
+			local r = math_max( 80, 14 + 11*#airbase )
+			for i = 1, #airbase do
+				-- DebugFlag( cargoFlag, "adding aircraft to airbase at position", i ) end
+				airbase[i].Container:SetOffsetVal( math_cos( a*i + a0 )*r, math_sin( a*i + a0 )*r )
+				SetFlagParent( airbase[i] )
+			end
+		end
+		--
+		DebugPrint("#transportnits ", #transportnits)
+		if #transportnits > 0 then
+			for i = 1, #transportnits do
+				local transportUnit = transportnits[i].m_Player:GetUnitByID( transportnits[i].m_UnitID )
+				local cargo = transportUnit:GetCargo()
+				if cargo > 0 then
+					local x, y
+					local transportFlag = g_UnitFlags[ transportUnit:GetOwner() ][ transportUnit:GetID() ]
+					if transportFlag then
+						x, y = transportFlag.Container:GetOffsetVal()
+					else
+						x, y = 0, 0
+					end
+					local a = math_min( math_pi / 3, 5.7 / cargo )
+					local a0 = -a*(cargo-1)/2 - math_pi
+					local j = 0
+					-- DebugFlag( transportFlag, "transport identified, cargo#=", cargo ) end
+					for k = 0, GetPlotNumUnits( plot ) - 1 do
+						cargoUnit = GetPlotUnit( plot, k )
+						if cargoUnit:GetTransportUnit() == transportUnit then
+							cargoFlag = g_UnitFlags[ cargoUnit:GetOwner() ][ cargoUnit:GetID() ]
+							if cargoFlag then
+								-- DebugFlag( cargoFlag, "added to cargo at position", j ) end
+								--table_insert( g_SelectedCargo, cargoFlag )
+								cargoFlag.Container:SetOffsetVal( math_cos( a*j + a0 )*38 + x, math_sin( a*j + a0 )*38 + y )
+								SetFlagParent( cargoFlag )
+							end
+							j = j + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	--
 end--UpdatePlotFlags
 
 --==========================================================
@@ -314,12 +395,12 @@ local function SetFlagSelected( flag, isSelected )
 	flag.m_IsSelected = isSelected
 	flag.FlagHighlight:SetHide( not isSelected )
 	-- RestoreCargoFlagParents
-	for i = 1, #g_SelectedCargo do
+	--[[for i = 1, #g_SelectedCargo do
 		SetFlagParent( g_SelectedCargo[i] )
 		g_SelectedCargo[i] = nil
-	end
+	end]]
 	if isSelected then
-		local selectedUnit = flag.m_Player:GetUnitByID( flag.m_UnitID )
+		--[[local selectedUnit = flag.m_Player:GetUnitByID( flag.m_UnitID )
 		local plot = selectedUnit and selectedUnit:GetPlot()
 		if plot then
 			local transportUnit = selectedUnit:GetTransportUnit()
@@ -365,16 +446,17 @@ local function SetFlagSelected( flag, isSelected )
 				if n > 0 then
 					local a = math_min( 0.5, 2.7 / n )
 					local a0 = -a*(n+1)/2 - math_pi/2
+					local r = math_max( 80, 14 + 11*n )
 					for i = 1, n do
 						cargoFlag = airbase[i]
 						-- DebugFlag( cargoFlag, "adding aircraft to airbase at position", i ) end
 						table_insert( g_SelectedCargo, cargoFlag )
 						cargoFlag.Anchor:ChangeParent( g_SelectedFlags )
-						cargoFlag.Container:SetOffsetVal( math_cos( a*i + a0 )*80, math_sin( a*i + a0 )*80 )
+						cargoFlag.Container:SetOffsetVal( math_cos( a*i + a0 )*r, math_sin( a*i + a0 )*r )
 					end
 				end
 			end
-		end
+		end]]
 		g_SelectedFlag = flag
 	elseif g_SelectedFlag == flag then
 		g_SelectedFlag = nil
@@ -869,6 +951,7 @@ Events.StrategicViewStateChanged.Add( function( isStrategicView, isCityBanners )
 	-- DebugPrint( "StrategicViewStateChanged, isStrategicView=", isStrategicView, "isCityBanners=", isCityBanners ) end
 	g_CivilianFlags:SetHide( isStrategicView )
 	g_MilitaryFlags:SetHide( isStrategicView )
+	g_AirCraftFlags:SetHide ( isStrategicView )
 	g_GarrisonFlags:SetHide( isStrategicView and not isCityBanners )
 	g_AirbaseControls:SetHide( isStrategicView )
 	g_SelectedFlags:SetHide( isStrategicView )

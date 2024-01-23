@@ -93,19 +93,6 @@ local g_UnitFlagClass =
 
             o.m_Instance = o.m_InstanceManager:GetInstance();
             o:Initialize( playerID, unitID, fogState, invisible );
-           
-            ---------------------------------------------------------
-            -- Can carry units
-            if( pUnit:CargoSpace() > 0 ) then
-            
-                --print( "unit has cargo space, building air button" );
-                o.m_CargoControls = {};
-                ContextPtr:BuildInstanceForControl( "AirButton", o.m_CargoControls, o.m_Instance.AirAnchor );
-                o.m_CargoControls.PullDown:RegisterSelectionCallback( UnitFlagClicked );
-                o.m_CargoControls.PullDown:ReprocessAnchoring();
-               -- print( "creation cargo" );
-                o:UpdateCargo();
-            end
 
             ---------------------------------------------------------
             -- build the table for this player and store the flag
@@ -116,6 +103,22 @@ local g_UnitFlagClass =
                 g_MasterList[ playerID ] = playerTable
             end
             g_MasterList[ playerID ][ unitID ] = o;
+           
+            -- FIX: call UpdateCargo after building g_MasterList
+            ---------------------------------------------------------
+            -- Can carry units
+            if( pUnit:CargoSpace() > 0 ) then
+            
+                --print( "unit has cargo space, building air button" );
+                o.m_CargoControls = {};
+                ContextPtr:BuildInstanceForControl( "AirButton", o.m_CargoControls, o.m_Instance.AirAnchor );
+                o.m_CargoControls.PullDown:RegisterSelectionCallback( UnitFlagClicked );
+                o.m_CargoControls.PullDown:ReprocessAnchoring();
+               -- print( "creation cargo" );
+                if (o.m_CarrierFlag ~= nil) then
+                    o.m_CarrierFlag:UpdateCargo();
+                end
+            end
             
             -- If the unit is cargo, link to the carrier, if it is already created.  If not, the carrier will create the link
             if (pUnit:IsCargo() and o.m_CarrierFlag == nil) then

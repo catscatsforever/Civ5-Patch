@@ -250,11 +250,18 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 		-- Connected to capital?
 		if (isActiveTeamCity) then
-			if (not city:IsCapital() and player:IsCapitalConnectedToCity(city) and not city:IsBlockaded()) then
+			-- RailRoad connection Icon
+			if (not city:IsCapital() and city:IsIndustrialRouteToCapital() == 1 and not city:IsBlockaded()) then
+				controls.ConnectedIcon:SetHide(true);
+				controls.RailConnectedIcon:SetHide(false);
+				controls.RailConnectedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_RAIL_CONNECTED"));
+			elseif (not city:IsCapital() and player:IsCapitalConnectedToCity(city) and not city:IsBlockaded()) then
 				controls.ConnectedIcon:SetHide(false);
 				controls.ConnectedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_CONNECTED"));
+				controls.RailConnectedIcon:SetHide(true);
 			else
 				controls.ConnectedIcon:SetHide(true);
+				controls.RailConnectedIcon:SetHide(true);
 			end
 		end
 			

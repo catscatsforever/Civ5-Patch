@@ -1357,10 +1357,12 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 			return false;
 		}
 
+#ifndef NEW_DIPLOMATS_MISSIONS
 		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(pCity->getTeam()))
 		{
 			return false;
 		}
+#endif
 	}
 
 	return true;
@@ -2381,6 +2383,11 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 		return GC.getGame().GetTurnsUntilMinorCivElection();
 		break;
 	case SPY_STATE_COUNTER_INTEL:
+#ifdef NEW_DIPLOMATS_MISSIONS
+		// no end time
+		return -1;
+		break;
+#endif
 	case SPY_STATE_SCHMOOZE:
 #ifdef NEW_DIPLOMATS_MISSIONS
 		pCity = GetCityWithSpy(uiSpyIndex);
@@ -2459,6 +2466,11 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		}
 		break;
 	case SPY_STATE_COUNTER_INTEL:
+#ifdef NEW_DIPLOMATS_MISSIONS
+		// no end time
+		return -1;
+		break;
+#endif
 	case SPY_STATE_SCHMOOZE:
 #ifdef NEW_DIPLOMATS_MISSIONS
 		pCity = GetCityWithSpy(uiSpyIndex);

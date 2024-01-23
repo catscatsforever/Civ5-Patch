@@ -2513,7 +2513,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 }
 
 /// Create a GP!
-#ifdef ENHANCED_GRAPHS
+#if defined EG_REPLAYDATASET_NUMOFBORNSCIENTISTS || defined EG_REPLAYDATASET_NUMOFBORNENGINEERS || defined EG_REPLAYDATASET_NUMOFBORNMERCHANTS || defined EG_REPLAYDATASET_NUMOFBORNWRITERS || defined EG_REPLAYDATASET_NUMOFBORNARTISTS || defined EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bMayaBoost)
 #else
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet)
@@ -2543,7 +2543,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		if (newUnit->IsGreatGeneral())
 		{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 			kPlayer.ChangeNumGeneralsTotal(1);
 #else
 			kPlayer.incrementGreatGeneralsCreated();
@@ -2551,7 +2551,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->IsGreatAdmiral())
 		{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 			kPlayer.ChangeNumAdmiralsTotal(1);
 #else
 			kPlayer.incrementGreatAdmiralsCreated();
@@ -2564,33 +2564,33 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostWriters(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 			kPlayer.ChangeNumWritersTotal(1);
 #endif
 			kPlayer.incrementGreatWritersCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostArtists(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 			kPlayer.ChangeNumArtistsTotal(1);
 #endif
 			kPlayer.incrementGreatArtistsCreated();
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostMusicians(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 			kPlayer.ChangeNumMusiciansTotal(1);
 #endif
 			kPlayer.incrementGreatMusiciansCreated();
@@ -2598,7 +2598,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #ifdef FREE_GREAT_PERSON
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 		{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 			kPlayer.ChangeNumProphetsTotal(1);
 #endif
 			kPlayer.incrementGreatProphetsCreated();
@@ -2607,11 +2607,11 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined SWEDEN_UA_REWORK
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostScientist(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 			kPlayer.ChangeNumScientistsTotal(1);
 #endif
 			kPlayer.incrementGreatScientistsCreated();
@@ -2620,11 +2620,11 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostEngineers(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 			kPlayer.ChangeNumEngineersTotal(1);
 #endif
 			kPlayer.incrementGreatEngineersCreated();
@@ -2633,11 +2633,11 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
-#ifdef ENHANCED_GRAPHS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostMerchants(true);
 			}
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 			kPlayer.ChangeNumMerchantsTotal(1);
 #endif
 			kPlayer.incrementGreatMerchantsCreated();
@@ -2670,14 +2670,19 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			kPlayer.incrementGreatPeopleCreated();
 		}
 	}
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 	if (!bIncrementCount && !bCountAsProphet)
 	{
 		if (newUnit->IsGreatGeneral())
 		{
 			kPlayer.ChangeNumGeneralsTotal(1);
 		}
-		else if (newUnit->IsGreatAdmiral())
+	}
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
+	if (!bIncrementCount && !bCountAsProphet)
+	{
+		if (newUnit->IsGreatAdmiral())
 		{
 			kPlayer.ChangeNumAdmiralsTotal(1);
 			CvPlot* pSpawnPlot = kPlayer.GetGreatAdmiralSpawnPlot(newUnit);
@@ -2686,39 +2691,66 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				newUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
 			}
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+	}
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
+	if (!bIncrementCount && !bCountAsProphet)
+	{
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
 			kPlayer.ChangeNumWritersTotal(1);
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+	}
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
+	if (!bIncrementCount && !bCountAsProphet)
+	{
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
 			kPlayer.ChangeNumArtistsTotal(1);
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+	}
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
+	if (!bIncrementCount && !bCountAsProphet)
+	{
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
 			kPlayer.ChangeNumMusiciansTotal(1);
 		}
-#ifdef FREE_GREAT_PERSON
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+	}
+#endif
+#if defined EG_REPLAYDATASET_TOTALNUMOFPROPHETS && defined FREE_GREAT_PERSON
+	if (!bIncrementCount && !bCountAsProphet)
+	{
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 		{
 			kPlayer.ChangeNumProphetsTotal(1);
 		}
+	}
 #endif
 #if defined SWEDEN_UA_REWORK
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
+	if (!bIncrementCount && !bCountAsProphet)
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.ChangeNumScientistsTotal(1);
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
+	if (!bIncrementCount && !bCountAsProphet)
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.ChangeNumEngineersTotal(1);
 		}
-		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
+	if (!bIncrementCount && !bCountAsProphet)
+		if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
 			kPlayer.ChangeNumMerchantsTotal(1);
 		}
 #endif
-	}
 #endif
 #ifdef FREE_GREAT_PERSON
 	if(bCountAsProphet)
@@ -2727,7 +2759,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #endif
 	{
 		kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 		kPlayer.ChangeNumProphetsTotal(1);
 #endif
 	}

@@ -6109,7 +6109,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 							GetCityCitizens()->DoSpawnGreatPerson(eFreeUnitType, true /*bIncrementCount*/, true);
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 							owningPlayer.ChangeNumProphetsTotal(1);
 #endif
 						}
@@ -6120,7 +6120,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							// Bump up the count
 							if(pFreeUnit->IsGreatGeneral())
 							{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 								owningPlayer.ChangeNumGeneralsTotal(1);
 #else
 								owningPlayer.incrementGreatGeneralsCreated();
@@ -6130,7 +6130,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 							else if(pFreeUnit->IsGreatAdmiral())
 							{
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 								owningPlayer.ChangeNumAdmiralsTotal(1);
 #else
 								owningPlayer.incrementGreatAdmiralsCreated();
@@ -6146,7 +6146,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatWritersCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 								owningPlayer.ChangeNumWritersTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6157,7 +6157,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatArtistsCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 								owningPlayer.ChangeNumArtistsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6168,7 +6168,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatMusiciansCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 								owningPlayer.ChangeNumMusiciansTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6180,7 +6180,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatScientistsCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 								owningPlayer.ChangeNumScientistsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6191,7 +6191,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatEngineersCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 								owningPlayer.ChangeNumEngineersTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6202,7 +6202,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatMerchantsCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 								owningPlayer.ChangeNumMerchantsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -6215,7 +6215,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifndef FREE_GREAT_PERSON
 								owningPlayer.incrementGreatProphetsCreated();
 #endif
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 								owningPlayer.ChangeNumProphetsTotal(1);
 #endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
@@ -7260,6 +7260,32 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 	return iDifference;
 }
 
+#ifdef EG_REPLAYDATASET_PERCENTOFCITIESWITHACTIVEWLTKD
+//	--------------------------------------------------------------------------------
+bool CvCity::isCityActiveWLTKD() const
+{
+	VALIDATE_OBJECT
+#ifdef NEW_WLTKD
+	ResourceTypes eResource = GetResourceDemanded();
+	if (eResource != NO_RESOURCE)
+	{
+		// Do we have the right Resource?
+		if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
+		{
+			return true;
+		}
+	}
+#else
+	if (GetWeLoveTheKingDayCounter() > 0)
+	{
+		return true;
+	}
+#endif
+
+	return false;
+}
+#endif
+
 
 //	--------------------------------------------------------------------------------
 int CvCity::growthThreshold() const
@@ -7952,11 +7978,8 @@ int CvCity::getCityAttackRangeModifier() const
 	else
 	{
 		int iTempMod = 0;
-		// CvCity* pWorkingCity = getWorkingCity();
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		// eSecondaryPantheon = pWorkingCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
-		// Extra yield for religion on this terrain
 		if (eMajority != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -7966,7 +7989,8 @@ int CvCity::getCityAttackRangeModifier() const
 				for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
 				{
 					const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
-					if (eBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+					CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+					if (pEntry && pEntry->IsPantheonBelief())
 					{
 						pBelief = eBelief;
 						break;
@@ -13013,7 +13037,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		}
 #endif
 
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
 	{
 		thisPlayer.ChangeNumTrainedUnits(1);
@@ -13633,7 +13657,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
 				}
 
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 				if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
 				{
 					kPlayer.ChangeNumTrainedUnits(1);
@@ -13776,20 +13800,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbWritersFromFaith() == true)
 				{
 					kPlayer.setWritersFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 					kPlayer.ChangeNumWritersTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementWritersFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 					kPlayer.ChangeNumWritersTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementWritersFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 				kPlayer.ChangeNumWritersTotal(1);
 #endif
 #endif
@@ -13800,20 +13824,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbArtistsFromFaith() == true)
 				{
 					kPlayer.setArtistsFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 					kPlayer.ChangeNumArtistsTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementArtistsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 					kPlayer.ChangeNumArtistsTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementArtistsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 				kPlayer.ChangeNumArtistsTotal(1);
 #endif
 #endif
@@ -13824,20 +13848,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbMusiciansFromFaith() == true)
 				{
 					kPlayer.setMusiciansFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 					kPlayer.ChangeNumMusiciansTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementMusiciansFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 					kPlayer.ChangeNumMusiciansTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementMusiciansFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 				kPlayer.ChangeNumMusiciansTotal(1);
 #endif
 #endif
@@ -13848,20 +13872,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbScientistsFromFaith() == true)
 				{
 					kPlayer.setScientistsFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 					kPlayer.ChangeNumScientistsTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementScientistsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 					kPlayer.ChangeNumScientistsTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementScientistsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 				kPlayer.ChangeNumScientistsTotal(1);
 #endif
 #endif
@@ -13872,20 +13896,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbMerchantsFromFaith() == true)
 				{
 					kPlayer.setMerchantsFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 					kPlayer.ChangeNumMerchantsTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementMerchantsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 					kPlayer.ChangeNumMerchantsTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementMerchantsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 				kPlayer.ChangeNumMerchantsTotal(1);
 #endif
 #endif
@@ -13896,20 +13920,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbEngineersFromFaith() == true)
 				{
 					kPlayer.setEngineersFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 					kPlayer.ChangeNumEngineersTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementEngineersFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 					kPlayer.ChangeNumEngineersTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementEngineersFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 				kPlayer.ChangeNumEngineersTotal(1);
 #endif
 				}
@@ -13921,20 +13945,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbGeneralsFromFaith() == true)
 				{
 					kPlayer.setGeneralsFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 					kPlayer.ChangeNumGeneralsTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementGeneralsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 					kPlayer.ChangeNumGeneralsTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementGeneralsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
 				kPlayer.ChangeNumGeneralsTotal(1);
 #endif
 #endif
@@ -13945,20 +13969,20 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				if(kPlayer.getbAdmiralsFromFaith() == true)
 				{
 					kPlayer.setAdmiralsFromFaith(false);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 					kPlayer.ChangeNumAdmiralsTotal(1);
 #endif
 				}
 				else
 				{
 					kPlayer.incrementAdmiralsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 					kPlayer.ChangeNumAdmiralsTotal(1);
 #endif
 				}
 #else
 				kPlayer.incrementAdmiralsFromFaith();
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
 				kPlayer.ChangeNumAdmiralsTotal(1);
 #endif
 #endif
@@ -13971,7 +13995,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 			{
 				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 				kPlayer.ChangeNumProphetsTotal(1);
 #endif
 			}
@@ -13994,7 +14018,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 			}
 
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 			if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
 			{
 				kPlayer.ChangeNumTrainedUnits(1);
@@ -14190,7 +14214,7 @@ bool CvCity::doCheckProduction()
 						if(iProductionGold > 0)
 						{
 							thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
 							thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
 #endif
 
@@ -14258,7 +14282,7 @@ bool CvCity::doCheckProduction()
 					if(iProductionGold > 0)
 					{
 						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
 						thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
 #endif
 
@@ -14291,7 +14315,7 @@ bool CvCity::doCheckProduction()
 					if(iProductionGold > 0)
 					{
 						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
 						thisPlayer.ChangeProductionGoldFromWonders(iProductionGold);
 #endif
 
@@ -14482,7 +14506,9 @@ void CvCity::doProduction(bool bAllowNoProduction)
 	}
 	else
 	{
+#ifndef PREVENT_UNCAPPED_OVERFLOW
 		changeOverflowProductionTimes100(getCurrentProductionDifferenceTimes100(false, false));
+#endif
 	}
 }
 

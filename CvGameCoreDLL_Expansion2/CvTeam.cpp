@@ -6467,16 +6467,20 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(iUnitClass);
 				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-#ifdef ENHANCED_GRAPHS
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 				if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 				{
 					kPlayer.ChangeNumScientistsTotal(1);
 				}
-				else if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
+				if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 				{
 					kPlayer.ChangeNumProphetsTotal(1);
 				}
-				else if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
+				if (GC.GetGameUnits()->GetEntry(eLoopUnit)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
 					kPlayer.ChangeNumMerchantsTotal(1);
 				}

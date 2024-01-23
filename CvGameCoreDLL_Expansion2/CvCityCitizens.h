@@ -130,7 +130,7 @@ public:
 	int GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kBuilding);
 
 	int GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass);
-#ifdef ENHANCED_GRAPHS
+#if defined EG_REPLAYDATASET_NUMOFBORNSCIENTISTS || defined EG_REPLAYDATASET_NUMOFBORNENGINEERS || defined EG_REPLAYDATASET_NUMOFBORNMERCHANTS || defined EG_REPLAYDATASET_NUMOFBORNWRITERS || defined EG_REPLAYDATASET_NUMOFBORNARTISTS || defined EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 	void DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bMayaBoost = false);
 #else
 	void DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet);

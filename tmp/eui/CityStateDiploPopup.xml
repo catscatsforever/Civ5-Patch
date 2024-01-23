@@ -5,8 +5,6 @@
   <Grid Size="560,750" Anchor="C,C" Offset="0,66" Style="Grid9DetailFive140" ConsumeMouse="1">
     <!--=======================================================================================================================-->
     <Image ID="TitleIcon" Anchor="C,T" AnchorSide="I.O" Offset="0,-33" Texture="CityStatePopupTop100.dds" Size="300.200"/>
-    <Image ID="TitleIconScientific" Anchor="C,T" AnchorSide="I.O" Offset="0,-7" Texture="CityStatePopupTopScientific.dds" Size="85.85"/>
-    <Image ID="TitleIconManufactory" Anchor="C,T" AnchorSide="I.O" Offset="0,-7" Texture="CityStatePopupTopManufactory.dds" Size="85.85"/>
     <!-- Side treatments -->
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>

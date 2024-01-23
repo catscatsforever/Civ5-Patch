@@ -457,12 +457,9 @@ public:
 #ifdef REPLAY_MESSAGE_EXTENDED
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iData1, int iData2, int iPlotX, int iPlotY);
 #endif
-#ifdef statistis_stuff_VARIANT
-	void addReplayStats(ReplayMessageTypes eType, PlayerTypes ePlayer, const char* szData, int iPlotX, int iPlotY);
-#endif
 #ifdef DEV_RECORDING_STATISTICS
-	void addReplayStats2(uint uiDataSet, PlayerTypes ePlayer, uint uiTurn, const char* szDataName, int iValue);
 	void exportReplayDatasets();
+	void generateReplayKeys();
 #endif
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
@@ -853,4 +850,120 @@ protected:
 
 };
 
+#ifdef REPLAY_EVENTS
+// add new event types to the end of the enum, before NUM_REPLAYEVENTS
+// each event listed here should have its own corresponding xml entry in ReplayEvents table
+enum ReplayEventTypes
+{
+	// Network actions
+	REPLAYEVENT_AdvancedStartAction,
+	REPLAYEVENT_AutoMission,
+	REPLAYEVENT_BarbarianRansom,
+	REPLAYEVENT_ChangeWar,
+	REPLAYEVENT_IgnoreWarning,
+	REPLAYEVENT_CityBuyPlot,
+	REPLAYEVENT_CityDoTask,
+	REPLAYEVENT_CityPopOrder,
+	REPLAYEVENT_CityPurchase,
+	REPLAYEVENT_CityPushOrder,
+	REPLAYEVENT_CitySwapOrder,
+	REPLAYEVENT_ChooseElection,
+	REPLAYEVENT_DestroyUnit,
+	REPLAYEVENT_DiplomacyFromUI,
+	REPLAYEVENT_DiploVote,
+	REPLAYEVENT_DoCommand,
+	REPLAYEVENT_ExtendedGame,
+	REPLAYEVENT_FoundPantheon,
+	REPLAYEVENT_FoundReligion,
+	REPLAYEVENT_EnhanceReligion,
+	REPLAYEVENT_MoveSpy,
+	REPLAYEVENT_StageCoup,
+	REPLAYEVENT_FaithPurchase,
+	REPLAYEVENT_LeagueVoteEnact,
+	REPLAYEVENT_LeagueVoteRepeal,
+	REPLAYEVENT_LeagueVoteAbstain,
+	REPLAYEVENT_LeagueProposeEnact,
+	REPLAYEVENT_LeagueProposeRepeal,
+	REPLAYEVENT_LeagueEditName,
+	REPLAYEVENT_SetSwappableGreatWork,
+	REPLAYEVENT_SwapGreatWorks,
+	REPLAYEVENT_MoveGreatWorks,
+	REPLAYEVENT_ChangeIdeology,
+	REPLAYEVENT_GiftUnit,
+	REPLAYEVENT_LaunchSpaceship,
+	REPLAYEVENT_LiberatePlayer,
+	REPLAYEVENT_MinorCivBullyGold,
+	REPLAYEVENT_MinorCivBullyUnit,
+	REPLAYEVENT_MinorCivGiftGold,
+	REPLAYEVENT_MinorCivGiftTileImprovement,
+	REPLAYEVENT_MinorCivBuyout,
+	REPLAYEVENT_MinorNoUnitSpawning,
+	REPLAYEVENT_PlayerDealFinalized,
+	REPLAYEVENT_PlayerOption,
+	REPLAYEVENT_PledgeMinorProtection,
+	REPLAYEVENT_PushMission,
+	REPLAYEVENT_GreatPersonChoice,
+	REPLAYEVENT_MayaBonusChoice,
+	REPLAYEVENT_FaithGreatPersonChoice,
+	REPLAYEVENT_GoodyChoice,
+	REPLAYEVENT_ArchaeologyChoice,
+	REPLAYEVENT_IdeologyChoice,
+	REPLAYEVENT_RenameCity,
+	REPLAYEVENT_RenameUnit,
+	REPLAYEVENT_Research,
+	REPLAYEVENT_ReturnCivilian,
+	REPLAYEVENT_SellBuilding,
+	REPLAYEVENT_SetCityAIFocus,
+	REPLAYEVENT_SetCityAvoidGrowth,
+	REPLAYEVENT_SwapUnits,
+	REPLAYEVENT_UpdateCityCitizens,
+	REPLAYEVENT_UpdatePolicies,
+	/// 
+	REPLAYEVENT_CityPurchaseUnit,
+	REPLAYEVENT_CityPurchaseBuilding,
+	REPLAYEVENT_FreeTech,
+	REPLAYEVENT_StealTech,
+	REPLAYEVENT_ProposalIrr,
+	REPLAYEVENT_ProposalCc,
+	REPLAYEVENT_ProposalScrap,
+	REPLAYEVENT_ProposalYes,
+	REPLAYEVENT_ProposalNo,
+	REPLAYEVENT_ResetTimer,
+	REPLAYEVENT_PauseTimer,
+	REPLAYEVENT_OpenDemoScreen,
+	REPLAYEVENT_ExtractSpy,
+	REPLAYEVENT_UpdatePolicyBranch,
+	REPLAYEVENT_UnpauseTimer,
+
+	// Gameplay events
+	REPLAYEVENT_CityUnitComplete,
+	REPLAYEVENT_CityBuildingComplete,
+	REPLAYEVENT_CityGrowth,
+	REPLAYEVENT_CityStarvation,
+	REPLAYEVENT_CityBorderGrowth,
+	REPLAYEVENT_UnitDisbanded,
+	REPLAYEVENT_UnitKilledInCombat,
+	REPLAYEVENT_UnitPromotion,
+	REPLAYEVENT_UnitUpgrade,
+	REPLAYEVENT_ImprovementFinished,
+	REPLAYEVENT_GoodyHut,
+	REPLAYEVENT_NaturalWonderDiscovered,
+	REPLAYEVENT_CircumnavigatedGlobe,
+	REPLAYEVENT_MeetTeam,
+	REPLAYEVENT_TechAcquired,
+	REPLAYEVENT_AdvanceEra,
+	REPLAYEVENT_SpyCoupResult,
+	REPLAYEVENT_SpyOperationResult,
+	REPLAYEVENT_MinorQuestComplete,
+	REPLAYEVENT_MinorAllyChanged,
+	REPLAYEVENT_MinorFriendChanged,
+	REPLAYEVENT_CongressHostChange,
+	REPLAYEVENT_CongressEnactedProposalsChange,
+	REPLAYEVENT_MPProposalResult,
+	REPLAYEVENT_PlotNewCityName,  // Special event to track city name changes
+	REPLAYEVENT_EnterCityScreen,
+
+	NUM_REPLAYEVENTS
+};
+#endif
 #endif

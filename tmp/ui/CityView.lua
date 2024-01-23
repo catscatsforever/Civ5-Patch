@@ -1,7 +1,12 @@
 -------------------------------------------------
 -- Game View 
 -------------------------------------------------
--- edit: tournament mode for vanilla UI
+-- edit:
+--     tournament mode
+--     WLTKD REWORK
+--     NEW FACTORIES
+--     enhanced grahps
+-- for vanilla UI
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
@@ -67,6 +72,9 @@ end
 -----------------------------------------------------------------
 function CityScreenClosed()
 	
+	-- NEW: enhanced graphs START
+	gPreviousCity = nil;
+	-- enhanced graphs END
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
 	OnCityViewUpdate();
 	-- We may get here after a player change, clear the UI if this is not the active player's city
@@ -227,7 +235,7 @@ end
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 
-local workerHeadingOpen = OptionsManager.IsNoCitizenWarning();
+local workerHeadingOpen = true; --OptionsManager.IsNoCitizenWarning();
 local slackerHeadingOpen = true;
 local GPHeadingOpen = true;
 local wonderHeadingOpen = true;
@@ -747,6 +755,10 @@ function OnCityViewUpdate()
 	local pCity = UI.GetHeadSelectedCity();
 	
 	if gPreviousCity ~= pCity then
+		-- NEW: enhanced graphs START
+		print('Entered city:', pCity and pCity:GetName() or 'NO_CITY', 'previous city:', gPreviousCity and gPreviousCity:GetName() or 'NO_CITY');
+		Network.SendGiftUnit(pCity and pCity:Plot():GetPlotIndex() or -1, -9);
+		-- enhanced graphs END
 		gPreviousCity = pCity;
 		specialistTable = {};
 	end

@@ -150,7 +150,11 @@ function UpdateDisplay()
         -- Status field
         local buildType = unit:GetBuildType();
         local activityType = unit:GetActivityType();
-        if( unit:IsEmbarked() ) then
+        local pCity = unit:GetPlot():GetPlotCity();
+        if( unit:GetDomainType() == DomainTypes.DOMAIN_AIR and pCity ~= nil ) then
+            sortEntry.status = pCity:GetName();
+            instance.Status:SetHide( false );
+        elseif( unit:IsEmbarked() ) then
             sortEntry.status = "TXT_KEY_UNIT_STATUS_EMBARKED";
             instance.Status:SetHide( false );
             
@@ -260,7 +264,7 @@ end
 -------------------------------------------------
 -------------------------------------------------
 function SortFunction( a, b )
-    local valueA, valueB;
+    local valueA, valueB, valueC, valueD;
     local entryA = m_SortTable[ tostring( a ) ];
     local entryB = m_SortTable[ tostring( b ) ];
 	
@@ -280,6 +284,8 @@ function SortFunction( a, b )
 		if( m_SortMode == eName ) then
 			valueA = entryA.name;
 			valueB = entryB.name;
+            valueC = entryA.status;
+            valueD = entryB.status;
 		elseif( m_SortMode == eStatus ) then
 			valueA = entryA.status;
 			valueB = entryB.status;
@@ -289,16 +295,38 @@ function SortFunction( a, b )
 		end
 	    
 		if( valueA == valueB ) then
-			valueA = entryA.unit:GetID();
-			valueB = entryB.unit:GetID();
+            if( m_SortMode == eName and valueC ~= nil and valueD ~= nil ) then
+                if( valueC == valueD ) then
+        			valueA = entryA.unit:GetID();
+        			valueB = entryB.unit:GetID();
+                end
+            else
+                valueA = entryA.unit:GetID();
+                valueB = entryB.unit:GetID();
+            end
 		end
-	    
-	   
-		if( m_bSortReverse ) then
-			return valueA > valueB;
-		else
-			return valueA < valueB;
-		end
+        
+        if( m_SortMode == eName and valueC ~= nil and valueD ~= nil ) then
+            if( m_bSortReverse ) then
+                if ( valueA ~= valueB ) then
+                    return valueA > valueB;
+                else
+                    return valueC > valueD;
+                end
+            else
+                if ( valueA ~= valueB ) then
+                    return valueB > valueA;
+                else
+                    return valueD > valueC;
+                end
+            end
+        else
+    		if( m_bSortReverse ) then
+    			return valueA > valueB;
+    		else
+    			return valueA < valueB;
+    		end
+        end
     end
 end
 

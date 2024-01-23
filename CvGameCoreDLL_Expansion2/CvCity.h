@@ -263,6 +263,9 @@ public:
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
 	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;
+#ifdef EG_REPLAYDATASET_PERCENTOFCITIESWITHACTIVEWLTKD
+	bool isCityActiveWLTKD() const;
+#endif
 	int growthThreshold() const;
 
 	int productionLeft() const;

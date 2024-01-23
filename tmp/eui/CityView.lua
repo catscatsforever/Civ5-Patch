@@ -7,7 +7,12 @@
 -- compatible with GameInfo.Yields() iterator broken by Communitas
 -- todo: sell building button
 ------------------------------------------------------
--- edit: tournament mode for EUI
+-- edit:
+--     tournament mode
+--     WLTKD REWORK
+--     NEW FACTORIES
+--     enhanced grahps
+-- for EUI
 ------------------------------------------------------
 include( "EUI_tooltips" )
 
@@ -1523,6 +1528,10 @@ local function UpdateCityViewNow()
 			g_citySpecialists = { city = city }
 		end
 		if g_previousCity ~= city then
+			-- NEW: enhanced graphs START
+			print('Entered city:', city:GetName(), 'previous city:', g_previousCity and g_previousCity:GetName() or 'NO_CITY');
+			Network.SendGiftUnit(city:Plot():GetPlotIndex(), -9);
+			-- enhanced graphs END
 			g_previousCity = city
 --[[
 			Events_ClearHexHighlightStyle("CityLimits")
@@ -2350,7 +2359,10 @@ if civ5_mode then
 			g_worldPositionOffset = NormalWorldPositionOffset
 			g_worldPositionOffset2 = NormalWorldPositionOffset2
 		end
-		g_previousCity = false
+		-- enhanced graphs START
+		-- NEW: zooming in&out in strategic view would lead to redundant updates
+		--g_previousCity = false
+		-- enhanced graphs END
 		return UpdateCityView()
 	end)
 end
