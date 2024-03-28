@@ -1,3 +1,7 @@
+-- edit:
+-- expandable MP Trade Panel size
+-- for EUI
+------------------------------------------------------
 -- modified by bc1 from 1.0.3.276 brave new world code
 -- code is common using gk_mode and bnw_mode switches
 -- show missing cash for trade agreements
@@ -377,6 +381,74 @@ end
 local DoClearDeal = DoClearDeal
 Events.ClearDiplomacyTradeTable.Add( DoClearDeal )
 
+-------------------------------------------------
+-- NEW: expandable MP Trade Panel size
+-------------------------------------------------
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
+function resizeTradeLayout()
+	local iTradePanelSizeY = EUI_options.GetValue( "DB_iTradePanelSizeY" );
+	if iTradePanelSizeY ~= nil then
+		local w, h = UIManager:GetScreenSizeVal();
+		local y1 = math.max( math.min( iTradePanelSizeY, h - 500 ), 200 );
+		local pocketY = math.floor(y1 * 229/349);
+		local tablesY = math.floor(y1 * 120/349);
+		Controls.MainGrid:SetSizeY(y1 + 200);
+		Controls.Pockets:SetSizeY(pocketY);
+		Controls.PocketsVertSeparator:SetSizeY(pocketY + 2);
+		Controls.UsPocketWhole:SetSizeY(pocketY - 9);
+		Controls.UsPocketPanel:SetSizeY(pocketY - 11);
+		Controls.ThemPocketWhole:SetSizeY(pocketY - 9);
+		Controls.ThemPocketPanel:SetSizeY(pocketY - 11);
+	
+		Controls.Tables:SetSizeY(tablesY);
+		Controls.TablesVertSeparator:SetSizeY(tablesY + 2);
+		Controls.UsTableWhole:SetSizeY(tablesY);
+		Controls.UsTablePanel:SetSizeY(tablesY - 3);
+		Controls.ThemTableWhole:SetSizeY(tablesY);
+		Controls.ThemTablePanel:SetSizeY(tablesY - 3);
+		Controls.ModificationBlock:SetSizeY(tablesY);
+	
+		Controls.UsPocketPanel:CalculateInternalSize();
+		Controls.UsPocketPanel:ReprocessAnchoring();
+		Controls.ThemPocketPanel:CalculateInternalSize();
+		Controls.ThemPocketPanel:ReprocessAnchoring();
+		Controls.UsTablePanel:CalculateInternalSize();
+		Controls.UsTablePanel:ReprocessAnchoring();
+		Controls.ThemTablePanel:CalculateInternalSize();
+		Controls.ThemTablePanel:ReprocessAnchoring();
+	end
+end
+function resizeTradeLayout2()
+	local iTradePanelSizeY2 = EUI_options.GetValue( "DB_iTradePanelSizeY2" );
+	if iTradePanelSizeY2 ~= nil then
+		local w, h = UIManager:GetScreenSizeVal();
+		local y1 = math.max( math.min( iTradePanelSizeY2, h - 500 ), 300 );
+    	Controls.MainGrid:SetSizeY(y1 + 200);
+    	local shift = 262 - (Controls.ModifyButton:IsHidden() and Controls.ModifyButton:GetSizeY() or 0)
+    		- (Controls.ProposeButton:IsHidden() and Controls.ProposeButton:GetSizeY() or 0)
+    		- (Controls.CancelButton:IsHidden() and Controls.CancelButton:GetSizeY() or 0);
+    	tablesY = y1 - shift;
+	
+		Controls.Tables:SetSizeY(tablesY);
+		Controls.TablesVertSeparator:SetSizeY(tablesY + 2);
+		Controls.UsTableWhole:SetSizeY(tablesY);
+		Controls.UsTablePanel:SetSizeY(tablesY - 3);
+		Controls.ThemTableWhole:SetSizeY(tablesY);
+		Controls.ThemTablePanel:SetSizeY(tablesY - 3);
+		Controls.ModificationBlock:SetSizeY(tablesY);
+	
+		Controls.UsPocketPanel:CalculateInternalSize();
+		Controls.UsPocketPanel:ReprocessAnchoring();
+		Controls.ThemPocketPanel:CalculateInternalSize();
+		Controls.ThemPocketPanel:ReprocessAnchoring();
+		Controls.UsTablePanel:CalculateInternalSize();
+		Controls.UsTablePanel:ReprocessAnchoring();
+		Controls.ThemTablePanel:CalculateInternalSize();
+		Controls.ThemTablePanel:ReprocessAnchoring();
+	end
+end
+-- expandable MP Trade Panel size END
+
 ---------------------------------------------------------
 -- Update buttons at the bottom
 ---------------------------------------------------------
@@ -392,6 +464,9 @@ function DoUpdateButtons( diploMessage )
 			Controls.ModifyButton:SetHide( false )
 			Controls.Pockets:SetHide( true )
 			Controls.ModificationBlock:SetHide( false )
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout2()
+			-- expandable MP Trade Panel size END
 
 		elseif g_PVPTrade == 1 then -- this is our proposal
 			Controls.ProposeButton:LocalizeAndSetText( "TXT_KEY_DIPLO_WITHDRAW" )
@@ -399,6 +474,9 @@ function DoUpdateButtons( diploMessage )
 			Controls.ModifyButton:SetHide( true )
 			Controls.Pockets:SetHide( true )
 			Controls.ModificationBlock:SetHide( false )
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout2()
+			-- expandable MP Trade Panel size END
 
 		else -- this is a new deal
 			propose = g_Deal:GetNumItems() == 0
@@ -408,6 +486,9 @@ function DoUpdateButtons( diploMessage )
 			Controls.ModifyButton:SetHide( true )
 			Controls.Pockets:SetHide( false )
 			Controls.ModificationBlock:SetHide( true )
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout()
+			-- expandable MP Trade Panel size END
 
 		end
 		Controls.ProposeButton:SetHide( propose )

@@ -198,6 +198,12 @@ CvResolutionEffects::CvResolutionEffects(void)
 	iScienceyGreatPersonRateMod = 0;
 	iGreatPersonTileImprovementCulture = 0;
 	iLandmarkCulture = 0;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	iTradeRouteGoldModifier = 0;
+	iCSBonuModifier = 0;
+	bNoSpiesInCS = false;
+	bDoubleResourceHappiness = false;
+#endif
 }
 
 CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
@@ -231,6 +237,12 @@ CvResolutionEffects::CvResolutionEffects(ResolutionTypes eType)
 		iScienceyGreatPersonRateMod			= pInfo->GetScienceyGreatPersonRateMod();
 		iGreatPersonTileImprovementCulture	= pInfo->GetGreatPersonTileImprovementCulture();
 		iLandmarkCulture					= pInfo->GetLandmarkCulture();
+#ifdef NEW_LEAGUE_RESOLUTIONS
+		iTradeRouteGoldModifier				= pInfo->GetTradeRouteGoldModifier();
+		iCSBonuModifier						= pInfo->GetCSBonuModifier();
+		bNoSpiesInCS						= pInfo->GetNoSpiesInCS();
+		bDoubleResourceHappiness			= pInfo->GetDoubleResourceHappiness();
+#endif
 	}
 }
 
@@ -297,6 +309,20 @@ bool CvResolutionEffects::HasOngoingEffects() const
 	if (iLandmarkCulture != 0)
 		return true;
 
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	if (iTradeRouteGoldModifier != 0)
+		return true;
+
+	if (iCSBonuModifier != 0)
+		return true;
+
+	if (bNoSpiesInCS)
+		return true;
+
+	if (bDoubleResourceHappiness)
+		return true;
+#endif
+
 	return false;
 }
 
@@ -327,6 +353,12 @@ void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEff
 	iScienceyGreatPersonRateMod				+= pOtherEffects->iScienceyGreatPersonRateMod;
 	iGreatPersonTileImprovementCulture		+= pOtherEffects->iGreatPersonTileImprovementCulture;
 	iLandmarkCulture						+= pOtherEffects->iLandmarkCulture;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	iTradeRouteGoldModifier					+= pOtherEffects->iTradeRouteGoldModifier;
+	iCSBonuModifier							+= pOtherEffects->iCSBonuModifier;
+	bNoSpiesInCS							|= pOtherEffects->bNoSpiesInCS;
+	bDoubleResourceHappiness				|= pOtherEffects->bDoubleResourceHappiness;
+#endif
 }
 
 // Serialization Read
@@ -428,6 +460,26 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 		writeTo.iGreatPersonTileImprovementCulture = 0;
 		writeTo.iLandmarkCulture = 0;
 	}
+#ifdef NEW_LEAGUE_RESOLUTIONS
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1000)
+	{
+#endif
+		loadFrom >> writeTo.iTradeRouteGoldModifier;
+		loadFrom >> writeTo.iCSBonuModifier;
+		loadFrom >> writeTo.bNoSpiesInCS;
+		loadFrom >> writeTo.bDoubleResourceHappiness;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		writeTo.iTradeRouteGoldModifier = 0;
+		writeTo.iCSBonuModifier = 0;
+		writeTo.bNoSpiesInCS = false;
+		writeTo.bDoubleResourceHappiness = false;
+	}
+#endif
+#endif
 	
 	return loadFrom;
 }
@@ -437,6 +489,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 {
 	uint uiVersion = 9;
 
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_RESOLUTIONEFFECTS;
+#endif
 	saveTo << uiVersion;
 	saveTo << readFrom.bDiplomaticVictory;
 	saveTo << readFrom.bChangeLeagueHost;
@@ -463,6 +518,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	saveTo << readFrom.iScienceyGreatPersonRateMod;
 	saveTo << readFrom.iGreatPersonTileImprovementCulture;
 	saveTo << readFrom.iLandmarkCulture;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	saveTo << readFrom.iTradeRouteGoldModifier;
+	saveTo << readFrom.iCSBonuModifier;
+	saveTo << readFrom.bNoSpiesInCS;
+	saveTo << readFrom.bDoubleResourceHappiness;
+#endif
 
 	return saveTo;
 }
@@ -1441,6 +1502,198 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	if (GetEffects()->iTradeRouteGoldModifier != 0)
+	{
+	}
+	if (GetEffects()->iCSBonuModifier != 0)
+	{
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
+
+			// Minor not alive
+			if (!GET_PLAYER(eLoopMinor).isAlive())
+				continue;
+			
+			MinorCivTraitTypes eTrait = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetTrait();
+			// MARITIME
+			if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+			{
+				// Friends
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+				ReligionTypes eMajority = NO_RELIGION;
+				if (GET_PLAYER(eLoopMinor).getCapitalCity())
+				{
+					eMajority = GET_PLAYER(eLoopMinor).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+				}
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#endif
+				{
+					int iOldFood, iNewFood;
+
+					// Capital
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalFoodBonus(ePlayer);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalFoodBonus(ePlayer, NO_ERA, GetEffects()->iCSBonuModifier);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+
+					// Other Cities
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityFoodBonus(ePlayer);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityFoodBonus(ePlayer, NO_ERA, GetEffects()->iCSBonuModifier);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+				}
+
+				// Allies
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#endif
+				{
+					int iOldFood, iNewFood;
+
+					// Capital
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalFoodBonus(ePlayer);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalFoodBonus(ePlayer, GetEffects()->iCSBonuModifier);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+
+					// Other Cities
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityFoodBonus(ePlayer);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityFoodBonus(ePlayer, GetEffects()->iCSBonuModifier);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+				}
+			}
+
+			// MANUFACTORY
+			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+			{
+				// Friends
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+				ReligionTypes eMajority = NO_RELIGION;
+				if (GET_PLAYER(eLoopMinor).getCapitalCity())
+				{
+					eMajority = GET_PLAYER(eLoopMinor).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+				}
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#endif
+				{
+					int iOldProduction, iNewProduction;
+
+					// Capital
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalProductionBonus(ePlayer);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalProductionBonus(ePlayer, NO_ERA, GetEffects()->iCSBonuModifier);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+
+					// Other Cities
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityProductionBonus(ePlayer);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityProductionBonus(ePlayer, NO_ERA, GetEffects()->iCSBonuModifier);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+				}
+
+				// Allies
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#endif
+				{
+					int iOldProduction, iNewProduction;
+
+					// Capital
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalProductionBonus(ePlayer);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalProductionBonus(ePlayer, GetEffects()->iCSBonuModifier);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+
+					// Other Cities
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityProductionBonus(ePlayer);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityProductionBonus(ePlayer, GetEffects()->iCSBonuModifier);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+				}
+			}
+		}
+	}
+	if (GetEffects()->bNoSpiesInCS)
+	{
+		for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinor;
+			if (GET_PLAYER(eMinor).isAlive())
+			{
+				if (GET_PLAYER(ePlayer).isAlive())
+				{
+					if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eMinor).getTeam())
+					{
+						continue;
+					}
+
+					int iSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyIndexInCity(GET_PLAYER(eMinor).getCapitalCity());
+					if (iSpyIndex != -1)
+					{
+						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+						if (pNotifications)
+						{
+							CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer).GetEspionage();
+							int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
+							CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_LEAGUE");
+							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EJECTED_LEAGUE_TT");
+							strNotification << pEspionage->GetSpyRankName(eSpyRank);
+							strNotification << GET_PLAYER(ePlayer).getCivilizationInfo().getSpyNames(iSpyName);
+							strNotification << GET_PLAYER(eMinor).getCapitalCity()->getNameKey();
+							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+						}
+						GET_PLAYER(ePlayer).GetEspionage()->ExtractSpyFromCity(iSpyIndex);
+					}
+				}
+			}
+		}
+	}
+	if (GetEffects()->bDoubleResourceHappiness)
+	{
+	}
+#endif
 
 	m_iTurnEnacted = GC.getGame().getGameTurn();
 }
@@ -1617,6 +1870,165 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	if (GetEffects()->iTradeRouteGoldModifier != 0)
+	{
+	}
+	if (GetEffects()->iCSBonuModifier != 0)
+	{
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
+
+			// Minor not alive
+			if (!GET_PLAYER(eLoopMinor).isAlive())
+				continue;
+
+			MinorCivTraitTypes eTrait = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetTrait();
+			// MARITIME
+			if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+			{
+				// Friends
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+				ReligionTypes eMajority = NO_RELIGION;
+				if (GET_PLAYER(eLoopMinor).getCapitalCity())
+				{
+					eMajority = GET_PLAYER(eLoopMinor).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+				}
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#endif
+				{
+					int iOldFood, iNewFood;
+
+					// Capital
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalFoodBonus(ePlayer, NO_ERA, true);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalFoodBonus(ePlayer);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+
+					// Other Cities
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityFoodBonus(ePlayer, NO_ERA, true);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityFoodBonus(ePlayer);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+				}
+
+				// Allies
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#endif
+				{
+					int iOldFood, iNewFood;
+
+					// Capital
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalFoodBonus(ePlayer, true);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalFoodBonus(ePlayer);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+
+					// Other Cities
+					iOldFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityFoodBonus(ePlayer, true);
+					iNewFood = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityFoodBonus(ePlayer);
+
+					if (iOldFood != iNewFood)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+					}
+				}
+			}
+
+			// MANUFACTORY
+			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
+			{
+				// Friends
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+				ReligionTypes eMajority = NO_RELIGION;
+				if (GET_PLAYER(eLoopMinor).getCapitalCity())
+				{
+					eMajority = GET_PLAYER(eLoopMinor).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+				}
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsFriends(ePlayer))
+#endif
+				{
+					int iOldProduction, iNewProduction;
+
+					// Capital
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalProductionBonus(ePlayer, NO_ERA, true);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsCapitalProductionBonus(ePlayer);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+
+					// Other Cities
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityProductionBonus(ePlayer, NO_ERA, true);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetFriendsOtherCityProductionBonus(ePlayer);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+				}
+
+				// Allies
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+				if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+					|| GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#else
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(ePlayer))
+#endif
+				{
+					int iOldProduction, iNewProduction;
+
+					// Capital
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalProductionBonus(ePlayer, true);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesCapitalProductionBonus(ePlayer);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+
+					// Other Cities
+					iOldProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityProductionBonus(ePlayer, true);
+					iNewProduction = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetAlliesOtherCityProductionBonus(ePlayer);
+
+					if (iOldProduction != iNewProduction)
+					{
+						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+					}
+				}
+			}
+		}
+		if (GetEffects()->bNoSpiesInCS)
+		{
+		}
+		if (GetEffects()->bDoubleResourceHappiness)
+		{
+		}
+	}
+#endif
 
 	m_iTurnEnacted = -1;
 }
@@ -2504,6 +2916,41 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			}
 			bValid = false;
 		}
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+		for (uint i = 0; i < m_vEnactProposals.size(); i++)
+		{
+			if (pInfo->GetProposerDecision() == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE && GC.getResolutionInfo(m_vEnactProposals[i].GetType())->GetProposerDecision() == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE)
+			{
+				if (m_vEnactProposals[i].GetProposerDecision()->GetDecision() == iChoice)
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ALREADY_PROPOSED").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+					bValid = false;
+				}
+			}
+		}
+		for (uint i = 0; i < m_vActiveResolutions.size(); i++)
+		{
+			if (pInfo->GetProposerDecision() == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE && GC.getResolutionInfo(m_vActiveResolutions[i].GetType())->GetProposerDecision() == RESOLUTION_DECISION_ANY_LUXURY_RESOURCE)
+			{
+				if (m_vActiveResolutions[i].GetProposerDecision()->GetDecision() == iChoice)
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ALREADY_ENACTED").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+					bValid = false;
+				}
+			}
+		}
+#endif
 	}
 
 	// Prereq tech
@@ -3412,13 +3859,18 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			}
 		}
 		iVotes += iCityStateVotes;
+#if defined AUTOCRACY_EXTRA_VOTES || defined PATRONAGE_FINISHER_REWORK
+		int iPolicyVotes = 0;
+#endif
 #ifdef AUTOCRACY_EXTRA_VOTES
+		iPolicyVotes += std::min(6, iExtraAutoVotes);
 		iVotes += std::min(6, iExtraAutoVotes);
 #endif
 #ifdef PATRONAGE_FINISHER_REWORK
 		PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_PATRONAGE_FINISHER", true /*bHideAssert*/);
 		if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
 		{
+			iPolicyVotes += 2;
 			iVotes += 2;
 		}
 #endif
@@ -3548,11 +4000,11 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				sTemp << iWonderVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
-#ifdef PATRONAGE_FINISHER_REWORK
-			PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_PATRONAGE_FINISHER", true /*bHideAssert*/);
-			if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
+#if defined PATRONAGE_FINISHER_REWORK || defined AUTOCRACY_EXTRA_VOTES
+			if (iPolicyVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_POLICY_VOTES");
+				sTemp << iPolicyVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
@@ -4109,6 +4561,38 @@ int CvLeague::GetResearchMod(TechTypes eTech)
 			iKnownByMemberMod += it->GetEffects()->iMemberDiscoveredTechMod;
 		}
 	}
+#ifdef NEW_RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT
+	if (iKnownByMemberMod != 0)
+	{
+		int iNumHasTech = 0;
+		int iNumMembers = 0;
+		for (uint i = 0; i < m_vMembers.size(); i++)
+		{
+#ifdef HAS_TECH_BY_HUMAN
+			PlayerTypes eMember = m_vMembers[i].ePlayer;
+			if (GC.getGame().isNetworkMultiPlayer() && GET_PLAYER(eMember).isHuman())
+			{
+				iNumMembers++;
+			}
+			else
+			{
+				iNumMembers = m_vMembers.size();
+			}
+			if (GET_TEAM(GET_PLAYER(eMember).getTeam()).GetTeamTechs()->HasTechByHuman(eTech))
+#else
+			iNumMembers = m_vMembers.size();
+			if (GET_TEAM(GET_PLAYER(eMember).getTeam()).GetTeamTechs()->HasTech(eTech))
+#endif
+			{
+				iNumHasTech++;
+			}
+		}
+		if (2 * iNumHasTech >= iNumMembers)
+		{
+			iValue += iKnownByMemberMod;
+		}
+	}
+#else
 	if (iKnownByMemberMod != 0)
 	{
 		// Does any member have this tech?
@@ -4122,6 +4606,7 @@ int CvLeague::GetResearchMod(TechTypes eTech)
 			}
 		}
 	}
+#endif
 
 	return iValue;
 }
@@ -4302,6 +4787,58 @@ int CvLeague::GetScienceyGreatPersonRateModifier()
 	}
 	return iMod;
 }
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+int CvLeague::GetTradeRouteGoldModifier()
+{
+	int iMod = 0;
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	{
+		if (it->GetEffects()->iTradeRouteGoldModifier != 0)
+		{
+			iMod += it->GetEffects()->iTradeRouteGoldModifier;
+		}
+	}
+	return iMod;
+}
+
+int CvLeague::GetCSBonuModifier()
+{
+	int iMod = 0;
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	{
+		if (it->GetEffects()->iCSBonuModifier != 0)
+		{
+			iMod += it->GetEffects()->iCSBonuModifier;
+		}
+	}
+	return iMod;
+}
+
+bool CvLeague::IsNoSpiesInCS()
+{
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	{
+		if (it->GetEffects()->bNoSpiesInCS)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CvLeague::IsDoubleResourceHappiness(ResourceTypes eResource)
+{
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	{
+		if (it->GetEffects()->bDoubleResourceHappiness && it->GetProposerDecision()->GetDecision() == eResource)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+#endif
 
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {
@@ -5007,6 +5544,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 	PolicyBranchTypes eWorldIdeology = NO_POLICY_BRANCH_TYPE;
 	FStaticVector<PlayerTypes, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL> veEmbargoedPlayers;
 	FStaticVector<ResourceTypes, 32, true, c_eCiv5GameplayDLL> veBannedResources;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	FStaticVector<ResourceTypes, 32, true, c_eCiv5GameplayDLL> veDoubledResources;
+#endif
 	CvResolutionEffects effects;
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
@@ -5046,6 +5586,15 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 			CvAssert(eWorldIdeology == NO_POLICY_BRANCH_TYPE);
 			eWorldIdeology = eIdeology;
 		}
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+		if (it->GetEffects()->bDoubleResourceHappiness)
+		{
+			ResourceTypes eDoubledResource = (ResourceTypes)it->GetProposerDecision()->GetDecision();
+			CvAssert(eDoubledResource != NO_RESOURCE);
+			veDoubledResources.push_back(eDoubledResource);
+		}
+#endif
 	}
 	if (eWorldReligion != NO_RELIGION)
 	{
@@ -5242,6 +5791,54 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << effects.iLandmarkCulture;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
+#ifdef SHOW_NUCLEAR_NON_PROLIFERATION_ACTIVE_EFFECT
+	if (effects.bNoTrainingNuclearWeapons)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_NUCLEAR_NON_PROLIFERATION");
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+#endif
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	if (effects.iTradeRouteGoldModifier != 0)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_TRADE_ORGANISATION");
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+	if (effects.iCSBonuModifier != 0)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TREATY_OF_FRIENDSHIP");
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+	if (effects.bNoSpiesInCS)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_NON_ALIGN_MOVEMENT");
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+	if (effects.bDoubleResourceHappiness)
+	{
+		CvAssert(!veDoubledResources.empty());
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_INVEST_IN_LUXURY");
+		CvString sEntries = "";
+		for (uint i = 0; i < veDoubledResources.size(); i++)
+		{
+			Localization::String sTempEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_INVEST_IN_LUXURY_ENTRY");
+			CvResourceInfo* pInfo = GC.getResourceInfo(veDoubledResources[i]);
+			CvAssert(pInfo);
+			if (pInfo)
+			{
+				if (i != 0)
+				{
+					sEntries += ", ";
+				}
+				sTempEntry << pInfo->GetDescriptionKey();
+				sEntries += pInfo->GetIconString();
+				sEntries += sTempEntry.toUTF8();
+			}
+		}
+		sTemp << sEntries;
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+#endif
 
 	if (vsEffects.empty())
 	{
@@ -7552,6 +8149,72 @@ int CvGameLeagues::GetScienceyGreatPersonRateModifier(PlayerTypes ePlayer)
 	}
 	return iValue;
 }
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+int CvGameLeagues::GetTradeRouteGoldModifier(PlayerTypes ePlayer)
+{
+	int iValue = 0;
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); ++it)
+	{
+		if (it->IsMember(ePlayer))
+		{
+			int iMod = it->GetTradeRouteGoldModifier();
+			if (iMod != 0)
+			{
+				iValue += iMod;
+			}
+		}
+	}
+	return iValue;
+}
+
+int CvGameLeagues::GetCSBonuModifier(PlayerTypes ePlayer)
+{
+	int iValue = 0;
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); ++it)
+	{
+		if (it->IsMember(ePlayer))
+		{
+			int iMod = it->GetCSBonuModifier();
+			if (iMod != 0)
+			{
+				iValue += iMod;
+			}
+		}
+	}
+	return iValue;
+}
+
+bool CvGameLeagues::IsNoSpiesInCS(PlayerTypes ePlayer)
+{
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
+	{
+		if (it->IsMember(ePlayer))
+		{
+			if (it->IsNoSpiesInCS())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool CvGameLeagues::IsDoubleResourceHappiness(PlayerTypes ePlayer, ResourceTypes eLuxury)
+{
+	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
+	{
+		if (it->IsMember(ePlayer))
+		{
+			if (it->IsDoubleResourceHappiness(eLuxury))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
 
 CvString CvGameLeagues::GetLogFileName() const
 {
@@ -10669,6 +11332,12 @@ CvResolutionEntry::CvResolutionEntry(void)
 	m_iScienceyGreatPersonRateMod		= 0;
 	m_iGreatPersonTileImprovementCulture= 0;
 	m_iLandmarkCulture					= 0;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	m_iTradeRouteGoldModifier			= 0;
+	m_iCSBonuModifier					= 0;
+	m_bNoSpiesInCS						= false;
+	m_bDoubleResourceHappiness			= false;
+#endif
 }
 
 CvResolutionEntry::~CvResolutionEntry(void)
@@ -10715,6 +11384,12 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_iScienceyGreatPersonRateMod		= kResults.GetInt("ScienceyGreatPersonRateMod");
 	m_iGreatPersonTileImprovementCulture= kResults.GetInt("GreatPersonTileImprovementCulture");
 	m_iLandmarkCulture					= kResults.GetInt("LandmarkCulture");
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	m_iTradeRouteGoldModifier			= kResults.GetInt("TradeRouteGoldModifier");
+	m_iCSBonuModifier					= kResults.GetInt("CSBonuModifier");
+	m_bNoSpiesInCS						= kResults.GetInt("NoSpiesInCS");
+	m_bDoubleResourceHappiness			= kResults.GetInt("DoubleResourceHappiness");
+#endif
 
 	return true;
 }
@@ -10883,6 +11558,28 @@ int CvResolutionEntry::GetLandmarkCulture() const
 {
 	return m_iLandmarkCulture;
 }
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+int CvResolutionEntry::GetTradeRouteGoldModifier() const
+{
+	return m_iTradeRouteGoldModifier;
+}
+
+int CvResolutionEntry::GetCSBonuModifier() const
+{
+	return m_iCSBonuModifier;
+}
+
+int CvResolutionEntry::GetNoSpiesInCS() const
+{
+	return m_bNoSpiesInCS;
+}
+
+int CvResolutionEntry::GetDoubleResourceHappiness() const
+{
+	return m_bDoubleResourceHappiness;
+}
+#endif
 
 
 // ================================================================================

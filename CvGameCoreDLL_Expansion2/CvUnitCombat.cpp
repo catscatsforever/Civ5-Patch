@@ -137,7 +137,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iExperience = /*5*/ GC.getEXPERIENCE_ATTACKING_CITY_MELEE();
 		pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-		int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pkCity->getOwner()).isHuman()) ? 60 : MAX_INT;
+		int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pkCity->getOwner()).isHuman()) ? 45 : MAX_INT;
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxExperience);
 #else
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, MAX_INT);
@@ -602,7 +602,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		if(pCity->isBarbarian())
 			bBarbarian = true;
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-		iMaxXP = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pCity->getOwner()).isHuman()) ? 60 : 1000;
+		iMaxXP = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pCity->getOwner()).isHuman()) ? 45 : 1000;
 #else
 		iMaxXP = 1000;
 #endif
@@ -714,7 +714,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_RANGED();
 	pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iExperience);
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-	int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 60 : MAX_INT;
+	int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 45 : MAX_INT;
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, iMaxExperience);
 #else
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, MAX_INT);
@@ -1297,7 +1297,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		if(pCity->isBarbarian())
 			bBarbarian = true;
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-		iMaxXP = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pCity->getOwner()).isHuman()) ? 60 : 1000;
+		iMaxXP = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(pCity->getOwner()).isHuman()) ? 45 : 1000;
 #else
 		iMaxXP = 1000;
 #endif
@@ -1351,7 +1351,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_AIR();
 	pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iExperience);
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-	int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 60 : MAX_INT;
+	int iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 45 : MAX_INT;
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, iMaxExperience);
 #else
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, MAX_INT);
@@ -1364,7 +1364,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
 		pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
 #ifdef LIMITATION_COMBAT_EXPERIENCE
-		iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 60 : MAX_INT;
+		iMaxExperience = (GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(kAttacker.getOwner()).isHuman()) ? 45 : MAX_INT;
 		pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, iMaxExperience );
 #else
 		pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, MAX_INT );

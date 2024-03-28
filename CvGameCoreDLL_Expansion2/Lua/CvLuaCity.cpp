@@ -2433,7 +2433,11 @@ int CvLuaCity::lAdoptReligionFully(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	pkCity->GetCityReligions()->AdoptReligionFully(eReligion, eReligion);
+#else
 	pkCity->GetCityReligions()->AdoptReligionFully(eReligion);
+#endif
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -4056,8 +4060,10 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 			iYieldMultiplier += iReligionChange;
 		}
 	}
-#endif
 	const int iValue = iYieldMultiplier + GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield);
+#else
+	const int iValue = GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield);
+#endif
 
 	lua_pushinteger(L, iValue);
 

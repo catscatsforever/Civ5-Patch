@@ -2266,6 +2266,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+#ifdef NEW_LEAGUE_RESOLUTIONS
+					int iLeagueModifier = GC.getGame().GetGameLeagues()->GetTradeRouteGoldModifier(m_pPlayer->GetID());
+#endif
 
 					iValue = iBaseValue;
 					iValue += iOriginPerTurnBonus;
@@ -2279,6 +2282,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 
 					iModifier += iDomainModifier;
 					iModifier += iOriginRiverModifier;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+					iModifier += iLeagueModifier;
+#endif
 
 					iValue *= iModifier;
 					iValue /= 100;
@@ -2315,6 +2321,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iModifier = 100;
 						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 						int iDestRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, false);
+#ifdef NEW_LEAGUE_RESOLUTIONS
+						int iLeagueModifier = GC.getGame().GetGameLeagues()->GetTradeRouteGoldModifier(m_pPlayer->GetID());
+#endif
 						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
 
 						iValue = iBaseValue;
@@ -2324,6 +2333,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 
 						iModifier += iDomainModifier;
 						iModifier += iDestRiverModifier;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+						iModifier += iLeagueModifier;
+#endif
 
 						iValue *= iModifier;
 						iValue /= 100;
@@ -3388,7 +3400,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 
 #ifdef NEW_VENICE_UA
 	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
-	if (m_pPlayer->GetPlayerTraits()->HasTrait(eTrait))
+	if (eTrait != NULL && m_pPlayer->GetPlayerTraits()->HasTrait(eTrait))
 	{
 		if (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(GC.getInfoTypeForString("TECH_OPTICS", true))))
 		{

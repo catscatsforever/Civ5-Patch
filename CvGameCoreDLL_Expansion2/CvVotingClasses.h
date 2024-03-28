@@ -124,6 +124,12 @@ struct CvResolutionEffects
 	int iScienceyGreatPersonRateMod;
 	int iGreatPersonTileImprovementCulture;
 	int iLandmarkCulture;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int iTradeRouteGoldModifier;
+	int iCSBonuModifier;
+	bool bNoSpiesInCS;
+	bool bDoubleResourceHappiness;
+#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvResolutionEffects&);
@@ -574,6 +580,12 @@ public:
 	int GetPressureForIdeology(PolicyBranchTypes eIdeology);
 	int GetArtsyGreatPersonRateModifier();
 	int GetScienceyGreatPersonRateModifier();
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int GetTradeRouteGoldModifier();
+	int GetCSBonuModifier();
+	bool IsNoSpiesInCS();
+	bool IsDoubleResourceHappiness(ResourceTypes eLuxury);
+#endif
 
 	// Text composition for UI
 	CvString GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix);
@@ -724,6 +736,12 @@ public:
 	int GetPressureForIdeology(PlayerTypes ePlayer, PolicyBranchTypes eIdeology);
 	int GetArtsyGreatPersonRateModifier(PlayerTypes ePlayer);
 	int GetScienceyGreatPersonRateModifier(PlayerTypes ePlayer);
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int GetTradeRouteGoldModifier(PlayerTypes ePlayer);
+	int GetCSBonuModifier(PlayerTypes ePlayer);
+	bool IsNoSpiesInCS(PlayerTypes ePlayer);
+	bool IsDoubleResourceHappiness(PlayerTypes ePlayer, ResourceTypes eLuxury);
+#endif
 
 	// General Logging
 	CvString GetLogFileName() const;
@@ -1240,6 +1258,12 @@ public:
 	int GetScienceyGreatPersonRateMod() const;
 	int GetGreatPersonTileImprovementCulture() const;
 	int GetLandmarkCulture() const;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int GetTradeRouteGoldModifier() const;
+	int GetCSBonuModifier() const;
+	int GetNoSpiesInCS() const;
+	int GetDoubleResourceHappiness() const;
+#endif
 
 protected:
 	ResolutionDecisionTypes m_eVoterDecision;
@@ -1275,6 +1299,12 @@ protected:
 	int m_iScienceyGreatPersonRateMod;
 	int m_iGreatPersonTileImprovementCulture;
 	int m_iLandmarkCulture;
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int m_iTradeRouteGoldModifier;
+	int m_iCSBonuModifier;
+	bool m_bNoSpiesInCS;
+	bool m_bDoubleResourceHappiness;
+#endif
 
 private:
 	CvResolutionEntry(const CvResolutionEntry&);

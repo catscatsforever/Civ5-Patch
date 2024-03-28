@@ -735,6 +735,10 @@ public:
 	bool isGoldenAge() const;
 	void changeGoldenAgeTurns(int iChange);
 	int getGoldenAgeLength() const;
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	void setBuildingGoldenAgeTurns(int iValue);
+	int getBuildingGoldenAgeTurns() const;
+#endif
 
 	int getNumUnitGoldenAges() const;
 	void changeNumUnitGoldenAges(int iChange);
@@ -1256,7 +1260,11 @@ public:
 
 	// END Science
 
+#ifdef UNIT_DISBAND_REWORK
+	void DoDeficit(int iValue);
+#else
 	void DoDeficit();
+#endif
 
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
@@ -1630,6 +1638,18 @@ public:
 	bool IsAllowedToTradeWith(PlayerTypes eOtherPlayer);
 	// end International Trade
 
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	int getTurnCSWarAllowing(PlayerTypes ePlayer);
+	void setTurnCSWarAllowing(PlayerTypes ePlayer, int iValue);
+	float getTimeCSWarAllowing(PlayerTypes ePlayer);
+	void setTimeCSWarAllowing(PlayerTypes ePlayer, float fValue);
+#endif
+
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	bool IsDelayedPolicy(bool bPrevTurn = false) const;
+	void setIsDelayedPolicy(bool bValue, bool bPrevTurn = false);
+#endif
+
 	CvPlayerPolicies* GetPlayerPolicies() const;
 	CvPlayerTraits* GetPlayerTraits() const;
 	CvEconomicAI* GetEconomicAI() const;
@@ -1925,6 +1945,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeMeterMod;
 	FAutoVariable<int, CvPlayer> m_iNumGoldenAges;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTurns;
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	FAutoVariable<int, CvPlayer> m_iBuildingGoldenAgeTurns;
+#endif
 	FAutoVariable<int, CvPlayer> m_iNumUnitGoldenAges;
 	FAutoVariable<int, CvPlayer> m_iStrikeTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeModifier;
@@ -1937,8 +1960,14 @@ protected:
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	bool m_bHasUsedDharma;
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	bool m_bHasUsedMissionaryZeal;
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
 	bool m_bHasUsedUnityProphets;
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+	bool m_bHasUsedGoddessLove;
 #endif
 #ifdef FREE_GREAT_PERSON
 	int m_iGreatProphetsCreated;
@@ -2323,6 +2352,15 @@ protected:
 	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiTurnCSWarAllowing;
+	FAutoVariable<std::vector<float>, CvPlayer> m_pafTimeCSWarAllowing;
+#endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	bool m_bIsDelayedPolicyPrevTurn;
+	bool m_bIsDelayedPolicy;
+#endif
 };
 
 extern bool CancelActivePlayerEndTurn();

@@ -378,7 +378,11 @@ public:
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	void AdoptReligionFully(ReligionTypes eReligion, ReligionTypes eOldReligion);
+#else
 	void AdoptReligionFully(ReligionTypes eReligion);
+#endif
 	void RemoveFormerPantheon();
 	void RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes eResponsiblePlayer);
 	void IncrementNumTradeRouteConnections(ReligionTypes eReligion, int iNum);

@@ -3871,6 +3871,9 @@ bool CvPlot::IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly) const
 		{
 			if(kTeam.isAtWar(pkUnit->getTeam()))
 			{
+#ifdef VISIBLE_NAVAL_CAN_BLOCK_TILES
+				if(!bCombatUnitsOnly || pkUnit->IsCombatUnit() && !pkUnit->isEmbarked() && !pkUnit->isInvisible(eTeam, false))
+#endif
 				if(!bCombatUnitsOnly || pkUnit->IsCombatUnit())
 				{
 					return true;
@@ -7710,7 +7713,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					}
 					else if (eYield == YIELD_FAITH)
 					{
-						iYield += 3;
+						iYield += 2;
 					}
 				}
 			}
@@ -7736,9 +7739,19 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
 					}
 #ifdef PORTUGAL_UA_REWORK
-					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
+					}
+#endif
+#ifdef JAPAN_UA_REWORK
+					if ((strcmp(pkResourceInfo->GetType(), "RESOURCE_FISH") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_WHALE") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_PEARLS") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_CRAB") == 0)
+						&& eYield == YIELD_CULTURE && getOwner() != NO_PLAYER && strcmp(GET_PLAYER(getOwner()).getCivilizationTypeKey(), "CIVILIZATION_JAPAN") == 0)
+					{
+						iYield += 1;
 					}
 #endif
 				}
@@ -7808,10 +7821,10 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				iYield += kYield.getGoldenAgeYield();
 #ifdef BRAZIL_UA_REWORK
-				if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
+				/*if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
 				{
 					iYield += kYield.getGoldenAgeYield();
-				}
+				}*/
 #endif
 			}
 		}
@@ -10536,9 +10549,19 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
 #ifdef PORTUGAL_UA_REWORK
-					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
+					}
+#endif
+#ifdef JAPAN_UA_REWORK
+					if ((strcmp(pkResourceInfo->GetType(), "RESOURCE_FISH") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_WHALE") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_PEARLS") == 0
+						|| strcmp(pkResourceInfo->GetType(), "RESOURCE_CRAB") == 0)
+						&& eYield == YIELD_CULTURE && getOwner() != NO_PLAYER && strcmp(GET_PLAYER(getOwner()).getCivilizationTypeKey(), "CIVILIZATION_JAPAN") == 0)
+					{
+						iYield += 1;
 					}
 #endif
 				}
@@ -10590,10 +10613,10 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			{
 				iYield += kYield.getGoldenAgeYield();
 #ifdef BRAZIL_UA_REWORK
-				if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
+				/*if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
 				{
 					iYield += kYield.getGoldenAgeYield();
-				}
+				}*/
 #endif
 			}
 		}

@@ -81,8 +81,14 @@ void CvTreasury::DoGold()
 	{
 		SetGold(0);
 
-		if(iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
+#ifdef UNIT_DISBAND_REWORK
+		if (iGoldAfterThisTurn < 0)
+			m_pPlayer->DoDeficit(iGoldAfterThisTurn);
+		
+#else
+		if (iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
 			m_pPlayer->DoDeficit();
+#endif
 	}
 	else
 	{
@@ -444,6 +450,32 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 			}
 		}
 	}
+
+#ifdef SACRED_WATERS_FRESH_WATER_AND_COASTAL
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int iGoldPerRiverOrCoastalCity = 0;
+	int iLoop = 0;
+	CvCity* pLoopCity;
+	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity->plot()->isFreshWater() || pLoopCity->plot()->isCoastalLand())
+		{
+			for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+			{
+				ReligionTypes eMajority = pLoopCity->GetCityReligions()->GetReligiousMajority();
+				if (eMajority != NO_RELIGION && pReligions->GetReligion(eMajority, m_pPlayer->GetID())->m_Beliefs.HasBelief((BeliefTypes)i))
+				{
+					if (pBeliefs->GetEntry(i)->GetRiverHappiness() > 0)
+					{
+						iGoldPerRiverOrCoastalCity += 1;
+					}
+				}
+			}
+		}
+	}
+
+	iGoldFromReligion += iGoldPerRiverOrCoastalCity;
+#endif
 
 	return iGoldFromReligion;
 }

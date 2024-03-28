@@ -1304,9 +1304,16 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 		return false;
 	}
 
-#ifdef NEW_DIPLOMATS_MISSIONS
+#ifdef GREAT_FIREWALL_DROPS_OUT_SPIES
 	// check to see if the city finished the Great Firewall
 	if (pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_GREAT_FIREWALL", true)) > 0)
+	{
+		return false;
+	}
+#endif
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	if (GET_PLAYER(pCity->getOwner()).isMinorCiv() && GC.getGame().GetGameLeagues()->IsNoSpiesInCS(m_pPlayer->GetID()))
 	{
 		return false;
 	}
@@ -1710,6 +1717,9 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxTechCostAdjusted /= 100;
 			int iMaxTechCostAdjusted = uiMaxTechCostAdjusted;
 			CvAssertMsg(m_aiMaxTechCost[ePlayer] >= 0, "iMaxTechCostAdjusted is below zero. Overflow!");
+#ifdef DECREASE_GATHERING_INTEL_TIME_LENGTH
+			iMaxTechCostAdjusted = iMaxTechCostAdjusted * 3 / 4;
+#endif
 			return iMaxTechCostAdjusted;
 		}
 	}

@@ -232,7 +232,7 @@
 /// Great Scientists now bulb for science at point of birth, not current science
 #define NEW_SCIENTISTS_BULB
 ///
-#define NEW_WRITERS_CULTURE_BOMB
+// #define NEW_WRITERS_CULTURE_BOMB
 ///
 #define DISCOVER_AMONT_SCIENCE_MODIFIER
 /// After second turn of Great Scientist appearance bulb amount slowly decrease to 0 every turn
@@ -257,7 +257,7 @@
 #define MOBILE_TACTICS_NUKING
 ///
 #define UNIT_DIED_BY_NUKING_NOTIFICATIONS
-/// Players can't gain more than 60 exp from combat with AI or Minors
+/// Players can't gain more than 45 exp from combat with AI or Minors
 #define LIMITATION_COMBAT_EXPERIENCE
 /// Restriction on paradroping in the second half of timer
 #define CAN_PARADROP_HALF_TIMER
@@ -297,6 +297,14 @@
 #define TRADE_UNITS_DO_NOT_CAUSES_REPOSITION
 ///
 #define AVOID_UNIT_SPLIT_MID_TURN
+///
+#define VISIBLE_NAVAL_CAN_BLOCK_TILES
+///
+#define FIX_WITHDRAW_WHILE_DEFENDING_CIVILIAN
+///
+#define UNIT_DISBAND_REWORK
+///
+#define FREE_UNIT_AT_STARTING_PLOT
 /*UNITS CHANGES END*/
 
 
@@ -340,7 +348,7 @@
 /// Biology, Electrisity, Steam Power and Dynamite triggers ideology choise
 // #define NEW_IDEOLOGY_TRIGGER
 ///
-#define MORE_FREE_IDEOLOGY_TENETS
+// #define MORE_FREE_IDEOLOGY_TENETS
 ///
 #define POLICY_BRANCH_UNLOCKING_TURN
 ///
@@ -380,6 +388,8 @@
 #define RESETTLEMENT_CHANGE_GLOBAL_POP
 ///
 #define UNIVERSAL_SUFFRAGE_TWO_THIRD_UNHAPPINESS
+///
+// #define PENALTY_FOR_DELAYING_POLICIES
 /*POLICIES CHANGES END*/
 
 
@@ -405,6 +415,8 @@
 // extra trade routes from beliefs
 #define NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
 ///
+#define MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+///
 #define PROPHET_CAN_FOUND_EXTRA_RELIGION
 ///
 #define UNITY_OF_PROPHETS_EXTRA_PROPHETS
@@ -428,6 +440,16 @@
 #define RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
 ///
 #define NEW_PAPAL_PRIMACY
+///
+#define GODDESS_LOVE_FREE_WORKER
+///
+#define SACRED_WATERS_FRESH_WATER_AND_COASTAL
+///
+#define RELIGIOUS_UNITY_CS_BONUS
+///
+#define MIN_FAITH_NEXT_PANTHEON_UPDATES_ONCE_PER_TURN
+///
+#define FIX_NO_RELIGION_MAJORITY
 /*RELIGION CHANGES END*/
 
 
@@ -477,6 +499,8 @@
 #define SIAM_UA_REWORK
 ///
 #define GREECE_UA_REWORK
+///
+#define JAPAN_UA_REWORK
 /// Golden age combat bonus modifier now applies only during attack
 #define GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 /*UA CHANGES END*/
@@ -575,6 +599,13 @@
 #define NUM_MINOR_CIV_TRAIT_TYPES 7
 ///
 #define ALL_QUESTS_GET_END_TURN
+///
+// #define CS_ALLYING_WAR_RESCTRICTION
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+#define CS_ALLYING_WAR_RESCTRICTION_TIMER 40.f
+#endif
+///
+#define NEW_BULLY_METRICS
 /*CITY-STATES CHANGES END*/
 
 
@@ -722,6 +753,12 @@
 /*WONDERS CHANGES START*/
 ///
 #define TEMPLE_ARTEMIS_NO_YIELD_MOD_BUT_GROWTH
+///
+#define TAJ_MAHAL_STARTS_GA_NEXT_TURN
+///
+#define KREMLIN_GLOBAL_MOD
+///
+#define GREAT_FIREWALL_DROPS_OUT_SPIES
 /*WONDERS CHANGES END*/
 
 
@@ -745,6 +782,14 @@
 #define PROJECT_COST_PER_PLAYER_ROUND_TO_5
 ///
 #define VOTES_FOR_MOST_RELIGION_FOLLOWERS
+///
+#define SHOW_NUCLEAR_NON_PROLIFERATION_ACTIVE_EFFECT
+///
+#define NUCLEAR_NON_PROLIFERATION_INCREASE_NUKES_COST
+///
+#define NEW_RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT
+///
+#define NEW_LEAGUE_RESOLUTIONS
 /*LEAGUE CHANGES END*/
 
 
@@ -758,6 +803,8 @@
 ///
 #define ESPIONAGE_SYSTEM_REWORK
 #endif
+///
+#define DECREASE_GATHERING_INTEL_TIME_LENGTH
 ///
 #define NEW_DIPLOMATS_MISSIONS
 #ifdef NEW_DIPLOMATS_MISSIONS
@@ -825,14 +872,14 @@
 // bump after any change to the corresponding read/write functions
 // don't forget to mark changes here
 //
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_BELIEFS 1000
-// 1000: v7.0 (initial)
-// 1001: v8.0 (adds CITY_EXTRA_ATTACK)
+// 1000: v7.0  (initial)
+// 1001: v8.0  (adds CITY_EXTRA_ATTACK)
 # define BUMP_SAVE_VERSION_CITY 1001
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_ESPIONAGE 1000
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 // 1001: v7.3b (adds replay events)
 # define BUMP_SAVE_VERSION_GAME 1001
 // 1000: v7.0 (initial)
@@ -842,25 +889,28 @@
 // 1001: v7.2  (adds ENHANCED_GRAPHS)
 // 1002: v7.2a (adds maya boost GP counters)
 // 1003: v8.1b (adds secsond bunch of ENHANCED_GRAPHS)
-# define BUMP_SAVE_VERSION_PLAYER 1003
-// 1000: v7.0 (initial)
+// 1004: v9.0  (adds GODDESS_LOVE_FREE_WORKER, TAJ_MAHAL_STARTS_GA_NEXT_TURN, PENALTY_FOR_DELAYING_POLICIES, CS_ALLYING_WAR_RESCTRICTION)
+# define BUMP_SAVE_VERSION_PLAYER 1004
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_POLICIES 1000
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_TEAM 1000
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_TECHS 1000
-// 1000: v7.0 (initial)
+// 1000: v7.0  (initial)
 # define BUMP_SAVE_VERSION_TRAITS 1000
-// 1000: v7.0 (initial)
-// 1001: v8.0 (adds NEW_WRITERS_CULTURE_BOMB)
+// 1000: v7.0  (initial)
+// 1001: v8.0  (adds NEW_WRITERS_CULTURE_BOMB)
 # define BUMP_SAVE_VERSION_UNIT 1001
-// 1000: v7.1 (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
+// 1000: v7.1  (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 # define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
-// 1000: v7.2 (initial, adds m_iTimeMilliseconds)
+// 1000: v7.2  (initial, adds m_iTimeMilliseconds)
 // 1001: v7.3b (adds m_iExtraData1, m_iExtraData2)
 # define BUMP_SAVE_VERSION_REPLAYMESSAGE 1001
 // 1000: v7.3b (initial)
 # define BUMP_SAVE_VERSION_REPLAYEVENT 1000
+// 1000: v8.2   (initial)
+# define BUMP_SAVE_VERSION_RESOLUTIONEFFECTS 1000
 #endif
 ///
 #define ENHANCED_GRAPHS
@@ -906,7 +956,7 @@
 #define EG_REPLAYDATASET_NUMOFBOUGHTPROPHETS
 #define EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 ///
-#define EG_REPLAYDATASET_GOLDFROMBULLING
+#define EG_REPLAYDATASET_GOLDFROMBULLYING
 #define EG_REPLAYDATASET_WORKERSFROMBULLING
 ///
 #define EG_REPLAYDATASET_NUMTRAINEDUNITS

@@ -1,5 +1,5 @@
 -- edit:
--- expandable Unit List size
+-- expandable Info Panel size
 -- for EUI & vanilla UI
 -------------------------------------------------
 -- UnitList
@@ -366,10 +366,10 @@ Events.OpenInfoCorner.Add( OnOpenInfoCorner );
 
     
 -------------------------------------------------
--- NEW: expandable Unit List size
+-- NEW: expandable Info Panel size
 -------------------------------------------------
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
-local iUnitListSizeY = EUI_options.GetValue( "DB_iUnitListSizeY" );
+local iUnitListSizeY = EUI_options.GetValue( "DB_iInfoPanelSizeY" );
 if iUnitListSizeY ~= nil then
     local w, h = UIManager:GetScreenSizeVal();
     local y1 = math.max( math.min( iUnitListSizeY, h - 200 ), 200 );
@@ -393,22 +393,11 @@ function OnEditVerticalSize(v)
         local w, h = UIManager:GetScreenSizeVal();
         local dx, dy = UIManager:GetMouseDelta();
         local y1 = math.max( math.min( Controls.MainGrid:GetSizeY() - dy, h - 200 ), 200 );
-        local y2 = y1 - 145;
-        Controls.MainGrid:SetSizeY(y1);
-        Controls.ScrollPanel:SetSizeY(y2);
         if os.clock() - timeSinceLastDBWrite > 0.1 then  -- 0.1s cooldown for DB access
-            EUI_options.SetValue( "DB_iUnitListSizeY", y1 );
+            EUI_options.SetValue( "DB_iInfoPanelSizeY", y1 );
             timeSinceLastDBWrite = os.clock();
         end
-
-        Controls.MilitaryStack:CalculateSize();
-        Controls.MilitaryStack:ReprocessAnchoring();
-        Controls.CivilianStack:CalculateSize();
-        Controls.CivilianStack:ReprocessAnchoring();
-        Controls.MainStack:CalculateSize();
-        Controls.MainStack:ReprocessAnchoring();
-        Controls.ScrollPanel:CalculateInternalSize();
-        Controls.ScrollPanel:ReprocessAnchoring();
+        LuaEvents.InfoPanelResize(y1)
     end
 end
 function OnMouseEnterDragArea()
@@ -419,6 +408,21 @@ function OnMouseExitDragArea()
     UIManager:SetUICursor(0);
     return true;
 end
+function ApplyVerticalSizeChange(dy)
+    local dy2 = dy - 145;
+    Controls.MainGrid:SetSizeY(dy);
+    Controls.ScrollPanel:SetSizeY(dy2);
+
+    Controls.MilitaryStack:CalculateSize();
+    Controls.MilitaryStack:ReprocessAnchoring();
+    Controls.CivilianStack:CalculateSize();
+    Controls.CivilianStack:ReprocessAnchoring();
+    Controls.MainStack:CalculateSize();
+    Controls.MainStack:ReprocessAnchoring();
+    Controls.ScrollPanel:CalculateInternalSize();
+    Controls.ScrollPanel:ReprocessAnchoring();
+end
+LuaEvents.InfoPanelResize.Add(ApplyVerticalSizeChange)
 
 Controls.VerticalSizeDragArea:RegisterSliderCallback( OnEditVerticalSize );
 Controls.VerticalSizeDragArea:RegisterCallback( Mouse.eMouseEnter, OnMouseEnterDragArea );

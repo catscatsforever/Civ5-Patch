@@ -1232,9 +1232,10 @@ void CvDeal::AddResearchAgreement(PlayerTypes eFrom, int iDuration)
 		CvTradedItem item;
 		item.m_eItemType = TRADE_ITEM_RESEARCH_AGREEMENT;
 #ifdef RA_LESS_TURNS
-		iDuration = iDuration * 3 / 5;
-#endif
+		item.m_iDuration = iDuration * 3 / 5;
+#else
 		item.m_iDuration = iDuration;
+#endif
 		//item.m_iFinalTurn = iDuration + GC.getGame().getGameTurn();
 		item.m_iFinalTurn = -1;
 		item.m_eFromPlayer = eFrom;

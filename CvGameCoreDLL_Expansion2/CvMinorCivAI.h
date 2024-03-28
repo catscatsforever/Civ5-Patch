@@ -440,10 +440,17 @@ public:
 	int GetCurrentFaithBonus(PlayerTypes ePlayer);
 
 	// Food bonuses
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
+	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
+	int GetAlliesCapitalFoodBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
+	int GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
+#else
 	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetAlliesCapitalFoodBonus(PlayerTypes ePlayer);
 	int GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer);
+#endif
 	int GetCurrentCapitalFoodBonus(PlayerTypes ePlayer);
 	int GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer);
 
@@ -468,10 +475,17 @@ public:
 	int GetCurrentScienceBonus(PlayerTypes ePlayer);
 
 	// Production bonuses
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	int GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
+	int GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
+	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
+	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
+#else
 	int GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer);
 	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer);
+#endif
 	int GetCurrentCapitalProductionBonus(PlayerTypes ePlayer);
 	int GetCurrentOtherCityProductionBonus(PlayerTypes ePlayer);
 #endif
@@ -491,7 +505,7 @@ public:
 	// ************************************
 
 	int GetBullyGoldAmount(PlayerTypes eBullyPlayer);
-#ifdef EG_REPLAYDATASET_GOLDFROMBULLING
+#ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 	int GetBullyGoldAmountTotalByPlayer(PlayerTypes eBullyPlayer);
 	void ChangeBullyGoldAmountTotalByPlayer(PlayerTypes eBullyPlayer, int iChange);
 #endif
@@ -611,7 +625,7 @@ private:
 	int m_iTurnAllied;
 	PlayerTypes m_eMajorBoughtOutBy;
 
-#ifdef EG_REPLAYDATASET_GOLDFROMBULLING
+#ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 	int m_aiBullyGoldAmountTotalByPlayer[MAX_CIV_PLAYERS];
 #endif
 #ifdef EG_REPLAYDATASET_WORKERSFROMBULLING

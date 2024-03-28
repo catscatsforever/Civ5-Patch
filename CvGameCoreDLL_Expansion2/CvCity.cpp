@@ -1760,12 +1760,6 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{
-#ifdef AUI_CITY_FIX_UPDATE_RAILROAD_CONNECTION_ALLOW_REMOVAL
-		if (plot() && plot()->getRouteType() == GC.getGame().GetIndustrialRoute())
-			SetIndustrialRouteToCapital(true);
-		else
-			SetIndustrialRouteToCapital(false);
-#endif
 	}
 	// Non-capital city
 	else
@@ -4662,7 +4656,18 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		return -1;
 	}
 
+#ifdef NUCLEAR_NON_PROLIFERATION_INCREASE_NUKES_COST
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
+	if (GC.getUnitInfo(eUnit)->GetNukeDamageLevel() != -1)
+	{
+		if (GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(getOwner()))
+		{
+			iCost = 3 * GetPurchaseCostFromProduction(getProductionNeeded(eUnit) / 3);
+		}
+	}
+#else
+	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
+#endif
 	iCost *= (100 + iModifier);
 	iCost /= 100;
 
@@ -5519,7 +5524,11 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 {
 	VALIDATE_OBJECT
 	// If we're in anarchy, then no Production is done!
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy() && GET_PLAYER(getOwner()).IsDelayedPolicy(true))
+#else
 	if(GET_PLAYER(getOwner()).IsAnarchy())
+#endif
 	{
 		return 0;
 	}
@@ -5569,7 +5578,11 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 {
 	VALIDATE_OBJECT
 	// If we're in anarchy, then no Production is done!
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy() && GET_PLAYER(getOwner()).IsDelayedPolicy(true))
+#else
 	if(GET_PLAYER(getOwner()).IsAnarchy())
+#endif
 	{
 		return 0;
 	}
@@ -6031,6 +6044,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 	}
+#endif
+#ifdef GREAT_FIREWALL_DROPS_OUT_SPIES
 	if (eBuilding == (BuildingTypes)GC.getInfoTypeForString("BUILDING_GREAT_FIREWALL", true))
 	{
 		PlayerTypes ePlayer1 = getOwner();
@@ -9372,7 +9387,11 @@ int CvCity::GetLocalHappiness() const
 			{
 				iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHappinessPerCity();
 			}
+#ifdef SACRED_WATERS_FRESH_WATER_AND_COASTAL
+			if (plot()->isFreshWater() || plot()->isCoastalLand())
+#else
 			if(plot()->isRiver())
+#endif
 			{
 				iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
 				if (eSecondaryPantheon != NO_BELIEF)
@@ -13936,7 +13955,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 				kPlayer.ChangeNumEngineersTotal(1);
 #endif
-				}
 #endif
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))

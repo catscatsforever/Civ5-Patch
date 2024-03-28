@@ -8874,6 +8874,14 @@ void CvGame::updateMoves()
 #ifdef DO_TURN_CHANGE_ORDER
 		m_kGameDeals.DoTurn();
 #endif
+#ifdef MIN_FAITH_NEXT_PANTHEON_UPDATES_ONCE_PER_TURN
+		int iValue = GC.getRELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON();
+		iValue *= GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
+		iValue += GC.getRELIGION_MIN_FAITH_FIRST_PANTHEON();
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue /= 100;
+		GC.getGame().GetGameReligions()->SetMinimumFaithNextPantheon(iValue);
+#endif
 	}
 }
 

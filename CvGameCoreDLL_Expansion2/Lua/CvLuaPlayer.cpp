@@ -979,6 +979,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteTheirBuildingBonus);
 	Method(GetInternationalTradeRoutePolicyBonus);
 	Method(GetInternationalTradeRouteOtherTraitBonus);
+#ifdef NEW_LEAGUE_RESOLUTIONS
+	Method(GetInternationalTradeRouteLeagueBonus);
+#endif
 	Method(GetInternationalTradeRouteRiverModifier);
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -3525,6 +3528,18 @@ int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;	
 }
+
+#ifdef NEW_LEAGUE_RESOLUTIONS
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetInternationalTradeRouteLeagueBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	int iResult = GC.getGame().GetGameLeagues()->GetTradeRouteGoldModifier(pkPlayer->GetID());
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)

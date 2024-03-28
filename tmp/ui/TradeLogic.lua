@@ -1,3 +1,6 @@
+-- edit:
+-- expandable MP Trade Panel size
+-- for vanilla UI
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 include( "IconSupport" );
@@ -570,6 +573,74 @@ function DoUIDealChangedByHuman()
 end
 
 
+-------------------------------------------------
+-- NEW: expandable MP Trade Panel size
+-------------------------------------------------
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
+function resizeTradeLayout()
+	local iTradePanelSizeY = EUI_options.GetValue( "DB_iTradePanelSizeY" );
+	if iTradePanelSizeY ~= nil then
+		local w, h = UIManager:GetScreenSizeVal();
+		local y1 = math.max( math.min( iTradePanelSizeY, h - 500 ), 200 );
+		local pocketY = math.floor(y1 * 229/349);
+		local tablesY = math.floor(y1 * 120/349);
+		Controls.MainGrid:SetSizeY(y1 + 200);
+		Controls.Pockets:SetSizeY(pocketY);
+		Controls.PocketsVertSeparator:SetSizeY(pocketY + 2);
+		Controls.UsPocketWhole:SetSizeY(pocketY - 9);
+		Controls.UsPocketPanel:SetSizeY(pocketY - 11);
+		Controls.ThemPocketWhole:SetSizeY(pocketY - 9);
+		Controls.ThemPocketPanel:SetSizeY(pocketY - 11);
+	
+		Controls.Tables:SetSizeY(tablesY);
+		Controls.TablesVertSeparator:SetSizeY(tablesY + 2);
+		Controls.UsTableWhole:SetSizeY(tablesY);
+		Controls.UsTablePanel:SetSizeY(tablesY - 3);
+		Controls.ThemTableWhole:SetSizeY(tablesY);
+		Controls.ThemTablePanel:SetSizeY(tablesY - 3);
+		Controls.ModificationBlock:SetSizeY(tablesY);
+	
+		Controls.UsPocketPanel:CalculateInternalSize();
+		Controls.UsPocketPanel:ReprocessAnchoring();
+		Controls.ThemPocketPanel:CalculateInternalSize();
+		Controls.ThemPocketPanel:ReprocessAnchoring();
+		Controls.UsTablePanel:CalculateInternalSize();
+		Controls.UsTablePanel:ReprocessAnchoring();
+		Controls.ThemTablePanel:CalculateInternalSize();
+		Controls.ThemTablePanel:ReprocessAnchoring();
+	end
+end
+function resizeTradeLayout2()
+	local iTradePanelSizeY2 = EUI_options.GetValue( "DB_iTradePanelSizeY2" );
+	if iTradePanelSizeY2 ~= nil then
+		local w, h = UIManager:GetScreenSizeVal();
+		local y1 = math.max( math.min( iTradePanelSizeY2, h - 500 ), 300 );
+    	Controls.MainGrid:SetSizeY(y1 + 200);
+    	local shift = 262 - (Controls.ModifyButton:IsHidden() and Controls.ModifyButton:GetSizeY() or 0)
+    		- (Controls.ProposeButton:IsHidden() and Controls.ProposeButton:GetSizeY() or 0)
+    		- (Controls.CancelButton:IsHidden() and Controls.CancelButton:GetSizeY() or 0);
+    	tablesY = y1 - shift;
+	
+		Controls.Tables:SetSizeY(tablesY);
+		Controls.TablesVertSeparator:SetSizeY(tablesY + 2);
+		Controls.UsTableWhole:SetSizeY(tablesY);
+		Controls.UsTablePanel:SetSizeY(tablesY - 3);
+		Controls.ThemTableWhole:SetSizeY(tablesY);
+		Controls.ThemTablePanel:SetSizeY(tablesY - 3);
+		Controls.ModificationBlock:SetSizeY(tablesY);
+	
+		Controls.UsPocketPanel:CalculateInternalSize();
+		Controls.UsPocketPanel:ReprocessAnchoring();
+		Controls.ThemPocketPanel:CalculateInternalSize();
+		Controls.ThemPocketPanel:ReprocessAnchoring();
+		Controls.UsTablePanel:CalculateInternalSize();
+		Controls.UsTablePanel:ReprocessAnchoring();
+		Controls.ThemTablePanel:CalculateInternalSize();
+		Controls.ThemTablePanel:ReprocessAnchoring();
+	end
+end
+-- expandable MP Trade Panel size END
+
 ---------------------------------------------------------
 -- Update buttons at the bottom
 ---------------------------------------------------------
@@ -588,6 +659,9 @@ function DoUpdateButtons()
             Controls.ModifyButton:SetHide( true );
             Controls.Pockets:SetHide( false );
             Controls.ModificationBlock:SetHide( true );
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout()
+			-- expandable MP Trade Panel size END
             
         elseif( UI.HasMadeProposal( g_iUs ) == g_iThem ) then
             Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_WITHDRAW" ));
@@ -597,6 +671,9 @@ function DoUpdateButtons()
             Controls.ModifyButton:SetHide( true );
             Controls.Pockets:SetHide( true );
             Controls.ModificationBlock:SetHide( false );
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout2()
+			-- expandable MP Trade Panel size END
             
         else
             Controls.ProposeButton:SetVoid1( ACCEPT_TYPE );
@@ -607,6 +684,9 @@ function DoUpdateButtons()
             Controls.ModifyButton:SetHide( false );
             Controls.Pockets:SetHide( true );
             Controls.ModificationBlock:SetHide( false );
+			-- expandable MP Trade Panel size START
+			resizeTradeLayout2()
+			-- expandable MP Trade Panel size END
         end
         
         Controls.MainStack:CalculateSize();

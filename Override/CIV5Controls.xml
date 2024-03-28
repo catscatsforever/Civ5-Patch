@@ -15758,7 +15758,7 @@
 			<NearbyEnemyCombatRange>0</NearbyEnemyCombatRange> 
 			<UpgradeDiscount>0</UpgradeDiscount> 
 			<ExperiencePercent>0</ExperiencePercent> 
-			<AdjacentMod>15</AdjacentMod> 
+			<AdjacentMod>10</AdjacentMod> 
 			<AttackMod>0</AttackMod> 
 			<DefenseMod>0</DefenseMod> 
 			<DropRange>0</DropRange> 

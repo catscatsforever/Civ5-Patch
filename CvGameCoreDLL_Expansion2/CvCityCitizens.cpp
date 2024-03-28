@@ -2564,10 +2564,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNWRITERS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostWriters(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
 			kPlayer.ChangeNumWritersTotal(1);
 #endif
@@ -2575,10 +2577,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNARTISTS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostArtists(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
 			kPlayer.ChangeNumArtistsTotal(1);
 #endif
@@ -2586,10 +2590,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNMUSICIANS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostMusicians(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
 			kPlayer.ChangeNumMusiciansTotal(1);
 #endif
@@ -2607,10 +2613,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined SWEDEN_UA_REWORK
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNSCIENTISTS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostScientist(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
 			kPlayer.ChangeNumScientistsTotal(1);
 #endif
@@ -2620,10 +2628,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ENGINEER")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNENGINEERS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostEngineers(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
 			kPlayer.ChangeNumEngineersTotal(1);
 #endif
@@ -2633,10 +2643,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")/* && kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() > 0*/)
 		{
+#if defined EG_REPLAYDATASET_NUMOFBORNMERCHANTS
 			if (bMayaBoost)
 			{
 				kPlayer.SetMayaBoostMerchants(true);
 			}
+#endif
 #ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
 			kPlayer.ChangeNumMerchantsTotal(1);
 #endif

@@ -282,6 +282,10 @@ CvPlayer::CvPlayer() :
 	, m_iGoldenAgeMeterMod("CvPlayer::m_iGoldenAgeMeterMod", m_syncArchive)
 	, m_iNumGoldenAges("CvPlayer::m_iNumGoldenAges", m_syncArchive)
 	, m_iGoldenAgeTurns("CvPlayer::m_iGoldenAgeTurns", m_syncArchive)
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	, m_iBuildingGoldenAgeTurns("CvPlayer::m_iBuildingGoldenAgeTurns", m_syncArchive)
+		
+#endif
 	, m_iNumUnitGoldenAges("CvPlayer::m_iNumUnitGoldenAges", m_syncArchive)
 	, m_iStrikeTurns("CvPlayer::m_iStrikeTurns", m_syncArchive)
 	, m_iGoldenAgeModifier("CvPlayer::m_iGoldenAgeModifier", m_syncArchive)
@@ -294,8 +298,14 @@ CvPlayer::CvPlayer() :
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	, m_bHasUsedDharma(false)
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	, m_bHasUsedMissionaryZeal(false)
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
 	, m_bHasUsedUnityProphets(false)
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+	, m_bHasUsedGoddessLove(false)
 #endif
 #ifdef FREE_GREAT_PERSON
 	, m_iGreatProphetsCreated(0)
@@ -542,6 +552,14 @@ CvPlayer::CvPlayer() :
 	, m_iFaithPurchaseIndex(0)
 	, m_bProcessedAutoMoves(false)
 	, m_kPlayerAchievements(*this)
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	, m_paiTurnCSWarAllowing("CvPlayer::m_paiTurnCSWarAllowing", m_syncArchive)
+	, m_pafTimeCSWarAllowing("CvPlayer::m_pafTimeCSWarAllowing", m_syncArchive)
+#endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	, m_bIsDelayedPolicyPrevTurn(false)
+	, m_bIsDelayedPolicy(false)
+#endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
 	m_pEconomicAI = FNEW(CvEconomicAI, c_eCiv5GameplayDLL, 0);
@@ -803,6 +821,11 @@ void CvPlayer::uninit()
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
 
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	m_paiTurnCSWarAllowing.clear();
+	m_pafTimeCSWarAllowing.clear();
+#endif
+
 	m_pPlayerPolicies->Uninit();
 	m_pEconomicAI->Uninit();
 	m_pMilitaryAI->Uninit();
@@ -1026,6 +1049,9 @@ void CvPlayer::uninit()
 	m_iGoldenAgeMeterMod = 0;
 	m_iNumGoldenAges = 0;
 	m_iGoldenAgeTurns = 0;
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	m_iBuildingGoldenAgeTurns = 0;
+#endif
 	m_iNumUnitGoldenAges = 0;
 	m_iStrikeTurns = 0;
 	m_iGoldenAgeModifier = 0;
@@ -1038,8 +1064,14 @@ void CvPlayer::uninit()
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	m_bHasUsedDharma = false;
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	m_bHasUsedMissionaryZeal = false;
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
 	m_bHasUsedUnityProphets = false;
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+	m_bHasUsedGoddessLove = false;
 #endif
 #ifdef FREE_GREAT_PERSON
 	m_iGreatProphetsCreated = 0;
@@ -1217,6 +1249,10 @@ void CvPlayer::uninit()
 	m_iFaithPurchaseIndex = 0;
 	m_iMaxEffectiveCities = 1;
 	m_iLastSliceMoved = 0;
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	m_bIsDelayedPolicyPrevTurn = false;
+	m_bIsDelayedPolicy = false;
+#endif
 
 	m_bHasBetrayedMinorCiv = false;
 #ifdef CAN_BUILD_OU_AND_NIA_ONLY_ONCE
@@ -1390,6 +1426,14 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_pabGetsScienceFromPlayer.clear();
 		m_pabGetsScienceFromPlayer.resize(MAX_CIV_PLAYERS, false);
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+		m_paiTurnCSWarAllowing.clear();
+		m_paiTurnCSWarAllowing.resize(MAX_CIV_PLAYERS, -1);
+
+		m_pafTimeCSWarAllowing.clear();
+		m_pafTimeCSWarAllowing.resize(MAX_CIV_PLAYERS, 0.f);
+#endif
 
 		m_pEconomicAI->Init(GC.GetGameEconomicAIStrategies(), this);
 		m_pMilitaryAI->Init(GC.GetGameMilitaryAIStrategies(), this, GetDiplomacyAI());
@@ -1846,7 +1890,22 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 	{
 		pBestPlot = NULL;
 
+#ifdef FREE_UNIT_AT_STARTING_PLOT
+		if (!pStartingPlot->isImpassable() && !pStartingPlot->isMountain())
+		{
+			if (!(pStartingPlot->isUnit()))
+			{
+				if (!(pStartingPlot->isGoody()))
+				{
+					pBestPlot = pStartingPlot;
+				}
+			}
+		}
+
+		if (isHuman() && pBestPlot == NULL)
+#else
 		if(isHuman())
+#endif
 		{
 			if(!(pkUnitInfo->IsFound()))
 			{
@@ -2196,6 +2255,30 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+
+#ifdef ASSYRIA_UA_REWORK
+	if (bConquest)
+	{
+		if (GetPlayerTraits()->GetCombatBonusVsHigherTech() > 0)
+		{
+			// Will this be the first time we have owned this city?
+			if (!pOldCity->isEverOwned(GetID()))
+			{
+				int iMod = 3;
+				iMod *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+				iMod /= 100;
+				if (getGoldenAgeTurns() > 0)
+				{
+					changeGoldenAgeTurns(iMod);
+				}
+				else
+				{
+					ChangeGoldenAgeProgressMeter(iMod * 100);
+				}
+			}
+		}
+	}
+#endif
 
 	// slewis - warmonger calculations
 	if (bConquest)
@@ -2727,7 +2810,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -2766,27 +2848,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
-#ifdef ASSYRIA_UA_REWORK
-								if (GetPlayerTraits()->GetCombatBonusVsHigherTech() > 0)
-								{
-									if (!bConquest || bRecapture || pkLoopBuildingInfo->GetConquestProbability() > 0)
-									{
-										iNum += paiNumRealBuilding[iI];
-									}
-								}
-								else
-								{
-									if (!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
-									{
-										iNum += paiNumRealBuilding[iI];
-									}
-								}
-#else
 								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 								{
 									iNum += paiNumRealBuilding[iI];
 								}
-#endif
 							}
 						}
 
@@ -4712,6 +4777,30 @@ void CvPlayer::doTurnPostDiplomacy()
 				}
 		}
 		SetNumFreeTechs(max(0, GetNumFreeTechs() - 1));
+	}
+#endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+	{
+		if (getJONSCulture() < getNextPolicyCost())
+		{
+			if (isHuman())
+			{
+				if (GetNumFreePolicies() <= 0)
+				{
+					setIsDelayedPolicy(false, true);
+					setIsDelayedPolicy(false);
+				}
+			}
+		}
+		else if (getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
+		{
+			if (isHuman())
+			{
+				setIsDelayedPolicy(IsDelayedPolicy(), true);
+				setIsDelayedPolicy(true);
+			}
+		}
 	}
 #endif
 #ifdef DO_TURN_CHANGE_ORDER
@@ -7963,12 +8052,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 		if(pUnitInfo.GetNukeDamageLevel() != -1)
 		{
+#ifndef NUCLEAR_NON_PROLIFERATION_INCREASE_NUKES_COST
 			if(GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(GetID()))
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NUKES_BY_RESOLUTION");
 				if(toolTipSink == NULL)
 					return false;
 			}
+#endif
 		}
 
 		if(pUnitInfo.GetSpecialUnitType() != NO_SPECIALUNIT)
@@ -8764,6 +8855,15 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	}
 
 	iProductionNeeded += getUnitExtraCost(eUnitClass);
+#ifdef NUCLEAR_NON_PROLIFERATION_INCREASE_NUKES_COST
+	if (GC.getUnitInfo(eUnit)->GetNukeDamageLevel() != -1)
+	{
+		if (GC.getGame().GetGameLeagues()->IsNoTrainingNuclearWeapons(GetID()))
+		{
+			iProductionNeeded *= 3;
+		}
+	}
+#endif
 
 	return std::max(1, iProductionNeeded);
 }
@@ -9231,7 +9331,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(pBuildingInfo->IsGoldenAge())
 		{
 			int iGoldenAgeTurns = getGoldenAgeLength();
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+			setBuildingGoldenAgeTurns(iGoldenAgeTurns);
+#else
 			changeGoldenAgeTurns(iGoldenAgeTurns);
+#endif
 		}
 
 		// Global Pop change
@@ -10343,11 +10447,15 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 
 	// Leagues mod
 	int iLeaguesMod = GC.getGame().GetGameLeagues()->GetResearchMod(GetID(), eTech);
+#ifdef NEW_RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT
+	iModifier += iLeaguesMod;
+#else
 	if (iLeaguesMod != 0)
 	{
 		iModifier *= (100 + iLeaguesMod);
 		iModifier /= 100;
 	}
+#endif
 
 	return iModifier;
 }
@@ -10363,7 +10471,11 @@ int CvPlayer::calculateGoldRate() const
 int CvPlayer::calculateGoldRateTimes100() const
 {
 	// If we're in anarchy, then no Gold is collected!
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+#else
 	if(IsAnarchy())
+#endif
 	{
 		return 0;
 	}
@@ -10769,7 +10881,11 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	}
 
 	// No culture during Anarchy
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+#else
 	if(IsAnarchy())
+#endif
 	{
 		return 0;
 	}
@@ -11517,7 +11633,7 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 {
 	bool setUnitReligion = false;
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 #ifdef BELIEF_TO_GLORY_OF_GOD_ONE_GP_OF_EACH_TYPE
 	// const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
@@ -11552,8 +11668,11 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	}
 #endif
 
+#if defined UNITY_OF_PROPHETS_EXTRA_PROPHETS || defined GODDESS_LOVE_FREE_WORKER
+	BeliefTypes pBelief;
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
-	BeliefTypes pBelief = NO_BELIEF;
+	pBelief = NO_BELIEF;
 	for(int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
 	{
 		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
@@ -11582,6 +11701,25 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
 			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
 		// }
+	}
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+	pBelief = NO_BELIEF;
+	for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+		CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+		if (pEntry && pEntry->IsPantheonBelief())
+		{
+			pBelief = eBelief;
+			break;
+		}
+	}
+	if (!m_bHasUsedGoddessLove && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_LOVE", true))
+	{
+		m_bHasUsedGoddessLove = true;
+
+		addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
 	}
 #endif
 
@@ -11712,6 +11850,22 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	}
 #endif
 
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	if (!m_bHasUsedMissionaryZeal)
+	{
+		if (pReligion->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_MISSIONARY_ZEAL")))
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
+			{
+				ReligionTypes eOldReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
+				pLoopCity->GetCityReligions()->AdoptReligionFully(eReligion, eOldReligion);
+			}
+			m_bHasUsedMissionaryZeal = true;
+		}
+	}
+#endif
+
 	if (setUnitReligion)
 	{
 		// make sure free religious units are of this religion (if they haven't had one assigned already)
@@ -11795,7 +11949,11 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	int iFaithPerTurn = 0;
 
 	// If we're in anarchy, then no Faith is generated!
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+#else
 	if(IsAnarchy())
+#endif
 		return 0;
 
 	// Faith per turn from Cities
@@ -12886,6 +13044,13 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 			iBaseHappiness = 0;
 		}
 
+#ifdef NEW_LEAGUE_RESOLUTIONS
+		if (GC.getGame().GetGameLeagues()->IsDoubleResourceHappiness(GetID(), eResource))
+		{
+			iBaseHappiness *= 2;
+		}
+#endif
+
 		// Only look at Luxuries
 		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 		{
@@ -13942,6 +14107,13 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 	// Update cost if trying to buy another policy this turn
 	DoUpdateNextPolicyCost();
 
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (!(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0))
+	{
+		setIsDelayedPolicy(false, true);
+		setIsDelayedPolicy(false);
+	}
+#endif
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
 	if(!(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0))
 	{
@@ -14148,6 +14320,10 @@ void CvPlayer::DoProcessGoldenAge()
 			}
 		}
 	}
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	changeGoldenAgeTurns(getBuildingGoldenAgeTurns());
+	setBuildingGoldenAgeTurns(0);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14354,6 +14530,20 @@ int CvPlayer::getGoldenAgeLength() const
 
 	return iTurns;
 }
+
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+//	--------------------------------------------------------------------------------
+void CvPlayer::setBuildingGoldenAgeTurns(int iValue)
+{
+	m_iBuildingGoldenAgeTurns = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getBuildingGoldenAgeTurns() const
+{
+	return m_iBuildingGoldenAgeTurns;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitGoldenAges() const
@@ -18882,7 +19072,11 @@ int CvPlayer::GetScience() const
 int CvPlayer::GetScienceTimes100() const
 {
 	// If we're in anarchy, then no Research is done!
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+#else
 	if(IsAnarchy())
+#endif
 		return 0;
 
 	int iValue = 0;
@@ -19166,7 +19360,11 @@ void CvPlayer::SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue)
 
 //	--------------------------------------------------------------------------------
 /// Player spending too much cash?
+#ifdef UNIT_DISBAND_REWORK
+void CvPlayer::DoDeficit(int iValue)
+#else
 void CvPlayer::DoDeficit()
+#endif
 {
 	int iNumMilitaryUnits = 0;
 
@@ -19179,9 +19377,16 @@ void CvPlayer::DoDeficit()
 	}
 
 	// If the player has more units than cities, start disbanding things
+#ifndef UNIT_DISBAND_REWORK
 	if(iNumMilitaryUnits > getNumCities())
+#endif
 	{
+#ifdef UNIT_DISBAND_REWORK
+		int iRand = GC.getGame().getJonRandNum(100, "Disband rand");
+		if (100 * (1 + (int)GC.getGame().getCurrentEra()) * (iRand + 1) <= -2 * iValue)
+#else
 		if(GC.getGame().getJonRandNum(100, "Disband rand") < 50)
+#endif
 		{
 			UnitHandle pLandUnit;
 			UnitHandle pNavalUnit;
@@ -19189,13 +19394,17 @@ void CvPlayer::DoDeficit()
 			int iNavalScore = MAX_INT;
 
 			// Look for obsolete land units if in deficit or have sufficient units
+#ifndef UNIT_DISBAND_REWORK
 			if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
+#endif
 			{
 				pLandUnit = GetMilitaryAI()->FindBestUnitToScrap(true /*bLand*/, true /*bDeficitForcedDisband*/, iLandScore);
 			}
 
 			// Look for obsolete naval units if in deficit or have sufficient units
+#ifndef UNIT_DISBAND_REWORK
 			if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
+#endif
 			{
 				pNavalUnit = GetMilitaryAI()->FindBestUnitToScrap(false/*bNaval*/, true /*bDeficitForcedDisband*/, iNavalScore);
 			}
@@ -21955,10 +22164,10 @@ const char* CvPlayer::getReplayDataSetDesc(unsigned int idx) const
 			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMOFBOUGHTADMIRALS").toUTF8();
 		if (m_ReplayDataSets[idx] == "REPLAYDATASET_TOTALNUMOFADMIRALS")
 			return Localization::Lookup("TXT_KEY_REPLAY_DATA_TOTALNUMOFADMIRALS").toUTF8();
-		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GOLDFROMBULLING")
-			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GOLDFROMBULLING").toUTF8();
-		if (m_ReplayDataSets[idx] == "REPLAYDATASET_WORKERSFROMBULLING")
-			return Localization::Lookup("TXT_KEY_REPLAY_DATA_WORKERSFROMBULLING").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_GOLDFROMBULLYING")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_GOLDFROMBULLYING").toUTF8();
+		if (m_ReplayDataSets[idx] == "REPLAYDATASET_WORKERSFROMBULLYING")
+			return Localization::Lookup("TXT_KEY_REPLAY_DATA_WORKERSFROMBULLYING").toUTF8();
 		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMTRAINEDUNITS")
 			return Localization::Lookup("TXT_KEY_REPLAY_DATA_NUMTRAINEDUNITS").toUTF8();
 		if (m_ReplayDataSets[idx] == "REPLAYDATASET_NUMLOSTUNITS")
@@ -24198,19 +24407,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		CvCity* pLoopCity;
 		int iLoop;
 
-		for (iI = 0; iI < MAX_PLAYERS; iI++)
+		for (pLoopCity = GET_PLAYER((PlayerTypes)GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)GetID()).nextCity(&iLoop))
 		{
-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			if (iChange > 0)
 			{
-				if (iI == GetID())
-				{
-					for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
-					{
-						pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetNewCityExtraPopulation())));
-					}
-				}
+				pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetNewCityExtraPopulation())));
 			}
 		}
+		ChangeExtraHappinessPerCity(iChange * pPolicy->GetNewCityExtraPopulation());
 	}
 #endif
 
@@ -25002,6 +25206,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGoldenAgeMeterMod;
 	kStream >> m_iNumGoldenAges;
 	kStream >> m_iGoldenAgeTurns;
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1004)
+	{
+# endif
+		kStream >> m_iBuildingGoldenAgeTurns;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iBuildingGoldenAgeTurns = false;
+	}
+# endif
+#endif
 	kStream >> m_iNumUnitGoldenAges;
 	kStream >> m_iStrikeTurns;
 	kStream >> m_iGoldenAgeModifier;
@@ -25025,6 +25243,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1004)
+	{
+# endif
+		kStream >> m_bHasUsedMissionaryZeal;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedMissionaryZeal = false;
+	}
+# endif
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	if (uiVersion >= 1000)
@@ -25036,6 +25268,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	else
 	{
 		m_bHasUsedUnityProphets = false;
+	}
+# endif
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1004)
+	{
+# endif
+		kStream >> m_bHasUsedGoddessLove;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedGoddessLove = false;
 	}
 # endif
 #endif
@@ -25343,6 +25589,22 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1004)
+	{
+# endif
+		kStream >> m_bIsDelayedPolicyPrevTurn;
+		kStream >> m_bIsDelayedPolicy;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bIsDelayedPolicyPrevTurn = false;
+		m_bIsDelayedPolicy = false;
+	}
+# endif
+#endif
 	kStream >> m_bAlive;
 	kStream >> m_bEverAlive;
 	kStream >> m_bBeingResurrected;
@@ -25450,6 +25712,25 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabLoyalMember;
 
 	kStream >> m_pabGetsScienceFromPlayer;
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1004)
+	{
+# endif
+		kStream >> m_paiTurnCSWarAllowing;
+		kStream >> m_pafTimeCSWarAllowing;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_paiTurnCSWarAllowing.clear();
+		m_paiTurnCSWarAllowing.resize(MAX_PLAYERS, -1);
+		m_pafTimeCSWarAllowing.clear();
+		m_pafTimeCSWarAllowing.resize(MAX_PLAYERS, 0.f);
+	}
+# endif
+#endif
 
 	m_pPlayerPolicies->Read(kStream);
 	m_pEconomicAI->Read(kStream);
@@ -25777,6 +26058,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGoldenAgeMeterMod;
 	kStream << m_iNumGoldenAges;
 	kStream << m_iGoldenAgeTurns;
+#ifdef TAJ_MAHAL_STARTS_GA_NEXT_TURN
+	kStream << m_iBuildingGoldenAgeTurns;
+#endif
 	kStream << m_iNumUnitGoldenAges;
 	kStream << m_iStrikeTurns;
 	kStream << m_iGoldenAgeModifier;
@@ -25789,8 +26073,14 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	kStream << m_bHasUsedDharma;
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	kStream << m_bHasUsedMissionaryZeal;
+#endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
 	kStream << m_bHasUsedUnityProphets;
+#endif
+#ifdef GODDESS_LOVE_FREE_WORKER
+	kStream << m_bHasUsedGoddessLove;
 #endif
 #ifdef FREE_GREAT_PERSON
 	kStream << m_iGreatProphetsCreated;
@@ -25971,6 +26261,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_bOxfordUniversityWasEverBuilt;
 	kStream << m_bNationalIntelligenceAgencyWasEverBuilt;
 #endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	kStream << m_bIsDelayedPolicyPrevTurn;
+	kStream << m_bIsDelayedPolicy;
+#endif
 	kStream << m_bAlive;
 	kStream << m_bEverAlive;
 	kStream << m_bBeingResurrected;
@@ -26045,6 +26339,11 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabLoyalMember;
 
 	kStream << m_pabGetsScienceFromPlayer;
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	kStream << m_paiTurnCSWarAllowing;
+	kStream << m_pafTimeCSWarAllowing;
+#endif
 
 	m_pPlayerPolicies->Write(kStream);
 	m_pEconomicAI->Write(kStream);
@@ -27489,6 +27788,46 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	return true;
 }
 
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+int CvPlayer::getTurnCSWarAllowing(PlayerTypes ePlayer)
+{
+	return m_paiTurnCSWarAllowing[ePlayer];
+}
+
+void CvPlayer::setTurnCSWarAllowing(PlayerTypes ePlayer, int iValue)
+{
+	m_paiTurnCSWarAllowing.setAt(ePlayer, iValue);
+}
+
+float CvPlayer::getTimeCSWarAllowing(PlayerTypes ePlayer)
+{
+	return m_pafTimeCSWarAllowing[ePlayer];
+}
+
+void CvPlayer::setTimeCSWarAllowing(PlayerTypes ePlayer, float fValue)
+{
+	m_pafTimeCSWarAllowing.setAt(ePlayer, fValue);
+}
+#endif
+
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+bool CvPlayer::IsDelayedPolicy(bool bPrevTurn) const
+{
+	if (bPrevTurn)
+		return m_bIsDelayedPolicyPrevTurn;
+	else
+		return m_bIsDelayedPolicy;
+}
+
+void CvPlayer::setIsDelayedPolicy(bool bValue, bool bPrevTurn)
+{
+	if (bPrevTurn)
+		m_bIsDelayedPolicyPrevTurn = bValue;
+	else
+		m_bIsDelayedPolicy = bValue;
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////
@@ -28430,13 +28769,13 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALNUMOFPROPHETS"), iGameTurn, GetNumProphetsTotal());
 #endif
 
-#ifdef EG_REPLAYDATASET_GOLDFROMBULLING
+#ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 		int iBullyGold = 0;
 		for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 		{
 			iBullyGold += GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->GetBullyGoldAmountTotalByPlayer(GetID());
 		}
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLING"), iGameTurn, iBullyGold);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLYING"), iGameTurn, iBullyGold);
 #endif
 #ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
 		int iBullyWorkers = 0;

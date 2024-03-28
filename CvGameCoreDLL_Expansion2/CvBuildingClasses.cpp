@@ -2341,11 +2341,13 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	BuildingClassTypes eTemple = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_TEMPLE", true);
 	BuildingClassTypes eMonument = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MONUMENT", true);
 	BuildingClassTypes eBarracks = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_BARRACKS", true);
+	BuildingClassTypes eLibrary = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_LIBRARY", true);
 
 	PolicyTypes ePiety = (PolicyTypes)GC.getInfoTypeForString("POLICY_PIETY", true);
 	PolicyTypes eCultualCenters = (PolicyTypes)GC.getInfoTypeForString("POLICY_CULTURAL_CENTERS", true);
 	PolicyTypes eSocialistRealism = (PolicyTypes)GC.getInfoTypeForString("POLICY_SOCIALIST_REALISM", true);
 	PolicyTypes eProfessionalArmy = (PolicyTypes)GC.getInfoTypeForString("POLICY_PROFESSIONAL_ARMY", true);
+	PolicyTypes eScientificRevolution = (PolicyTypes)GC.getInfoTypeForString("POLICY_SCIENTIFIC_REVOLUTION", true);
 
 	if(((BuildingClassTypes) kBuilding.GetBuildingClassType() == eShrine || (BuildingClassTypes) kBuilding.GetBuildingClassType() == eTemple) && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(ePiety))
 		return false;
@@ -2353,7 +2355,10 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	if((BuildingClassTypes) kBuilding.GetBuildingClassType() == eMonument && (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eCultualCenters) || GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eSocialistRealism)))
 		return false;
 
-	if((BuildingClassTypes) kBuilding.GetBuildingClassType() == eBarracks && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eProfessionalArmy))
+	if ((BuildingClassTypes)kBuilding.GetBuildingClassType() == eBarracks && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eProfessionalArmy))
+		return false;
+
+	if ((BuildingClassTypes)kBuilding.GetBuildingClassType() == eLibrary && GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy(eScientificRevolution))
 		return false;
 #endif
 

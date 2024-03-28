@@ -3157,6 +3157,25 @@ bool CvUnit::jumpToNearestValidPlot()
 	iBestValue = INT_MAX;
 	pBestPlot = NULL;
 
+#ifdef FREE_UNIT_AT_STARTING_PLOT
+	if (plot() && plot()->isValidDomainForLocation(*this))
+	{
+		if (plot()->getNumFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT() + 1)
+		{
+			CvAssertMsg(!atPlot(*plot()), "atPlot(pLoopPlot) did not return false as expected");
+
+			if ((getDomainType() != DOMAIN_AIR) || plot()->isFriendlyCity(*this, true))
+			{
+				if (getDomainType() != DOMAIN_SEA || (plot()->isFriendlyCity(*this, true) && plot()->isCoastalLand()) || plot()->isWater())
+				{
+					iBestValue = 0;
+					pBestPlot = plot();
+				}
+			}
+		}
+	}
+#endif
+
 	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
@@ -12319,7 +12338,7 @@ int CvUnit::maxXPValue() const
 #ifdef LIMITATION_COMBAT_EXPERIENCE
 	else if(GC.getGame().isOption("GAMEOPTION_LIMITATION_COMBAT_EXPERIENCE") && !GET_PLAYER(getOwner()).isHuman())
 	{
-		iMaxValue = std::min(iMaxValue, 60);
+		iMaxValue = std::min(iMaxValue, 45);
 	}
 #endif
 
@@ -21211,6 +21230,12 @@ bool CvUnit::CanWithdrawFromMelee(CvUnit& attacker)
 	VALIDATE_OBJECT
 	int iWithdrawChance = getExtraWithdrawal();
 
+#ifdef FIX_WITHDRAW_WHILE_DEFENDING_CIVILIAN
+	if (plot()->getNumUnits() - plot()->GetNumCombatUnits() > 0)
+	{
+		return false;
+	}
+#endif
 	// Does attacker have a speed greater than 1?
 	int iAttackerMovementRange = attacker.maxMoves() / GC.getMOVE_DENOMINATOR();
 	if(iAttackerMovementRange > 0)

@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V8.1g
+set patchfolder=Tournament Mod V9.0
 ECHO Y | del "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua"
@@ -39,10 +39,19 @@ ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ReplayViewer.xml" "%cd%\%patchfo
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ReligionOverview.lua" "%cd%\%patchfolder%\UI\ReligionOverview.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ReligionOverview.xml" "%cd%\%patchfolder%\UI\ReligionOverview.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\EspionageOverview.lua" "%cd%\%patchfolder%\UI\EspionageOverview.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityList.lua" "%cd%\%patchfolder%\UI\CityList.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\CityList.xml" "%cd%\%patchfolder%\UI\CityList.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\GPList.lua" "%cd%\%patchfolder%\UI\GPList.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\GPList.xml" "%cd%\%patchfolder%\UI\GPList.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ResourceList.lua" "%cd%\%patchfolder%\UI\ResourceList.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\ResourceList.xml" "%cd%\%patchfolder%\UI\ResourceList.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitList.lua" "%cd%\%patchfolder%\UI\UnitList.lua"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\UnitList.xml" "%cd%\%patchfolder%\UI\UnitList.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\Highlights.xml" "%cd%\%patchfolder%\UI\Highlights.xml"
 ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\NetworkKickedPopup.lua" "%cd%\%patchfolder%\UI\NetworkKickedPopup.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SimpleDiploTrade.lua" "%cd%\%patchfolder%\UI\SimpleDiploTrade.lua"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\SimpleDiploTrade.xml" "%cd%\%patchfolder%\UI\SimpleDiploTrade.xml"
+ECHO F | xcopy /s /y "%cd%\%patchfolder%\tmp\ui\TradeRouteHelpers.lua" "%cd%\%patchfolder%\UI\TradeRouteHelpers.lua"
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"
