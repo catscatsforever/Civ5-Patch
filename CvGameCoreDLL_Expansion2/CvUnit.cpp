@@ -3160,16 +3160,22 @@ bool CvUnit::jumpToNearestValidPlot()
 #ifdef FREE_UNIT_AT_STARTING_PLOT
 	if (plot() && plot()->isValidDomainForLocation(*this))
 	{
-		if (plot()->getNumFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT() + 1)
+		if(plot()->IsFriendlyTerritory(getOwner()))
 		{
-			CvAssertMsg(!atPlot(*plot()), "atPlot(pLoopPlot) did not return false as expected");
-
-			if ((getDomainType() != DOMAIN_AIR) || plot()->isFriendlyCity(*this, true))
+			if (!(plot()->isCity() && plot()->getPlotCity()->getOwner() != getOwner()))
 			{
-				if (getDomainType() != DOMAIN_SEA || (plot()->isFriendlyCity(*this, true) && plot()->isCoastalLand()) || plot()->isWater())
+				if (plot()->getNumFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT() + 1)
 				{
-					iBestValue = 0;
-					pBestPlot = plot();
+					CvAssertMsg(!atPlot(*plot()), "atPlot(pLoopPlot) did not return false as expected");
+
+					if ((getDomainType() != DOMAIN_AIR) || plot()->isFriendlyCity(*this, true))
+					{
+						if (getDomainType() != DOMAIN_SEA || (plot()->isFriendlyCity(*this, true) && plot()->isCoastalLand()) || plot()->isWater())
+						{
+							iBestValue = 0;
+							pBestPlot = plot();
+						}
+					}
 				}
 			}
 		}
