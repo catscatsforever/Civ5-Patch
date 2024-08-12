@@ -309,6 +309,13 @@ local function RefreshDisplayOfSpecificTech( tech )
 		thisTechButton.TechQueueLabel:SetText( queueText )
 	end
 	thisTechButton.TechQueue:SetHide( not queueText )
+	local iTechKnownCount = g_activePlayer:TechKnownCount( techID );
+	if iTechKnownCount > 0 then
+		thisTechButton.WasResearchedLabel:SetText( tostring( iTechKnownCount ) )
+		thisTechButton.WasResearched:SetHide( true );
+	else
+		thisTechButton.WasResearched:SetHide( true );
+	end
 	if isClickable then
 		thisTechButton.TechButton:RegisterCallback( Mouse.eLClick, TechSelected )
 		for buttonNum = 1, g_maxSmallButtons do

@@ -712,8 +712,15 @@ function UpdateThisQueuedItem(city, queuedItemNumber, queueLength)
 			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS"));
 		end
 		
-		if (thisBuildingInfo.Help ~= nil) then
-			strToolTip = thisBuildingInfo.Help;
+		-- Duel Mode
+		if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and thisBuildingInfo.DuelHelp ~= nil) then
+			if (thisBuildingInfo.Help ~= nil) then
+				strToolTip = thisBuildingInfo.DuelHelp;
+			end
+		else
+			if (thisBuildingInfo.Help ~= nil) then
+				strToolTip = thisBuildingInfo.Help;
+			end
 		end
     elseif (queuedOrderType == OrderTypes.ORDER_CREATE) then
 		local thisProjectInfo = GameInfo.Projects[queuedData1];
@@ -724,7 +731,7 @@ function UpdateThisQueuedItem(city, queuedItemNumber, queueLength)
 		else
 			Controls[controlTurns]:SetText(Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS"));
 		end
-		
+
 		if (thisProjectInfo.Help ~= nil) then
 			strToolTip = thisProjectInfo.Help;
 		end

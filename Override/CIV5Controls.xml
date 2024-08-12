@@ -232,7 +232,7 @@
 			<RemoveRoute>false</RemoveRoute> 
 			<Water>false</Water> 
 			<CanBeEmbarked>false</CanBeEmbarked> 
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech> 
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech> 
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType> 
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent> 
 			<IconIndex>22</IconIndex> 
@@ -1209,6 +1209,34 @@
 			<IconIndex>28</IconIndex> 
 			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas> 
 			<ShowInPedia>true</ShowInPedia> 
+			<ShowInTechTree>true</ShowInTechTree> 
+		</Row>
+		<Row> 
+			<ID>36</ID> 
+			<Type>BUILD_LUXURY_MINE</Type> 
+			<Description>TXT_KEY_BUILD_LUXURY_MINE</Description> 
+			<HotKey>KB_N</HotKey> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<OrderPriority>96</OrderPriority> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+			<Time>700</Time> 
+			<Cost>0</Cost> 
+			<CostIncreasePerImprovement>0</CostIncreasePerImprovement> 
+			<Kill>false</Kill> 
+			<Repair>false</Repair> 
+			<RemoveRoute>false</RemoveRoute> 
+			<Water>false</Water> 
+			<CanBeEmbarked>false</CanBeEmbarked> 
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech> 
+			<IconIndex>0</IconIndex> 
+			<IconAtlas>UNIT_ACTION_ATLAS_MOD</IconAtlas> 
+			<ShowInPedia>false</ShowInPedia> 
 			<ShowInTechTree>true</ShowInTechTree> 
 		</Row>
 	</Builds> 
@@ -4144,6 +4172,30 @@
 			<Sound>false</Sound> 
 			<IconIndex>0</IconIndex> 
 			<IconAtlas>UNIT_ACTION_CHANGE_HOME_CITY</IconAtlas> 
+		</Row>
+		<Row> 
+			<ID>58</ID> 
+			<Type>MISSION_RELIGIOUS_EXPANSION</Type> 
+			<Description>TXT_KEY_MISSION_RELIGIOUS_EXPANSION</Description> 
+			<Help>TXT_KEY_MISSION_RELIGIOUS_EXPANSION_HELP</Help> 
+			<DisabledHelp>TXT_KEY_RELIGIOUS_EXPANSION_DISABLED_HELP</DisabledHelp> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<OrderPriority>199</OrderPriority> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+			<Visible>true</Visible> 
+			<Time>20</Time> 
+			<Target>false</Target> 
+			<Build>false</Build> 
+			<Sound>false</Sound> 
+			<EntityEventType>ENTITY_EVENT_GREAT_EVENT</EntityEventType> 
+			<IconIndex>1</IconIndex> 
+			<IconAtlas>UNIT_ACTION_ATLAS_RELIGION</IconAtlas> 
 		</Row>
 	</Missions> 
 

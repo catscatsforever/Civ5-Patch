@@ -804,6 +804,14 @@ function RefreshDisplayOfSpecificTech( tech )
 			end
 		end
 	end
+
+	local iTechKnownCount = player:TechKnownCount( techID );
+	if iTechKnownCount > 0 then
+		thisTechButton.WasResearchedLabel:SetText( tostring( iTechKnownCount ) )
+		thisTechButton.WasResearched:SetHide( true );
+	else
+		thisTechButton.WasResearched:SetHide( true );
+	end
 end
 
 ----------------------------------------------------------------        

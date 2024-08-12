@@ -82,6 +82,9 @@ MissionTypes s_eMISSION_SELL_EXOTIC_GOODS = NO_MISSION;
 MissionTypes s_eMISSION_GIVE_POLICIES = NO_MISSION;
 MissionTypes s_eMISSION_ONE_SHOT_TOURISM = NO_MISSION;
 MissionTypes s_eMISSION_CHANGE_ADMIRAL_PORT = NO_MISSION;
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+MissionTypes s_eMISSION_RELIGIOUS_EXPANSION = NO_MISSION;
+#endif
 unsigned int s_uiNUM_MISSION_TYPES = 0;
 
 void CvTypes::AcquireTypes(Database::Connection& db)
@@ -222,6 +225,9 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_GIVE_POLICIES"), &s_eMISSION_GIVE_POLICIES));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ONE_SHOT_TOURISM"), &s_eMISSION_ONE_SHOT_TOURISM));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CHANGE_ADMIRAL_PORT"), &s_eMISSION_CHANGE_ADMIRAL_PORT));
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_RELIGIOUS_EXPANSION"), &s_eMISSION_RELIGIOUS_EXPANSION));
+#endif
 
 		Database::Results kResults;
 		if(db.Execute(kResults, "SELECT Type, ID from Missions"))
@@ -530,6 +536,12 @@ const MissionTypes CvTypes::getMISSION_CHANGE_ADMIRAL_PORT()
 {
 	return s_eMISSION_CHANGE_ADMIRAL_PORT;
 }
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+const MissionTypes CvTypes::getMISSION_RELIGIOUS_EXPANSION()
+{
+	return s_eMISSION_RELIGIOUS_EXPANSION;
+}
+#endif
 const MissionTypes CvTypes::getMISSION_SELL_EXOTIC_GOODS()
 {
 	return s_eMISSION_SELL_EXOTIC_GOODS;

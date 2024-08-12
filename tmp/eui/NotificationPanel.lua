@@ -7,6 +7,7 @@
 -------------------------------------------------
 -- edit: MP voting system for EUI
 -- edit: Diplomacy stack left/right switch option for EUI
+-- edit: FIX Events.NotificationRemoved missing PlayerID argument 
 -------------------------------------------------
 include( "EUI_tooltips" )
 
@@ -328,6 +329,7 @@ for k, v, w in ([[
 	NOTIFICATION_MP_IRR_PROPOSAL		MPVotingSystemProposal
 	NOTIFICATION_MP_CC_PROPOSAL		MPVotingSystemProposal
 	NOTIFICATION_MP_SCRAP_PROPOSAL		MPVotingSystemProposal
+	NOTIFICATION_MP_REMAP_PROPOSAL		MPVotingSystemProposal
 	NOTIFICATION_MP_PROPOSAL_RESULT		MPVotingSystemResult
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
@@ -465,9 +467,9 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			or type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL
 			or type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL
 			then
-			print('irr/cc/scrap notification setup')
-			print('icon hookup for proposal owner:', iGameValue)
-			local playerID = iGameValue
+			--print('irr/cc/scrap notification setup')
+			--print('icon hookup for proposal owner:', iGameValue)
+			local playerID = Game.GetProposalOwner( iGameValue )
 
 			if type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TEAM_1]')
@@ -481,8 +483,15 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 
 			LuaEvents.OnProposalCreated()
 			return CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+		
+		elseif type == NotificationTypes.NOTIFICATION_MP_REMAP_PROPOSAL then
+			instance.StatusFrame:SetText('[ICON_FLOWER]')
+			LuaEvents.OnProposalCreated();
+			instance.SmallCivFrame:SetHide(true);
+			return CivIconHookup( 0, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+		
 		elseif type == NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT then
-			if iExtraGameData == 1 then
+			if Game.GetProposalStatus( iGameValue ) == 1 then
 				instance.MPVotingSystemResultCancelImage:SetHide(true)  -- hide cancel frame
 			else
 				instance.MPVotingSystemResultCancelImage:SetHide(false)  -- show cancel frame
@@ -576,12 +585,12 @@ local function MouseExit()
 end
 
 local function GenericLeftClick( Id )
-	print('genericLClick', Id)
+	--print('genericLClick', Id)
 	local index = g_ActiveNotifications[ Id ]
 	local instance = g_NotificationButtons[ index ]
-	print('index', index)
-	print('instance', instance)
-	print('#instance', #instance)
+	--print('index', index)
+	--print('instance', instance)
+	--print('#instance', #instance)
 	if instance and #instance > 0 then
 		local sequence = instance.Sequence
 		if g_mouseExit then
@@ -592,7 +601,7 @@ local function GenericLeftClick( Id )
 		end
 		local data = instance[ sequence ]
 		local data2 = data2
-		print('data[2]', data2)
+		--print('data[2]', data2)
 		Id = data[1]
 		-- Special kludge to work around DLL's stupid city state popups
 		if data[2] == NotificationTypes.NOTIFICATION_MINOR_QUEST then
@@ -612,7 +621,7 @@ local function GenericLeftClick( Id )
 			end
 		end
 	end
-	print('activating notification Id:', Id)
+	--print('activating notification Id:', Id)
 	UI.ActivateNotification( Id )
 end
 
@@ -647,10 +656,10 @@ end
 -------------------------------------------------
 Events.NotificationAdded.Add(
 function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID ) -- toolTip, strSummary, iGameValue, iExtraGameData, playerID )
-	print('------new notification-------')
-	print('UI_id', Id)
-	print('type', type)
-	print('-----------------------------')
+	--print('------new notification-------')
+	--print('UI_id', Id)
+	--print('type', type)
+	--print('-----------------------------')
 	local name = not g_ActiveNotifications[ Id ] and (g_notificationNames[ type ] or "Generic")
 
 	if name then
@@ -750,13 +759,16 @@ local function RemoveNotificationID( Id )
 	end
 end
 
+-- edit: FIX Events.NotificationRemoved missing PlayerID argument 
 Events.NotificationRemoved.Add(
-function( Id )
+function( Id, playerID )
 
 --print( "removing Notification " .. Id .. " " .. tostring( g_ActiveNotifications[ Id ] ) .. " " .. tostring( g_notificationNames[ g_ActiveNotifications[ Id ] ] ) )
 
-	RemoveNotificationID( Id )
-	ProcessStackSizes()
+	if (playerID == g_activePlayerID) then
+		RemoveNotificationID( Id )
+		ProcessStackSizes()
+	end
 
 end)
 

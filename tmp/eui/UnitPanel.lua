@@ -1675,6 +1675,9 @@ function ActionToolTipHandler( control )
 			-- Don't have Tech for Build?
 			if improvement or route then
 				local prereqTech = GameInfo.Technologies[build.PrereqTech]
+				if (build.ID == 3 and plot:GetResourceType() ~= -1 and Game.GetResourceUsageType(pPlot:GetResourceType()) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+					prereqTech = GameInfo.Technologies["TECH_BRONZE_WORKING"];
+				end
 				if prereqTech and prereqTech.ID ~= -1 and not g_activeTechs:HasTech(prereqTech.ID) then
 
 						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", prereqTech.Description, strImpRouteKey )

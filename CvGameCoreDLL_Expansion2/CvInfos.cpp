@@ -58,7 +58,18 @@ bool CvBaseInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&)
 		m_strText = GetLocalizedText(m_strTextKey);
 
 
+#ifdef DUEL_DATABASE
+	const char* szDescription;
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		szDescription = kResults.GetText("DuelDescription");
+	}
+	{
+		szDescription = kResults.GetText("Description");
+	}
+#else
 	const char* szDescription = kResults.GetText("Description");
+#endif
 	if(szDescription)
 	{
 		m_strDescriptionKey = szDescription;

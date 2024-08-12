@@ -3398,7 +3398,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		-- update the game info
 		if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and thisBuilding.DuelHelp then
 			-- Don't add text if it's the same as the strategy text
-			if (thisBuilding.DuelHelp ~= thisBuilding.Strategy) then
+			if (thisBuilding.DuelHelp ~= thisBuilding.DuelStrategy) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisBuilding.DuelHelp ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
 			end
 		elseif thisBuilding.Help then
@@ -3409,7 +3409,9 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end
 				
 		-- update the strategy info
-		if thisBuilding.Strategy then
+		if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and thisBuilding.DuelStrategy then
+			UpdateTextBlock( Locale.ConvertTextKey( thisBuilding.DuelStrategy ), Controls.StrategyLabel, Controls.StrategyInnerFrame, Controls.StrategyFrame );
+		elseif thisBuilding.Strategy then
 			UpdateTextBlock( Locale.ConvertTextKey( thisBuilding.Strategy ), Controls.StrategyLabel, Controls.StrategyInnerFrame, Controls.StrategyFrame );
 		end
 		
@@ -3682,8 +3684,15 @@ CivilopediaCategory[CategoryPolicies].SelectArticle = function( policyID, should
 		
 
 		-- update the game info
-		if thisPolicy.Help then
-			UpdateTextBlock( Locale.ConvertTextKey( thisPolicy.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
+		-- Duel Mode
+		if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and thisPolicy.DuelHelp ~= nil) then
+			if thisPolicy.DuelHelp then
+				UpdateTextBlock( Locale.ConvertTextKey( thisPolicy.DuelHelp ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
+			end
+		else
+			if thisPolicy.Help then
+				UpdateTextBlock( Locale.ConvertTextKey( thisPolicy.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
+			end
 		end
 				
 		-- update the strategy info
@@ -4978,9 +4987,16 @@ CivilopediaCategory[CategoryBeliefs].SelectArticle = function(entryID, shouldAdd
 				Controls.ArticleID:LocalizeAndSetText(thisBelief.ShortDescription);
 				
 				-- update the summary
-				if (thisBelief.Description ~= nil) then
-					UpdateTextBlock( Locale.ConvertTextKey( thisBelief.Description ), Controls.SummaryLabel, Controls.SummaryInnerFrame, Controls.SummaryFrame );
-				end		
+				-- Duel Mode
+				if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and thisBelief.DuelDescription ~= nil) then
+					if (thisBelief.DuelDescription ~= nil) then
+						UpdateTextBlock( Locale.ConvertTextKey( thisBelief.DuelDescription ), Controls.SummaryLabel, Controls.SummaryInnerFrame, Controls.SummaryFrame );
+					end	
+				else
+					if (thisBelief.Description ~= nil) then
+						UpdateTextBlock( Locale.ConvertTextKey( thisBelief.Description ), Controls.SummaryLabel, Controls.SummaryInnerFrame, Controls.SummaryFrame );
+					end	
+				end
 			end
 		end
 	end	

@@ -224,6 +224,12 @@ public:
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 	int GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const;
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+	int GetInfluencedCivScienceBonus(PlayerTypes ePlayer) const;
+#endif
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+	int GetDefenseAgainstInfluencedCiv(PlayerTypes ePlayer) const;
+#endif
 	int GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const;
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
 	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;

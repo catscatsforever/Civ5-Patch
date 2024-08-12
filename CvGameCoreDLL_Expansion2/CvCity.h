@@ -233,6 +233,10 @@ public:
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 
 	void UpdateReligion(ReligionTypes eNewMajority);
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	ReligionTypes getFoundedReligion() const;
+	void setFoundedReligion(ReligionTypes eReligion);
+#endif
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
@@ -978,6 +982,9 @@ protected:
 	bool m_bOwedCultureBuilding;
 #ifdef OWED_FOOD_BUILDING
 	bool m_bOwedFoodBuilding;
+#endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	ReligionTypes eReligionFoundedHere;
 #endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;

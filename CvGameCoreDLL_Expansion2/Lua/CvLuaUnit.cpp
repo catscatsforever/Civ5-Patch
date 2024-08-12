@@ -252,6 +252,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentModifier);
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+	Method(GetCulturalInfluenceDefenseModifier);
+#endif
 	Method(GetRangedAttackModifier);
 	Method(CityAttackModifier);
 	Method(CityDefenseModifier);
@@ -2586,6 +2589,19 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+//------------------------------------------------------------------------------
+//int getCulturalInfluenceDefenseModifier();
+int CvLuaUnit::lGetCulturalInfluenceDefenseModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	const int iResult = GET_PLAYER(pkUnit->getOwner()).GetCulture()->GetDefenseAgainstInfluencedCiv(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetRangedAttackModifier();
 int CvLuaUnit::lGetRangedAttackModifier(lua_State* L)

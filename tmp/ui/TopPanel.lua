@@ -506,11 +506,25 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
 		end
+
+		-- Scince from influenced civs
+		local iScienceFromICs = pPlayer:GetSciencePerTurnFromInfluencedCivsTimes100();
+		if (iScienceFromICs ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", iScienceFromIC / 100);
+		end
 		
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST", Game.GetNumCitiesTechCostMod());
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST", pPlayer:GetNumCitiesResearchCostModifier());
 		end
 	end
 	

@@ -1946,7 +1946,8 @@ local function GetCultureTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier())
 
 		-- Culture Wonders modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
+		-- tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumGreatWorks() > 0 and cityOwner and city:GetNumGreatWorks() * cityOwner:GetCultureWonderMultiplier() or 0 )
 	end
 
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FUTURE_TECH_BONUS", 10 * Teams[cityOwner:GetTeam()]:GetTeamTechs():GetTechCount(80) or 0 )
@@ -2018,7 +2019,12 @@ local function GetReligionTooltip(city)
 							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
 						end
 						for _,beliefID in pairs( beliefs or {} ) do
-							religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].Description)
+							-- Duel Mode
+							if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and GameInfo.Beliefs[ beliefID ].DuelDescription ~= nil) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].DuelDescription)
+							else
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].Description)
+							end
 						end
 						tips:insert( 1, religionTip )
 					else

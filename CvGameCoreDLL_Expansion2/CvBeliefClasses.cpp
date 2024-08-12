@@ -57,6 +57,13 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iMissionaryCostModifier(0),
 	m_iFriendlyCityStateSpreadModifier(0),
 	m_iGreatPersonExpendedFaith(0),
+#ifdef GP_EXPENDED_GA
+	m_iGreatPersonExpendedGoldenAge(0),
+	m_iGoldenAgeCombatMod(0),
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	m_bAllowPolicyWonders(false),
+#endif
 	m_iCityStateMinimumInfluence(0),
 	m_iCityStateInfluenceModifier(0),
 	m_iOtherReligionPressureErosion(0),
@@ -332,6 +339,28 @@ int CvBeliefEntry::GetGreatPersonExpendedFaith() const
 {
 	return m_iGreatPersonExpendedFaith;
 }
+
+#ifdef GP_EXPENDED_GA
+/// Accessor: golden age turns for each GP expended
+int CvBeliefEntry::GetGreatPersonExpendedGoldenAge() const
+{
+	return m_iGreatPersonExpendedGoldenAge;
+}
+
+/// Accessor: golden age combat modifier
+int CvBeliefEntry::GetGoldenAgeCombatMod() const
+{
+	return m_iGoldenAgeCombatMod;
+}
+#endif
+
+#ifdef NEW_BELIEF_PROPHECY
+///
+bool CvBeliefEntry::IsAllowPolicyWonders() const
+{
+	return m_bAllowPolicyWonders;
+}
+#endif
 
 /// Accessor: minimum influence with city states of a shared religion
 int CvBeliefEntry::GetCityStateMinimumInfluence() const
@@ -702,6 +731,13 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMissionaryCostModifier         = kResults.GetInt("MissionaryCostModifier");
 	m_iFriendlyCityStateSpreadModifier= kResults.GetInt("FriendlyCityStateSpreadModifier");
 	m_iGreatPersonExpendedFaith       = kResults.GetInt("GreatPersonExpendedFaith");
+#ifdef GP_EXPENDED_GA
+	m_iGreatPersonExpendedGoldenAge	  = kResults.GetInt("GreatPersonExpendedGoldenAge");
+	m_iGoldenAgeCombatMod             =	kResults.GetInt("GoldenAgeCombatMod");
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	m_bAllowPolicyWonders             = kResults.GetInt("AllowPolicyWonders");
+#endif
 	m_iCityStateMinimumInfluence      = kResults.GetInt("CityStateMinimumInfluence");
 	m_iCityStateInfluenceModifier     = kResults.GetInt("CityStateInfluenceModifier");
 	m_iOtherReligionPressureErosion   = kResults.GetInt("OtherReligionPressureErosion");
@@ -949,6 +985,9 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 /// Constructor
 CvReligionBeliefs::CvReligionBeliefs():
 	m_paiBuildingClassEnabled(NULL)
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	, m_paiBeliefAdoptionTurn(NULL)
+#endif
 {
 	Reset();
 }
@@ -985,6 +1024,13 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_iMissionaryCostModifier = source.m_iMissionaryCostModifier;
 	m_iFriendlyCityStateSpreadModifier = source.m_iFriendlyCityStateSpreadModifier;
 	m_iGreatPersonExpendedFaith = source.m_iGreatPersonExpendedFaith;
+#ifdef GP_EXPENDED_GA
+	m_iGreatPersonExpendedGoldenAge = source.m_iGreatPersonExpendedGoldenAge;
+	m_iGoldenAgeCombatMod = source.m_iGoldenAgeCombatMod;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	m_bAllowPolicyWonders = source.m_bAllowPolicyWonders;
+#endif
 	m_iCityStateMinimumInfluence = source.m_iCityStateMinimumInfluence;
 	m_iCityStateInfluenceModifier = source.m_iCityStateInfluenceModifier;
 	m_iOtherReligionPressureErosion = source.m_iOtherReligionPressureErosion;
@@ -1013,12 +1059,27 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 
 		m_paiBuildingClassEnabled[iI] = source.m_paiBuildingClassEnabled[iI];
 	}
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	m_paiBeliefAdoptionTurn = FNEW(int[GC.getNumBeliefInfos()], c_eCiv5GameplayDLL, 0);
+	for (int iI = 0; iI < GC.getNumBeliefInfos(); iI++)
+	{
+		CvBeliefEntry* pkBelief = GC.getBeliefInfo((BeliefTypes)iI);
+		if (!pkBelief)
+		{
+			continue;
+		}
+		m_paiBeliefAdoptionTurn[iI] = source.m_paiBeliefAdoptionTurn[iI];
+	}
+#endif
 }
 
 /// Deallocate memory created in initialize
 void CvReligionBeliefs::Uninit()
 {
 	SAFE_DELETE_ARRAY(m_paiBuildingClassEnabled);
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	SAFE_DELETE_ARRAY(m_paiBeliefAdoptionTurn);
+#endif
 }
 
 /// Reset data members
@@ -1047,6 +1108,13 @@ void CvReligionBeliefs::Reset()
 	m_iMissionaryCostModifier = 0;
 	m_iFriendlyCityStateSpreadModifier = 0;
 	m_iGreatPersonExpendedFaith = 0;
+#ifdef GP_EXPENDED_GA
+	m_iGreatPersonExpendedGoldenAge = 0;
+	m_iGoldenAgeCombatMod = 0;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	m_bAllowPolicyWonders = false;
+#endif
 	m_iCityStateMinimumInfluence = 0;
 	m_iCityStateInfluenceModifier = 0;
 	m_iOtherReligionPressureErosion = 0;
@@ -1075,6 +1143,18 @@ void CvReligionBeliefs::Reset()
 
 		m_paiBuildingClassEnabled[iI] = 0;
 	}
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	m_paiBeliefAdoptionTurn = FNEW(int[GC.getNumBeliefInfos()], c_eCiv5GameplayDLL, 0);
+	for (int iI = 0; iI < GC.getNumBeliefInfos(); iI++)
+	{
+		CvBeliefEntry* pkBelief = GC.getBeliefInfo((BeliefTypes)iI);
+		if (!pkBelief)
+		{
+			continue;
+		}
+		m_paiBeliefAdoptionTurn[iI] = -1;
+	}
+#endif
 }
 
 /// Store off data on bonuses from beliefs
@@ -1112,6 +1192,13 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iMissionaryCostModifier += belief->GetMissionaryCostModifier();
 	m_iFriendlyCityStateSpreadModifier += belief->GetFriendlyCityStateSpreadModifier();
 	m_iGreatPersonExpendedFaith += belief->GetGreatPersonExpendedFaith();
+#ifdef GP_EXPENDED_GA
+	m_iGreatPersonExpendedGoldenAge += belief->GetGreatPersonExpendedGoldenAge();
+	m_iGoldenAgeCombatMod += belief->GetGoldenAgeCombatMod();
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	m_bAllowPolicyWonders += belief->IsAllowPolicyWonders();
+#endif
 	m_iCityStateMinimumInfluence += belief->GetCityStateMinimumInfluence();
 	m_iCityStateInfluenceModifier += belief->GetCityStateInfluenceModifier();
 	m_iOtherReligionPressureErosion += belief->GetOtherReligionPressureErosion();
@@ -1133,6 +1220,10 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 			m_paiBuildingClassEnabled[iI]++;
 		}
 	}
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	if (m_paiBeliefAdoptionTurn[eBelief] < 0)
+		m_paiBeliefAdoptionTurn[eBelief] = GC.getGame().getGameTurn();
+#endif
 
 	if(belief->GetSpreadModifierDoublingTech() != NO_TECH)
 	{
@@ -1887,6 +1978,36 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_iMissionaryCostModifier;
 	kStream >> m_iFriendlyCityStateSpreadModifier;
 	kStream >> m_iGreatPersonExpendedFaith;
+#ifdef GP_EXPENDED_GA
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1001)
+	{
+# endif
+		kStream >> m_iGreatPersonExpendedGoldenAge;
+		kStream >> m_iGoldenAgeCombatMod;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatPersonExpendedGoldenAge = 0;
+		m_iGoldenAgeCombatMod = 0;
+	}
+# endif
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1001)
+	{
+# endif
+		kStream >> m_bAllowPolicyWonders;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bAllowPolicyWonders = false;
+	}
+# endif
+#endif
 	kStream >> m_iCityStateMinimumInfluence;
 	kStream >> m_iCityStateInfluenceModifier;
 	kStream >> m_iOtherReligionPressureErosion;
@@ -1930,6 +2051,34 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	}
 
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassEnabled);
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	int iNumEntries;
+	int iType;
+
+	kStream >> iNumEntries;
+
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		bool bValid = true;
+		iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
+		if (iType != -1 || !bValid)
+		{
+			if (iType != -1)
+			{
+				kStream >> m_paiBeliefAdoptionTurn[iType];
+			}
+			else
+			{
+				CvString szError;
+				szError.Format("LOAD ERROR: Belief Type not found");
+				GC.LogMessage(szError.GetCString());
+				CvAssertMsg(false, szError);
+				int iDummy;
+				kStream >> iDummy;	// Skip it.
+			}
+		}
+	}
+#endif
 }
 
 /// Serialization write
@@ -1965,6 +2114,13 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	kStream << m_iMissionaryCostModifier;
 	kStream << m_iFriendlyCityStateSpreadModifier;
 	kStream << m_iGreatPersonExpendedFaith;
+#ifdef GP_EXPENDED_GA
+	kStream << m_iGreatPersonExpendedGoldenAge;
+	kStream << m_iGoldenAgeCombatMod;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	kStream << m_bAllowPolicyWonders;
+#endif
 	kStream << m_iCityStateMinimumInfluence;
 	kStream << m_iCityStateInfluenceModifier;
 	kStream << m_iOtherReligionPressureErosion;
@@ -1988,6 +2144,24 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	}
 
 	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassEnabled, GC.getNumBuildingClassInfos());
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	kStream << GC.getNumBeliefInfos();
+
+	for (int iI = 0; iI < GC.getNumBeliefInfos(); iI++)
+	{
+		const BeliefTypes eBelief = static_cast<BeliefTypes>(iI);
+		CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo(eBelief);
+		if (pkBeliefInfo)
+		{
+			CvInfosSerializationHelper::WriteHashed(kStream, pkBeliefInfo);
+			kStream << m_paiBeliefAdoptionTurn[iI];
+		}
+		else
+		{
+			kStream << (int)0;
+		}
+	}
+#endif
 }
 
 /// BELIEF HELPER CLASSES

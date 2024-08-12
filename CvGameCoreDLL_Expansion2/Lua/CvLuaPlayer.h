@@ -146,6 +146,9 @@ protected:
 	static int lCalculateGrossGoldTimes100(lua_State* L);
 	static int lCalculateInflatedCosts(lua_State* L);
 	static int lCalculateResearchModifier(lua_State* L);
+#ifdef UI_TECH_KNOWN_COUNT
+	static int lTechKnownCount(lua_State* L);
+#endif
 	static int lIsResearch(lua_State* L);
 	static int lCanEverResearch(lua_State* L);
 	static int lCanResearch(lua_State* L);
@@ -154,6 +157,9 @@ protected:
 	static int lIsCurrentResearchRepeat(lua_State* L);
 	static int lIsNoResearchAvailable(lua_State* L);
 	static int lGetResearchTurnsLeft(lua_State* L);
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+	static int lGetNumCitiesResearchCostModifier(lua_State* L);
+#endif
 	static int lGetResearchCost(lua_State* L);
 	static int lGetResearchProgress(lua_State* L);
 
@@ -267,6 +273,9 @@ protected:
 	static int lHasCreatedReligion(lua_State* L);
 	static int lGetReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
+#ifdef GP_EXPENDED_GA
+	static int lGetFoundedReligionGoldenAgeCombatMod(lua_State* L);
+#endif
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);
@@ -655,6 +664,9 @@ protected:
 #endif
 #ifdef NEW_CITY_STATES_TYPES
 	static int lGetSciencePerTurnFromMinorCivsTimes100(lua_State* L);
+#endif
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+	static int lGetSciencePerTurnFromInfluencedCivsTimes100(lua_State* L);
 #endif
 	static int lGetScienceFromCitiesTimes100(lua_State* L);
 	static int lGetScienceFromOtherPlayersTimes100(lua_State* L);

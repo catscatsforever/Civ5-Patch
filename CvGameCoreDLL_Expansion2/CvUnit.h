@@ -325,6 +325,11 @@ public:
 	bool CanRemoveHeresy(const CvPlot* pPlot) const;
 	bool DoRemoveHeresy();
 
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+	bool CanDoReligiousExpansion() const;
+	bool DoReligiousExpansion();
+#endif
+
 	int GetNumFollowersAfterSpread() const;
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;
@@ -464,13 +469,21 @@ public:
 
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false, PlayerTypes ePlayer = NO_PLAYER) const;
+#else
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
+#endif
 	int GetEmbarkedUnitDefense() const;
 
 	bool canSiege(TeamTypes eTeam) const;
 
 	int GetBaseRangedCombatStrength() const;
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, PlayerTypes ePlayer = NO_PLAYER) const;
+#else
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack) const;
+#endif
 
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
 	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;

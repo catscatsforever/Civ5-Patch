@@ -1346,6 +1346,26 @@ function TipHandler( control )
 			
 			-- Don't have Tech for Build?
 			if (pBuild.PrereqTech ~= nil) then
+				if (pBuild.ID == 3 and pPlot:GetResourceType() ~= -1 and Game.GetResourceUsageType(pPlot:GetResourceType()) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+					local pPrereqTech = GameInfo.Technologies["TECH_BRONZE_WORKING"];
+					local iPrereqTech = pPrereqTech.ID;
+					if (iPrereqTech ~= -1 and not pActiveTeam:GetTeamTechs():HasTech(iPrereqTech)) then
+						
+						-- Must not be a build which constructs something
+						if (pImprovement or pRoute) then
+							
+							-- Add spacing for all entries after the first
+							if (bFirstEntry) then
+								bFirstEntry = false;
+							elseif (not bFirstEntry) then
+								strDisabledString = strDisabledString .. "[NEWLINE]";
+							end
+							
+							strDisabledString = strDisabledString .. "[NEWLINE]";
+							strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", pPrereqTech.Description, strImpRouteKey);
+						end
+					end
+				else
 				local pPrereqTech = GameInfo.Technologies[pBuild.PrereqTech];
 				local iPrereqTech = pPrereqTech.ID;
 				if (iPrereqTech ~= -1 and not pActiveTeam:GetTeamTechs():HasTech(iPrereqTech)) then
@@ -1363,6 +1383,7 @@ function TipHandler( control )
 						strDisabledString = strDisabledString .. "[NEWLINE]";
 						strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", pPrereqTech.Description, strImpRouteKey);
 					end
+				end
 				end
 			end
 			

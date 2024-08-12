@@ -1611,6 +1611,9 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			-- Science from Research Agreements
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
 
+		-- Scince from influenced civs
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", g_activePlayer:GetSciencePerTurnFromInfluencedCivsTimes100() / 100 )
+
 			-- Show Research Agreements
 
 			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
@@ -1678,7 +1681,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 		-- Let people know that building more cities makes techs harder to get
 		if bnw_mode and g_isBasicHelp then
 			tips:insert( "" )
-			tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST", Game.GetNumCitiesTechCostMod() * ( 100 + ( civBE_mode and g_activePlayer:GetNumCitiesResearchCostDiscount() or 0 ) ) / 100 ) )
+			tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST", g_activePlayer:GetNumCitiesResearchCostModifier() * ( 100 + ( civBE_mode and g_activePlayer:GetNumCitiesResearchCostDiscount() or 0 ) ) / 100 ) )
 		end
 	end
 

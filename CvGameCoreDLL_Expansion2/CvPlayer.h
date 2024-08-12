@@ -523,6 +523,10 @@ public:
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
 	int GetNumCitiesFreeFoodBuilding() const;
 	void ChangeNumCitiesFreeFoodBuilding(int iChange);
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int GetNumCitiesFreeDefensiveBuilding() const;
+	void ChangeNumCitiesFreeDefensiveBuilding(int iChange);
+#endif
 
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
@@ -1243,6 +1247,10 @@ public:
 	int GetSciencePerTurnFromMinorTimes100(PlayerTypes eMinor) const;
 #endif
 
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+	int GetSciencePerTurnFromInfluencedCivsTimes100() const;
+#endif
+
 #ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
 	int GetSciencePerTurnFromReligionTimes100() const;
 #endif
@@ -1960,6 +1968,9 @@ protected:
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	bool m_bHasUsedDharma;
 #endif
+#ifdef UNDERGROUND_SECT_REWORK
+	bool m_bHasUsedUndergroundSect;
+#endif
 #ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
 	bool m_bHasUsedMissionaryZeal;
 #endif
@@ -1968,6 +1979,9 @@ protected:
 #endif
 #ifdef GODDESS_LOVE_FREE_WORKER
 	bool m_bHasUsedGoddessLove;
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+	bool m_bHasUsedGodSea;
 #endif
 #ifdef FREE_GREAT_PERSON
 	int m_iGreatProphetsCreated;
@@ -2118,6 +2132,9 @@ protected:
 	int m_iGarrisonFreeMaintenanceCount;
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int m_iNumCitiesFreeDevensiveBuilding;
+#endif
 	FAutoVariable<int, CvPlayer> m_iUnitPurchaseCostModifier;
 	FAutoVariable<int, CvPlayer> m_iAllFeatureProduction;
 	FAutoVariable<int, CvPlayer> m_iCityDistanceHighwaterMark; // this is used to determine camera zoom

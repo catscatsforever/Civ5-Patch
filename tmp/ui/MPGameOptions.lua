@@ -344,6 +344,7 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 		Controls.BanWorldWondersBox:SetHide( true );
 		Controls.BanPantheonsBox:SetHide( true );
 		Controls.BanReligionBeliefsBox:SetHide( true );
+		Controls.RemapVotingBox:SetHide( true );
 	else
 		Controls.DuelModeCheck:SetCheck( true );
 		Controls.BanOxfordUniversityBox:SetHide( false );
@@ -355,67 +356,54 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 		Controls.BanWorldWondersBox:SetHide( false );
 		Controls.BanPantheonsBox:SetHide( false );
 		Controls.BanReligionBeliefsBox:SetHide( false );
-	end
-	
-	Controls.BanOxfordUniversityCheck:SetDisabled( not bCanEdit );
-	Controls.DisableWorldCongressCheck:SetDisabled( not bCanEdit );
-	Controls.NoAncientRuinsCheck:SetDisabled( not bCanEdit );
-	Controls.NoEspionageCheck:SetDisabled( not bCanEdit );
-	Controls.NoBarbariansCheck:SetDisabled( not bCanEdit );
-	Controls.RagingBarbariansCheck:SetDisabled( not bCanEdit );
-	Controls.BanWorldWonderCheck:SetDisabled( not bCanEdit );
-	Controls.BanPantheonCheck:SetDisabled( not bCanEdit );
-	Controls.BanReligionBeliefCheck:SetDisabled( not bCanEdit );
+		Controls.RemapVotingBox:SetHide( false );
+		Controls.BanOxfordUniversityCheck:SetDisabled( not bCanEdit );
+		Controls.DisableWorldCongressCheck:SetDisabled( not bCanEdit );
+		Controls.NoAncientRuinsCheck:SetDisabled( not bCanEdit );
+		Controls.NoEspionageCheck:SetDisabled( not bCanEdit );
+		Controls.NoBarbariansCheck:SetDisabled( not bCanEdit );
+		Controls.RagingBarbariansCheck:SetDisabled( not bCanEdit );
+		Controls.BanWorldWonderCheck:SetDisabled( not bCanEdit );
+		Controls.BanPantheonCheck:SetDisabled( not bCanEdit );
+		Controls.BanReligionBeliefCheck:SetDisabled( not bCanEdit );
+		Controls.RemapVotingCheck:SetDisabled( not bCanEdit );
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_DISABLE_OXFORD_UNIVERSITY") <= 0 then
 			Controls.BanOxfordUniversityCheck:SetCheck( false );
 		else
 			Controls.BanOxfordUniversityCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_NO_LEAGUES") <= 0 then
 			Controls.DisableWorldCongressCheck:SetCheck( false );
 		else
 			Controls.DisableWorldCongressCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_NO_GOODY_HUTS") <= 0 then
 			Controls.NoAncientRuinsCheck:SetCheck( false );
 		else
 			Controls.NoAncientRuinsCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_NO_ESPIONAGE") <= 0 then
 			Controls.NoEspionageCheck:SetCheck( false );
 		else
 			Controls.NoEspionageCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_NO_BARBARIANS") <= 0 then
 			Controls.NoBarbariansCheck:SetCheck( false );
 		else
 			Controls.NoBarbariansCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_RAGING_BARBARIANS") <= 0 then
 			Controls.RagingBarbariansCheck:SetCheck( false );
 		else
 			Controls.RagingBarbariansCheck:SetCheck( true );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") <= 0 then
 			Controls.BanWorldWonderCheck:SetCheck( false );
 			Controls.BanWorldWonderPull_1:SetHide( true );
@@ -427,9 +415,7 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 			Controls.BanWorldWonderPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == -1 );
 			Controls.BanWorldWonderPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == -1 );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEONS") <= 0 then
 			Controls.BanPantheonCheck:SetCheck( false );
 			Controls.BanPantheonPull_1:SetHide( true );
@@ -441,9 +427,7 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 			Controls.BanPantheonPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") == -1 );
 			Controls.BanPantheonPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1 );
 		end
-	end
 
-	if PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 then
 		if PreGame.GetGameOption("GAMEOPTION_BAN_RELIGION_BELIEFS") <= 0 then
 			Controls.BanReligionBeliefCheck:SetCheck( false );
 			Controls.BanReligionBeliefPull_1:SetHide( true );
@@ -454,6 +438,13 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 			Controls.BanReligionBeliefPull_1:SetHide( false );
 			Controls.BanReligionBeliefPull_2:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF1") == -1 );
 			Controls.BanReligionBeliefPull_3:SetHide( PreGame.GetGameOption("GAMEOPTION_BAN_BELIEF2") == -1 );
+		end
+
+		-- NEW
+		if PreGame.GetGameOption("GAMEOPTION_ENABLE_REMAP_VOTE") <= 0 then
+			Controls.RemapVotingCheck:SetCheck( false );
+		else
+			Controls.RemapVotingCheck:SetCheck( true );
 		end
 	end
 
@@ -532,7 +523,11 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 	else
 		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON1") ];
 		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetText( info.ShortDescription );
-		Controls.BanPantheonPull_1:GetButton():LocalizeAndSetToolTip( info.Description );
+		if (info.DuelDescription ~= nil) then
+			Controls.BanPantheonPull_1:GetButton():LocalizeAndSetToolTip( info.DuelDescription );
+		else
+			Controls.BanPantheonPull_1:GetButton():LocalizeAndSetToolTip( info.Description );
+		end
 		Controls.BanPantheonPull_1:SetDisabled( not bCanEdit );
 	end
 	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") == -1 then
@@ -542,7 +537,11 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 	else
 		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON2") ];
 		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetText( info.ShortDescription );
-		Controls.BanPantheonPull_2:GetButton():LocalizeAndSetToolTip( info.Description );
+		if (info.DuelDescription ~= nil) then
+			Controls.BanPantheonPull_2:GetButton():LocalizeAndSetToolTip( info.DuelDescription );
+		else
+			Controls.BanPantheonPull_2:GetButton():LocalizeAndSetToolTip( info.Description );
+		end
 		Controls.BanPantheonPull_2:SetDisabled( not bCanEdit );
 	end
 	if PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") == -1 then
@@ -552,7 +551,11 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 	else
 		local info = GameInfo.Beliefs[ PreGame.GetGameOption("GAMEOPTION_BAN_PANTHEON3") ];
 		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetText( info.ShortDescription );
-		Controls.BanPantheonPull_3:GetButton():LocalizeAndSetToolTip( info.Description );
+		if (info.DuelDescription ~= nil) then
+			Controls.BanPantheonPull_3:GetButton():LocalizeAndSetToolTip( info.DuelDescription );
+		else
+			Controls.BanPantheonPull_3:GetButton():LocalizeAndSetToolTip( info.Description );
+		end
 		Controls.BanPantheonPull_3:SetDisabled( not bCanEdit );
 	end
 
@@ -1198,7 +1201,11 @@ function UpdateDuelModePulls()
 			Controls.BanPantheonPull_1:BuildEntry( "InstanceOne", controlTable );
 
 			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
-			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			if info.DuelDescription then
+				controlTable.Button:LocalizeAndSetToolTip(info.DuelDescription);
+			else
+				controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			end
 			controlTable.Button:SetVoid1( info.ID );
 		end
 	end   
@@ -1217,7 +1224,11 @@ function UpdateDuelModePulls()
 			Controls.BanPantheonPull_2:BuildEntry( "InstanceOne", controlTable );
 
 			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
-			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			if info.DuelDescription then
+				controlTable.Button:LocalizeAndSetToolTip(info.DuelDescription);
+			else
+				controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			end
 			controlTable.Button:SetVoid1( info.ID );
 		end
 	end   
@@ -1236,7 +1247,11 @@ function UpdateDuelModePulls()
 			Controls.BanPantheonPull_3:BuildEntry( "InstanceOne", controlTable );
 
 			controlTable.Button:LocalizeAndSetText(info.ShortDescription);
-			controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			if info.DuelDescription then
+				controlTable.Button:LocalizeAndSetToolTip(info.DuelDescription);
+			else
+				controlTable.Button:LocalizeAndSetToolTip(info.Description);
+			end
 			controlTable.Button:SetVoid1( info.ID );
 		end
 	end   
@@ -1594,6 +1609,23 @@ function OnBanReligionBeliefChecked()
 	SendGameOptionChanged();
 end
 Controls.BanReligionBeliefCheck:RegisterCallback( Mouse.eLClick, OnBanReligionBeliefChecked );
+
+-------------------------------------------------
+-------------------------------------------------
+function SetRemapVoteOption()
+	local isChecked = Controls.RemapVotingCheck:IsChecked();
+	PreGame.SetGameOption("GAMEOPTION_ENABLE_REMAP_VOTE", isChecked);
+
+	UpdateGameOptionsDisplay();
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnRemapVoteChecked()
+	SetRemapVoteOption();
+	SendGameOptionChanged();
+end
+Controls.RemapVotingCheck:RegisterCallback( Mouse.eLClick, OnRemapVoteChecked );
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------

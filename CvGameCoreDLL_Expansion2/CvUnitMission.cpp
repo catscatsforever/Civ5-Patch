@@ -759,7 +759,12 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					kMissionData.eMissionType == CvTypes::getMISSION_SELL_EXOTIC_GOODS() ||
 					kMissionData.eMissionType == CvTypes::getMISSION_GIVE_POLICIES() ||
 					kMissionData.eMissionType == CvTypes::getMISSION_ONE_SHOT_TOURISM() ||
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+					kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT() ||
+					kMissionData.eMissionType == CvTypes::getMISSION_RELIGIOUS_EXPANSION())
+#else
 					kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
+#endif
 			{
 				bDone = true;
 			}
@@ -1256,6 +1261,15 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 			return true;
 		}
 	}
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+	else if (iMission == CvTypes::getMISSION_RELIGIOUS_EXPANSION())
+	{
+		if (hUnit->CanDoReligiousExpansion())
+		{
+			return true;
+		}
+	}
+#endif
 
 	return false;
 }
@@ -1721,6 +1735,16 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					bAction = true;
 				}
 			}
+
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+			else if (pkQueueData->eMissionType == CvTypes::getMISSION_RELIGIOUS_EXPANSION())
+			{
+				if (hUnit->DoReligiousExpansion())
+				{
+					bAction = true;
+				}
+			}
+#endif
 		}
 	}
 

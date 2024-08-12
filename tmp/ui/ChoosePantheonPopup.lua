@@ -97,20 +97,39 @@ function RefreshList()
 						break;
 					end
 				end
-				if (available == true) then
-					table.insert(availableBeliefs, {
-						ID = info.ID,
-						Name = Locale.Lookup(info.ShortDescription),
-						Description = Locale.Lookup(info.Description),
-						Available = true,
-					});
+				-- Duel Mode
+				if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and info.DuelDescription ~= nil) then
+					if (available == true) then
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.DuelDescription),
+							Available = true,
+						});
+					else
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.DuelDescription),
+							Available = false,
+						});
+					end
 				else
-					table.insert(availableBeliefs, {
-						ID = info.ID,
-						Name = Locale.Lookup(info.ShortDescription),
-						Description = Locale.Lookup(info.Description),
-						Available = false,
-					});
+					if (available == true) then
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.Description),
+							Available = true,
+						});
+					else
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.Description),
+							Available = false,
+						});
+					end
 				end
 			end
 		end
@@ -137,21 +156,41 @@ function RefreshList()
 						break;
 					end
 				end
-				if (available == true) then
-					table.insert(availableBeliefs, {
-						ID = info.ID,
-						Name = Locale.Lookup(info.ShortDescription),
-						Description = Locale.Lookup(info.Description),
-						Available = true,
-					});
+				-- Duel Mode
+				if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and info.DuelDescription ~= nil) then
+					if (available == true) then
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.DuelDescription),
+							Available = true,
+						});
+					else
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.DuelDescription),
+							Available = false,
+						});
+					end
 				else
-					table.insert(availableBeliefs, {
-						ID = info.ID,
-						Name = Locale.Lookup(info.ShortDescription),
-						Description = Locale.Lookup(info.Description),
-						Available = false,
-					});
+					if (available == true) then
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.Description),
+							Available = true,
+						});
+					else
+						table.insert(availableBeliefs, {
+							ID = info.ID,
+							Name = Locale.Lookup(info.ShortDescription),
+							Description = Locale.Lookup(info.Description),
+							Available = false,
+						});
+					end
 				end
+					
 			end
 		end
 

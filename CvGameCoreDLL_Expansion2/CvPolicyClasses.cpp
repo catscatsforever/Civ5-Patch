@@ -155,6 +155,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappinessToScience(0),
 	m_iNumCitiesFreeCultureBuilding(0),
 	m_iNumCitiesFreeFoodBuilding(0),
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	m_iNumCitiesFreeDefensiveBuilding(0),
+#endif
 	m_bHalfSpecialistUnhappiness(false),
 	m_bHalfSpecialistFood(false),
 	m_bMilitaryFoodProduction(false),
@@ -181,6 +184,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_pabFreePromotion(NULL),
 	m_paiUnitCombatProductionModifiers(NULL),
 	m_paiUnitCombatFreeExperiences(NULL),
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	m_paiBuildingClassFoodKept(NULL),
+#endif
 	m_paiBuildingClassCultureChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
 	m_paiBuildingClassTourismModifiers(NULL),
@@ -214,6 +220,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_pabFreePromotion);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatFreeExperiences);
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	SAFE_DELETE_ARRAY(m_paiBuildingClassFoodKept);
+#endif
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCultureChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismModifiers);
@@ -331,6 +340,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappinessToScience = kResults.GetInt("HappinessToScience");
 	m_iNumCitiesFreeCultureBuilding = kResults.GetInt("NumCitiesFreeCultureBuilding");
 	m_iNumCitiesFreeFoodBuilding = kResults.GetInt("NumCitiesFreeFoodBuilding");
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	m_iNumCitiesFreeDefensiveBuilding = kResults.GetInt("NumCitiesFreeDefensiveBuilding");
+#endif
 	m_bHalfSpecialistUnhappiness = kResults.GetBool("HalfSpecialistUnhappiness");
 	m_bHalfSpecialistFood = kResults.GetBool("HalfSpecialistFood");
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
@@ -422,6 +434,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiUnitCombatFreeExperiences, "UnitCombatInfos", "Policy_UnitCombatFreeExperiences", "UnitCombatType", "PolicyType", szPolicyType, "FreeExperience");
 	kUtility.PopulateArrayByValue(m_paiUnitCombatProductionModifiers, "UnitCombatInfos", "Policy_UnitCombatProductionModifiers", "UnitCombatType", "PolicyType", szPolicyType, "ProductionModifier");
 
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	kUtility.PopulateArrayByValue(m_paiBuildingClassFoodKept, "BuildingClasses", "Policy_BuildingClassFoodKept", "BuildingClassType", "PolicyType", szPolicyType, "FoodKept");
+#endif
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismModifiers, "BuildingClasses", "Policy_BuildingClassTourismModifiers", "BuildingClassType", "PolicyType", szPolicyType, "TourismModifier");
@@ -1358,6 +1373,14 @@ int CvPolicyEntry::GetNumCitiesFreeFoodBuilding() const
 	return m_iNumCitiesFreeFoodBuilding;
 }
 
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+/// Cities that receive a free defensive building
+int CvPolicyEntry::GetNumCitiesFreeDefensiveBuilding() const
+{
+	return m_iNumCitiesFreeDefensiveBuilding;
+}
+#endif
+
 /// No Unhappiness from Specialist Population
 bool CvPolicyEntry::IsHalfSpecialistUnhappiness() const
 {
@@ -1641,6 +1664,16 @@ int CvPolicyEntry::GetUnitCombatFreeExperiences(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiUnitCombatFreeExperiences ? m_paiUnitCombatFreeExperiences[i] : -1;
 }
+
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+///
+int CvPolicyEntry::GetBuildingClassFoodKept(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiBuildingClassFoodKept ? m_paiBuildingClassFoodKept[i] : -1;
+}
+#endif
 
 /// Amount of extra Culture per turn a BuildingClass provides
 int CvPolicyEntry::GetBuildingClassCultureChange(int i) const
@@ -2722,6 +2755,25 @@ int CvPlayerPolicies::GetImprovementCultureChange(ImprovementTypes eImprovement)
 
 	return rtnValue;
 }
+
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+/// Get food kept from policies for a specific building class
+int CvPlayerPolicies::GetBuildingClassFoodKept(BuildingClassTypes eBuildingClass)
+{
+	int rtnValue = 0;
+
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy?
+		if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassFoodKept(eBuildingClass);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 
 /// Get production modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass)

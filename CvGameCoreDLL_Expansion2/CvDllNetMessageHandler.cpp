@@ -230,6 +230,14 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 
 	if(pkCity != NULL)
 	{
+#ifdef NET_FIX_EXPLOITABLE_CITY_TASKS
+		if (kPlayer.isHuman() && GC.getGame().isGameMultiPlayer() && (eTask == TASK_GIFT || eTask == TASK_DISBAND ||  // someone might abuse instant city gift/razing
+			(eTask == TASK_ADD_SPECIALIST && pkCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)iData2) <= 0)))  // sanity check if our city has the referenced building
+		{
+			SLOG("city task exploit prevented ePlayer: %d eTask: %d", (int)ePlayer, (int)eTask);
+			return;
+		}
+#endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 		if (eTask == TASK_RANGED_ATTACK)
 		{
@@ -1665,7 +1673,10 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 #else
 				kTeam.setHasTech(eTech, true, ePlayer, true, true);
 #endif
-				kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
+				if (kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)
+				{
+					kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
+				}
 			}
 #else
 			kTeam.setHasTech(eTech, true, ePlayer, true, true);

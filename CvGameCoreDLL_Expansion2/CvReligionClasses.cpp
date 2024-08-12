@@ -902,6 +902,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	// Inform the holy city
 	pkHolyCity->GetCityReligions()->DoReligionFounded(kReligion.m_eReligion);
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	pkHolyCity->setFoundedReligion(eReligion);
+#endif
 
 	// Update game systems
 	kPlayer.UpdateReligion();
@@ -1030,6 +1033,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 
 	CvReligion kReligion(eReligion, ePlayer, pkHolyCity, false);
 
+#ifndef DUEL_ALLOW_SAMETURN_BELIEFS
 	// Copy over belief from your pantheon
 	BeliefTypes eBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(kPlayer.GetID());
 	if(eBelief != NO_BELIEF)
@@ -1052,6 +1056,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 	{
 		strcpy_s(kReligion.m_szCustomName, szCustomName);
 	}
+#endif
 
 	// Now see if there are any conflicts.
 	for(ReligionList::const_iterator it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
@@ -1061,6 +1066,17 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 			if(kReligion.m_eReligion == (*it).m_eReligion)
 				return FOUNDING_RELIGION_IN_USE;
 
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+			if (eBelief1 != NO_BELIEF && IsInSomeReligion(eBelief1))
+				return FOUNDING_BELIEF_IN_USE;
+			if (eBelief2 != NO_BELIEF && IsInSomeReligion(eBelief2))
+				return FOUNDING_BELIEF_IN_USE;
+			if (eBelief3 != NO_BELIEF && IsInSomeReligion(eBelief3))
+				return FOUNDING_BELIEF_IN_USE;
+			if (eBelief4 != NO_BELIEF && IsInSomeReligion(eBelief4))
+				return FOUNDING_BELIEF_IN_USE;
+#endif
+
 			for(int iSrcBelief = (*it).m_Beliefs.GetNumBeliefs(); iSrcBelief--;)
 			{
 				BeliefTypes eSrcBelief = (*it).m_Beliefs.GetBelief(iSrcBelief);
@@ -1069,7 +1085,11 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 					for(int iDestBelief = kReligion.m_Beliefs.GetNumBeliefs(); iDestBelief--;)
 					{
 						BeliefTypes eDestBelief = kReligion.m_Beliefs.GetBelief(iDestBelief);
-						if(eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief)
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+						if (eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief && kReligion.m_Beliefs.m_paiBeliefAdoptionTurn[eDestBelief] > 0 && !(kReligion.m_Beliefs.m_paiBeliefAdoptionTurn[eDestBelief] < GC.getGame().getGameTurn()))
+#else
+						if (eDestBelief != NO_BELIEF && eDestBelief == eSrcBelief)
+#endif
 							return FOUNDING_BELIEF_IN_USE;
 					}
 				}
@@ -1446,7 +1466,35 @@ bool CvGameReligions::IsInSomeReligion(BeliefTypes eBelief) const
 	{
 		if(it->m_Beliefs.HasBelief(eBelief))
 		{
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+			int iOption = -1;
+			CvPreGame::GetGameOption("GAMEOPTION_DUEL_STUFF", iOption);
+			if (iOption == 0)
+			{
+				return true;
+			}
+			/*else if (iOption == 1)
+			{
+				CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
+				CvBeliefEntry* pEntry = pkBeliefs->GetEntry((int)eBelief);
+				if (pEntry->IsPantheonBelief())
+				{
+					if (it->m_Beliefs.m_paiBeliefAdoptionTurn[eBelief] > 0 && it->m_Beliefs.m_paiBeliefAdoptionTurn[eBelief] < GC.getGame().getGameTurn())
+						return true;
+				}
+				else
+				{
+					return true;
+				}
+			}*/
+			else if (iOption == 1)
+			{
+				if (it->m_Beliefs.m_paiBeliefAdoptionTurn[eBelief] > 0 && it->m_Beliefs.m_paiBeliefAdoptionTurn[eBelief] < GC.getGame().getGameTurn())
+					return true;
+			}
+#else
 			return true;
+#endif
 		}
 	}
 
@@ -2372,6 +2420,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 
 	int iChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
 	iChance += (iFaith - iCost);
+#ifdef DUEL_NO_RANDOM_PROPHET
+	iChance = 1000;
+#endif
 
 	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
 	if(iRand >= iChance)
@@ -2388,7 +2439,12 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	if(pSpawnCity != NULL && pSpawnCity->getOwner() == kPlayer.GetID())
 	{
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
+#ifdef DUEL_NO_RANDOM_PROPHET
+		if (eUnit != NO_UNIT)
+			kPlayer.ChangeFaith(-iCost);
+#else
 		kPlayer.SetFaith(0);
+#endif
 	}
 	else
 	{
@@ -2396,7 +2452,12 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		if(pSpawnCity != NULL)
 		{
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
+#ifdef DUEL_NO_RANDOM_PROPHET
+			if (eUnit != NO_UNIT)
+				kPlayer.ChangeFaith(-iCost);
+#else
 			kPlayer.SetFaith(0);
+#endif
 		}
 	}
 
@@ -3047,6 +3108,12 @@ bool CvCityReligions::IsReligionInCity()
 /// Is this the holy city for a specific religion?
 bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 {
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	if (m_pCity->getFoundedReligion() == eReligion && eReligion > NO_RELIGION)
+	{
+		return true;
+	}
+#else
 	ReligionInCityList::iterator religionIt;
 
 	// Find the religion in the list
@@ -3057,6 +3124,7 @@ bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 			return religionIt->m_bFoundedHere;
 		}
 	}
+#endif
 
 	return false;
 }
@@ -3064,6 +3132,12 @@ bool CvCityReligions::IsHolyCityForReligion(ReligionTypes eReligion)
 /// Is this the holy city for any religion?
 bool CvCityReligions::IsHolyCityAnyReligion()
 {
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	if (m_pCity->getFoundedReligion() > NO_RELIGION)
+	{
+		return true;
+	}
+#else
 	ReligionInCityList::iterator religionIt;
 	for(religionIt = m_ReligionStatus.begin(); religionIt != m_ReligionStatus.end(); ++religionIt)
 	{
@@ -3072,6 +3146,7 @@ bool CvCityReligions::IsHolyCityAnyReligion()
 			return true;
 		}
 	}
+#endif
 
 	return false;
 }
@@ -3378,6 +3453,13 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 		iPressure += iHolyCityPressure;
 	}
 
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	if (eReligion > RELIGION_PANTHEON && GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER) != NULL && GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_MISSIONARY_ZEAL")))
+	{
+		iPressure /= 2;
+	}
+#endif
+
 	return iPressure;
 }
 
@@ -3492,15 +3574,29 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 		else if (eReligion == it->m_eReligion)
 		{
 			iReligionPressure = it->m_iPressure;
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+			if (m_pCity->getFoundedReligion() == eReligion)
+			{
+				bProphetsReligionFoundedHere = true;
+			}
+#else
 			if (it->m_bFoundedHere)
 			{
 				bProphetsReligionFoundedHere = true;
 			}
+#endif
 		}
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+		else if (m_pCity->getFoundedReligion() == eReligion)
+		{
+			eHolyCityReligion = it->m_eReligion;
+		}
+#else
 		else if (it->m_bFoundedHere)
 		{
 			eHolyCityReligion = it->m_eReligion;
 		}
+#endif
 
 		if (it->m_eReligion > RELIGION_PANTHEON &&  it->m_eReligion != eReligion)
 		{
@@ -3720,6 +3816,17 @@ void CvCityReligions::AddHolyCityPressure()
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+		if (m_pCity->getFoundedReligion() > NO_RELIGION && m_pCity->getFoundedReligion() == it->m_eReligion)
+		{
+			int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+			iPressure *= GC.getRELIGION_PER_TURN_FOUNDING_CITY_PRESSURE();
+			it->m_iPressure += iPressure;
+
+			// Found it, so we're done
+			bRecompute = true;
+		}
+#else
 		if(it->m_bFoundedHere)
 		{
 			int iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
@@ -3729,6 +3836,7 @@ void CvCityReligions::AddHolyCityPressure()
 			// Found it, so we're done
 			bRecompute = true;
 		}
+#endif
 	}
 
 	// Didn't find it, add new entry
@@ -4177,13 +4285,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
 			}
-
-			if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
-				if (GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->GetUnitSpawnCounter(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder) == -1)
-					GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->DoSeedUnitSpawnCounter(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder, /*bBias*/ true);
-			}
 		}
 		if (eMajority > RELIGION_PANTHEON && GC.getGame().GetGameReligions()->GetReligion(eMajority, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY")))
 		{
@@ -4249,6 +4350,13 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+			}
+
+			if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+			{
+				// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
+				if (GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->GetUnitSpawnCounter(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder) == -1)
+					GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->DoSeedUnitSpawnCounter(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder, /*bBias*/ true);
 			}
 		}
 	}

@@ -4105,7 +4105,7 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
 #ifdef CHINA_UA_REWORK
-		if(!pUnit->isEnemy(getTeam(), this) || GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralRateModifier() > 0 || pUnit->isEnemyRoute())
+		if(!pUnit->isEnemy(getTeam(), this) || GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralRateModifier() > 0 && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_ECONOMICS")) || pUnit->isEnemyRoute())
 #else
 		if(!pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
 #endif
@@ -7289,7 +7289,31 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 				if(pReligion)
 				{
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+					int iReligionChange = 0;
+					CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+					int iYieldFromBuilding = 0;
+
+					for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+					{
+						if (pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+						{
+							if (pBeliefs->GetEntry(i)->IsReformationBelief())
+							{
+								if (pReligion->m_eFounder == getOwner())
+								{
+									iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+								}
+							}
+							else
+							{
+								iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+							}
+						}
+					}
+#else
 					int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+#endif
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetResourceYieldChange(eResource, eYield);

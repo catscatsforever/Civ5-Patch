@@ -468,7 +468,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 						
 			-- Civ Trait Bonus
-			iModifier = pMyPlayer:GetTraitGoldenAgeCombatModifier();
+			iModifier = pMyPlayer:GetTraitGoldenAgeCombatModifier() + pMyPlayer:GetFoundedReligionGoldenAgeCombatMod();
 			if (iModifier ~= 0 and pMyPlayer:IsGoldenAge()) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
@@ -1098,10 +1098,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			if (pTheirUnit:GetUnitCombatType() ~= -1) then
 				iModifier = pMyUnit:UnitCombatModifier(pTheirUnit:GetUnitCombatType());
 
-				if (iModifier ~= 0) then
+				if (iModifier > 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				elseif (iModifier < 0) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_PENALTY_VS_CLASS", unitClassType );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
@@ -1251,7 +1256,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 
 			-- Civ Trait Bonus
-			iModifier = pMyPlayer:GetTraitGoldenAgeCombatModifier();
+			iModifier = pMyPlayer:GetTraitGoldenAgeCombatModifier() + pMyPlayer:GetFoundedReligionGoldenAgeCombatMod();
 			if (iModifier ~= 0 and pMyPlayer:IsGoldenAge()) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
@@ -1496,10 +1501,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
 					end
 
-					if (iModifier ~= 0) then
+					if (iModifier > 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					elseif (iModifier < 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_PENALTY_VS_CLASS", unitClassType );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
 				end
@@ -1529,6 +1539,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					--kDomainInfo.CacheResult(kResult);
 
 					--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
+				end
+		
+				-- Cultural Influence Defense Modifier
+				local iModifier = pTheirUnit:GetCulturalInfluenceDefenseModifier(pMyUnit:GetOwner());
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_CULTURAL_INFLUENCE_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 				
 				-- HillsDefenseModifier
@@ -1675,6 +1693,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					-- controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
 					-- controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				-- end
+			
+				iModifier = pTheirPlayer:GetFoundedReligionGoldenAgeCombatMod();
+				if (iModifier ~= 0 and pTheirPlayer:IsGoldenAge()) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
 
 			end
 			
@@ -1702,6 +1727,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				local iChance;
 				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
 				if (iChance > 0) then
+						iChance = 100;
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
 						controlTable.Value:SetText("");
@@ -1999,6 +2025,14 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 		end
 		
+		-- Cultural Influence Defense Modifier
+		local iModifier = theirUnit:GetCulturalInfluenceDefenseModifier(myCity:GetOwner());
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_CULTURAL_INFLUENCE_BONUS" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
+		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
 			iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
@@ -2044,6 +2078,13 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			-- controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
 			-- controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		-- end
+			
+		iModifier = theirPlayer:GetFoundedReligionGoldenAgeCombatMod();
+		if (iModifier ~= 0 and theirPlayer:IsGoldenAge()) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+		end
 
 		-- Future Tech bonus
 		local pTeam = Teams[pTheirPlayer:GetTeam()];

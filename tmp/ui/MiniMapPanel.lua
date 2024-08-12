@@ -649,7 +649,12 @@ function UpdateStreamerView()
 					if (strReligion1Text ~= "") then
 						strReligion1Text = strReligion1Text .. ", ";
 					end
-					strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.Description);
+					-- Duel Mode
+					if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+						strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.DuelDescription);
+					else
+						strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.Description);
+					end
 				else
 					-- second religion line
 					if (strReligion2Text == "") then
@@ -657,7 +662,12 @@ function UpdateStreamerView()
 					else
 						strReligion2Text = strReligion2Text .. ", ";
 					end
-					strReligion2Text = strReligion2Text .. Locale.ConvertTextKey(belief.Description);
+					-- Duel Mode
+					if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+						strReligion1Text = strReligion1Text .. Locale.ConvertTextKey(belief.DuelDescription);
+					else
+						strReligion2Text = strReligion2Text .. Locale.ConvertTextKey(belief.Description);
+					end
 				end
 				beliefCount = beliefCount + 1;
 			end
@@ -665,7 +675,12 @@ function UpdateStreamerView()
 	elseif (pActivePlayer:HasCreatedPantheon()) then
 		local belief = GameInfo.Beliefs[pActivePlayer:GetBeliefInPantheon()];
 		if (belief ~= nil) then
-			strReligion1Text = Locale.ConvertTextKey("TXT_KEY_RELIGION_PANTHEON") .. ": " .. Locale.ConvertTextKey(belief.Description);
+			-- Duel Mode
+			if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+				strReligion1Text = Locale.ConvertTextKey("TXT_KEY_RELIGION_PANTHEON") .. ": " .. Locale.ConvertTextKey(belief.DuelDescription);
+			else
+				strReligion1Text = Locale.ConvertTextKey("TXT_KEY_RELIGION_PANTHEON") .. ": " .. Locale.ConvertTextKey(belief.Description);
+			end
 			strReligion2Text = "[COLOR_GREY]" .. Locale.ConvertTextKey("TXT_KEY_RO_WR_RELIGION") .. ": " .. Locale.ConvertTextKey("TXT_KEY_RO_BELIEFS_NONE") .. "[ENDCOLOR]";
 		end
 	else

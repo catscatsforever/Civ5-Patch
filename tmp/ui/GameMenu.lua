@@ -577,6 +577,16 @@ function PopulateGameOptions()
 					end
 				end
 			end
+			for option in GameInfo.GameOptions{Type = "GAMEOPTION_ENABLE_REMAP_VOTE"} do
+				local savedValue = PreGame.GetGameOption(option.Type);
+				if(savedValue ~= nil and savedValue == 1) then
+					local controlTable = g_AdvancedOptionIM:GetInstance();
+					g_AdvancedOptionsList[count] = controlTable;
+					controlTable.Text:LocalizeAndSetText(option.Description);
+					controlTable.Text:LocalizeAndSetToolTip(option.Help);
+					count = count + 1;
+				end
+			end
 		end
 	end
 	

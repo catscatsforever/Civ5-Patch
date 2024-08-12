@@ -313,7 +313,14 @@ function UpdateDisplay()
 		local thisDisabledMask = Controls[ "DisabledMask"..policyBranchID ]
 		local thisLock = Controls[ "Lock"..policyBranchID ]
 
-		local strToolTip = Locale.ConvertTextKey(policyBranchInfo.Help)
+		-- Duel Mode
+		local strToolTip
+		if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and policyBranchInfo.DuelHelp ~= nil) then
+			strToolTip = Locale.ConvertTextKey(policyBranchInfo.DuelHelp);
+		else
+			strToolTip = Locale.ConvertTextKey(policyBranchInfo.Help);
+		end
+		thisBack:SetToolTipString(strToolTip);
 
 		-- Era Prereq
 		local iEraPrereq = GameInfoTypes[ policyBranchInfo.EraPrereq ]
@@ -428,7 +435,13 @@ function UpdateDisplay()
 			local thisPolicyIcon = policyIcons[policyID];
 
 			-- Tooltip
-			local strTooltip = Locale.ConvertTextKey( policyInfo.Help );
+			-- Duel Mode
+			local strTooltip 
+			if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and policyInfo.DuelHelp ~= nil) then
+				strTooltip = Locale.ConvertTextKey(policyInfo.DuelHelp);
+			else
+				strTooltip = Locale.ConvertTextKey(policyInfo.Help);
+			end
 
 			-- Player already has Policy
 			if player:HasPolicy( policyID ) then

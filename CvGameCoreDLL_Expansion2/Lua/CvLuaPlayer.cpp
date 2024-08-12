@@ -153,6 +153,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CalculateGrossGoldTimes100);
 	Method(CalculateInflatedCosts);
 	Method(CalculateResearchModifier);
+#ifdef UI_TECH_KNOWN_COUNT
+	Method(TechKnownCount);
+#endif
 	Method(IsResearch);
 	Method(CanEverResearch);
 	Method(CanResearch);
@@ -161,6 +164,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsCurrentResearchRepeat);
 	Method(IsNoResearchAvailable);
 	Method(GetResearchTurnsLeft);
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+	Method(GetNumCitiesResearchCostModifier);
+#endif
 	Method(GetResearchCost);
 	Method(GetResearchProgress);
 
@@ -278,6 +284,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanCreatePantheon);
 	Method(GetReligionCreatedByPlayer);
 	Method(GetFoundedReligionEnemyCityCombatMod);
+#ifdef GP_EXPENDED_GA
+	Method(GetFoundedReligionGoldenAgeCombatMod);
+#endif
 	Method(GetFoundedReligionFriendlyCityCombatMod);
 	Method(GetMinimumFaithNextGreatProphet);
 	Method(HasReligionInMostCities);
@@ -668,6 +677,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #ifdef NEW_CITY_STATES_TYPES
 	Method(GetSciencePerTurnFromMinorCivsTimes100);
+#endif
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+	Method(GetSciencePerTurnFromInfluencedCivsTimes100);
 #endif
 	Method(GetScienceFromCitiesTimes100);
 	Method(GetScienceFromOtherPlayersTimes100);
@@ -1860,6 +1872,38 @@ int CvLuaPlayer::lCalculateResearchModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::calculateResearchModifier);
 }
+#ifdef UI_TECH_KNOWN_COUNT
+//------------------------------------------------------------------------------
+//int TechKnownCount(TechTypes  eTech);
+int CvLuaPlayer::lTechKnownCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+
+	int iKnownCount = 0;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
+		if (kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
+		{
+			if (GET_TEAM(pkPlayer->getTeam()).isHasMet((TeamTypes)iI) && pkPlayer->getTeam() != (TeamTypes)iI)
+			{
+#ifdef HAS_TECH_BY_HUMAN
+				if (kLoopTeam.GetTeamTechs()->HasTechByHuman(eTech))
+#else
+				if (kLoopTeam.GetTeamTechs()->HasTech(eTech))
+#endif
+				{
+					iKnownCount++;
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iKnownCount);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isResearch();
 int CvLuaPlayer::lIsResearch(lua_State* L)
@@ -1950,6 +1994,19 @@ int CvLuaPlayer::lGetResearchTurnsLeft(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+//------------------------------------------------------------------------------
+//int GetNumCitiesResearchCostModifier(int  iNumCities);
+int CvLuaPlayer::lGetNumCitiesResearchCostModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetPlayerTechs()->GetNumCitiesResearchCostModifier(pkPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true));
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //int GetResearchCost(TechTypes  eTech);
@@ -2753,6 +2810,32 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 
 	return 1;
 }
+#ifdef GP_EXPENDED_GA
+//------------------------------------------------------------------------------
+//bool GetFoundedReligionGoldenAgeCombatMod();
+int CvLuaPlayer::lGetFoundedReligionGoldenAgeCombatMod(lua_State* L)
+{
+	int iRtnValue = 0;
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ReligionTypes eReligionFounded = pkPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	if (eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, pkPlayer->GetID());
+		if (pReligion)
+		{
+			if (pkPlayer->isGoldenAge())
+			{
+				iRtnValue = pReligion->m_Beliefs.GetGoldenAgeCombatMod();
+			}
+		}
+	}
+
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool GetFoundedReligionFriendlyCityCombatMod();
 int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
@@ -6945,6 +7028,13 @@ int CvLuaPlayer::lGetSciencePerTurnFromReligionTimes100(lua_State* L)
 int CvLuaPlayer::lGetSciencePerTurnFromMinorCivsTimes100(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivsTimes100);
+}
+#endif
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+//int GetSciencePerTurnFromInfluencedCivsTimes100();
+int CvLuaPlayer::lGetSciencePerTurnFromInfluencedCivsTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromInfluencedCivsTimes100);
 }
 #endif
 //int GetScienceFromCitiesTimes100();

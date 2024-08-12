@@ -237,6 +237,9 @@ public:
 	int GetNumTechsCanBeResearched() const;
 	CvTechXMLEntries* GetTechs() const;
 	int GetResearchCost(TechTypes eTech) const;
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+	int CvPlayerTechs::GetNumCitiesResearchCostModifier(int iNumCities) const;
+#endif
 	int GetResearchProgress(TechTypes eTech) const;
 	int GetMedianTechResearch() const;
 #ifdef ESPIONAGE_SYSTEM_REWORK

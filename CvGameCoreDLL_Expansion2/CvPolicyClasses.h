@@ -161,6 +161,9 @@ public:
 	int GetHappinessToScience() const;
 	int GetNumCitiesFreeCultureBuilding() const;
 	int GetNumCitiesFreeFoodBuilding() const;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int GetNumCitiesFreeDefensiveBuilding() const;
+#endif
 	bool IsHalfSpecialistUnhappiness() const;
 	bool IsHalfSpecialistFood() const;
 	bool IsMilitaryFoodProduction() const;
@@ -207,6 +210,9 @@ public:
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	int GetBuildingClassFoodKept(int i) const;
+#endif
 	int GetBuildingClassCultureChange(int i) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;
@@ -361,6 +367,9 @@ private:
 	int m_iHappinessToScience;
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int m_iNumCitiesFreeDefensiveBuilding;
+#endif
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
@@ -401,6 +410,9 @@ private:
 	int* m_paiUnitCombatProductionModifiers;
 	int* m_paiUnitCombatFreeExperiences;
 	int* m_paiHurryModifier;
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	int* m_paiBuildingClassFoodKept;
+#endif
 	int* m_paiBuildingClassCultureChanges;
 	int* m_paiBuildingClassProductionModifiers;
 	int* m_paiBuildingClassTourismModifiers;
@@ -596,6 +608,9 @@ public:
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	int GetBuildingClassFoodKept(BuildingClassTypes eBuildingClass);
+#endif
 	int GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass);
 	int GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass);
 	int GetImprovementCultureChange(ImprovementTypes eImprovement);

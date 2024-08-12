@@ -1704,7 +1704,7 @@ void CvMinorCivAI::Reset()
 #ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 		m_aiBullyGoldAmountTotalByPlayer[iI] = 0;
 #endif
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 		m_aiBullyWorkersAmountTotalByPlayer[iI] = 0;
 #endif
 
@@ -1807,7 +1807,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 	kStream >> m_aiBullyGoldAmountTotalByPlayer;
 #endif
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 	kStream >> m_aiBullyWorkersAmountTotalByPlayer;
 #endif
 
@@ -1951,7 +1951,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 #ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
 	kStream << m_aiBullyGoldAmountTotalByPlayer;
 #endif
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 	kStream << m_aiBullyWorkersAmountTotalByPlayer;
 #endif
 
@@ -2305,6 +2305,12 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 			if(GET_PLAYER(ePlayer).getTeam() == eTeam)
 			{
 				// Gold gift
+#ifdef AUSTRIA_UA_REWORK
+				if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsAbleToAnnexCityStates())
+				{
+					iGoldGift = AUSTRIA_UA_CONTACT_GOLD;
+				}
+#endif
 				GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);
 
 				// Faith gift
@@ -8190,8 +8196,7 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 #ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
 #ifdef RELIGIOUS_UNITY_CS_BONUS
 	{
-
-		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 		ReligionTypes eMajority = NO_RELIGION;
 		if (m_pPlayer->getCapitalCity())
 		{
@@ -8200,14 +8205,27 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)) ||
 			!(eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
 				|| IsAllies(ePlayer)))
+			return false;
+	}
 #else
 		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)) || !IsAllies(ePlayer))
+			return false;
 #endif
-#endif
-		return false;
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#else
 #ifdef RELIGIOUS_UNITY_CS_BONUS
+	{
+		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+		ReligionTypes eMajority = NO_RELIGION;
+		if (m_pPlayer->getCapitalCity())
+		{
+			eMajority = m_pPlayer->getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+		}
+		if (!(eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+			|| IsAllies(ePlayer)))
+			return false;
 	}
+#else
+		return false;
 #endif
 #endif
 
@@ -8216,8 +8234,20 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 		return false;
 
 	// Must be Friends
-	if(!IsFriends(ePlayer))
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+	ReligionTypes eMajority = NO_RELIGION;
+	if (m_pPlayer->getCapitalCity())
+	{
+		eMajority = m_pPlayer->getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+	}
+	if (!(eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+		|| IsFriends(ePlayer)))
 		return false;
+#else
+	if (!IsFriends(ePlayer))
+		return false;
+#endif
 
 	// We must be alive
 	if(!GetPlayer()->isAlive())
@@ -8285,7 +8315,18 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 
 		// Pick Unit type
 		UnitTypes eUnit = NO_UNIT;
+#ifdef RELIGIOUS_UNITY_CS_BONUS
+		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eMajor);
+		ReligionTypes eMajority = NO_RELIGION;
+		if (m_pPlayer->getCapitalCity())
+		{
+			eMajority = m_pPlayer->getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+		}
+		if (eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
+				|| GetAlly() == eMajor)
+#else
 		if (GetAlly() == eMajor)
+#endif
 		{	
 			// Should we give our unique unit?
 			bool bUseUniqueUnit = false;
@@ -8394,7 +8435,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 {
 	// Not friends
 #ifdef RELIGIOUS_UNITY_CS_BONUS
-	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 	ReligionTypes eMajority = NO_RELIGION;
 	if (m_pPlayer->getCapitalCity())
 	{
@@ -8462,6 +8503,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	// Modify for policies
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iPolicyMod = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER);
+#ifndef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
 	if(iPolicyMod > 0)
 	{
 #ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
@@ -8474,6 +8516,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 			iNumTurns /= (100 + iPolicyMod);
 		}
 	}
+#endif
 
 	return iNumTurns / 100;
 }
@@ -8483,7 +8526,7 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 {
 	// Not friends
 #ifdef RELIGIOUS_UNITY_CS_BONUS
-	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 	ReligionTypes eMajority = NO_RELIGION;
 	if (m_pPlayer->getCapitalCity())
 	{
@@ -9147,7 +9190,7 @@ void CvMinorCivAI::ChangeBullyGoldAmountTotalByPlayer(PlayerTypes eBullyPlayer, 
 	m_aiBullyGoldAmountTotalByPlayer[eBullyPlayer] = m_aiBullyGoldAmountTotalByPlayer[eBullyPlayer] + iChange;
 }
 #endif
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 int CvMinorCivAI::GetBullyWorkersAmountTotalByPlayer(PlayerTypes eBullyPlayer)
 {
 	return m_aiBullyWorkersAmountTotalByPlayer[eBullyPlayer];
@@ -9206,7 +9249,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #ifdef NEW_BULLY_METRICS
-			iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+			iGlobalMilitaryScore = (int)(fRankRatio * 50);
 #else
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 #endif
@@ -9365,7 +9408,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iTraitsScore = 0;
 	int iTraitsMod = 0;
 	if(strcmp(GET_PLAYER(eBullyPlayer).getCivilizationTypeKey(), "CIVILIZATION_MONGOL") == 0)
-		iTraitsMod = 25;
+		iTraitsMod = MONGOL_CS_BULLY_MOD;
 	if (iTraitsMod != 0)
 	{
 		iTraitsScore += iGlobalMilitaryScore;
@@ -9810,7 +9853,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 		else
 			pNewUnit->kill(false);	// Could not find a spot for the unit!
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 		ChangeBullyWorkersAmountTotalByPlayer(eBully, 1);
 #endif
 #ifdef WORKER_BULLY_RESRICTION
@@ -10508,7 +10551,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		{
 #ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
 #ifdef RELIGIOUS_UNITY_CS_BONUS
-			ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+			ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 			ReligionTypes eMajority = NO_RELIGION;
 			if (m_pPlayer->getCapitalCity())
 			{
@@ -10522,7 +10565,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 #else
 			// If ePlayer is also at war with eTeam, we might shorten the unit spawn timer
 #ifdef RELIGIOUS_UNITY_CS_BONUS
-			ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+			ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 			ReligionTypes eMajority = NO_RELIGION;
 			if (m_pPlayer->getCapitalCity())
 			{

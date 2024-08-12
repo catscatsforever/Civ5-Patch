@@ -71,6 +71,9 @@ const MissionTypes getMISSION_SELL_EXOTIC_GOODS();
 const MissionTypes getMISSION_GIVE_POLICIES();
 const MissionTypes getMISSION_ONE_SHOT_TOURISM();
 const MissionTypes getMISSION_CHANGE_ADMIRAL_PORT();
+#ifdef BELIEF_HOLY_ORDER_EXPANSION
+const MissionTypes getMISSION_RELIGIOUS_EXPANSION();
+#endif
 const unsigned int getNUM_MISSION_TYPES();
 
 const GreatWorkArtifactClass getARTIFACT_ANCIENT_RUIN();

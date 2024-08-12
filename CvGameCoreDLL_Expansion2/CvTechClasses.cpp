@@ -1026,6 +1026,12 @@ void CvPlayerTechs::SetLocalePriorities()
 						{
 							// Find the tech associated with this build and increment its multiplier
 							int iTech = GC.getBuildInfo(eCorrectBuild)->getTechPrereq();
+#ifdef MINES_ON_LUXES_AFTER_BRONZE_WORKING
+							if (strcmp(GC.getBuildInfo(eCorrectBuild)->GetType(), "BUILD_MINE") == 0 && GC.getResourceInfo(pLoopPlot->getResourceType()) && GC.getResourceInfo(pLoopPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_BRONZE_WORKING", true)))
+							{
+								iTech = GC.getInfoTypeForString("TECH_BRONZE_WORKING", true);
+							}
+#endif
 							CvAssert(iTech < m_pTechs->GetNumTechs());		// Just assert on a value off the top end, a -1 is ok to just skip silently
 							if (iTech >= 0 && iTech < m_pTechs->GetNumTechs())
 							{
@@ -1421,6 +1427,28 @@ CvTechXMLEntries* CvPlayerTechs::GetTechs() const
 	return m_pTechs;
 }
 
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+int CvPlayerTechs::GetNumCitiesResearchCostModifier(int iNumCities) const
+{
+	if (iNumCities == 1)
+	{
+		return 5;
+	}
+	else if (iNumCities == 2)
+	{
+		return 8;
+	}
+	else if (iNumCities == 3)
+	{
+		return 13;
+	}
+	else
+	{
+		return 7 * iNumCities - 8;
+	}
+}
+#endif
+
 //	----------------------------------------------------------------------------
 /// Return the research cost for a tech for this player.  This will be different from the team research cost as it will
 /// include the player's research adjustment
@@ -1439,6 +1467,9 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	iMod = iMod * m_pPlayer->GetMaxEffectiveCities();
 #else
 	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+#endif
+#ifdef NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
+	iMod = GetNumCitiesResearchCostModifier(m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true));
 #endif
 	iResearchCost = iResearchCost * (100 + iMod) / 100;
 

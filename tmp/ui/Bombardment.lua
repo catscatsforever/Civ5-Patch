@@ -22,7 +22,11 @@ function RangedStrikeHighlight()
 	local thisTeam;
 
 	if pHeadSelectedCity and pHeadSelectedCity:CanRangeStrike() then
-		iRange = GameDefines.CITY_ATTACK_RANGE + pHeadSelectedCity:GetCityAttackRangeModifier();
+		if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0) then
+			iRange = GameDefines.CITY_ATTACK_RANGE + 1 + pHeadSelectedCity:GetCityAttackRangeModifier();
+		else
+			iRange = GameDefines.CITY_ATTACK_RANGE + pHeadSelectedCity:GetCityAttackRangeModifier();
+		end
 		bIndirectFireAllowed = GameDefines.CAN_CITY_USE_INDIRECT_FIRE == 1;
 		thisPlot = pHeadSelectedCity:Plot();
 		thisX = pHeadSelectedCity:GetX();

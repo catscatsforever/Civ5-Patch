@@ -1,5 +1,6 @@
 -------------------------------------------------
 -- edit: MP voting system for vanilla UI
+-- edit: FIX Events.NotificationRemoved missing PlayerID argument 
 -------------------------------------------------
 -- Action Info Panel
 -------------------------------------------------
@@ -231,6 +232,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_LEAGUE_PROJECT_PROGRESS ] = "LeagueP
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL ] = "MPVotingSystemProposal";
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL ] = "MPVotingSystemProposal";
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL ] = "MPVotingSystemProposal";
+g_NameTable[ NotificationTypes.NOTIFICATION_MP_REMAP_PROPOSAL ] = "MPVotingSystemProposal";
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT ] = "MPVotingSystemResult";
 
 ------------------------------------------------------------------------------------
@@ -242,10 +244,10 @@ g_NameTable[ NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT ] = "MPVotingSyst
 -------------------------------------------------
 -------------------------------------------------
 function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, ePlayer )
-	print('------new notification-------')
-	print('UI_id', Id)
-	print('type', type)
-	print('-----------------------------')
+	--print('------new notification-------')
+	--print('UI_id', Id)
+	--print('type', type)
+	--print('-----------------------------')
 
 	if(g_ActiveNotifications[ Id ] ~= nil) then
         return;
@@ -316,9 +318,9 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 			or type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL
 			or type == NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL
 			then
-			print('irr/cc/scrap notification setup')
-			print('icon hookup for proposal owner:', iGameValue)
-			local playerID = iGameValue
+			--print('irr/cc/scrap notification setup')
+			--print('icon hookup for proposal owner:', iGameValue)
+			local playerID = Game.GetProposalOwner( iGameValue )
 
 			if type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL then
 				instance.StatusFrame:SetText('[ICON_TEAM_1]')
@@ -332,8 +334,13 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 			
 			LuaEvents.OnProposalCreated()
 			CivIconHookup( playerID, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
+		elseif type == NotificationTypes.NOTIFICATION_MP_REMAP_PROPOSAL then
+			instance.StatusFrame:SetText('[ICON_FLOWER]')
+			LuaEvents.OnProposalCreated();
+			instance.SmallCivFrame:SetHide(true);
+			CivIconHookup( 0, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
 		elseif type == NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT then
-			if iExtraGameData == 1 then
+			if Game.GetProposalStatus( iGameValue ) == 1 then
 				instance.MPVotingSystemResultCancelImage:SetHide(true)  -- hide cancel frame
 			else
 				instance.MPVotingSystemResultCancelImage:SetHide(false)  -- show cancel frame
@@ -495,12 +502,15 @@ end
 
 -------------------------------------------------
 -------------------------------------------------
-function NotificationRemoved( Id )
+-- edit: FIX Events.NotificationRemoved missing PlayerID argument 
+function NotificationRemoved( Id, PlayerID )
 
     --print( "removing Notification " .. Id .. " " .. tostring( g_ActiveNotifications[ Id ] ) .. " " .. tostring( g_NameTable[ g_ActiveNotifications[ Id ] ] ) );
         
-	RemoveNotificationID( Id );	
-    ProcessStackSizes();
+	if (PlayerID == Game.GetActivePlayer()) then
+		RemoveNotificationID( Id );	
+		ProcessStackSizes();
+	end
 
 end
 Events.NotificationRemoved.Add( NotificationRemoved );

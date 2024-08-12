@@ -81,13 +81,21 @@ void CvTreasury::DoGold()
 	{
 		SetGold(0);
 
+#ifdef DUEL_NO_DISBAND
+		if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+			if (iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
 #ifdef UNIT_DISBAND_REWORK
-		if (iGoldAfterThisTurn < 0)
-			m_pPlayer->DoDeficit(iGoldAfterThisTurn);
-		
+				m_pPlayer->DoDeficit(iGoldAfterThisTurn);
+#else
+				m_pPlayer->DoDeficit();
+#endif
 #else
 		if (iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
+#ifdef UNIT_DISBAND_REWORK
+			m_pPlayer->DoDeficit(iGoldAfterThisTurn);
+#else
 			m_pPlayer->DoDeficit();
+#endif
 #endif
 	}
 	else
@@ -451,8 +459,8 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 		}
 	}
 
-#ifdef SACRED_WATERS_FRESH_WATER_AND_COASTAL
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+#ifdef SACRED_WATERS_FRESH_WATER
+	/*CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int iGoldPerRiverOrCoastalCity = 0;
 	int iLoop = 0;
 	CvCity* pLoopCity;
@@ -474,7 +482,7 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 		}
 	}
 
-	iGoldFromReligion += iGoldPerRiverOrCoastalCity;
+	iGoldFromReligion += iGoldPerRiverOrCoastalCity;*/
 #endif
 
 	return iGoldFromReligion;

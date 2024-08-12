@@ -67,6 +67,13 @@ public:
 	int GetMissionaryCostModifier() const;
 	int GetFriendlyCityStateSpreadModifier() const;
 	int GetGreatPersonExpendedFaith() const;
+#ifdef GP_EXPENDED_GA
+	int GetGreatPersonExpendedGoldenAge() const;
+	int GetGoldenAgeCombatMod() const;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	bool IsAllowPolicyWonders() const;
+#endif
 	int GetCityStateMinimumInfluence() const;
 	int GetCityStateInfluenceModifier() const;
 	int GetOtherReligionPressureErosion() const;
@@ -168,6 +175,13 @@ protected:
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;
 	int m_iGreatPersonExpendedFaith;
+#ifdef GP_EXPENDED_GA
+	int m_iGreatPersonExpendedGoldenAge;
+	int m_iGoldenAgeCombatMod;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	bool m_bAllowPolicyWonders;
+#endif
 	int m_iCityStateMinimumInfluence;
 	int m_iCityStateInfluenceModifier;
 	int m_iOtherReligionPressureErosion;
@@ -363,6 +377,22 @@ public:
 	{
 		return m_iGreatPersonExpendedFaith;
 	};
+#ifdef GP_EXPENDED_GA
+	int GetGreatPersonExpendedGoldenAge() const
+	{
+		return m_iGreatPersonExpendedGoldenAge;
+	};
+	int GetGoldenAgeCombatMod() const
+	{
+		return m_iGoldenAgeCombatMod;
+	};
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	bool IsAllowPolicyWonders() const
+	{
+		return m_bAllowPolicyWonders;
+	};
+#endif
 	int GetCityStateMinimumInfluence() const
 	{
 		return m_iCityStateMinimumInfluence;
@@ -454,6 +484,9 @@ public:
 	bool IsFaithBuyingEnabled(EraTypes eEra) const;
 	bool IsConvertsBarbarians() const;
 	bool IsFaithPurchaseAllGreatPeople() const;
+#ifdef DUEL_ALLOW_SAMETURN_BELIEFS
+	int* m_paiBeliefAdoptionTurn;
+#endif
 
 	// Serialization
 	void Read(FDataStream& kStream);
@@ -484,6 +517,13 @@ private:
 	int m_iMissionaryCostModifier;
 	int m_iFriendlyCityStateSpreadModifier;
 	int m_iGreatPersonExpendedFaith;
+#ifdef GP_EXPENDED_GA
+	int m_iGreatPersonExpendedGoldenAge;
+	int m_iGoldenAgeCombatMod;
+#endif
+#ifdef NEW_BELIEF_PROPHECY
+	bool m_bAllowPolicyWonders;
+#endif
 	int m_iCityStateMinimumInfluence;
 	int m_iCityStateInfluenceModifier;
 	int m_iOtherReligionPressureErosion;

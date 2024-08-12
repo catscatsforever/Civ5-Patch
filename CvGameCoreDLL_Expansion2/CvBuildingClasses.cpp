@@ -2879,6 +2879,21 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 				m_pCity->processBuilding(eIndex, iNewValue - iOldNumBuilding, true);
 			}
 		}
+
+#ifdef FIX_UPDATE_CITY_VIEW_FREE_BUILDING
+		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
+		if (iNewValue - iOldNumBuilding != 0 && buildingEntry->IsCityWall())
+		{
+			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
+			gDLL->GameplayWallCreated(pDllPlot.get());
+		}
+
+		m_pCity->updateStrengthValue();
+
+		// Building might affect City Banner stats
+		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
+#endif
 	}
 }
 /// Accessor: Get yield boost for a specific building by yield type
@@ -3001,6 +3016,9 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
 	}
+#ifdef FINE_ARTS_HAPPINESS_FROM_GREAT_WORKS
+	GET_PLAYER(m_pCity->getOwner()).DoUpdateHappiness();
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }

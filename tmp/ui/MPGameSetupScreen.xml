@@ -13,7 +13,7 @@
             <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="OptionDropDown"/>
         </Container>
     </Instance>
-
+	
     <Box Anchor="C,C" Size="1024,768" Color="0,0,0,0" />
 
     <Grid Size="960,Full" Anchor="C,B" Offset="0,-39" Padding="0,0" Style="Grid9DetailFive140" ID="MainGrid" >
@@ -238,6 +238,13 @@
                 <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanReligionBeliefPull_2"/>
                 <PullDown Hidden="1" Style="GenericPullDown" ScrollThreshold="400" Offset="4,0" Size="220,25" SpaceForScroll="0" ID="BanReligionBeliefPull_3"/>
               </Stack>
+            </Box>
+
+            <!-- Remap Voting Check & Edit Container -->
+            <Box Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" ID="RemapVotingBox" Hidden="1" >
+              <Box Anchor="L,T"  Size="200,32" Color="255,255,200,0" >
+                <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_ENABLE_REMAP_VOTE" ToolTip="TXT_KEY_GAME_OPTION_ENABLE_REMAP_VOTE_HELP" IsChecked="0" ID="RemapVotingCheck" ConsumeMouse="1" />
+              </Box>
             </Box>
 
             <!-- DLC -->

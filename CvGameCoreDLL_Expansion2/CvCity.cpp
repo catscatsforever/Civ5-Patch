@@ -262,6 +262,9 @@ CvCity::CvCity() :
 #ifdef OWED_FOOD_BUILDING
 	, m_bOwedFoodBuilding(false)
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	, eReligionFoundedHere(NO_RELIGION)
+#endif
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
@@ -746,6 +749,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bOwedCultureBuilding = false;
 #ifdef OWED_FOOD_BUILDING
 	m_bOwedFoodBuilding = false;
+#endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	eReligionFoundedHere = NO_RELIGION;
 #endif
 
 	m_eOwner = eOwner;
@@ -1490,7 +1496,7 @@ void CvCity::doTurn()
 		iHitsHealed /= 2;
 		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_CASTLE")) > 0 || m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_MUGHAL_FORT")) > 0)
 		{
-			iHitsHealed *= 3;
+			iHitsHealed *= 2;
 		}
 #endif
 		changeDamage(-iHitsHealed);
@@ -5282,6 +5288,22 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 	if(eUnitCombatType != NO_UNITCOMBAT)
 	{
 		iTempMod = getUnitCombatProductionModifier(eUnitCombatType);
+#ifdef KREMLIN_GLOBAL_MOD
+		int iLoop = 0;
+		bool bHasKremlin = false;
+		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_KREMLIN", true)) > 0)
+			{
+				bHasKremlin = true;
+				break;
+			}
+		}
+		if (bHasKremlin)
+		{
+			iTempMod += GC.getBuildingInfo((BuildingTypes)GC.getInfoTypeForString("BUILDING_KREMLIN", true))->GetUnitCombatProductionModifier((int)eUnitCombatType);
+		}
+#endif
 		iMultiplier += iTempMod;
 		if(toolTipSink && iTempMod)
 		{
@@ -6290,7 +6312,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if(pBuildingInfo->IsScienceBuilding())
 					{
 						int iMedianTechResearch = owningPlayer.GetPlayerTechs()->GetMedianTechResearch();
+#ifdef MEDIAN_TECH_PERCENTAGE_DOES_NOT_AFFECTS_KOREA
 						iMedianTechResearch = (iMedianTechResearch * owningPlayer.GetMedianTechPercentage()) / 100;
+#endif
 
 						TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
@@ -6366,7 +6390,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 #endif
 #ifdef CITY_RANGE_MODIFIER
+#ifdef DUEL_WALL_CHANGE
+		if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+		{
+			if (!(strcmp(pBuildingInfo->GetType(), "BUILDING_WALLS") == 0 || strcmp(pBuildingInfo->GetType(), "BUILDING_WALLS_OF_BABYLON") == 0))
+			{
+				changeCityAttackRangeModifier(pBuildingInfo->getCityAttackRangeModifier() * iChange);
+			}
+		}
+		else
+		{
+			changeCityAttackRangeModifier(pBuildingInfo->getCityAttackRangeModifier() * iChange);
+		}
+#else
 		changeCityAttackRangeModifier(pBuildingInfo->getCityAttackRangeModifier() * iChange);
+#endif
 #endif
 #ifdef CITY_EXTRA_ATTACK
 		changeCityExtraAttack(pBuildingInfo->GetCityExtraAttack() * iChange);
@@ -6660,6 +6698,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(pkUnitCombatClassInfo)
 			{
 				changeUnitCombatFreeExperience(eUnitCombatClass, pBuildingInfo->GetUnitCombatFreeExperience(iI) * iChange);
+#ifdef KREMLIN_GLOBAL_MOD
+				if (eBuilding != (BuildingTypes)GC.getInfoTypeForString("BUILDING_KREMLIN", true))
+#endif
 				changeUnitCombatProductionModifier(eUnitCombatClass, pBuildingInfo->GetUnitCombatProductionModifier(iI) * iChange);
 			}
 		}
@@ -6932,6 +6973,20 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 
 	GET_PLAYER(getOwner()).UpdateReligion();
 }
+
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+//	--------------------------------------------------------------------------------
+ReligionTypes CvCity::getFoundedReligion() const
+{
+	return eReligionFoundedHere;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::setFoundedReligion(ReligionTypes eReligion)
+{
+	eReligionFoundedHere = eReligion;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Culture from eSpecialist
@@ -8011,18 +8066,23 @@ int CvCity::getCityAttackRangeModifier() const
 						break;
 					}
 				}
-				if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+#ifdef DUEL_GODDESS_STRATEGY_CHANGE
+				if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
 				{
-					iTempMod++;
-					if (eMajority > RELIGION_PANTHEON)
+					if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
 					{
-						ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(getOwner());
-						if (eFoundedReligion == eMajority && GET_PLAYER(getOwner()).IsSecondReligionPantheon())
+						iTempMod++;
+						if (eMajority > RELIGION_PANTHEON)
 						{
-							iTempMod++;
+							ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(getOwner());
+							if (eFoundedReligion == eMajority && GET_PLAYER(getOwner()).IsSecondReligionPantheon())
+							{
+								iTempMod++;
+							}
 						}
 					}
 				}
+#endif
 			}
 		}
 		return m_iCityAttackRangeModifier + iTempMod;
@@ -8267,9 +8327,14 @@ int CvCity::getJONSCulturePerTurn() const
 	// Player modifier
 	iModifier += GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
 
+#ifdef FLOURISHING_OF_ARTS_REWORK
+	if (GetCityCulture()->GetNumGreatWorks() > 0)
+		iModifier += GET_PLAYER(getOwner()).GetCultureWonderMultiplier() * GetCityCulture()->GetNumGreatWorks();
+#else
 	// Wonder here?
 	if(getNumWorldWonders() > 0)
 		iModifier += GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
+#endif
 
 #ifdef FUTURE_TECH_RESEARCHING_BONUSES
 	iModifier += 10 * GET_TEAM(getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
@@ -8886,7 +8951,22 @@ void CvCity::changeFoodKept(int iChange)
 int CvCity::getMaxFoodKeptPercent() const
 {
 	VALIDATE_OBJECT
+#ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
+	int iPolicyBuildingClassFoodKept = 0;
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes)iI;
+		if (GC.getBuildingClassInfo(eLoopBuildingClass))
+		{
+			BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eLoopBuildingClass);
+			iPolicyBuildingClassFoodKept += GetCityBuildings()->GetNumBuilding(eBuilding) * GET_PLAYER(getOwner()).GetPlayerPolicies()->GetBuildingClassFoodKept(eLoopBuildingClass);
+		}
+	}
+
+	return m_iMaxFoodKeptPercent + iPolicyBuildingClassFoodKept;
+#else
 	return m_iMaxFoodKeptPercent;
+#endif
 }
 
 
@@ -9387,11 +9467,32 @@ int CvCity::GetLocalHappiness() const
 			{
 				iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHappinessPerCity();
 			}
-#ifdef SACRED_WATERS_FRESH_WATER_AND_COASTAL
-			if (plot()->isFreshWater() || plot()->isCoastalLand())
+#ifdef SACRED_WATERS_FRESH_WATER
+#ifdef DUEL_SACRED_WATERS_CHANGE
+			if (GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+			{
+				if (plot()->isRiver())
+				{
+					iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();
+					}
+				}
+			}
+			else
+			{
+				if (plot()->isFreshWater())
+				{
+					iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();
+					}
+				}
+			}
 #else
-			if(plot()->isRiver())
-#endif
+			if (plot()->isFreshWater() || plot()->isCoastalLand())
 			{
 				iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
 				if (eSecondaryPantheon != NO_BELIEF)
@@ -9399,6 +9500,17 @@ int CvCity::GetLocalHappiness() const
 					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();
 				}
 			}
+#endif
+#else
+			if(plot()->isRiver())
+			{
+				iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();
+				}
+			}
+#endif
 
 			// Buildings
 			for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
@@ -10072,12 +10184,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CAPITAL", iTempMod);
 	}
 
-#ifdef CREATIVE_EXPRESSION_SCIENCE_MOD
-	if (getPopulation() >= 22)
+#ifdef LEARNED_SOCIETY_SCIENCE_MOD
+	if (getPopulation() >= 20)
 	{
-		if (eIndex == YIELD_SCIENCE && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CREATIVE_EXPRESSION", true)))
+		if (eIndex == YIELD_SCIENCE && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ECONOMIC_UNION", true)))
 		{
-			iTempMod = 22;
+			iTempMod = getPopulation();
 			iModifier += iTempMod;
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_LARGEPOP_SCIENCEMOD", iTempMod);
@@ -12484,8 +12596,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				setUnitProduction(eTrainUnit, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-				iProductionGold = 0;
+#ifdef PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold /= 4;
 #endif
 				if(iProductionGold > 0)
 				{
@@ -12562,8 +12674,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
 
 				int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
-#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-				iProductionGold = 0;
+#ifdef PRODUCTION_OVERFLOW_INTO_GOLD
+				iProductionGold /= 4;
 #endif
 				if(iProductionGold > 0)
 				{
@@ -12636,8 +12748,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			setProjectProduction(eCreateProject, 0);
 
 			int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
-#ifdef REMOVE_PRODUCTION_OVERFLOW_INTO_GOLD
-			iProductionGold = 0;
+#ifdef PRODUCTION_OVERFLOW_INTO_GOLD
+			iProductionGold /= 4;
 #endif
 			if(iProductionGold > 0)
 			{
@@ -15061,6 +15173,20 @@ void CvCity::read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1002)
+	{
+# endif
+		kStream >> eReligionFoundedHere;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		eReligionFoundedHere = NO_RELIGION;
+	}
+# endif
+#endif
 
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -15323,6 +15449,9 @@ void CvCity::write(FDataStream& kStream) const
 #ifdef OWED_FOOD_BUILDING
 	kStream << m_bOwedFoodBuilding;
 #endif
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	kStream << eReligionFoundedHere;
+#endif
 
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
@@ -15564,6 +15693,12 @@ bool CvCity::CanRangeStrikeNow() const
 	}
 
 	int iRange = GC.getCITY_ATTACK_RANGE();
+#ifdef DUEL_WALL_CHANGE
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iRange += 1;
+	}
+#endif
 #ifdef CITY_RANGE_MODIFIER
 	iRange += getCityAttackRangeModifier();
 #endif
@@ -15678,6 +15813,12 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	int iAttackRange = GC.getCITY_ATTACK_RANGE();
+#ifdef DUEL_WALL_CHANGE
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iAttackRange += 1;
+	}
+#endif
 #ifdef CITY_RANGE_MODIFIER
 	iAttackRange += getCityAttackRangeModifier();
 #endif
@@ -15820,6 +15961,16 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
 	}
 
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, getOwner()) > 0)
+	{
+		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, getOwner());
+
+		// Ranged units take less damage from one another
+		iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
+		iDefenderStrength /= 100;
+	}
+#else
 	else if(!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false) > 0)
 	{
 		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false);
@@ -15828,9 +15979,14 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 		iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
 		iDefenderStrength /= 100;
 	}
+#endif
 	else
 	{
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
+		iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), NULL, /*bFromRangedAttack*/ true, getOwner());
+#else
 		iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), NULL, /*bFromRangedAttack*/ true);
+#endif
 	}
 
 	return iDefenderStrength;
@@ -15979,6 +16135,10 @@ void CvCity::DoNearbyEnemy()
 		return;
 
 	int iSearchRange = GC.getCITY_ATTACK_RANGE();
+#ifdef DUEL_WALL_CHANGE
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+		iSearchRange += 1;
+#endif
 #ifdef CITY_RANGE_MODIFIER
 	iSearchRange += getCityAttackRangeModifier();
 #endif

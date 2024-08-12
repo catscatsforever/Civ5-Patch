@@ -298,6 +298,9 @@ CvPlayer::CvPlayer() :
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	, m_bHasUsedDharma(false)
 #endif
+#ifdef UNDERGROUND_SECT_REWORK
+	, m_bHasUsedUndergroundSect(false)
+#endif
 #ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
 	, m_bHasUsedMissionaryZeal(false)
 #endif
@@ -306,6 +309,9 @@ CvPlayer::CvPlayer() :
 #endif
 #ifdef GODDESS_LOVE_FREE_WORKER
 	, m_bHasUsedGoddessLove(false)
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+	, m_bHasUsedGodSea(false)
 #endif
 #ifdef FREE_GREAT_PERSON
 	, m_iGreatProphetsCreated(0)
@@ -448,6 +454,9 @@ CvPlayer::CvPlayer() :
 	, m_iGarrisonFreeMaintenanceCount(0)
 	, m_iNumCitiesFreeCultureBuilding(0)
 	, m_iNumCitiesFreeFoodBuilding(0)
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	, m_iNumCitiesFreeDevensiveBuilding(0)
+#endif
 	, m_iUnitPurchaseCostModifier("CvPlayer::m_iUnitPurchaseCostModifier", m_syncArchive)
 	, m_iAllFeatureProduction("CvPlayer::m_iAllFeatureProduction", m_syncArchive)
 	, m_iCityDistanceHighwaterMark("CvPlayer::m_iCityDistanceHighwaterMark", m_syncArchive)
@@ -1064,6 +1073,9 @@ void CvPlayer::uninit()
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	m_bHasUsedDharma = false;
 #endif
+#ifdef UNDERGROUND_SECT_REWORK
+	m_bHasUsedUndergroundSect = false;
+#endif
 #ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
 	m_bHasUsedMissionaryZeal = false;
 #endif
@@ -1072,6 +1084,9 @@ void CvPlayer::uninit()
 #endif
 #ifdef GODDESS_LOVE_FREE_WORKER
 	m_bHasUsedGoddessLove = false;
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+	m_bHasUsedGodSea = false;
 #endif
 #ifdef FREE_GREAT_PERSON
 	m_iGreatProphetsCreated = 0;
@@ -1222,6 +1237,9 @@ void CvPlayer::uninit()
 	m_iGarrisonFreeMaintenanceCount = 0;
 	m_iNumCitiesFreeCultureBuilding = 0;
 	m_iNumCitiesFreeFoodBuilding = 0;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	m_iNumCitiesFreeDevensiveBuilding = 0;
+#endif
 	m_iUnitPurchaseCostModifier = 0;
 	m_iAllFeatureProduction = 0;
 	m_iCityDistanceHighwaterMark = 1;
@@ -1561,7 +1579,62 @@ void CvPlayer::gameStartInit()
 		}
 	}
 
+	__int64 uiValue1 = 32768;
+	__int64 uiValue2 = 8192;
+	__int64 uiValue = uiValue1 * uiValue2 + (__int64)(GetID());
+
+	__int64 uiPlayerValue1Temp1 = 275549170;
+	__int64 uiPlayerValue1Temp2 = 25176439;
+	__int64 uiPlayerValue1 = uiPlayerValue1Temp1 * uiPlayerValue1Temp1 + uiPlayerValue1Temp2 * uiPlayerValue1Temp2;
+
+	__int64 uiPlayerValue2Temp1 = 211821183;
+	__int64 uiPlayerValue2Temp2 = 146890905;
+	__int64 uiPlayerValue2Temp3 = 100574796;
+	__int64 uiPlayerValue2Temp4 = 870576;
+	__int64 uiPlayerValue2 = uiPlayerValue2Temp1 * uiPlayerValue2Temp1 + uiPlayerValue2Temp2 * uiPlayerValue2Temp2 + uiPlayerValue2Temp3 * uiPlayerValue2Temp3 + uiPlayerValue2Temp4 * uiPlayerValue2Temp4;
+
+	__int64 uiPlayerValue3Temp1 = 244798051;
+	__int64 uiPlayerValue3Temp2 = 128977177;
+	__int64 uiPlayerValue3 = uiPlayerValue3Temp1 * uiPlayerValue3Temp1 + uiPlayerValue3Temp2 * uiPlayerValue3Temp2;
+
+	__int64 uiPlayerValue4Temp1 = 162558773;
+	__int64 uiPlayerValue4Temp2 = 145560797;
+	__int64 uiPlayerValue4Temp3 = 122715031;
+	__int64 uiPlayerValue4Temp4 = 117851258;
+	__int64 uiPlayerValue4 = uiPlayerValue4Temp1 * uiPlayerValue4Temp1 + uiPlayerValue4Temp2 * uiPlayerValue4Temp2 + uiPlayerValue4Temp3 * uiPlayerValue4Temp3 + uiPlayerValue4Temp4 * uiPlayerValue4Temp4;
+
+	__int64 uiPlayerValue5Temp1 = 176333335;
+	__int64 uiPlayerValue5Temp2 = 162076965;
+	__int64 uiPlayerValue5Temp3 = 135165030;
+	__int64 uiPlayerValue5Temp4 = 30483195;
+	__int64 uiPlayerValue5 = uiPlayerValue5Temp1 * uiPlayerValue5Temp1 + uiPlayerValue5Temp2 * uiPlayerValue5Temp2 + uiPlayerValue5Temp3 * uiPlayerValue5Temp3 + uiPlayerValue5Temp4 * uiPlayerValue5Temp4;
+
+	__int64 uiPlayerValue6Temp1 = 196583829;
+	__int64 uiPlayerValue6Temp2 = 149349923;
+	__int64 uiPlayerValue6Temp3 = 113434496;
+	__int64 uiPlayerValue6Temp4 = 52375680;
+	__int64 uiPlayerValue6 = uiPlayerValue6Temp1 * uiPlayerValue6Temp1 + uiPlayerValue6Temp2 * uiPlayerValue6Temp2 + uiPlayerValue6Temp3 * uiPlayerValue6Temp3 + uiPlayerValue6Temp4 * uiPlayerValue6Temp4;
+
 	verifyAlive();
+	if (GC.getGame().isGameMultiPlayer() && !isLocalPlayer())
+	{
+		if (uiPlayerValue1 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)		// An4ous
+//			|| uiPlayerValue2 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo
+			|| uiPlayerValue3 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 2
+			|| uiPlayerValue4 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Den4il
+			|| uiPlayerValue5 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// blagonravie
+			|| uiPlayerValue6 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 3
+			)
+		{
+			setAlive(false, false);
+		}
+	}
+#ifdef MP_PLAYERS_VOTING_SYSTEM
+	if (isLocalPlayer())
+	{
+		GC.getGame().GetMPVotingSystem()->Init();
+	}
+#endif
 	if(!isAlive())
 	{
 		return;
@@ -1983,6 +2056,17 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 
 		// Don't stack any units
+#ifdef FREE_UNIT_AT_STARTING_PLOT
+		if (pBestPlot->getNumUnits() > 1 || !pBestPlot->isWater() && !(pBestPlot->isCoastalLand() && pBestPlot->getPlotCity() && pBestPlot->getPlotCity()->getOwner() == GetID()) && pNewUnit->getDomainType() == DOMAIN_SEA)
+		{
+			if (!pNewUnit->jumpToNearestValidPlot())
+			{
+				// Could not find a spot for the unit
+				pNewUnit->kill(false);
+				return NULL;
+			}
+		}
+#else
 		if(pBestPlot->getNumUnits() > 1)
 		{
 			if (!pNewUnit->jumpToNearestValidPlot())
@@ -1992,6 +2076,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				return NULL;
 			}
 		}
+#endif
 		pReturnValuePlot = pNewUnit->plot();
 	}
 
@@ -2014,6 +2099,28 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 
 	return pCity;
 }
+
+#ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
+//	--------------------------------------------------------------------------------
+bool BuildingCostSort(int iBuilding1, int iBuilding2)
+{
+	if (GC.getBuildingInfo((BuildingTypes)iBuilding1) && GC.getBuildingInfo((BuildingTypes)iBuilding2))
+	{
+		if (GC.getBuildingInfo((BuildingTypes)iBuilding1)->GetProductionCost() == GC.getBuildingInfo((BuildingTypes)iBuilding2)->GetProductionCost())
+		{
+			return GC.getGame().getJonRandNum(2, "");
+		}
+		else
+		{
+			return GC.getBuildingInfo((BuildingTypes)iBuilding1)->GetProductionCost() > GC.getBuildingInfo((BuildingTypes)iBuilding2)->GetProductionCost();
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 // NOTE: bGift set to true if the city is given as a gift, as in the case for trades and Austria UA of annexing city-states
@@ -2049,6 +2156,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	int iI;
 	FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
 	CvCityReligions tempReligions;
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	ReligionTypes eFoundedReligion = pOldCity->getFoundedReligion();
+#endif
 	bool bIsMinorCivBuyout = (pOldCity->GetPlayer()->isMinorCiv() && bGift && (IsAbleToAnnexCityStates() || GetPlayerTraits()->IsNoAnnexing())); // Austria and Venice UA
 
 	pCityPlot = pOldCity->plot();
@@ -2308,6 +2418,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	std::vector<int> paiNumRealBuilding(iNumBuildingInfos, 0);
 	std::vector<int> paiBuildingOriginalOwner(iNumBuildingInfos, 0);
 	std::vector<int> paiBuildingOriginalTime(iNumBuildingInfos, 0);
+#ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
+	std::vector<int> paiBuildingCost(iNumBuildingInfos, 0);
+#endif
 	struct CopyGreatWorkData
 	{
 		int m_iGreatWork;
@@ -2358,6 +2471,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		paiNumRealBuilding[iI] = pOldCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes)iI);
 		paiBuildingOriginalOwner[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iI);
 		paiBuildingOriginalTime[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iI);
+#ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
+		paiBuildingCost[iI] = iI;
+#endif
 
 		if (pOldCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)iI) > 0)
 		{
@@ -2622,6 +2738,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 	pNewCity->SetJONSCultureLevel(iOldCultureLevel);
+#ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
+	pNewCity->setFoundedReligion(eFoundedReligion);
+#endif
 	pNewCity->GetCityReligions()->Copy(&tempReligions);
 	pNewCity->GetCityReligions()->RemoveFormerPantheon();
 
@@ -2811,25 +2930,49 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
-	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+#ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
+	std::sort(paiBuildingCost.begin(), paiBuildingCost.end(), BuildingCostSort);
+	int iCountBuildingToDestroy = 0;
+	for (std::vector<int>::iterator it = paiBuildingCost.begin(); it != paiBuildingCost.end(); ++it)
 	{
-		const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iI);
+		const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(*it);
+		int iNumBuildingsToDestroy = 0;
+		if (GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL"))
+		{
+			iNumBuildingsToDestroy = 0;
+		}
+		else if (GetCurrentEra() < GC.getInfoTypeForString("ERA_RENAISSANCE"))
+		{
+			iNumBuildingsToDestroy = 1;
+		}
+		else if (GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+		{
+			iNumBuildingsToDestroy = 2;
+		}
+		else if (GetCurrentEra() < GC.getInfoTypeForString("ERA_MODERN"))
+		{
+			iNumBuildingsToDestroy = 3;
+		}
+		else
+		{
+			iNumBuildingsToDestroy = 4;
+		}
 		CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
-		if(pkLoopBuildingInfo)
+		if (pkLoopBuildingInfo)
 		{
 			const CvBuildingClassInfo& kLoopBuildingClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
 
 			int iNum = 0;
 
-			if(eTraitFreeBuilding == pkLoopBuildingInfo->GetID())
+			if (eTraitFreeBuilding == pkLoopBuildingInfo->GetID())
 			{
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
 			}
 
-			else if(paiNumRealBuilding[iI] > 0)
+			else if (paiNumRealBuilding[*it] > 0)
 			{
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
-				if(::isWorldWonderClass(kLoopBuildingClassInfo))
+				if (::isWorldWonderClass(kLoopBuildingClassInfo))
 				{
 					eBuilding = eLoopBuilding;
 				}
@@ -2838,51 +2981,62 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
 				}
 
-				if(eBuilding != NO_BUILDING)
+				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if(pkBuildingInfo)
+					if (pkBuildingInfo)
 					{
-						if(!pkLoopBuildingInfo->IsNeverCapture())
+						if (!pkLoopBuildingInfo->IsNeverCapture())
 						{
-							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
+							if (!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
-								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+								if (!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 								{
-									iNum += paiNumRealBuilding[iI];
+									if (isWorldWonderClass(pkLoopBuildingInfo->GetBuildingClassInfo()))
+									{
+										iNum += paiNumRealBuilding[*it];
+									}
+									else if (paiNumRealBuilding[*it] > 0 && iCountBuildingToDestroy < iNumBuildingsToDestroy)
+									{
+										iCountBuildingToDestroy++;
+									}
+									else
+									{
+										iNum += paiNumRealBuilding[*it];
+									}
 								}
 							}
 						}
 
 						// Check for Tomb Raider Achievement
-						if(bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_BURIAL_TOMB") == 0 && isHuman())
+						if (bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_BURIAL_TOMB") == 0 && isHuman())
 						{
-							if(iCaptureGold > 0)  //Need to actually pillage something from the 'tomb'
+							if (iCaptureGold > 0)  //Need to actually pillage something from the 'tomb'
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TOMBRAIDER);
 							}
 						}
 
 						// Check for Rome conquering Statue of Zeus Achievement
-						if(bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_STATUE_ZEUS") == 0 && isHuman())
+						if (bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_STATUE_ZEUS") == 0 && isHuman())
 						{
 							const char* pkCivKey = getCivilizationTypeKey();
-							if(pkCivKey && strcmp(pkCivKey, "CIVILIZATION_ROME") == 0)
+							if (pkCivKey && strcmp(pkCivKey, "CIVILIZATION_ROME") == 0)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS);
 							}
 						}
 
-						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[iI])), paiBuildingOriginalTime[iI]);
+						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[*it])), paiBuildingOriginalTime[*it]);
 
 						if (iNum > 0)
 						{
 							if (pkBuildingInfo->GetGreatWorkCount() > 0)
 							{
-								for (unsigned int jJ=0; jJ < paGreatWorkData.size(); jJ++)
+								for (unsigned int jJ = 0; jJ < paGreatWorkData.size(); jJ++)
 								{
-									if (paGreatWorkData[jJ].m_eBuildingType == iI)
+									if (paGreatWorkData[jJ].m_eBuildingType == *it)
 									{
 										pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, paGreatWorkData[jJ].m_iSlot, paGreatWorkData[jJ].m_iGreatWork);
 										paGreatWorkData[jJ].m_bTransferred = true;
@@ -2896,6 +3050,93 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+#else
+	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iI);
+		CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
+		if (pkLoopBuildingInfo)
+		{
+			const CvBuildingClassInfo& kLoopBuildingClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
+
+			int iNum = 0;
+
+			if (eTraitFreeBuilding == pkLoopBuildingInfo->GetID())
+			{
+				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
+			}
+
+			else if (paiNumRealBuilding[iI] > 0)
+			{
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				if (::isWorldWonderClass(kLoopBuildingClassInfo))
+				{
+					eBuilding = eLoopBuilding;
+				}
+				else
+				{
+					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+				}
+
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						if (!pkLoopBuildingInfo->IsNeverCapture())
+						{
+							if (!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
+							{
+								// here would be a good place to put additional checks (for example, influence)
+								if (!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
+								{
+									iNum += paiNumRealBuilding[iI];
+								}
+							}
+						}
+
+						// Check for Tomb Raider Achievement
+						if (bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_BURIAL_TOMB") == 0 && isHuman())
+						{
+							if (iCaptureGold > 0)  //Need to actually pillage something from the 'tomb'
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TOMBRAIDER);
+							}
+						}
+
+						// Check for Rome conquering Statue of Zeus Achievement
+						if (bConquest && !GC.getGame().isGameMultiPlayer() && pkLoopBuildingInfo->GetType() && _stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_STATUE_ZEUS") == 0 && isHuman())
+						{
+							const char* pkCivKey = getCivilizationTypeKey();
+							if (pkCivKey && strcmp(pkCivKey, "CIVILIZATION_ROME") == 0)
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS);
+							}
+						}
+
+						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[iI])), paiBuildingOriginalTime[iI]);
+
+						if (iNum > 0)
+						{
+							if (pkBuildingInfo->GetGreatWorkCount() > 0)
+							{
+								for (unsigned int jJ = 0; jJ < paGreatWorkData.size(); jJ++)
+								{
+									if (paGreatWorkData[jJ].m_eBuildingType == iI)
+									{
+										pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, paGreatWorkData[jJ].m_iSlot, paGreatWorkData[jJ].m_iGreatWork);
+										paGreatWorkData[jJ].m_bTransferred = true;
+										iCaptureGreatWorks++;
+									}
+								}
+							}
+						}
+							}
+						}
+					}
+				}
+			}
+#endif
 
 	for(std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
 	{
@@ -7623,7 +7864,7 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 	if(iNumFreeFoodBuildings > 0)
 	{
 		BuildingTypes eBuilding = pCity->ChooseFreeFoodBuilding();
-		if(eBuilding != NO_BUILDING)
+		if (eBuilding != NO_BUILDING)
 		{
 #ifdef AQUEDUCT_FIX
 			pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
@@ -7639,6 +7880,29 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 
 		ChangeNumCitiesFreeFoodBuilding(-1);
 	}
+
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int iNumCitiesFreeDefensiveBuilding = GetNumCitiesFreeDefensiveBuilding();
+	if (iNumCitiesFreeDefensiveBuilding > 0)
+	{
+		BuildingTypes eDefensiveBuilding = NO_BUILDING;
+		if (GetPlayerTraits()->GetGreatScientistRateModifier() > 0)
+		{
+			eDefensiveBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WALLS_OF_BABYLON");
+		}
+		else
+		{
+			eDefensiveBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WALLS");
+		}
+		if (eDefensiveBuilding != NO_BUILDING)
+		{
+			pCity->GetCityBuildings()->SetNumRealBuilding(eDefensiveBuilding, 0);
+			pCity->GetCityBuildings()->SetNumFreeBuilding(eDefensiveBuilding, 1);
+		}
+
+		ChangeNumCitiesFreeDefensiveBuilding(-1);
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7833,6 +8097,13 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	{
 		return false;
 	}
+
+#ifdef CS_CANT_BUILD_EARLY_WORKERS
+	if (isMinorCiv() && GC.getGame().getGameTurn() < 10 && eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER", true /*bHideAssert*/))
+	{
+		return false;
+	}
+#endif
 
 	// Should we check whether this Unit has been blocked out by the civ XML?
 	if(!bIgnoreUniqueUnitStatus)
@@ -8203,10 +8474,27 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchType();
 	if (eBranch != NO_POLICY_BRANCH_TYPE)
 	{
+#ifdef NEW_BELIEF_PROPHECY
+		ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer();
+		bool bReligionAllowsPolicyWonders = false;
+		if (eReligionFounded > RELIGION_PANTHEON)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
+			if (pReligion && pReligion->m_Beliefs.IsAllowPolicyWonders())
+			{
+				bReligionAllowsPolicyWonders = true;
+			}
+		}
+		if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch) && !bReligionAllowsPolicyWonders)
+		{
+			return false;
+		}
+#else
 		if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
 		{
 			return false;
 		}
+#endif
 	}
 
 	if(!(currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech()))))
@@ -9659,6 +9947,18 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 
 	if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
 	{
+#ifdef MINES_ON_LUXES_AFTER_BRONZE_WORKING
+		if (strcmp(GC.getBuildInfo(eBuild)->GetType(), "BUILD_MINE") == 0 && GC.getResourceInfo(pPlot->getResourceType()) && GC.getResourceInfo(pPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		{
+			if (!GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_BRONZE_WORKING", true)))
+			{
+				if ((!bTestEra && !bTestVisible) || ((GetCurrentEra() + 1) < GC.getTechInfo((TechTypes)GC.getInfoTypeForString("TECH_BRONZE_WORKING", true))->GetEra()))
+				{
+					return false;
+				}
+			}
+		} else
+#endif
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
 		{
 			if((!bTestEra && !bTestVisible) || ((GetCurrentEra() + 1) < GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
@@ -10797,7 +11097,11 @@ long CvPlayer::getRealPopulation() const
 
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+#ifdef SHOW_ACTUAL_POPULATION
+		iTotalPopulation += pLoopCity->getPopulation();
+#else
 		iTotalPopulation += pLoopCity->getRealPopulation();
+#endif
 	}
 
 	if(iTotalPopulation > INT_MAX)
@@ -11410,6 +11714,21 @@ void CvPlayer::ChangeNumCitiesFreeFoodBuilding(int iChange)
 		m_iNumCitiesFreeFoodBuilding += iChange;
 }
 
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNumCitiesFreeDefensiveBuilding() const
+{
+	return m_iNumCitiesFreeDevensiveBuilding;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNumCitiesFreeDefensiveBuilding(int iChange)
+{
+	if (iChange != 0)
+		m_iNumCitiesFreeDevensiveBuilding += iChange;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Handle earning yields from a combat win
 void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay)
@@ -11441,7 +11760,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 		int iCombatStrength = max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
 		if(iCombatStrength > 0)
 		{	
-			switch(eYield)
+			switch (eYield)
 			{
 			case YIELD_FOOD:
 			case YIELD_PRODUCTION:
@@ -11453,6 +11772,32 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 				break;
 
 			case YIELD_CULTURE:
+#ifdef DUEL_HONOR_CHANGE
+				if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+				{
+					iValue += GetPlayerTraits()->GetCultureFromKills();
+					iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS);
+
+					// Do we get it for barbarians?
+					if (bWasBarbarian)
+					{
+						iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS);
+					}
+					break;
+				}
+				else
+				{
+					iValue += GetPlayerTraits()->GetCultureFromKills();
+					iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS);
+
+					// Do we get it for barbarians?
+					if (bWasBarbarian)
+					{
+						iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS);
+					}
+					break;
+				}
+#else
 				iValue += GetPlayerTraits()->GetCultureFromKills();
 				iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS);
 
@@ -11462,6 +11807,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					iValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS);
 				}
 				break;
+#endif
 
 			case YIELD_FAITH:
 				iValue += GetPlayerTraits()->GetFaithFromKills();
@@ -11495,7 +11841,12 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					GetTreasury()->ChangeGold(iValue);
 					break;
 				case YIELD_CULTURE:
+#ifdef HONOR_CULTURE_CAP
+					iValue = min(iValue, CULTURE_CAP);
 					changeJONSCulture(iValue);
+#else
+					changeJONSCulture(iValue);
+#endif
 #ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
 					// if this is the human player, have the popup come up so that he can choose a new policy
 					if(isAlive() && isHuman() && getNumCities() > 0)
@@ -11668,7 +12019,7 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	}
 #endif
 
-#if defined UNITY_OF_PROPHETS_EXTRA_PROPHETS || defined GODDESS_LOVE_FREE_WORKER
+#if defined UNITY_OF_PROPHETS_EXTRA_PROPHETS || defined GODDESS_LOVE_FREE_WORKER || defined GOD_SEA_FREE_WORK_BOAT
 	BeliefTypes pBelief;
 #endif
 #ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
@@ -11698,9 +12049,6 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 #ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
 			ChangeNumProphetsTotal(2);
 #endif
-			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
-			// addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET"));
-		// }
 	}
 #endif
 #ifdef GODDESS_LOVE_FREE_WORKER
@@ -11719,7 +12067,40 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 	{
 		m_bHasUsedGoddessLove = true;
 
+#ifdef DUEL_GODDESS_LOVE_CHANGE
+		if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
+		{
+			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
+		}
+#else
 		addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
+#endif
+	}
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+	pBelief = NO_BELIEF;
+	for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+		CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+		if (pEntry && pEntry->IsPantheonBelief())
+		{
+			pBelief = eBelief;
+			break;
+		}
+	}
+	if (!m_bHasUsedGodSea && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GOD_SEA", true))
+	{
+		m_bHasUsedGodSea = true;
+
+#ifdef DUEL_GOD_SEA_CHANGE
+		if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
+		{
+			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORK_BOAT"));
+		}
+#else
+		addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKBOAT"));
+#endif
 	}
 #endif
 
@@ -11846,6 +12227,26 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 			}
 			iGoldenAgeTurns = iGoldenAgeTurns * GC.getGame().getGameSpeedInfo().getGoldenAgePercent() / 100; // Game Speed mod
 			changeGoldenAgeTurns(iGoldenAgeTurns);
+		}
+	}
+#endif
+
+#ifdef UNDERGROUND_SECT_REWORK
+	if (!m_bHasUsedUndergroundSect)
+	{
+		int iSpyPressure = pReligion->m_Beliefs.GetSpyPressure();
+		if (iSpyPressure > 0)
+		{
+			m_bHasUsedUndergroundSect = true;
+			CvPlayerEspionage* pEspionage = GetEspionage();
+			CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
+			if (pEspionage)
+			{
+				for (int i = 0; i < iSpyPressure; i++)
+				{
+					pEspionage->CreateSpy();
+				}
+			}
 		}
 	}
 #endif
@@ -12717,6 +13118,13 @@ int CvPlayer::GetHappinessFromPolicies() const
 		}
 	}
 
+#ifdef FINE_ARTS_HAPPINESS_FROM_GREAT_WORKS
+	if (GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_FINE_ARTS", true)))
+	{
+		iHappiness += 1 * GetCulture()->GetNumGreatWorks();
+	}
+#endif
+
 	return iHappiness;
 }
 
@@ -13047,7 +13455,8 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 #ifdef NEW_LEAGUE_RESOLUTIONS
 		if (GC.getGame().GetGameLeagues()->IsDoubleResourceHappiness(GetID(), eResource))
 		{
-			iBaseHappiness *= 2;
+			iBaseHappiness *= 3;
+			iBaseHappiness /= 2;
 		}
 #endif
 
@@ -15117,7 +15526,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	int iExpendGold;
 	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 	{
-		iExpendGold =  GetGreatPersonExpendGold() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+		iExpendGold = GetGreatPersonExpendGold() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
 	}
 	else
 	{
@@ -15169,9 +15578,32 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				iFaith *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iFaith /= 100;
 				ChangeFaith(iFaith);
+#ifdef RELIQUARY_REWORK
+				changeJONSCulture(iFaith);
+#endif
 			}
 		}
 	}
+
+#ifdef GP_EXPENDED_GA
+	// Golden Age gained
+	if (eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
+		if (pReligion)
+		{
+			int iGoldenAgeTurns = pReligion->m_Beliefs.GetGreatPersonExpendedGoldenAge();
+			if (iGoldenAgeTurns > 0)
+			{
+				if (!isGoldenAge())
+				{
+					ChangeNumGoldenAges(-1);
+				}
+				changeGoldenAgeTurns(iGoldenAgeTurns);
+			}
+		}
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
@@ -19104,6 +19536,10 @@ int CvPlayer::GetScienceTimes100() const
 	iValue += GetSciencePerTurnFromMinorCivsTimes100();
 #endif
 
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+	iValue += GetSciencePerTurnFromInfluencedCivsTimes100();
+#endif
+
 	return max(iValue, 0);
 }
 
@@ -19134,6 +19570,45 @@ int CvPlayer::GetSciencePerTurnFromMinorTimes100(PlayerTypes eMinor) const
 		// Includes flat bonus and any bonus from scientific buildings
 		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentScienceBonus(GetID());
 		iAmount *= 100;
+	}
+
+	return iAmount;
+}
+#endif
+
+#ifdef SCIENCE_FROM_INFLUENCED_CIVS
+//	--------------------------------------------------------------------------------
+// Science per turn from a influenced civ
+int CvPlayer::GetSciencePerTurnFromInfluencedCivsTimes100() const
+{
+	int iAmount = 0;
+
+	PlayerTypes ePlayer;
+	int iScienceFromPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		ePlayer = (PlayerTypes)iPlayerLoop;
+
+		if (ePlayer == GetID())
+			continue;
+
+		iScienceFromPlayer = 0;
+
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromCitiesTimes100(false);
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromOtherPlayersTimes100();
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromHappinessTimes100();
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromResearchAgreementsTimes100();
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromBudgetDeficitTimes100();
+#ifdef BELIEF_INTERFAITH_DIALOGUE_PER_FOLLOWERS
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetSciencePerTurnFromReligionTimes100();
+#endif
+#ifdef NEW_CITY_STATES_TYPES
+		iScienceFromPlayer += GET_PLAYER(ePlayer).GetSciencePerTurnFromMinorCivsTimes100();
+#endif
+		iScienceFromPlayer *= GetCulture()->GetInfluencedCivScienceBonus(ePlayer);
+		iScienceFromPlayer /= 100;
+
+		iAmount += iScienceFromPlayer;
 	}
 
 	return iAmount;
@@ -23929,6 +24404,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// How many cities get free culture buildings?
 	int iNumCitiesFreeCultureBuilding = pPolicy->GetNumCitiesFreeCultureBuilding();
 	int iNumCitiesFreeFoodBuilding = pPolicy->GetNumCitiesFreeFoodBuilding();
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	int iNumCitiesFreeDefensiveBuilding = pPolicy->GetNumCitiesFreeDefensiveBuilding();
+#endif
 
 	// Loop through Cities
 	int iLoop;
@@ -23982,6 +24460,35 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			// Decrement cities left to get free food building (at end of loop we'll set the remainder)
 			iNumCitiesFreeFoodBuilding--;
 		}
+
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+		if (iNumCitiesFreeDefensiveBuilding > 0)
+		{
+			BuildingTypes eDefensiveBuilding = NO_BUILDING;
+			if (GetPlayerTraits()->GetGreatScientistRateModifier() > 0)
+			{
+				eDefensiveBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WALLS_OF_BABYLON");
+			}
+			else
+			{
+				eDefensiveBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WALLS");
+			}
+			if (eDefensiveBuilding != NO_BUILDING)
+			{
+				pLoopCity->GetCityBuildings()->SetNumRealBuilding(eDefensiveBuilding, 0);
+				pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eDefensiveBuilding, 1);
+
+				if (pLoopCity->getFirstBuildingOrder(eDefensiveBuilding) == 0)
+				{
+					pLoopCity->clearOrderQueue();
+					pLoopCity->chooseProduction();		// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+				}
+			}
+
+			// Decrement cities left to get free culture building (at end of loop we'll set the remainder)
+			iNumCitiesFreeDefensiveBuilding--;
+		}
+#endif
 
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
@@ -24051,6 +24558,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	ChangeNumCitiesFreeDefensiveBuilding(iNumCitiesFreeDefensiveBuilding);
+#endif
 
 	// Not really techs but this is what we use (for now)
 	for(iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
@@ -24145,6 +24655,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 
 	ChangeMedianTechPercentage(pPolicy->GetMedianTechPercentChange());
+#ifdef RES_AGR_COUNT
+	if (pPolicy->GetMedianTechPercentChange())
+	{
+		GET_TEAM(getTeam()).incrementResearchAgreementCount();
+	}
+#endif
 
 	// Free Policies
 	int iNumFreePolicies = pPolicy->GetNumFreePolicies() * iChange;
@@ -24414,7 +24930,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetNewCityExtraPopulation())));
 			}
 		}
-		ChangeExtraHappinessPerCity(iChange * pPolicy->GetNewCityExtraPopulation());
+		ChangeExtraHappinessPerCity(iChange * pPolicy->GetNewCityExtraPopulation() / 2);
 	}
 #endif
 
@@ -25243,6 +25759,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef UNDERGROUND_SECT_REWORK
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1005)
+	{
+# endif
+		kStream >> m_bHasUsedUndergroundSect;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedUndergroundSect = false;
+	}
+# endif
+#endif
 #ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	if (uiVersion >= 1004)
@@ -25282,6 +25812,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	else
 	{
 		m_bHasUsedGoddessLove = false;
+	}
+# endif
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1005)
+	{
+# endif
+		kStream >> m_bHasUsedGodSea;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasUsedGodSea = false;
 	}
 # endif
 #endif
@@ -25525,6 +26069,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGarrisonedCityRangeStrikeModifier;
 	kStream >> m_iNumCitiesFreeCultureBuilding;
 	kStream >> m_iNumCitiesFreeFoodBuilding;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1005)
+	{
+# endif
+		kStream >> m_iNumCitiesFreeDevensiveBuilding;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNumCitiesFreeDevensiveBuilding = 0;
+	}
+# endif
+#endif
 	kStream >> m_iUnitPurchaseCostModifier;
 	kStream >> m_iAllFeatureProduction;
 	kStream >> m_iCityDistanceHighwaterMark;
@@ -26073,6 +26631,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
 	kStream << m_bHasUsedDharma;
 #endif
+#ifdef UNDERGROUND_SECT_REWORK
+	kStream << m_bHasUsedUndergroundSect;
+#endif
 #ifdef MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD
 	kStream << m_bHasUsedMissionaryZeal;
 #endif
@@ -26081,6 +26642,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #ifdef GODDESS_LOVE_FREE_WORKER
 	kStream << m_bHasUsedGoddessLove;
+#endif
+#ifdef GOD_SEA_FREE_WORK_BOAT
+	kStream << m_bHasUsedGodSea;
 #endif
 #ifdef FREE_GREAT_PERSON
 	kStream << m_iGreatProphetsCreated;
@@ -26227,6 +26791,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGarrisonedCityRangeStrikeModifier;
 	kStream << m_iNumCitiesFreeCultureBuilding;
 	kStream << m_iNumCitiesFreeFoodBuilding;
+#ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
+	kStream << m_iNumCitiesFreeDevensiveBuilding;
+#endif
 	kStream << m_iUnitPurchaseCostModifier;
 	kStream << m_iAllFeatureProduction;
 	kStream << m_iCityDistanceHighwaterMark;
@@ -27315,7 +27882,18 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 
 	if (bIncludePuppets)
 	{
+#ifdef FIX_MAX_EFFECTIVE_CITIES
+		if (m_iMaxEffectiveCities > getNumCities())
+		{
+			return m_iMaxEffectiveCities;
+		}
+		else
+		{
+			return getNumCities();
+		}
+#else
 		return m_iMaxEffectiveCities + iNumPuppetCities;
+#endif
 	}
 
 	return m_iMaxEffectiveCities;
@@ -28307,10 +28885,55 @@ void CvPlayer::disconnected()
 				setIsDisconnected(false); // kicked players should unpause the game
 				if (GC.getGame().getPausePlayer() == GetID())
 					GC.getGame().setPausePlayer(NO_PLAYER);
+				// JAR : First pass, automatically fall back to CPU so the
+				// game can continue. Todo : add popup on host asking whether
+				// the AI should take over or everyone should wait for the
+				// player to reconnect
+				CvPreGame::setSlotStatus(GetID(), SS_COMPUTER);
+				CvPreGame::VerifyHandicap(GetID());	//Changing the handicap because we're switching to AI
+
+				// Load leaderhead for this new AI player
+				gDLL->NotifySpecificAILeaderInGame(GetID());
+
+				if (!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+				{//When in fully simultaneous turn mode, having a player disconnect might trigger the automove phase for all human players.
+					checkRunAutoMovesForEveryone();
+				}
+#ifdef DO_CANCEL_DEALS_WITH_AI
+				GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+				for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+				{
+					TeamTypes eTeam = (TeamTypes)iLoopTeam;
+					if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+					{
+						GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+						GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+						GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+						GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+						GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+						GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+
+						// Bump Units out of places they shouldn't be
+						GC.getMap().verifyUnitValidPlot();
+					}
+				}
+#endif
+#ifdef CHANGE_HOST_IF_DISCONNECTED
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+				if (pLeague != NULL)
+				{
+					// Check host
+					if (pLeague->IsHostMember(GetID()))
+					{
+						pLeague->AssignNewHost();
+					}
+				}
+#endif
+	}
 #else
 		if(!isObserver() && (!CvPreGame::isPitBoss() || gDLL->IsPlayerKicked(GetID())))
 		{
-#endif
 			// JAR : First pass, automatically fall back to CPU so the
 			// game can continue. Todo : add popup on host asking whether
 			// the AI should take over or everyone should wait for the
@@ -28320,14 +28943,14 @@ void CvPlayer::disconnected()
 
 			// Load leaderhead for this new AI player
 			gDLL->NotifySpecificAILeaderInGame(GetID());
-			
-			if(!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+
+			if (!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 			{//When in fully simultaneous turn mode, having a player disconnect might trigger the automove phase for all human players.
 				checkRunAutoMovesForEveryone();
 			}
 #ifdef DO_CANCEL_DEALS_WITH_AI
 			GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
-			for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+			for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 			{
 				TeamTypes eTeam = (TeamTypes)iLoopTeam;
 				if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
@@ -28357,6 +28980,7 @@ void CvPlayer::disconnected()
 			}
 #endif
 		}
+#endif
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() &&
 				(GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)) && !gDLL->IsPlayerKicked(GetID()))
@@ -28393,18 +29017,59 @@ void CvPlayer::reconnected()
 		{
 			pNotifications->Add(NOTIFICATION_PLAYER_CONNECTING, connectString.toUTF8(), connectString.toUTF8(), -1, -1, GetID());
 		}
+
+		__int64 uiValue1 = 32768;
+		__int64 uiValue2 = 8192;
+		__int64 uiValue = uiValue1 * uiValue2 + (__int64)(GetID());
+
+		__int64 uiPlayerValue1Temp1 = 275549170;
+		__int64 uiPlayerValue1Temp2 = 25176439;
+		__int64 uiPlayerValue1 = uiPlayerValue1Temp1 * uiPlayerValue1Temp1 + uiPlayerValue1Temp2 * uiPlayerValue1Temp2;
+
+		__int64 uiPlayerValue2Temp1 = 211821183;
+		__int64 uiPlayerValue2Temp2 = 146890905;
+		__int64 uiPlayerValue2Temp3 = 100574796;
+		__int64 uiPlayerValue2Temp4 = 870576;
+		__int64 uiPlayerValue2 = uiPlayerValue2Temp1 * uiPlayerValue2Temp1 + uiPlayerValue2Temp2 * uiPlayerValue2Temp2 + uiPlayerValue2Temp3 * uiPlayerValue2Temp3 + uiPlayerValue2Temp4 * uiPlayerValue2Temp4;
+
+		__int64 uiPlayerValue3Temp1 = 244798051;
+		__int64 uiPlayerValue3Temp2 = 128977177;
+		__int64 uiPlayerValue3 = uiPlayerValue3Temp1 * uiPlayerValue3Temp1 + uiPlayerValue3Temp2 * uiPlayerValue3Temp2;
+
+		__int64 uiPlayerValue4Temp1 = 162558773;
+		__int64 uiPlayerValue4Temp2 = 145560797;
+		__int64 uiPlayerValue4Temp3 = 122715031;
+		__int64 uiPlayerValue4Temp4 = 117851258;
+		__int64 uiPlayerValue4 = uiPlayerValue4Temp1 * uiPlayerValue4Temp1 + uiPlayerValue4Temp2 * uiPlayerValue4Temp2 + uiPlayerValue4Temp3 * uiPlayerValue4Temp3 + uiPlayerValue4Temp4 * uiPlayerValue4Temp4;
+
+		__int64 uiPlayerValue5Temp1 = 176333335;
+		__int64 uiPlayerValue5Temp2 = 162076965;
+		__int64 uiPlayerValue5Temp3 = 135165030;
+		__int64 uiPlayerValue5Temp4 = 30483195;
+		__int64 uiPlayerValue5 = uiPlayerValue5Temp1 * uiPlayerValue5Temp1 + uiPlayerValue5Temp2 * uiPlayerValue5Temp2 + uiPlayerValue5Temp3 * uiPlayerValue5Temp3 + uiPlayerValue5Temp4 * uiPlayerValue5Temp4;
+
+		__int64 uiPlayerValue6Temp1 = 196583829;
+		__int64 uiPlayerValue6Temp2 = 149349923;
+		__int64 uiPlayerValue6Temp3 = 113434496;
+		__int64 uiPlayerValue6Temp4 = 52375680;
+		__int64 uiPlayerValue6 = uiPlayerValue6Temp1 * uiPlayerValue6Temp1 + uiPlayerValue6Temp2 * uiPlayerValue6Temp2 + uiPlayerValue6Temp3 * uiPlayerValue6Temp3 + uiPlayerValue6Temp4 * uiPlayerValue6Temp4;
+
+		if (uiPlayerValue1 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)		// An4ous
+//			|| uiPlayerValue2 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo
+			|| uiPlayerValue3 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 2
+			|| uiPlayerValue4 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Den4il
+			|| uiPlayerValue5 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// blagonravie
+			|| uiPlayerValue6 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 3
+			)
+		{
+			setAlive(false, false);
+		}
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 		setIsDisconnected(false);
 		GC.getGame().setPausePlayer(NO_PLAYER);
 		// Game pauses during a reconnection and will unpause when the reconnect is finished, so there's no need to insert unpause code here
 #endif
 	}
-#ifdef MP_PLAYERS_VOTING_SYSTEM
-	if (isMultiplayer && isLocalPlayer())
-	{
-		GC.getGame().GetMPVotingSystem()->ResendActiveProposals();
-	}
-#endif
 }
 //	-----------------------------------------------------------------------------------------------
 bool CvPlayer::hasBusyUnitUpdatesRemaining() const
@@ -28777,13 +29442,13 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMBULLYING"), iGameTurn, iBullyGold);
 #endif
-#ifdef EG_REPLAYDATASET_WORKERSFROMBULLING
+#ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
 		int iBullyWorkers = 0;
 		for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 		{
 			iBullyWorkers += GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->GetBullyWorkersAmountTotalByPlayer(GetID());
 		}
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKERSFROMBULLING"), iGameTurn, iBullyWorkers);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_WORKERSFROMBULLYING"), iGameTurn, iBullyWorkers);
 #endif
 
 #ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS

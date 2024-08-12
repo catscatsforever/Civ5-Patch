@@ -18,36 +18,45 @@ local SEPARATOR_MARGIN = 10;
 local g_MPVotingSystemLastId = 0
 
 local function onVoteReceived( Id, playerId, bVote )
-	print('--- vote received --- Id:', Id, 'playerId:', playerId, 'bVote:', bVote)
+	--print('--- vote received --- Id:', Id, 'playerId:', playerId, 'bVote:', bVote)
 	if Id == g_MPVotingSystemLastId then
 		UpdateAndSort(Id, 0);
 	end
 end
 
 local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
-	print('--- proposal Result received --- Id:', Id)
-	print('--- expires ' .. expires .. ' Type: ' .. iType .. ' Owner: ' .. OwnerId .. ' SubjectId: ' .. SubjectId .. ' RESULT: ' .. Status)
+	--print('--- proposal Result received --- Id:', Id)
+	--print('--- expires ' .. expires .. ' Type: ' .. iType .. ' Owner: ' .. OwnerId .. ' SubjectId: ' .. SubjectId .. ' RESULT: ' .. Status)
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local sMessage =''
 	local sSummary = ''
 	iType = iType + 1001
 	if (pActivePlayer ~= nil) then
+		if Id == g_MPVotingSystemLastId then
+			OnClose();
+		end
 		if (Status == 1) then
 			if iType == 1001 then
 				-- defeat screen comes with NetworkKickedPopup
 				if Matchmaking.IsHost() then
 					Matchmaking.KickPlayer(SubjectId)
 				end
-			elseif iType ==1002 then
+			elseif iType == 1002 then
 				--Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())
 				Game.SetWinner(Players[SubjectId]:GetTeam(), GameInfoTypes.VICTORY_DIPLOMATIC); 
-			elseif iType ==1003 then
+			elseif iType == 1003 then
 				--Events.EndGameShow(-1, Players[Game.GetActivePlayer()]:GetTeam())  -- scrap screen
 				Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
+			elseif iType == 1004 then
+				Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
+				if ContextPtr:IsHidden() == true then
+					Events.SerialEventGameMessagePopup{ 
+						Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_0,
+						Data1 = Id,
+						Data2 = Status
+					};
+				end
 			end
-		end
-		if Id == g_MPVotingSystemLastId then
-			OnClose();
 		end
 	end
 end
@@ -87,7 +96,7 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function BuildStaticTeamsList()
-	print('BuildStaticTeamsList() invoked')
+	--print('BuildStaticTeamsList() invoked')
      for iPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
     
         local pPlayer = Players[ iPlayer ];
@@ -171,16 +180,21 @@ function UpdatePlayerData( pPlayer, controlTable, Id )
     local playerID = pPlayer:GetID();
 
     local bIsEligible = Game.GetProposalVoterEligibility(Id, playerID);
+    local proposalType = Game.GetProposalType(Id);
+    local proposalStatus = Game.GetProposalStatus(Id);
     if bIsEligible == true then
     	local bHasVoted = Game.GetProposalVoterHasVoted(Id, playerID);
     	if bHasVoted == true then
-    		controlTable.Vote:SetText( "--" );
-    		--[[local bVote = Game.GetProposalVoterVote(Id, playerID);
-    		if bVote == true then
-    			controlTable.Vote:LocalizeAndSetText( "TXT_KEY_POSITIVE_VOTE_CHART_STATUS" );
+    		if proposalType == 3 and (playerID == Game.GetActivePlayer() or proposalStatus ~= 0) then
+    			local bVote = Game.GetProposalVoterVote(Id, playerID);
+    			if bVote == true then
+    				controlTable.Vote:LocalizeAndSetText( "TXT_KEY_POSITIVE_VOTE_CHART_STATUS" );
+    			else
+    				controlTable.Vote:LocalizeAndSetText( "TXT_KEY_NEGATIVE_VOTE_CHART_STATUS" );
+    			end
     		else
-    			controlTable.Vote:LocalizeAndSetText( "TXT_KEY_NEGATIVE_VOTE_CHART_STATUS" );
-    		end]]--
+    			controlTable.Vote:SetText( "[COLOR_GREY]--[ENDCOLOR]" );
+    		end
     	else
     		controlTable.Vote:SetText( "[COLOR_GREY]--[ENDCOLOR]" );
     	end
@@ -229,7 +243,7 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function BuildControls()
-	print('BuildControls() invoked')
+	--print('BuildControls() invoked')
 
     for iTeam, teamData in pairs( g_TeamData ) do
         local pTeam = Teams[ iTeam ];
@@ -306,9 +320,10 @@ function UpdateAndSort(Id, iResult)
 		end
 	end
 	local proposalType = Game.GetProposalType(Id);
-	print('proposalType:', proposalType)
-	local owner = Players[Game.GetProposalOwner(Id)]:GetName()
+	--print('proposalType:', proposalType)
+	local owner = Players[Game.GetProposalOwner(Id)] and Players[Game.GetProposalOwner(Id)]:GetName() or nil;
 	local subject = Game.GetProposalSubject(Id);
+	--print(Id, iResult, 'SUBJECT', subject, 'OWNER', owner)
 	if subject ~= -1 then
 		subject = Players[subject]:GetName()
 	end
@@ -318,17 +333,28 @@ function UpdateAndSort(Id, iResult)
 		Controls.ProposalName:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_SUMMARY_CC", subject)
 	elseif proposalType == 2 then  -- scrap
 		Controls.ProposalName:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_SUMMARY_SCRAP")
+	elseif proposalType == 3 then  -- remap
+		Controls.ProposalName:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_SUMMARY_REMAP")
 	end
-	Controls.ProposalStartedBy:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_STARTED_BY", owner)
-	Controls.Expiration:SetText(Game.GetElapsedGameTurns() + Game.GetProposalExpirationCounter(Id))
+	if owner then
+		Controls.ProposalStartedBy:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_STARTED_BY", owner);
+	else
+		Controls.ProposalStartedBy:LocalizeAndSetText(" ");
+	end
+	Controls.Expiration:SetText(Game.GetElapsedGameTurns() + Game.GetProposalExpirationCounter(Id) + 1)
 	local MaxVotes = Game.GetMaxVotes(Id)
 	local YesVotes = Game.GetYesVotes(Id)
 	local NoVotes = Game.GetNoVotes(Id)
 	local ReceivedVotes = YesVotes + NoVotes
 	local MissingVotes = MaxVotes - YesVotes - NoVotes
 	Controls.MaxVoters:SetText(MaxVotes)
-	Controls.ReceivedVotes:SetText(ReceivedVotes)
-	Controls.MissingVotes:SetText(MissingVotes)
+	if proposalType ~= 3 then
+		Controls.ReceivedVotes:SetText(ReceivedVotes)
+		Controls.MissingVotes:SetText(MissingVotes)
+	else
+		Controls.ReceivedVotes:SetText('--')
+		Controls.MissingVotes:SetText('--')
+	end
 
     for iPlayer, controlTable in pairs( g_PlayerEntries ) do
 		UpdatePlayerData( Players[ iPlayer ], controlTable, Id );
@@ -354,8 +380,8 @@ function UpdateAndSort(Id, iResult)
     
     -- sort all of the teams
 	Controls.MPListStack:SortChildren( MPListSort );
-  	print('updating buttons for Id:', Id)
-  	print('result:', iResult)
+  	--print('updating buttons for Id:', Id)
+  	--print('result:', iResult)
 	if iResult == 0 then  -- no result yet
 		Controls.ProposalResultLabel:SetHide(true);
   		Controls.VoteYesButton:SetHide(false)
@@ -378,31 +404,31 @@ function UpdateAndSort(Id, iResult)
   		    print('Id was nil! don\'t press voteyes/voteno!')
     	end
 	else
-		print('ProposalResultLabel')
+		--print('ProposalResultLabel')
 		Controls.ProposalResultLabel:SetHide(false);
-		print('votey/n')
+		--print('votey/n')
   		Controls.VoteYesButton:SetHide(true)
   		Controls.VoteNoButton:SetHide(true)
 		if iResult == 1 then  -- result is passed
-			print('iResult1')
+			--print('iResult1')
 			Controls.ProposalResultLabel:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_PROPOSAL_PASSED");
 		elseif iResult == 2 then  -- result is failed
-			print('iResult2')
+			--print('iResult2')
 			Controls.ProposalResultLabel:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_PROPOSAL_FAILED");
 		end
     end
-	print('ReprocessAnchoring')
+	--print('ReprocessAnchoring')
     Controls.MPListStack:ReprocessAnchoring();
 end
 
 function OnPopup( popupInfo )
-	print('OnPopup start')
+	--print('OnPopup start')
 	if( popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_MODDER_0 ) then
 		m_PopupInfo = popupInfo;
+		UpdateAndSort(m_PopupInfo.Data1, m_PopupInfo.Data2)
         if ( ContextPtr:IsHidden() == true ) then
-			print('OnPopup received Id:', m_PopupInfo.Data1)
-			print('OnPopup result:', m_PopupInfo.Data2)
-			UpdateAndSort(m_PopupInfo.Data1, m_PopupInfo.Data2)
+			--print('OnPopup received Id:', m_PopupInfo.Data1)
+			--print('OnPopup result:', m_PopupInfo.Data2)
         	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
         end
 	end
@@ -413,7 +439,7 @@ Events.SerialEventGameMessagePopup.Add( OnPopup );
 -------------------------------------------------------------------------------
 
 function OnClose()
-	print("Dequeuing proposal chart");
+	--print("Dequeuing proposal chart");
     Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_MODDER_0, 0);
 	UIManager:DequeuePopup( ContextPtr );
 end
@@ -443,5 +469,5 @@ ContextPtr:SetInputHandler( InputHandler );
 BuildStaticTeamsList();
 BuildControls();
 
-Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Game.GetProposalIDbyUIid(g_MPVotingSystemLastId), -5); end );  -- Yes
-Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(Game.GetProposalIDbyUIid(g_MPVotingSystemLastId), -6); end );  -- No
+Controls.VoteYesButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -5); end );  -- Yes
+Controls.VoteNoButton:RegisterCallback( Mouse.eLClick, function() Network.SendGiftUnit(g_MPVotingSystemLastId, -6); end );  -- No

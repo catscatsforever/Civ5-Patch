@@ -221,7 +221,10 @@ void CvPlayerEspionage::DoTurn()
 				{
 					m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].pop_back();
 				}
-				m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
+				if (m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)
+				{
+					m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom]--;
+				}
 			}
 			else
 			{
@@ -515,7 +518,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					iCounterspyRank++;
 				iCounterspyRank++;
 			}
+#ifdef UNDERGROUND_SECT_REWORK
 			int iSpyRankDifference = (pSpy->m_eRank + GET_PLAYER(ePlayer).GetReligions()->GetSpyPressure() + 1) - iCounterspyRank + 1;
+#else
+			int iSpyRankDifference = pSpy->m_eRank - iCounterspyRank + 1;
+#endif
 
 			bool bSpyUpgrade = false;
 			bool bCounterSpyUpgrade = false;
@@ -1884,7 +1891,14 @@ int CvPlayerEspionage::SurveillanceSightRange(CvCity* pCity)
 		{
 			if (m_aSpyList[uiSpy].m_bIsDiplomat)
 			{
+				if (m_aSpyList[uiSpy].m_eRank > 0)
+				{
 					return m_aSpyList[uiSpy].m_eRank - pCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)GC.getInfoTypeForString("BUILDING_POLICE_STATION", true)) + 1;
+				}
+				else
+				{
+					return m_aSpyList[uiSpy].m_eRank + 1;
+				}
 			}
 			else
 			{
@@ -4990,7 +5004,10 @@ void CvEspionageAI::StealTechnology()
 					pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].pop_back();
 				}
 #endif
-				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
+				if (pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+				{
+					pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
+				}
 			}
 			else
 			{

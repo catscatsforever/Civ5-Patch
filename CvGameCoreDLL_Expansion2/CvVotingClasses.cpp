@@ -11641,6 +11641,15 @@ CvMPVotingSystem::~CvMPVotingSystem(void)
 
 void CvMPVotingSystem::Init()
 {
+	SLOG("CvMPVotingSystem INIT");
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		if (GC.getGame().isOption("GAMEOPTION_ENABLE_REMAP_VOTE"))
+		{
+			if (!IsAnyProposalType(PROPOSAL_REMAP))
+				AddProposal(PROPOSAL_REMAP, NO_PLAYER, NO_PLAYER);
+		}
+	}
 }
 
 CvMPVotingSystem::Proposal::Proposal(void)
@@ -11682,23 +11691,6 @@ CvMPVotingSystem::Proposal* CvMPVotingSystem::GetProposalByID(int iProposalID)
 	}
 	return NULL;
 }
-
-
-int CvMPVotingSystem::GetProposalIDbyUIid(int iProposalUIid)
-{
-	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
-	{
-		if (it->iUIid == iProposalUIid)
-			return it->iID;
-	}
-	return -1;
-}
-
-int CvMPVotingSystem::GetProposalUIid(int iProposalID)
-{
-	return m_vProposals.at(iProposalID).iUIid;
-}
-
 
 int CvMPVotingSystem::GetProposalExpirationCounter(int iProposalID)
 {
@@ -11825,6 +11817,18 @@ bool CvMPVotingSystem::IsAnyActiveProposalType(MPVotingSystemProposalTypes eType
 	return false;
 }
 
+bool CvMPVotingSystem::IsAnyProposalType(MPVotingSystemProposalTypes eType)
+{
+	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
+	{
+		if (it->eType == eType)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eType, PlayerTypes ePlayerID)
 {
@@ -11863,7 +11867,7 @@ bool CvMPVotingSystem::IsProposalTypeOnCooldown(MPVotingSystemProposalTypes eTyp
 bool CvMPVotingSystem::IsProposalTypeAvailable(MPVotingSystemProposalTypes eType)
 {
 #ifdef TOURNAMENT_VOTING_SYSTEM_CHANGES
-	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))  // TODO: UI checkbox?
+	if (GC.getGame().isOption("GAMEOPTION_TOURNAMENT_MODE"))
 	{
 		// no IRR until first player enters Industrial era
 		if (eType == PROPOSAL_IRR)
@@ -11907,71 +11911,71 @@ void CvMPVotingSystem::DoTurn()
 {
 	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
 	{
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		CvLuaArgsHandle args;
-		bool bResult;
 		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-		CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
+		CvString sMessage, sSummary;
+		NotificationTypes eType = NO_NOTIFICATION_TYPE;
 		if (!it->bComplete)
 		{
-			if (it->iExpirationCounter > 0)
+			SetProposalExpirationCounter(it->iID, it->iExpirationCounter - 1);
+
+			if (it->iExpirationCounter >= 0)
 			{
-				SetProposalExpirationCounter(it->iID, it->iExpirationCounter - 1);
-
 				if (it->eType == PROPOSAL_IRR)  // first create matching notification
-					m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL"), -1, -1, it->eProposalOwner);
+				{
+					eType = (NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL;
+					sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(it->eProposalOwner).getName());
+					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL");
+				}
 				else if (it->eType == PROPOSAL_CC)
-					m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(it->eProposalOwner).getName(), GET_PLAYER(it->eProposalSubject).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL"), -1, -1, it->eProposalOwner);
+				{
+					eType = (NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL;
+					sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(it->eProposalOwner).getName());
+					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL");
+				}
 				else if (it->eType == PROPOSAL_SCRAP)
-					m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL"), -1, -1, it->eProposalOwner);
+				{
+					eType = (NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL;
+					sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(it->eProposalOwner).getName());
+					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL");
+				}
+				else if (it->eType == PROPOSAL_REMAP)
+				{
+					if (CvPreGame::IsHasRemapToken(eActivePlayer))
+					{
+						eType = (NotificationTypes)NOTIFICATION_MP_REMAP_PROPOSAL;
+						sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_REMAP");
+						sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_REMAP_PROPOSAL");
+					}
+				}
 
+				for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
+					CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iNotifyLoop);
+					CvNotifications* pNotifications = kPlayer.GetNotifications();
+					if (kPlayer.isAlive())
+					{
+						if ((it->eType != PROPOSAL_REMAP) || CvPreGame::IsHasRemapToken((PlayerTypes)iNotifyLoop))
+						{
+							if (pNotifications)
+							{
+								pNotifications->Add(eType, sMessage, sSummary, -1, -1, it->iID);
+							}
+						}
+					}
+				}
 				DoCheckVoters(it->iID);
 				DoUpdateProposalStatus(it->iID);
-
 			}
 			else  // proposal expired!
 			{
-				SetProposalStatus(it->iID, STATUS_FAILED);
-				SetProposalCompletion(it->iID, true);
-
-				if (pkScriptSystem)  // inform UI
+				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 				{
-					args->Push(it->iUIid);
-					args->Push((int)it->iExpirationCounter);
-					args->Push((int)it->eProposalOwner);
-					args->Push((int)it->eProposalSubject);
-					args->Push((int)it->eType);
-					args->Push((int)it->eStatus);
-					LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemProposalResult", args.get(), bResult);
+					if (GetVoterEligibility(it->iID, (PlayerTypes)i) && !GetVoterHasVoted(it->iID, (PlayerTypes)i))  // fill all missing votes with NO
+					{
+						SetVoterHasVoted(it->iID, (PlayerTypes)i, true);
+						SetVoterVote(it->iID, (PlayerTypes)i, false);
+					}
 				}
-#ifdef REPLAY_EVENTS
-				std::vector<int> vArgs;
-				vArgs.push_back(it->iID);
-				vArgs.push_back(it->eType);
-				vArgs.push_back(it->eProposalSubject);
-				vArgs.push_back(it->eStatus == STATUS_PASSED);
-				GC.getGame().addReplayEvent(REPLAYEVENT_MPProposalResult, it->eProposalOwner, vArgs);
-#endif
-
-				CvString sMessage;
-				CvString sSummary;
-				if (it->eType == PROPOSAL_IRR)
-				{
-					sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_IRR_PROPOSAL_FAILED", GET_PLAYER(it->eProposalOwner).getName());
-					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL_FAILED");
-				}
-				else if (it->eType == PROPOSAL_CC)
-				{
-					sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_CC_PROPOSAL_FAILED", GET_PLAYER(it->eProposalOwner).getName());
-					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL_FAILED");
-				}
-				else if (it->eType == PROPOSAL_SCRAP)
-				{
-					sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_SCRAP_PROPOSAL_FAILED", GET_PLAYER(it->eProposalOwner).getName());
-					sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_FAILED");
-				}
-
-				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, it->eProposalOwner, (int)STATUS_FAILED);
+				DoUpdateProposalStatus(it->iID);
 			}
 		}
 	}
@@ -11994,17 +11998,58 @@ void CvMPVotingSystem::AddProposal(MPVotingSystemProposalTypes eProposalType, Pl
 	if (eProposalSubject != NO_PLAYER)
 		proposal.vIsEligible.at(eProposalSubject) = false;  // subject can't vote
 
-	m_vProposals.push_back(proposal);
-
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
+	CvString sMessage, sSummary;
+	NotificationTypes eType = NO_NOTIFICATION_TYPE;
 
 	if (eProposalType == PROPOSAL_IRR)  // first create matching notification
-		m_vProposals.at(ID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL"), -1, -1, eProposalOwner);
+	{
+		eType = (NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL;
+		sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(eProposalOwner).getName());
+		sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL");
+	}
 	else if (eProposalType == PROPOSAL_CC)
-		m_vProposals.at(ID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(eProposalOwner).getName(), GET_PLAYER(eProposalSubject).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL"), -1, -1, eProposalOwner);
+	{
+		eType = (NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL;
+		sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(eProposalOwner).getName(), GET_PLAYER(eProposalSubject).getName());
+		sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL");
+	}
 	else if (eProposalType == PROPOSAL_SCRAP)
-		m_vProposals.at(ID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL"), -1, -1, eProposalOwner);
+	{
+		eType = (NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL;
+		sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(eProposalOwner).getName());
+		sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL");
+	}
+	else if (eProposalType == PROPOSAL_REMAP)
+	{
+		proposal.iExpirationCounter = REMAP_PROPOSAL_REVEAL_TURN;
+		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+		{
+			if (!CvPreGame::IsHasRemapToken((PlayerTypes)i))
+			{
+				proposal.vIsEligible.at(i) = false; 
+			}
+		}
+		eType = (NotificationTypes)NOTIFICATION_MP_REMAP_PROPOSAL;
+		sMessage = GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_REMAP");
+		sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_REMAP_PROPOSAL");
+	}
+
+	m_vProposals.push_back(proposal);
+
+	for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
+		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iNotifyLoop);
+		CvNotifications* pNotifications = kPlayer.GetNotifications();
+		if (kPlayer.isAlive())
+		{
+			if ((eProposalType != PROPOSAL_REMAP) || CvPreGame::IsHasRemapToken((PlayerTypes)iNotifyLoop))
+			{
+				if (pNotifications)
+				{
+					pNotifications->Add(eType, sMessage, sSummary, -1, -1, ID);
+				}
+			}
+		}
+	}
 
 	DoCheckVoters(ID);
 	DoUpdateProposalStatus(ID);
@@ -12021,7 +12066,7 @@ void CvMPVotingSystem::DoVote(int iProposalID, PlayerTypes ePlayerID, bool bVote
 		bool bResult;
 		if (pkScriptSystem)
 		{
-			args->Push(GetProposalUIid(iProposalID));  // proposal id
+			args->Push(iProposalID);  // proposal id
 			args->Push((int)ePlayerID);  // voter id
 			args->Push(bVote);
 			LuaSupport::CallHook(pkScriptSystem, "MPVotingSystemVote", args.get(), bResult);
@@ -12029,32 +12074,6 @@ void CvMPVotingSystem::DoVote(int iProposalID, PlayerTypes ePlayerID, bool bVote
 		DoCheckVoters(iProposalID);
 		DoUpdateProposalStatus(iProposalID);
 	}
-}
-
-void CvMPVotingSystem::ResendActiveProposals()
-{
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
-	for (ProposalList::iterator it = m_vProposals.begin(); it != m_vProposals.end(); ++it)
-	{
-		if (!it->bComplete)
-		{
-			if (it->eType == PROPOSAL_IRR)  // create matching notification
-				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_IRR_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_IRR_PROPOSAL"), -1, -1, it->eProposalOwner);
-			else if (it->eType == PROPOSAL_CC)
-				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_CC_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(it->eProposalOwner).getName(), GET_PLAYER(it->eProposalSubject).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_CC_PROPOSAL"), -1, -1, it->eProposalOwner);
-			else if (it->eType == PROPOSAL_SCRAP)
-				m_vProposals.at(it->iID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_SCRAP_PROPOSAL, GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(it->eProposalOwner).getName()), GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL"), -1, -1, it->eProposalOwner);
-
-			DoCheckVoters(it->iID);
-			DoUpdateProposalStatus(it->iID);
-		}
-	}
-}
-
-void CvMPVotingSystem::SetProposalUIid(int iProposalID, int iId)
-{
-	m_vProposals.at(iProposalID).iUIid = iId;
 }
 
 void CvMPVotingSystem::SetProposalExpirationCounter(int iProposalID, int iValue)
@@ -12121,16 +12140,13 @@ void CvMPVotingSystem::DoCheckVoters(int iProposalID)
 					SetProposalStatus(iProposalID, STATUS_FAILED);
 					SetProposalCompletion(iProposalID, true);
 
-					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-					CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
-					kActivePlayer.GetNotifications()->Dismiss(pProposal.iUIid, false);
 
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					CvLuaArgsHandle args;
 					bool bResult;
 					if (pkScriptSystem)  // inform UI
 					{
-						args->Push(pProposal.iUIid);
+						args->Push(iProposalID);
 						args->Push((int)GetProposalExpirationCounter(iProposalID));
 						args->Push((int)GetProposalOwner(iProposalID));
 						args->Push((int)GetProposalSubject(iProposalID));
@@ -12165,12 +12181,22 @@ void CvMPVotingSystem::DoCheckVoters(int iProposalID)
 						sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_FAILED");
 					}
 
-					m_vProposals.at(iProposalID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, pProposal.eProposalOwner, (int)STATUS_FAILED);
+					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
+						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iNotifyLoop);
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (kPlayer.isAlive())
+						{
+							if (pNotifications)
+							{
+								pNotifications->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, iProposalID);
+							}
+						}
+					}
 				}
 			}
 			else if (!pProposal.vIsEligible.at(i) && kPlayer.isHuman() && kPlayer.isAlive())
 			{
-				if ((int)pProposal.eProposalSubject != i)
+				if ((int)pProposal.eProposalSubject != i && (pProposal.eType != PROPOSAL_REMAP || CvPreGame::IsHasRemapToken((PlayerTypes)i)))
 					SetVoterEligibility(iProposalID, (PlayerTypes)i, true);
 				// new eligible voter since last check: do nothing (by now) -- TODO rebroadcast proposal notification for new players
 			}
@@ -12223,6 +12249,26 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 		else
 			SetProposalStatus(iProposalID, STATUS_INVALID);
 	}
+	else if (eType == PROPOSAL_REMAP) {
+		if (GetProposalExpirationCounter(iProposalID) >= 0)
+		{
+			if (totalVotes < maxVoters)
+				SetProposalStatus(iProposalID, STATUS_ACTIVE);
+			else if (yesVotes > 0)
+				SetProposalStatus(iProposalID, STATUS_PASSED);
+			else if (noVotes == maxVoters)
+				SetProposalStatus(iProposalID, STATUS_FAILED);
+			else
+				SetProposalStatus(iProposalID, STATUS_INVALID);
+		}
+		else
+		{
+			if (yesVotes > 0)
+				SetProposalStatus(iProposalID, STATUS_PASSED);
+			else
+				SetProposalStatus(iProposalID, STATUS_FAILED);
+		}
+	}
 	else {
 		SetProposalStatus(iProposalID, STATUS_INVALID);
 	}
@@ -12230,12 +12276,10 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 	if (GetProposalStatus(iProposalID) == STATUS_PASSED || GetProposalStatus(iProposalID) == STATUS_FAILED || GetProposalStatus(iProposalID) == STATUS_INVALID) {
 		SetProposalCompletion(iProposalID, true);
 		
-		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-		CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MESSAGE_MP_PROPOSAL_FINISHED"));
 		if (pkScriptSystem)  // inform UI
 		{
-			args->Push(GetProposalUIid(iProposalID));
+			args->Push(iProposalID);
 			args->Push((int)GetProposalExpirationCounter(iProposalID));
 			args->Push((int)GetProposalOwner(iProposalID));
 			args->Push((int)GetProposalSubject(iProposalID));
@@ -12252,7 +12296,6 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 		GC.getGame().addReplayEvent(REPLAYEVENT_MPProposalResult, GetProposalOwner(iProposalID), vArgs);
 #endif
 
-		kActivePlayer.GetNotifications()->Dismiss(GetProposalUIid(iProposalID), false);
 		CvString sMessage;
 		CvString sSummary;
 		if (GetProposalStatus(iProposalID) == STATUS_PASSED) {
@@ -12271,6 +12314,11 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 				sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_SCRAP_PROPOSAL_PASSED", GET_PLAYER(GetProposalOwner(iProposalID)).getName());
 				sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_PASSED");
 			}
+			else if (eType == PROPOSAL_REMAP)
+			{
+				sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_REMAP_PROPOSAL_PASSED");
+				sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_REMAP_PROPOSAL_PASSED");
+			}
 		}
 		else if (GetProposalStatus(iProposalID) == STATUS_FAILED || GetProposalStatus(iProposalID) == STATUS_INVALID) {
 			if (eType == PROPOSAL_IRR)
@@ -12288,9 +12336,24 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 				sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_SCRAP_PROPOSAL_FAILED", GET_PLAYER(GetProposalOwner(iProposalID)).getName());
 				sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_SCRAP_PROPOSAL_FAILED");
 			}
+			else if (eType == PROPOSAL_REMAP)
+			{
+				sMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_MP_REMAP_PROPOSAL_FAILED");
+				sSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MP_REMAP_PROPOSAL_FAILED");
+			}
 		}
 
-		m_vProposals.at(iProposalID).iUIid = kActivePlayer.GetNotifications()->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, (int)GetProposalOwner(iProposalID), (int)GetProposalStatus(iProposalID));
+		for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iNotifyLoop);
+			CvNotifications* pNotifications = kPlayer.GetNotifications();
+			if (kPlayer.isAlive())
+			{
+				if (pNotifications)
+				{
+					pNotifications->Add((NotificationTypes)NOTIFICATION_MP_PROPOSAL_RESULT, sMessage, sSummary, -1, -1, iProposalID);
+				}
+			}
+		}
 	}
 }
 FDataStream& operator>>(FDataStream& loadFrom, MPVotingSystemProposalTypes& writeTo)

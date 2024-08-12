@@ -329,7 +329,12 @@ function RefreshYourReligion()
 				local beliefType = GetBeliefType(belief);
 				entry.BeliefType:SetText(beliefType);
 				entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
-				entry.BeliefDescription:LocalizeAndSetText(belief.Description);
+				-- Duel Mode
+				if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+					entry.BeliefDescription:LocalizeAndSetText(belief.DuelDescription);
+				else
+					entry.BeliefDescription:LocalizeAndSetText(belief.Description);
+				end
 				
 				local bw,bh = entry.Base:GetSizeVal();
 				local bdw,bdh = entry.BeliefDescription:GetSizeVal();
@@ -346,7 +351,12 @@ function RefreshYourReligion()
 			local beliefType = GetBeliefType(belief);
 			entry.BeliefType:SetText(beliefType);
 			entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
-			entry.BeliefDescription:LocalizeAndSetText(belief.Description);
+			-- Duel Mode
+			if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+				entry.BeliefDescription:LocalizeAndSetText(belief.DuelDescription);
+			else
+				entry.BeliefDescription:LocalizeAndSetText(belief.Description);
+			end
 			
 			local bw,bh = entry.Base:GetSizeVal();
 			local bdw,bdh = entry.BeliefDescription:GetSizeVal();
@@ -535,14 +545,26 @@ function RefreshBeliefs()
 				
 					local belief = GameInfo.Beliefs[v];
 					local religion = GameInfo.Religions[eReligion];
-					table.insert(beliefs, {
-						Name = Locale.Lookup(belief.ShortDescription),
-						Description = Locale.Lookup(belief.Description),
-						Type = GetBeliefType(belief),
-						Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
-						ReligionIconIndex = religion.PortraitIndex,
-						ReligionIconAtlas = religion.IconAtlas
-					});
+					-- Duel Mode
+					if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+						table.insert(beliefs, {
+							Name = Locale.Lookup(belief.ShortDescription),
+							Description = Locale.Lookup(belief.DuelDescription),
+							Type = GetBeliefType(belief),
+							Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
+							ReligionIconIndex = religion.PortraitIndex,
+							ReligionIconAtlas = religion.IconAtlas
+						});
+					else
+						table.insert(beliefs, {
+							Name = Locale.Lookup(belief.ShortDescription),
+							Description = Locale.Lookup(belief.Description),
+							Type = GetBeliefType(belief),
+							Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
+							ReligionIconIndex = religion.PortraitIndex,
+							ReligionIconAtlas = religion.IconAtlas
+						});
+					end
 				end
 			elseif (pPlayer:HasCreatedPantheon()) then
 				local iBelief = pPlayer:GetBeliefInPantheon();
@@ -558,14 +580,26 @@ function RefreshBeliefs()
 				
 				local pantheon = GameInfo.Religions["RELIGION_PANTHEON"];
 				
-				table.insert(beliefs, {
-					Name = Locale.Lookup(belief.ShortDescription),
-					Description = Locale.Lookup(belief.Description),
-					Type = GetBeliefType(belief),
-					Religion = religion,
-					ReligionIconIndex = pantheon.PortraitIndex,
-					ReligionIconAtlas = pantheon.IconAtlas
-				});
+				-- Duel Mode
+				if (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and belief.DuelDescription ~= nil) then
+					table.insert(beliefs, {
+						Name = Locale.Lookup(belief.ShortDescription),
+						Description = Locale.Lookup(belief.DuelDescription),
+						Type = GetBeliefType(belief),
+						Religion = religion,
+						ReligionIconIndex = pantheon.PortraitIndex,
+						ReligionIconAtlas = pantheon.IconAtlas
+					});
+				else
+					table.insert(beliefs, {
+						Name = Locale.Lookup(belief.ShortDescription),
+						Description = Locale.Lookup(belief.Description),
+						Type = GetBeliefType(belief),
+						Religion = religion,
+						ReligionIconIndex = pantheon.PortraitIndex,
+						ReligionIconAtlas = pantheon.IconAtlas
+					});
+				end
 			end
 		end
 	end
