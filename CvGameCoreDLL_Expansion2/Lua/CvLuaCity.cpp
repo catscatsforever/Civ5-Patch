@@ -280,6 +280,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetReligiousMajority);
 	Method(GetSecondaryReligion);
 	Method(GetSecondaryReligionPantheonBelief);
+#ifdef UI_GET_PRESSURE
+	Method(GetPressure);
+#endif
 	Method(GetPressurePerTurn);
 	Method(ConvertPercentFollowers);
 	Method(AdoptReligionFully);
@@ -2404,6 +2407,18 @@ int CvLuaCity::lGetSecondaryReligionPantheonBelief(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef UI_GET_PRESSURE
+//------------------------------------------------------------------------------
+//int GetPressure() const;
+int CvLuaCity::lGetPressure(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	const int iResult = pkCity->GetCityReligions()->GetPressure(eReligion);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetPressurePerTurn() const;
 int CvLuaCity::lGetPressurePerTurn(lua_State* L)

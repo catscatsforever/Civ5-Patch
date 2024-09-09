@@ -246,10 +246,6 @@
 #endif
 /// Restriction on Great People gifts
 #define CANT_GIFT_GP
-///
-#define NO_SPEED_MOD_FOR_TOURISM_BLAST
-///
-#define BLAST_TOURISM_ON_OWNERS_LAND
 /*GP CHAGES END*/
 
 
@@ -315,6 +311,8 @@
 #define NO_PILLAGE_HEAL_ON_NEUTRAL_LAND
 ///
 #define PRIZE_SHIPS_ALWAYS_CAPTURE
+///
+#define ALLOW_HELICOPTER_WATERWALK
 /*UNITS CHANGES END*/
 
 
@@ -337,7 +335,7 @@
 ///
 #define NEW_NUM_CITIES_RESEARCH_COST_MODIFIER
 ///
-#define MEDIAN_TECH_PERCENTAGE_DOES_NOT_AFFECTS_KOREA
+#define MEDIAN_TECH_PERCENTAGE_DOES_NOT_AFFECT_KOREA
 ///
 #define UI_TECH_KNOWN_COUNT
 /*TECHNOLOGIES AND RESEARCH CHANGES END*/
@@ -405,7 +403,7 @@
 ///
 // #define UNIVERSAL_SUFFRAGE_TWO_THIRD_UNHAPPINESS
 ///
-// #define PENALTY_FOR_DELAYING_POLICIES
+#define PENALTY_FOR_DELAYING_POLICIES
 ///
 #define FINE_ARTS_HAPPINESS_FROM_GREAT_WORKS
 ///
@@ -414,7 +412,7 @@
 #define CULTURE_CAP 30
 #endif
 ///
-#define FLOURISHING_OF_ARTS_REWORK
+// #define FLOURISHING_OF_ARTS_REWORK
 ///
 #define CREATIVE_EXPRESSION_REWORK
 ///
@@ -423,6 +421,8 @@
 #define AESTHETICS_FINISHER_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
 ///
 #define POLICY_BUILDING_CLASS_FOOD_KEPT
+///
+#define FIX_POLICY_BUILDING_CLASS_CULTURE_CHANGE_UI
 /*POLICIES CHANGES END*/
 
 
@@ -440,6 +440,10 @@
 #define TOURISM_BONUS_DIPLOMAT
 ///
 #define REWORK_PUBLIC_OPINION
+///
+#define NO_SPEED_MOD_FOR_TOURISM_BLAST
+///
+#define BLAST_TOURISM_ON_OWNERS_LAND
 /*TOURISM CHANGES END*/
 
 
@@ -510,6 +514,10 @@
 #define NEW_BELIEF_PROPHECY
 ///
 #define BELIEF_HOLY_ORDER_EXPANSION
+///
+#define SPREAD_MODIFIER_AFTER_TECH
+///
+#define UI_GET_PRESSURE
 /*RELIGION CHANGES END*/
 
 
@@ -678,6 +686,9 @@
 #define NEW_BULLY_METRICS
 ///
 #define CS_CANT_BUILD_EARLY_WORKERS
+#ifdef CS_CANT_BUILD_EARLY_WORKERS
+#define CS_EARLY_WORKERS_TURN 20
+#endif
 /*CITY-STATES CHANGES END*/
 
 
@@ -699,6 +710,8 @@
 #define FLAT_SCIENCE_FROM_TECH_RUIN
 ///
 #define EXPIRIENCE_RUIN_SET_MOVEMENT_PROMOTION
+///
+#define NEW_RUIN_EXPANSION
 /*GOODIES CHANGES END*/
 
 
@@ -801,6 +814,12 @@
 #define FIX_AIR_ATTACK_VS_EMBARKED
 ///
 #define FIX_MAX_EFFECTIVE_CITIES
+///
+#define FIX_RANGE_DEFENSE_MOD
+///
+#define FIX_RANGE_COMBAT_MOD
+/// if free tech notification is present, mark choose tech notification as redundant
+#define FIX_REDUNDANT_CHOOSE_TECH_NOTIFICATION
 /*BUGS FIXES END*/
 
 
@@ -949,6 +968,8 @@
 #define REMOVE_DOF
 ///
 #define CREATE_APOLLO_PROGRAM_WITH_CAP_FOUND
+///
+#define REVEAL_MAP_GAME_OVER
 // Maintain backwards compatibility with older versions
 // Starting from v7.0
 #define SAVE_BACKWARDS_COMPATIBILITY
@@ -959,48 +980,51 @@
 // bump after any change to the corresponding read/write functions
 // don't forget to mark changes here
 //
-// 1000: v7.0  (initial)
-// 1001: v10.0 (adds GP_EXPENDED_GA, NEW_BELIEF_PROPHECY)
+// 1000: v7.0   (initial)
+// 1001: v10.0  (adds GP_EXPENDED_GA, NEW_BELIEF_PROPHECY)
 # define BUMP_SAVE_VERSION_BELIEFS 1001
-// 1000: v7.0  (initial)
-// 1001: v8.0  (adds CITY_EXTRA_ATTACK)
-// 1002: v8.2  (adds eReligionFoundedHere for MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD)
+// 1000: v7.0   (initial)
+// 1001: v8.0   (adds CITY_EXTRA_ATTACK)
+// 1002: v8.2   (adds eReligionFoundedHere for MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD)
 # define BUMP_SAVE_VERSION_CITY 1002
-// 1000: v7.0  (initial)
+// 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_ESPIONAGE 1000
-// 1000: v7.0  (initial)
-// 1001: v7.3b (adds replay events)
+// 1000: v7.0   (initial)
+// 1001: v7.3b  (adds replay events)
 # define BUMP_SAVE_VERSION_GAME 1001
-// 1000: v7.0 (initial)
-// 1001: v7.3 (adds Workers Bully Turn)
+// 1000: v7.0   (initial)
+// 1001: v7.3   (adds Workers Bully Turn)
 # define BUMP_SAVE_VERSION_MINORAI 1001
-// 1000: v7.0  (initial)
-// 1001: v7.2  (adds ENHANCED_GRAPHS)
-// 1002: v7.2a (adds maya boost GP counters)
-// 1003: v8.1b (adds second bunch of ENHANCED_GRAPHS)
-// 1004: v9.0  (adds GODDESS_LOVE_FREE_WORKER, TAJ_MAHAL_STARTS_GA_NEXT_TURN, PENALTY_FOR_DELAYING_POLICIES, CS_ALLYING_WAR_RESCTRICTION)
-// 1005: v10.0 (adds POLICY_FREE_DEFENSIVE_BUILDINGS, GOD_SEA_FREE_WORK_BOAT, UNDERGROUND_SECT_REWORK)
-# define BUMP_SAVE_VERSION_PLAYER 1005
-// 1000: v7.0  (initial)
+// 1000: v7.0   (initial)
+// 1001: v7.2   (adds ENHANCED_GRAPHS)
+// 1002: v7.2a  (adds maya boost GP counters)
+// 1003: v8.1b  (adds second bunch of ENHANCED_GRAPHS)
+// 1004: v9.0   (adds GODDESS_LOVE_FREE_WORKER, TAJ_MAHAL_STARTS_GA_NEXT_TURN, CS_ALLYING_WAR_RESCTRICTION)
+// 1005: v10.0  (adds POLICY_FREE_DEFENSIVE_BUILDINGS, GOD_SEA_FREE_WORK_BOAT, UNDERGROUND_SECT_REWORK)
+// 1006: v10.0g (adds PENALTY_FOR_DELAYING_POLICIES)
+# define BUMP_SAVE_VERSION_PLAYER 1006
+// 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_POLICIES 1000
-// 1000: v7.0  (initial)
+// 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_TEAM 1000
-// 1000: v7.0  (initial)
+// 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_TECHS 1000
-// 1000: v7.0  (initial)
+// 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_TRAITS 1000
-// 1000: v7.0  (initial)
-// 1001: v8.0  (adds NEW_WRITERS_CULTURE_BOMB)
+// 1000: v7.0   (initial)
+// 1001: v8.0   (adds NEW_WRITERS_CULTURE_BOMB)
 # define BUMP_SAVE_VERSION_UNIT 1001
-// 1000: v7.1  (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
+// 1000: v7.1   (starts versioning, adds iCreationTurn) -- incompatible with 7.0 (vanilla is ok though)
 # define BUMP_SAVE_VERSION_MP_VOTING_SYSTEM 1000
-// 1000: v7.2  (initial, adds m_iTimeMilliseconds)
-// 1001: v7.3b (adds m_iExtraData1, m_iExtraData2)
+// 1000: v7.2   (initial, adds m_iTimeMilliseconds)
+// 1001: v7.3b  (adds m_iExtraData1, m_iExtraData2)
 # define BUMP_SAVE_VERSION_REPLAYMESSAGE 1001
-// 1000: v7.3b (initial)
+// 1000: v7.3b  (initial)
 # define BUMP_SAVE_VERSION_REPLAYEVENT 1000
 // 1000: v8.2   (initial)
 # define BUMP_SAVE_VERSION_RESOLUTIONEFFECTS 1000
+// 1000: v10.2   (initial)
+# define BUMP_SAVE_VERSION_PREGAME 1000
 #endif
 ///
 #define ENHANCED_GRAPHS
@@ -1098,7 +1122,14 @@
 #define EG_REPLAYDATASET_TOTALSPECIALISTCITIZENS
 #define EG_REPLAYDATASET_PERCENTSPECIALISTCITIZENS // TODO: Fix aesthetics
 ///
+///
+/// 
+#define EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
 #endif
+///
+#define GRAPHS_REAL_TOTAL_CULTURE
+///
+#define GRAPHS_REAL_MILITARY_MIGHT
 ///
 // A more flexible alternative to Replay Messages; primarily for statistics purposes
 #define REPLAY_EVENTS
@@ -1116,6 +1147,8 @@
 #define PREGAMEAPI_GET_NETID
 ///
 #define SHOW_ACTUAL_POPULATION
+///
+#define INGAME_MP_LOBBY_DRAFTS
 /*OTHER CHANGES END*/
 
 

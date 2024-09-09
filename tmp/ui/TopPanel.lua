@@ -518,7 +518,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", iScienceFromIC / 100);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", iScienceFromICs / 100);
 		end
 		
 		-- Let people know that building more cities makes techs harder to get
@@ -621,6 +621,10 @@ function GoldTipHandler( control )
 	
 	if (fTotalIncome + iTotalGold < 0) then
 		strText = strText .. "[NEWLINE][COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_LOSING_SCIENCE_FROM_DEFICIT") .. "[/COLOR]";
+	end
+
+	if (pPlayer:CalculateGoldRate() + pPlayer:GetGold() <= -5) then
+		strText = strText .. "[NEWLINE][NEWLINE][COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNIT_DISBAND_CHANCE", pPlayer:GetUnitDisbandChance()) .. "[/COLOR]";
 	end
 	
 	-- Basic explanation of Happiness

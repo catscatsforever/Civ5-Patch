@@ -699,6 +699,10 @@ function GetCityStateTraitText(iMinor)
 			strTraitText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MERCANTILE_ADJECTIVE");
 		elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
 			strTraitText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_RELIGIOUS_ADJECTIVE");
+		elseif (iTrait == 5) then
+			strTraitText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_SCIENTIFIC_ADJECTIVE");
+		elseif (iTrait == 6) then
+			strTraitText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MANUFACTORY_ADJECTIVE");
 		end
 	end
 	
@@ -740,6 +744,10 @@ function GetCityStateTraitToolTip(iMinor)
 			strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MERCANTILE_TT");
 		elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
 			strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_RELIGIOUS_TT");
+		elseif (iTrait == 5) then
+			strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_SCIENTIFIC_TT");
+		elseif (iTrait == 6) then
+			strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MANUFACTORY_TT");
 		end
 	end
 	

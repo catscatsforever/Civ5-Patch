@@ -4841,6 +4841,16 @@ int CvGame::getMaxTurnLen()
 		{
 			if(GET_PLAYER((PlayerTypes)i).isAlive())
 			{
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+				if (GET_PLAYER((PlayerTypes)i).isHuman() && GET_PLAYER((PlayerTypes)i).getNumUnits() > iMaxUnits)
+				{
+					iMaxUnits = GET_PLAYER((PlayerTypes)i).getNumUnits();
+				}
+				if (GET_PLAYER((PlayerTypes)i).isHuman() && GET_PLAYER((PlayerTypes)i).getNumCities() > iMaxCities)
+				{
+					iMaxCities = GET_PLAYER((PlayerTypes)i).getNumCities();
+				}
+#else
 				if(GET_PLAYER((PlayerTypes)i).getNumUnits() > iMaxUnits)
 				{
 					iMaxUnits = GET_PLAYER((PlayerTypes)i).getNumUnits();
@@ -4849,6 +4859,7 @@ int CvGame::getMaxTurnLen()
 				{
 					iMaxCities = GET_PLAYER((PlayerTypes)i).getNumCities();
 				}
+#endif
 			}
 		}
 
@@ -7285,6 +7296,31 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 				}
 			}
+
+#ifdef REVEAL_MAP_GAME_OVER
+			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+			{
+				TeamTypes eLoopTeam = (TeamTypes)iI;
+				GC.getMap().setRevealedPlots(eLoopTeam, true, true);
+				GC.getMap().updateDeferredFog();
+
+				for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+				{
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+					ResourceTypes eResource = pLoopPlot->getResourceType();
+
+					if (eResource != NO_RESOURCE)
+					{
+						pLoopPlot->updateYield();
+						if (pLoopPlot->isRevealed(eLoopTeam))
+						{
+							pLoopPlot->setLayoutDirty(true);
+						}
+
+					}
+				}
+			}
+#endif
 
 			saveReplay();
 			showEndGameSequence();

@@ -244,6 +244,9 @@ protected:
 	static int lImmuneToFirstStrikes(lua_State* L);
 	static int lNoDefensiveBonus(lua_State* L);
 	static int lIgnoreBuildingDefense(lua_State* L);
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	static int lIsHoveringUnit(lua_State* L);
+#endif
 	static int lCanMoveImpassable(lua_State* L);
 	static int lCanMoveAllTerrain(lua_State* L);
 	static int lFlatMovementCost(lua_State* L);
@@ -261,6 +264,9 @@ protected:
 	static int lGetAdjacentModifier(lua_State* L);
 	static int lGetAttackModifier(lua_State* L);
 	static int lGetDefenseModifier(lua_State* L);
+#ifdef FIX_RANGE_COMBAT_MOD
+	static int lRangedDefenseModifier(lua_State* L);
+#endif
 #ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
 	static int lGetCulturalInfluenceDefenseModifier(lua_State* L);
 #endif

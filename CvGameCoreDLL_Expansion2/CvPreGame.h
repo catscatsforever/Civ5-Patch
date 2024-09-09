@@ -222,6 +222,10 @@ void                                       setLeaderName(PlayerTypes p, const Cv
 bool                                       IsHasRemapToken(PlayerTypes p);
 void                                       SetHasRemapToken(PlayerTypes p, bool bValue);
 #endif
+#ifdef INGAME_MP_LOBBY_DRAFTS
+bool                                       IsCivBanned(int iCivId);
+void                                       SetCivBanned(int iCivId, bool bValue);
+#endif
 void                                       setLeaderKey(PlayerTypes p, const CvString& n);
 void                                       setLeaderKeyPackageID(PlayerTypes p, const GUID& n);
 void										 setLoadFileName(const CvString& fileName);

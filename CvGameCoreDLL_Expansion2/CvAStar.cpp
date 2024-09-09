@@ -877,10 +877,17 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 		return FALSE;
 	}
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()) && !pUnit->IsHoveringUnit())
+	{
+		return FALSE;
+}
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
 	{
 		return FALSE;
 	}
+#endif
 
 	bAIControl = pCacheData->IsAutomated();
 
@@ -988,7 +995,11 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 
 	CvAssertMsg(eUnitDomain != DOMAIN_AIR, "pUnit->getDomainType() is not expected to be equal with DOMAIN_AIR");
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	bool bToPlotIsWater = pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit();
+#else
 	bool bToPlotIsWater = pToPlot->isWater() && !pToPlot->IsAllowsWalkWater();
+#endif
 	int iMax;
 	if(parent->m_iData1 > 0)
 	{
@@ -1011,7 +1022,11 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
 	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
 	// of the path segment is different from the destination plot.
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	int iCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() && !pUnit->IsHoveringUnit() || pCacheData->isEmbarked()) ? DOMAIN_SEA : pCacheData->getDomainType()), pCacheData->maxMoves(), iMax);
+#else
 	int iCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() || pCacheData->isEmbarked())?DOMAIN_SEA:pCacheData->getDomainType()), pCacheData->maxMoves(), iMax);
+#endif
 
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 	bool bMaximizeExplore = finder->GetInfo() & MOVE_MAXIMIZE_EXPLORE;
@@ -1029,10 +1044,17 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 	{
 		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+		if (eUnitDomain == DOMAIN_LAND && !pFromPlot->isWater() && bToPlotIsWater && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true) && !pUnit->IsHoveringUnit())
+		{
+			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
+		}
+#else
 		if(eUnitDomain == DOMAIN_LAND && !pFromPlot->isWater() && bToPlotIsWater && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
 		}
+#endif
 
 		if(bMaximizeExplore)
 		{
@@ -1208,7 +1230,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	kToNodeCacheData.bPlotVisibleToTeam = pToPlot->isVisible(eUnitTeam);
 	kToNodeCacheData.iNumFriendlyUnitsOfType = pToPlot->getNumFriendlyUnitsOfType(pUnit);
 	kToNodeCacheData.bIsMountain = pToPlot->isMountain();
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	kToNodeCacheData.bIsWater = (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit());
+#else
 	kToNodeCacheData.bIsWater = (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater());
+#endif
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE);
 	kToNodeCacheData.bIsRevealedToTeam = pToPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
@@ -1309,10 +1335,17 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+						if ((iFinderInfo & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater && !pUnit->IsHoveringUnit())
+						{
+							return FALSE;
+						}
+#else
 						if ((iFinderInfo & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
 						{
 							return FALSE;
 						}
+#endif
 					}
 
 					if(kNodeCacheData.bIsRevealedToTeam)
@@ -1512,7 +1545,11 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 		if(iStartMoves == 0)
 		{
 			iTurns++;
+#ifdef ALLOW_HELICOPTER_WATERWALK
+			iStartMoves = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#else
 			iStartMoves = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#endif
 		}
 
 		// We can't use maxMoves, because that checks where the unit is currently, and we're plotting a path so we have to see
@@ -1523,7 +1560,11 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 		}
 		else
 		{
+#ifdef ALLOW_HELICOPTER_WATERWALK
+			iMoves = std::min(iMoves, std::max(0, iStartMoves - CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() && !pUnit->IsHoveringUnit() || pCacheData->isEmbarked()) ? DOMAIN_SEA : pCacheData->getDomainType()), pCacheData->maxMoves(), iStartMoves)));
+#else
 			iMoves = std::min(iMoves, std::max(0, iStartMoves - CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() || pCacheData->isEmbarked())?DOMAIN_SEA:pCacheData->getDomainType()), pCacheData->maxMoves(), iStartMoves)));
+#endif
 		}
 	}
 
@@ -1598,10 +1639,17 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 	}
 #endif
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit()))
+	{
+		return FALSE;
+	}
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
 	{
 		return FALSE;
 	}
+#endif
 
 	bAIControl = pCacheData->IsAutomated();
 
@@ -1675,14 +1723,22 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	}
 	else
 	{
+#ifdef ALLOW_HELICOPTER_WATERWALK
+		iMax = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#else
 		iMax = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#endif
 	}
 
 	// Get the cost of moving to the new plot, passing in our max moves or the moves we have left, in case the movementCost 
 	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
 	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
 	// of the path segment is different from the destination plot.
+#ifdef ALLOW_HELICOPTER_WATERWALK
+	iCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() && !pUnit->IsHoveringUnit() || pCacheData->isEmbarked()) ? DOMAIN_SEA : pCacheData->getDomainType()), pCacheData->maxMoves(), iMax);
+#else
 	iCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() || pCacheData->isEmbarked())?DOMAIN_SEA:pCacheData->getDomainType()), pCacheData->maxMoves(), iMax);
+#endif
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 
@@ -1699,10 +1755,17 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	{
 		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+		if (!pFromPlot->isWater() && pToPlot->isWater() && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true) && !pUnit->IsHoveringUnit())
+		{
+			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
+		}
+#else
 		if(!pFromPlot->isWater() && pToPlot->isWater() && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
 		}
+#endif
 
 		if(pToPlot->getTeam() != eUnitTeam)
 		{
@@ -1835,10 +1898,17 @@ int IgnoreUnitsValid(CvAStarNode* parent, CvAStarNode* node, int data, const voi
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
 	if(pCacheData->getDomainType() == DOMAIN_LAND)
 	{
+#ifdef ALLOW_HELICOPTER_WATERWALK
+		if (!pFromPlot->isWater() && pToPlot->isWater() && pToPlot->isRevealed(eUnitTeam) && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true) && !pUnit->IsHoveringUnit())
+		{
+			return FALSE;
+		}
+#else
 		if(!pFromPlot->isWater() && pToPlot->isWater() && pToPlot->isRevealed(eUnitTeam) && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			return FALSE;
 		}
+#endif
 	}
 
 	if(pUnitPlot == pFromPlot)
@@ -1917,12 +1987,20 @@ int IgnoreUnitsPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const v
 		if(iStartMoves == 0)
 		{
 			iTurns++;
+#ifdef ALLOW_HELICOPTER_WATERWALK
+			iStartMoves = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater() && !pUnit->IsHoveringUnit()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#else
 			iStartMoves = pCacheData->baseMoves((pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()) ? DOMAIN_SEA : DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
+#endif
 		}
 
 		// We can't use maxMoves, because that checks where the unit is currently, and we're plotting a path so we have to see
 		// what the max moves would be like if the unit was already at the desired location.
+#ifdef ALLOW_HELICOPTER_WATERWALK
+		iMoves = std::min(iMoves, std::max(0, iStartMoves - CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() && !pUnit->IsHoveringUnit() || pCacheData->isEmbarked()) ? DOMAIN_SEA : pCacheData->getDomainType()), pCacheData->maxMoves())));
+#else
 		iMoves = std::min(iMoves, std::max(0, iStartMoves - CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, pCacheData->baseMoves((pToPlot->isWater() || pCacheData->isEmbarked())?DOMAIN_SEA:pCacheData->getDomainType()), pCacheData->maxMoves())));
+#endif
 	}
 
 	FAssertMsg(iMoves >= 0, "iMoves is expected to be non-negative (invalid Index)");
@@ -3166,10 +3244,17 @@ int UIPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* po
 			{
 				// antonjs: Added for Smoky Skies scenario. Allows move range to show correctly for airships,
 				// which move over land and sea plots equally (canMoveAllTerrain)	
+#ifdef ALLOW_HELICOPTER_WATERWALK
+				if (!pUnit->canMoveAllTerrain() && !pUnit->IsHoveringUnit())
+				{
+					return FALSE;
+				}
+#else
 				if (!pUnit->canMoveAllTerrain())
 				{
 					return FALSE;
 				}
+#endif
 			}
 		}
 	}

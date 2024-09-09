@@ -5547,7 +5547,7 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	VALIDATE_OBJECT
 	// If we're in anarchy, then no Production is done!
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy() && GET_PLAYER(getOwner()).IsDelayedPolicy(true))
+	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy())
 #else
 	if(GET_PLAYER(getOwner()).IsAnarchy())
 #endif
@@ -5601,7 +5601,7 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	VALIDATE_OBJECT
 	// If we're in anarchy, then no Production is done!
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy() && GET_PLAYER(getOwner()).IsDelayedPolicy(true))
+	if (GET_PLAYER(getOwner()).IsAnarchy() || GET_PLAYER(getOwner()).IsDelayedPolicy())
 #else
 	if(GET_PLAYER(getOwner()).IsAnarchy())
 #endif
@@ -6312,7 +6312,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if(pBuildingInfo->IsScienceBuilding())
 					{
 						int iMedianTechResearch = owningPlayer.GetPlayerTechs()->GetMedianTechResearch();
-#ifdef MEDIAN_TECH_PERCENTAGE_DOES_NOT_AFFECTS_KOREA
+#ifdef MEDIAN_TECH_PERCENTAGE_DOES_NOT_AFFECT_KOREA
 						iMedianTechResearch = (iMedianTechResearch * owningPlayer.GetMedianTechPercentage()) / 100;
 #endif
 
@@ -9369,6 +9369,12 @@ void CvCity::DoCreatePuppet()
 
 			if(pLoopPlot != NULL)
 			{
+#ifdef CITIZENS_CITY_OVERRIDE_BUG_FIX
+				if (pLoopPlot->getWorkingCity()->GetCityCitizens()->IsForcedWorkingPlot(pLoopPlot))
+				{
+					pLoopPlot->getWorkingCity()->GetCityCitizens()->SetForcedWorkingPlot(pLoopPlot, false);
+				}
+#endif
 				pLoopPlot->setWorkingCityOverride(this);
 			}
 		}

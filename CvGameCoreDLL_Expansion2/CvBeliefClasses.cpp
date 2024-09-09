@@ -1197,7 +1197,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iGoldenAgeCombatMod += belief->GetGoldenAgeCombatMod();
 #endif
 #ifdef NEW_BELIEF_PROPHECY
-	m_bAllowPolicyWonders += belief->IsAllowPolicyWonders();
+	m_bAllowPolicyWonders = belief->IsAllowPolicyWonders();
 #endif
 	m_iCityStateMinimumInfluence += belief->GetCityStateMinimumInfluence();
 	m_iCityStateInfluenceModifier += belief->GetCityStateInfluenceModifier();

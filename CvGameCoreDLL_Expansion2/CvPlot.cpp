@@ -5783,6 +5783,10 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam) const
 			if (eTeam == OBSERVER_TEAM)
 				bDebug = true;
 #endif
+#ifdef REVEAL_MAP_GAME_OVER
+			if (GC.getGame().getGameState() == GAMESTATE_OVER)
+				bDebug = true;
+#endif
 
 			int iPolicyReveal = GC.getResourceInfo((ResourceTypes)m_eResourceType)->getPolicyReveal();
 			if (!bDebug && iPolicyReveal != NO_POLICY)
@@ -7292,7 +7296,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
 					int iReligionChange = 0;
 					CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-					int iYieldFromBuilding = 0;
 
 					for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 					{
@@ -7300,14 +7303,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 						{
 							if (pBeliefs->GetEntry(i)->IsReformationBelief())
 							{
-								if (pReligion->m_eFounder == getOwner())
+								if (pReligion->m_eFounder == pWorkingCity->getOwner())
 								{
-									iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+									iReligionChange += pBeliefs->GetEntry(i)->GetResourceYieldChange(eResource, eYield);
 								}
 							}
 							else
 							{
-								iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+								iReligionChange += pBeliefs->GetEntry(i)->GetResourceYieldChange(eResource, eYield);
 							}
 						}
 					}

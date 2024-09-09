@@ -3984,6 +3984,9 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iRevealNearbyBarbariansRange(0)
 	, m_iBarbarianUnitProb(0)
 	, m_iMinBarbarians(0)
+#ifdef NEW_RUIN_EXPANSION
+	, m_iNumExpanse(0)
+#endif
 	, m_iUnitClassType(NO_UNITCLASS)
 	, m_iBarbarianUnitClass(NO_UNITCLASS)
 	, m_bTech(false)
@@ -4074,6 +4077,13 @@ int CvGoodyInfo::getMinBarbarians() const
 	return m_iMinBarbarians;
 }
 
+#ifdef NEW_RUIN_EXPANSION
+int CvGoodyInfo::getNumExpanse() const
+{
+	return m_iNumExpanse;
+}
+#endif
+
 int CvGoodyInfo::getUnitClassType() const
 {
 	return m_iUnitClassType;
@@ -4160,6 +4170,9 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iRevealNearbyBarbariansRange = results.GetInt("RevealNearbyBarbariansRange");
 	m_iBarbarianUnitProb = results.GetInt("BarbarianUnitProb");
 	m_iMinBarbarians = results.GetInt("MinBarbarians");
+#ifdef NEW_RUIN_EXPANSION
+	m_iNumExpanse = results.GetInt("NumExpanse");
+#endif
 	m_bTech = results.GetBool("Tech");
 	m_bBad = results.GetBool("Bad");
 	m_bRevealUnknownResource = results.GetBool("RevealUnknownResource");

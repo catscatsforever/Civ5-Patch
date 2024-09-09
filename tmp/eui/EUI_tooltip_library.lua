@@ -990,6 +990,11 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 
 	items = {}
+	for row in GameInfo.Policy_BuildingClassFoodKept( thisBuildingClassType ) do
+		if row.PolicyType and (row.FoodKept or 0)~=0 then
+			items[row.PolicyType] = S( "%s %+i%%[ICON_FOOD] " .. L"TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT", items[row.PolicyType] or "", row.FoodKept )
+		end
+	end
 	-- Yields enhanced by Policy
 	for row in GameInfo.Policy_BuildingClassYieldChanges( thisBuildingClassType ) do
 		if row.PolicyType and (row.YieldChange or 0)~=0 then
@@ -1946,8 +1951,7 @@ local function GetCultureTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier())
 
 		-- Culture Wonders modifier
-		-- tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumGreatWorks() > 0 and cityOwner and city:GetNumGreatWorks() * cityOwner:GetCultureWonderMultiplier() or 0 )
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
 	end
 
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FUTURE_TECH_BONUS", 10 * Teams[cityOwner:GetTeam()]:GetTeamTechs():GetTechCount(80) or 0 )

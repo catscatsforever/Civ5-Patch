@@ -1029,7 +1029,9 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes e
 	if(HasCreatedReligion(ePlayer))
 		return FOUNDING_PLAYER_ALREADY_CREATED_RELIGION;
 
+#ifndef DUEL_ALLOW_SAMETURN_BELIEFS
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+#endif
 
 	CvReligion kReligion(eReligion, ePlayer, pkHolyCity, false);
 
@@ -2202,11 +2204,19 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			TechTypes eDoublingTech = pReligion->m_Beliefs.GetSpreadModifierDoublingTech();
 			if(eDoublingTech != NO_TECH)
 			{
+#ifdef SPREAD_MODIFIER_AFTER_TECH
+				CvPlayer& kPlayer = GET_PLAYER(pReligion->m_eFounder);
+				if (!GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech(eDoublingTech))
+				{
+					iStrengthMod = 0;
+				}
+#else
 				CvPlayer& kPlayer = GET_PLAYER(pReligion->m_eFounder);
 				if(GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech(eDoublingTech))
 				{
 					iStrengthMod *= 2;
 				}
+#endif
 			}
 			iPressure *= (100 + iStrengthMod);
 			iPressure /= 100;
@@ -2421,7 +2431,10 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	int iChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
 	iChance += (iFaith - iCost);
 #ifdef DUEL_NO_RANDOM_PROPHET
-	iChance = 1000;
+	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+	{
+		iChance = 1000;
+	}
 #endif
 
 	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
@@ -2440,8 +2453,17 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	{
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
 #ifdef DUEL_NO_RANDOM_PROPHET
-		if (eUnit != NO_UNIT)
-			kPlayer.ChangeFaith(-iCost);
+		if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+		{
+			if (eUnit != NO_UNIT)
+			{
+				kPlayer.ChangeFaith(-iCost);
+			}
+		}
+		else
+		{
+			kPlayer.SetFaith(0);
+		}
 #else
 		kPlayer.SetFaith(0);
 #endif
@@ -2453,8 +2475,17 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
 #ifdef DUEL_NO_RANDOM_PROPHET
-			if (eUnit != NO_UNIT)
-				kPlayer.ChangeFaith(-iCost);
+			if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+			{
+				if (eUnit != NO_UNIT)
+				{
+					kPlayer.ChangeFaith(-iCost);
+				}
+			}
+			else
+			{
+				kPlayer.SetFaith(0);
+			}
 #else
 			kPlayer.SetFaith(0);
 #endif
@@ -3260,7 +3291,11 @@ ReligionTypes CvCityReligions::GetSimulatedReligiousMajority()
 	{
 		iTotalFollowers += religionIt->m_iFollowers;
 
+#ifdef FIX_NO_RELIGION_MAJORITY
+		if (religionIt->m_iFollowers > iMostFollowers || religionIt->m_iFollowers == iMostFollowers && (religionIt->m_iPressure > iMostFollowerPressure || eMostFollowers == NO_RELIGION))
+#else
 		if(religionIt->m_iFollowers > iMostFollowers || religionIt->m_iFollowers == iMostFollowers && religionIt->m_iPressure > iMostFollowerPressure)
+#endif
 		{
 			iMostFollowers = religionIt->m_iFollowers;
 			iMostFollowerPressure = religionIt->m_iPressure;

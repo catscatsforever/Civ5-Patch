@@ -608,6 +608,9 @@ public:
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
+#ifdef FIX_POLICY_BUILDING_CLASS_CULTURE_CHANGE_UI
+	int GetBuildingClassCultureChange(BuildingClassTypes eBuildingClass);
+#endif
 #ifdef POLICY_BUILDING_CLASS_FOOD_KEPT
 	int GetBuildingClassFoodKept(BuildingClassTypes eBuildingClass);
 #endif

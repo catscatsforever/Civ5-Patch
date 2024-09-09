@@ -675,8 +675,7 @@ function GetCultureTooltip(pCity)
 		-- Culture Wonders modifier
 		-- if (pCity:GetNumWorldWonders() > 0) then
 		if (pCity:GetNumGreatWorks() > 0) then
-			-- iAmount = Players[pCity:GetOwner()]:GetCultureWonderMultiplier();
-			iAmount = pCity:GetNumGreatWorks() * Players[pCity:GetOwner()]:GetCultureWonderMultiplier();
+			iAmount = Players[pCity:GetOwner()]:GetCultureWonderMultiplier();
 			
 			if (iAmount ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";

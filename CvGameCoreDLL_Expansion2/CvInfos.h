@@ -1182,6 +1182,9 @@ public:
 	int getRevealNearbyBarbariansRange() const;
 	int getBarbarianUnitProb() const;
 	int getMinBarbarians() const;
+#ifdef NEW_RUIN_EXPANSION
+	int getNumExpanse() const;
+#endif
 	int getUnitClassType() const;
 	int getBarbarianUnitClass() const;
 
@@ -1216,6 +1219,9 @@ protected:
 	int m_iRevealNearbyBarbariansRange;
 	int m_iBarbarianUnitProb;
 	int m_iMinBarbarians;
+#ifdef NEW_RUIN_EXPANSION
+	int m_iNumExpanse;
+#endif
 	int m_iUnitClassType;
 	int m_iBarbarianUnitClass;
 

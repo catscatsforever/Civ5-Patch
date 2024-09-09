@@ -2453,10 +2453,12 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 				// Does the unit hover above coast?
 				else if(IsHoveringUnit())
 				{
+#ifndef ALLOW_HELICOPTER_WATERWALK
 					if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN())
 					{
 						return false;
 					}
+#endif
 				}
 				else
 				{
@@ -2488,10 +2490,12 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 					// Does the unit hover above coast?
 					if(IsHoveringUnit())
 					{
+#ifndef ALLOW_HELICOPTER_WATERWALK
 						if(enterPlot.getTerrainType() == GC.getDEEP_WATER_TERRAIN())
 						{
 							return false;
 						}
+#endif
 					}
 					else if(!isHuman() || (plot() && plot()->isWater()) || !canLoad(enterPlot))
 					{
@@ -2753,10 +2757,17 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 				return false;
 			}
 
+#ifdef ALLOW_HELICOPTER_WATERWALK
+			if (getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && !IsHoveringUnit() && !plot.IsAllowsWalkWater())
+			{
+				return false;
+			}
+#else
 			if (getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && !plot.IsAllowsWalkWater())
 			{
 				return false;
 			}
+#endif
 
 			if(!isHuman() || (plot.isVisible(getTeam())))
 			{
@@ -3944,6 +3955,8 @@ void CvUnit::load()
 					setTransportUnit(pLoopUnit);
 #ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
 					setInvisibleType(pLoopUnit->getInvisibleType());
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), !this->isInvisible(GC.getGame().getActiveTeam(), true), true);
 #endif
 					break;
 				}
@@ -3988,9 +4001,6 @@ void CvUnit::unload()
 	}
 
 	setTransportUnit(NULL);
-#ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
-	setInvisibleType(NO_INVISIBLE);
-#endif
 }
 
 
@@ -7774,7 +7784,6 @@ bool CvUnit::DoRemoveHeresy()
 bool CvUnit::CanDoReligiousExpansion() const
 {
 	VALIDATE_OBJECT
-		CvCity* pCity;
 
 	if (!m_pUnitInfo->IsRemoveHeresy())
 	{
@@ -11906,8 +11915,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Ranged DEFENSE
 		else
 		{
+#ifndef FIX_RANGE_DEFENSE_MOD
 			// Ranged Defense Mod
 			iModifier += rangedDefenseModifier();
+#endif
 
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
@@ -11961,7 +11972,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		iModifier += getDefenseModifier();
 
-#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
 		// Tourism Defense
 		if (pOtherUnit != NULL)
 		{
@@ -11972,6 +11982,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = GET_PLAYER(getOwner()).GetCulture()->GetDefenseAgainstInfluencedCiv(ePlayer);
 		}
 		iModifier += iTempModifier;
+
+#ifdef FIX_RANGE_DEFENSE_MOD
+		// Ranged Defense Mod
+		iModifier += rangedDefenseModifier();
 #endif
 	}
 
@@ -12201,8 +12215,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Ranged DEFENSE
 		else
 		{
+#ifndef FIX_RANGE_DEFENSE_MOD
 			// Ranged Defense Mod
 			iModifier += rangedDefenseModifier();
+#endif
 
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
@@ -12255,6 +12271,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += iTempModifier;
 
 		iModifier += getDefenseModifier();
+
+#ifdef FIX_RANGE_DEFENSE_MOD
+		// Ranged Defense Mod
+		iModifier += rangedDefenseModifier();
+#endif
 	}
 
 	// Unit can't drop below 10% strength
@@ -12313,10 +12334,6 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	if(pCity == NULL)
 	{
 #ifdef FIX_AIR_ATTACK_VS_EMBARKED
-		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend())
-			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
-
 		if (pDefender->isEmbarked())
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
@@ -12523,10 +12540,6 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderStrength = 0;
 
 #ifdef FIX_AIR_ATTACK_VS_EMBARKED
-	// If this is a defenseless unit, do a fixed amount of damage
-	if (!IsCanDefend())
-		return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
-
 	if (isEmbarked())
 	{
 		iDefenderStrength = GetEmbarkedUnitDefense();;
@@ -14327,6 +14340,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if(!(pTransportUnit->atPlot(*pNewPlot)))
 			{
 				setTransportUnit(NULL);
+#ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
+				setInvisibleType(NO_INVISIBLE);
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), NO_INVISIBLE, true);
+#endif
 			}
 		}
 
@@ -17959,6 +17977,12 @@ void CvUnit::setInvisibleType(InvisibleTypes InvisibleType)
 	if(m_eInvisibleType != InvisibleType)
 	{
 		m_eInvisibleType = InvisibleType;
+		const TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+		if (eActiveTeam != NO_TEAM)
+		{
+			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			gDLL->GameplayUnitVisibility(pDllUnit.get(), isInvisible(eActiveTeam, false));
+		}
 	}
 }
 

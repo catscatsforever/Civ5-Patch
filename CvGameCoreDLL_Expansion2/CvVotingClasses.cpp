@@ -11641,7 +11641,7 @@ CvMPVotingSystem::~CvMPVotingSystem(void)
 
 void CvMPVotingSystem::Init()
 {
-	SLOG("CvMPVotingSystem INIT");
+	// SLOG("CvMPVotingSystem INIT");
 	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 	{
 		if (GC.getGame().isOption("GAMEOPTION_ENABLE_REMAP_VOTE"))

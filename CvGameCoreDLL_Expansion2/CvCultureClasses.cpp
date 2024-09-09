@@ -2769,16 +2769,16 @@ int CvPlayerCulture::GetInfluencedCivScienceBonus(PlayerTypes ePlayer) const
 		switch (eLevel)
 		{
 		case INFLUENCE_LEVEL_EXOTIC:
-			iRtnValue = 2;
+			iRtnValue = 1;
 			break;
 		case INFLUENCE_LEVEL_FAMILIAR:
-			iRtnValue = 4;
+			iRtnValue = 2;
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
-			iRtnValue = 8;
+			iRtnValue = 4;
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
-			iRtnValue = 12;
+			iRtnValue = 8;
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
 			iRtnValue = 20;
@@ -2802,16 +2802,16 @@ int CvPlayerCulture::GetDefenseAgainstInfluencedCiv(PlayerTypes ePlayer) const
 		switch (eLevel)
 		{
 		case INFLUENCE_LEVEL_EXOTIC:
-			iRtnValue = 10;
+			iRtnValue = 5;
 			break;
 		case INFLUENCE_LEVEL_FAMILIAR:
-			iRtnValue = 20;
+			iRtnValue = 10;
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
-			iRtnValue = 30;
+			iRtnValue = 20;
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
-			iRtnValue = 40;
+			iRtnValue = 30;
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
 			iRtnValue = 50;
@@ -2989,7 +2989,9 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 {
 	int iMultiplier = 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+#ifndef NO_OPEN_BOARDERS_TOURISM_MOD
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
+#endif
 	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -3085,7 +3087,9 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 {
 	CvString szRtnValue = "";
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+#ifndef NO_OPEN_BOARDERS_TOURISM_MOD
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
+#endif
 	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -4457,7 +4461,9 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 {
 	int iMultiplier = 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+#ifndef NO_OPEN_BOARDERS_TOURISM_MOD
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
+#endif
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -4513,7 +4519,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	}
 
 #ifdef TOURISM_BONUS_DIPLOMAT
-	if (kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
+	if (kCityPlayer.GetEspionage() && kCityPlayer.GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
 	{
 		iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 	}

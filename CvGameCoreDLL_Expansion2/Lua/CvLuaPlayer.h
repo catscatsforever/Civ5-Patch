@@ -202,6 +202,9 @@ protected:
 	static int lGetGoldPerTurnFromTradeRoutes(lua_State* L);
 	static int lGetGoldPerTurnFromTradeRoutesTimes100(lua_State* L);
 	static int lGetGoldPerTurnFromTraits(lua_State* L);
+#ifdef UNIT_DISBAND_REWORK
+	static int lGetUnitDisbandChance(lua_State* L);
+#endif
 
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
 

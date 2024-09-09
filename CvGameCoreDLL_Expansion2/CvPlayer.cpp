@@ -566,7 +566,6 @@ CvPlayer::CvPlayer() :
 	, m_pafTimeCSWarAllowing("CvPlayer::m_pafTimeCSWarAllowing", m_syncArchive)
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	, m_bIsDelayedPolicyPrevTurn(false)
 	, m_bIsDelayedPolicy(false)
 #endif
 {
@@ -1268,7 +1267,6 @@ void CvPlayer::uninit()
 	m_iMaxEffectiveCities = 1;
 	m_iLastSliceMoved = 0;
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	m_bIsDelayedPolicyPrevTurn = false;
 	m_bIsDelayedPolicy = false;
 #endif
 
@@ -5023,24 +5021,16 @@ void CvPlayer::doTurnPostDiplomacy()
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if (getJONSCulture() < getNextPolicyCost())
+		if (getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
 		{
 			if (isHuman())
 			{
-				if (GetNumFreePolicies() <= 0)
-				{
-					setIsDelayedPolicy(false, true);
-					setIsDelayedPolicy(false);
-				}
-			}
-		}
-		else if (getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
-		{
-			if (isHuman())
-			{
-				setIsDelayedPolicy(IsDelayedPolicy(), true);
 				setIsDelayedPolicy(true);
 			}
+		}
+		else
+		{
+			setIsDelayedPolicy(false);
 		}
 	}
 #endif
@@ -6920,6 +6910,17 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		}
 	}
 
+#ifdef NEW_RUIN_EXPANSION
+	// Expansion
+	if (kGoodyInfo.getNumExpanse() > 0)
+	{
+		if (getNumCities() == 0)
+		{
+			return false;
+		}
+	}
+#endif
+
 	///////////////////////////////////////
 	///////////////////////////////////////
 	// Bad Goodies follow beneath this line
@@ -7709,6 +7710,44 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			}
 		}
 	}
+
+#ifdef NEW_RUIN_EXPANSION
+	// Expansion
+	if (kGoodyInfo.getNumExpanse() > 0)
+	{
+		int iDistance;
+		int iBestCityDistance = -1;
+		CvCity* pBestCity = NULL;
+
+		CvCity* pLoopCity;
+		int iLoop;
+		// Find the closest City to us to add a Pop point to
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+			if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+			{
+				iBestCityDistance = iDistance;
+				pBestCity = pLoopCity;
+			}
+		}
+
+		if (pBestCity != NULL)
+		{
+			for (int iI = 0; iI < kGoodyInfo.getNumExpanse(); iI++)
+			{
+				CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot();
+
+				// maybe the player owns ALL of the plots or there are none avaialable?
+				if (pPlotToAcquire)
+				{
+					pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+				}
+			}
+		}
+	}
+#endif
 #ifdef REPLAY_EVENTS
 	if (isHuman())
 	{
@@ -8099,7 +8138,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	}
 
 #ifdef CS_CANT_BUILD_EARLY_WORKERS
-	if (isMinorCiv() && GC.getGame().getGameTurn() < 10 && eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER", true /*bHideAssert*/))
+	if (isMinorCiv() && GC.getGame().getGameTurn() < CS_EARLY_WORKERS_TURN && eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER", true /*bHideAssert*/))
 	{
 		return false;
 	}
@@ -9698,6 +9737,21 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 					pEspionage->LevelUpSpy(ui);
 				}
 			}
+#ifdef NEW_DIPLOMATS_MISSIONS
+			if (pEspionage)
+			{
+				for (uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
+				{
+					CvCity* pCity = pEspionage->GetCityWithSpy(ui);
+					int iSurveillanceSightRange = GetEspionage()->SurveillanceSightRange(pCity);
+					if (iSurveillanceSightRange > 0)
+					{
+						pCity->plot()->changeSightInRing(getTeam(), iSurveillanceSightRange - iChange, false, NO_INVISIBLE);
+						pCity->plot()->changeSightInRing(getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
+					}
+				}
+			}
+#endif
 		}
 
 		if(pBuildingInfo->GetSpyRankChange() > 0)
@@ -10772,7 +10826,7 @@ int CvPlayer::calculateGoldRateTimes100() const
 {
 	// If we're in anarchy, then no Gold is collected!
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+	if (IsAnarchy() || IsDelayedPolicy())
 #else
 	if(IsAnarchy())
 #endif
@@ -11186,7 +11240,7 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 
 	// No culture during Anarchy
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+	if (IsAnarchy() || IsDelayedPolicy())
 #else
 	if(IsAnarchy())
 #endif
@@ -11842,7 +11896,11 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					break;
 				case YIELD_CULTURE:
 #ifdef HONOR_CULTURE_CAP
-					iValue = min(iValue, CULTURE_CAP);
+					if (!GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_HONOR_FINISHER")))
+					{
+						iValue = min(GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS) * iCombatStrength, 100 * CULTURE_CAP) + GetPlayerTraits()->GetCultureFromKills() * iCombatStrength;
+						iValue /= 100;
+					}
 					changeJONSCulture(iValue);
 #else
 					changeJONSCulture(iValue);
@@ -12351,7 +12409,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 
 	// If we're in anarchy, then no Faith is generated!
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+	if (IsAnarchy() || IsDelayedPolicy())
 #else
 	if(IsAnarchy())
 #endif
@@ -14516,13 +14574,6 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 	// Update cost if trying to buy another policy this turn
 	DoUpdateNextPolicyCost();
 
-#ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (!(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0))
-	{
-		setIsDelayedPolicy(false, true);
-		setIsDelayedPolicy(false);
-	}
-#endif
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
 	if(!(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0))
 	{
@@ -15580,6 +15631,31 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				ChangeFaith(iFaith);
 #ifdef RELIQUARY_REWORK
 				changeJONSCulture(iFaith);
+#ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
+				// if this is the human player, have the popup come up so that he can choose a new policy
+				if (isAlive() && isHuman() && getNumCities() > 0)
+				{
+					if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+					{
+						if (getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+						{
+							CvNotifications* pNotifications = GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer;
+
+								if (GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
+									strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+								else
+									strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+								pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+							}
+						}
+					}
+				}
+#endif
 #endif
 			}
 		}
@@ -19505,7 +19581,7 @@ int CvPlayer::GetScienceTimes100() const
 {
 	// If we're in anarchy, then no Research is done!
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	if (IsAnarchy() || IsDelayedPolicy() && IsDelayedPolicy(true))
+	if (IsAnarchy() || IsDelayedPolicy())
 #else
 	if(IsAnarchy())
 #endif
@@ -19595,7 +19671,6 @@ int CvPlayer::GetSciencePerTurnFromInfluencedCivsTimes100() const
 		iScienceFromPlayer = 0;
 
 		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromCitiesTimes100(false);
-		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromOtherPlayersTimes100();
 		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromHappinessTimes100();
 		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromResearchAgreementsTimes100();
 		iScienceFromPlayer += GET_PLAYER(ePlayer).GetScienceFromBudgetDeficitTimes100();
@@ -19607,6 +19682,14 @@ int CvPlayer::GetSciencePerTurnFromInfluencedCivsTimes100() const
 #endif
 		iScienceFromPlayer *= GetCulture()->GetInfluencedCivScienceBonus(ePlayer);
 		iScienceFromPlayer /= 100;
+
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+		{
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				iScienceFromPlayer /= 2;
+			}
+		}
 
 		iAmount += iScienceFromPlayer;
 	}
@@ -24655,12 +24738,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 
 	ChangeMedianTechPercentage(pPolicy->GetMedianTechPercentChange());
-#ifdef RES_AGR_COUNT
-	if (pPolicy->GetMedianTechPercentChange())
-	{
-		GET_TEAM(getTeam()).incrementResearchAgreementCount();
-	}
-#endif
 
 	// Free Policies
 	int iNumFreePolicies = pPolicy->GetNumFreePolicies() * iChange;
@@ -26149,16 +26226,14 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= 1004)
+	if (uiVersion >= 1006)
 	{
 # endif
-		kStream >> m_bIsDelayedPolicyPrevTurn;
 		kStream >> m_bIsDelayedPolicy;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
 	else
 	{
-		m_bIsDelayedPolicyPrevTurn = false;
 		m_bIsDelayedPolicy = false;
 	}
 # endif
@@ -26829,7 +26904,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_bNationalIntelligenceAgencyWasEverBuilt;
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	kStream << m_bIsDelayedPolicyPrevTurn;
 	kStream << m_bIsDelayedPolicy;
 #endif
 	kStream << m_bAlive;
@@ -28389,20 +28463,14 @@ void CvPlayer::setTimeCSWarAllowing(PlayerTypes ePlayer, float fValue)
 #endif
 
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-bool CvPlayer::IsDelayedPolicy(bool bPrevTurn) const
+bool CvPlayer::IsDelayedPolicy() const
 {
-	if (bPrevTurn)
-		return m_bIsDelayedPolicyPrevTurn;
-	else
-		return m_bIsDelayedPolicy;
+	return m_bIsDelayedPolicy;
 }
 
-void CvPlayer::setIsDelayedPolicy(bool bValue, bool bPrevTurn)
+void CvPlayer::setIsDelayedPolicy(bool bValue)
 {
-	if (bPrevTurn)
-		m_bIsDelayedPolicyPrevTurn = bValue;
-	else
-		m_bIsDelayedPolicy = bValue;
+	m_bIsDelayedPolicy = bValue;
 }
 #endif
 
@@ -29238,7 +29306,11 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		// or is disabled, CvPlayer::GetScienceYieldFromPreviousTurns must also change.
 
 		// 	Total Culture
+#ifdef GRAPHS_REAL_TOTAL_CULTURE
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCULTURE"), iGameTurn, GetJONSCultureEverGenerated());
+#else
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOTALCULTURE"), iGameTurn, getJONSCulture());
+#endif
 
 		// 	Culture per turn
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREPERTURN"), iGameTurn, GetTotalJONSCulturePerTurn());
@@ -29325,9 +29397,13 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFWORKERS"), iGameTurn, iWorkerCount);
 
 
+#ifdef GRAPHS_REAL_MILITARY_MIGHT
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_MILITARYMIGHT"), iGameTurn, (int)sqrt((double)GetMilitaryMight()) * 2000);
+#else
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_MILITARYMIGHT"), iGameTurn, GetMilitaryMight());
+#endif
 
-		/// First Banch of Enhanced Graphs
+		/// First Bunch of Enhanced Graphs
 #ifdef EG_REPLAYDATASET_FAITHPERTURN
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FAITHPERTURN"), iGameTurn, GetTotalFaithPerTurn());
 #endif
@@ -29522,7 +29598,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS"), iGameTurn, GetNumTimesOpenedDemographics());
 #endif
 
-		/// Second Banch of Enhanced Graphs
+		/// Second Bunch of Enhanced Graphs
 #ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST"), iGameTurn, GetScientistsTotalScienceBoost());
 #endif
@@ -29629,6 +29705,14 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 			iPercentSpecialistCitizens = iNumTotalSpecialistCitizens * 100 / iPossibleSpecialistCitizens;
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PERCENTSPECIALISTCITIZENS"), iGameTurn, iPercentSpecialistCitizens);
+#endif
+
+#ifdef  EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
+		int iEffectiveSciencePerTurn = GetScience();
+		int iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities(/*bIncludePuppets*/ true));
+		iEffectiveSciencePerTurn *= (100 + GetPlayerTechs()->GetNumCitiesResearchCostModifier(1));
+		iEffectiveSciencePerTurn /= (100 + iMod);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVESCIENCEPERTURN"), iGameTurn, iEffectiveSciencePerTurn);
 #endif
 
 /*#ifdef ENHANCED_GRAPHS

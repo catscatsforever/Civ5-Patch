@@ -2739,6 +2739,25 @@ int CvPlayerPolicies::GetBuildingClassYieldChange(BuildingClassTypes eBuildingCl
 	return rtnValue;
 }
 
+#ifdef FIX_POLICY_BUILDING_CLASS_CULTURE_CHANGE_UI
+/// Get culture change from policies for a specific building class
+int CvPlayerPolicies::GetBuildingClassCultureChange(BuildingClassTypes eBuildingClass)
+{
+	int rtnValue = 0;
+
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy?
+		if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassCultureChange(eBuildingClass);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
+
 /// Get culture change from policies for a specific improvement
 int CvPlayerPolicies::GetImprovementCultureChange(ImprovementTypes eImprovement)
 {

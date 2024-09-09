@@ -280,6 +280,9 @@ protected:
 	static int lGetReligiousMajority(lua_State* L);
 	static int lGetSecondaryReligion(lua_State* L);
 	static int lGetSecondaryReligionPantheonBelief(lua_State* L);
+#ifdef UI_GET_PRESSURE
+	static int lGetPressure(lua_State* L);
+#endif
 	static int lGetPressurePerTurn(lua_State* L);
 	static int lConvertPercentFollowers(lua_State* L);
 	static int lAdoptReligionFully(lua_State* L);

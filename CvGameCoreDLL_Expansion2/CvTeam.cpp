@@ -6941,6 +6941,18 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForEveryone(); i++)
 						{
+#ifdef UNDERGROUND_SECT_REWORK
+							// provide the player with the extra spies according to their trait when they get their first spy
+							if (kPlayer.GetEspionage()->GetNumSpies() == 0 || kPlayer.GetEspionage()->GetNumSpies() == 1)
+							{
+								int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
+								for (int iIndex = 0; iIndex < iNumTraitSpies; iIndex++)
+								{
+									kPlayer.GetEspionage()->CreateSpy();
+								}
+							}
+							kPlayer.GetEspionage()->CreateSpy();
+#else
 							// provide the player with the extra spies according to their trait when they get their first spy
 							if (kPlayer.GetEspionage()->GetNumSpies() == 0)
 							{
@@ -6951,6 +6963,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								}
 							}
 							kPlayer.GetEspionage()->CreateSpy();
+#endif
 						}
 					}
 				}

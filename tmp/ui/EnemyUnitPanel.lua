@@ -691,7 +691,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (pTheirUnit:IsEmbarked()) then
 					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
 				else
-					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false, true);
+					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false, false);
 				end
 				
 				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then
@@ -1361,7 +1361,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- FortifyModifier
 				iModifier = pTheirUnit:FortifyModifier();
-				if (iModifier ~= 0) then
+				if (iModifier ~= 0 and not (pTheirUnit:IsRanged() and pMyUnit:IsRanged())) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_FORTIFICATION_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
@@ -1541,8 +1541,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
 				end
 		
+				-- Range Defense Modifier
+				if (bRanged) then
+					iModifier = pTheirUnit:RangedDefenseModifier();
+					if (iModifier ~= 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_RANGE_DEFENSE_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
+				end
+		
 				-- Cultural Influence Defense Modifier
-				local iModifier = pTheirUnit:GetCulturalInfluenceDefenseModifier(pMyUnit:GetOwner());
+				iModifier = pTheirUnit:GetCulturalInfluenceDefenseModifier(pMyUnit:GetOwner());
 				if (iModifier ~= 0) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_CULTURAL_INFLUENCE_BONUS" );
@@ -1698,7 +1708,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (iModifier ~= 0 and pTheirPlayer:IsGoldenAge()) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 
 			end
@@ -2025,8 +2035,16 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 		end
 		
+		-- Range Defense Modifier
+		iModifier = theirUnit:RangedDefenseModifier();
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_RANGE_DEFENSE_BONUS" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
+		
 		-- Cultural Influence Defense Modifier
-		local iModifier = theirUnit:GetCulturalInfluenceDefenseModifier(myCity:GetOwner());
+		iModifier = theirUnit:GetCulturalInfluenceDefenseModifier(myCity:GetOwner());
 		if (iModifier ~= 0) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_CULTURAL_INFLUENCE_BONUS" );
@@ -2083,7 +2101,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		if (iModifier ~= 0 and theirPlayer:IsGoldenAge()) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
 
 		-- Future Tech bonus
@@ -2278,9 +2296,9 @@ function OnMouseOverHex( hexX, hexY )
 									-- No air units
 									--if (pUnit:GetDomainType() ~= DomainTypes.DOMAIN_AIR) then
 										
-										-- Other guy must be same domain, OR we must be ranged OR we must be naval and he is embarked
-										if (pHeadUnit:GetDomainType() == pUnit:GetDomainType() or pHeadUnit:IsRanged() or (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA and pUnit:IsEmbarked())) then
-										
+										-- Other guy must be same domain, OR we must be ranged OR we must be naval and he is embarked or someone is helicopter
+										if (pHeadUnit:GetDomainType() == pUnit:GetDomainType() or pHeadUnit:IsRanged() or (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA and pUnit:IsEmbarked()) or pHeadUnit:IsHoveringUnit() or pUnit:IsHoveringUnit()) then
+										print(pHeadUnit:GetID())
 											 if (pUnit:GetBaseCombatStrength() > 0 or pHeadUnit:IsRanged()) then
 												UpdateUnitPortrait(pUnit);
 												UpdateUnitPromotions(pUnit);

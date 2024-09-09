@@ -1171,6 +1171,15 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 						return true;
 				}
 			}
+#ifdef FIX_REDUNDANT_CHOOSE_TECH_NOTIFICATION
+			if (m_aNotifications[iIndex].m_eNotificationType == NOTIFICATION_FREE_TECH)
+			{
+				if (!m_aNotifications[iIndex].m_bDismissed)
+				{
+					return true;
+				}
+			}
+#endif
 
 
 			iIndex++;
@@ -1576,8 +1585,16 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 		else
 		{
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+			if ((GET_PLAYER(m_ePlayer).getJONSCulture() < GET_PLAYER(m_ePlayer).getNextPolicyCost() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
+			{
+				GET_PLAYER(m_ePlayer).setIsDelayedPolicy(false);
+				return true;
+			}
+#else
 			if((GET_PLAYER(m_ePlayer).getJONSCulture() < GET_PLAYER(m_ePlayer).getNextPolicyCost() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
 				return true;
+#endif
 		}
 	}
 	break;
@@ -1613,6 +1630,9 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		if(GET_PLAYER(m_ePlayer).getJONSCulture() < GET_PLAYER(m_ePlayer).getNextPolicyCost() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
 		{
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+			GET_PLAYER(m_ePlayer).setIsDelayedPolicy(false);
+#endif
 			return true;
 		}
 	}

@@ -326,7 +326,7 @@ local function UpdatePlotFlags( plot )
 		end
 	end
 	if city then
-		DebugPrint("#aflags ", #aflags)
+		-- DebugPrint("#aflags ", #aflags)
 		-- DebugPrint( n, "aircraft found") end
 		if #aflags > 0 then
 			local a = math_min( 0.5, 2.7 / #aflags )
@@ -339,7 +339,7 @@ local function UpdatePlotFlags( plot )
 			end
 		end
 	else
-		DebugPrint("#airbase ", #airbase)
+		-- DebugPrint("#airbase ", #airbase)
 		-- DebugPrint( n, "aircraft found") end
 		if #airbase > 0 then
 			local a = math_min( 0.5, 2.7 / #airbase )
@@ -352,7 +352,7 @@ local function UpdatePlotFlags( plot )
 			end
 		end
 		--
-		DebugPrint("#transportnits ", #transportnits)
+		-- DebugPrint("#transportnits ", #transportnits)
 		if #transportnits > 0 then
 			for i = 1, #transportnits do
 				local transportUnit = transportnits[i].m_Player:GetUnitByID( transportnits[i].m_UnitID )
@@ -785,9 +785,10 @@ function( playerID, unitID, isVisible, checkFlag )--, blendTime )
 	-- DebugUnit( playerID, unitID, "UnitVisibilityChanged, isVisible=", isVisible, "checkFlag=", checkFlag ) end
 	if checkFlag then
 		local flag = g_UnitFlags[ playerID ][ unitID ]
+		local unit = Players[ playerID ]:GetUnitByID( unitID )
 		if flag then
-			flag.m_IsInvisibleToActiveTeam = not isVisible
-			flag.Anchor:SetHide( not isVisible or flag.m_IsInvisibleToActiveTeamm_IsHiddenByFog )
+			flag.m_IsInvisibleToActiveTeam = unit:IsInvisible( Game.GetActiveTeam(), true )
+			flag.Anchor:SetHide( unit:IsInvisible( Game.GetActiveTeam(), true ) or flag.m_IsHiddenByFog )
 		end
 	end
 end)
