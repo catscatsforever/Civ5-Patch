@@ -251,7 +251,7 @@
 
 
 /*UNITS CHANGES START*/
-/// Gifted units can't attack if they already attacked this turn
+/// Gifted units can't attack if they have already attacked this turn
 #define GIFTED_UNITS_ATTACK
 /// Can nuke only if Mobile Tactics researched
 #define MOBILE_TACTICS_NUKING
@@ -306,6 +306,8 @@
 ///
 #define FREE_UNIT_AT_STARTING_PLOT
 ///
+#define FIX_JUMP_TO_NEAREST_CITY
+///
 #define MINES_ON_LUXES_AFTER_BRONZE_WORKING
 ///
 #define NO_PILLAGE_HEAL_ON_NEUTRAL_LAND
@@ -321,7 +323,7 @@
 ///
 #define RES_AGR_COUNT
 ///
-// #define NO_PUPPET_TECH_COST_MOD
+#define NO_PUPPET_TECH_COST_MOD
 /// The discount to tech cost awarded for other teams already owning a specific tech can now be toggled via an in-game option
 // #define AUI_TECH_TOGGLEABLE_ALREADY_KNOWN_TECH_COST_DISCOUNT
 /// AI does not increase already known tech cost discount
@@ -353,8 +355,11 @@
 #define SS_PART_PURCHASE_RESTRICTION
 ///
 #define SHARED_IDEOLOGY_TRADE_CHANGE
-/// Gunboat Diplomacy Grants 1 additional Delegate in the World Congress for every allied City-State (up to 6 additional Delegates)
+/// Gunboat Diplomacy Grants 1 additional Delegate in the World Congress for every allied City-State (up to MAX_AUTOCRACY_EXTRA_VOTES additional Delegates)
 #define AUTOCRACY_EXTRA_VOTES
+#ifdef AUTOCRACY_EXTRA_VOTES
+#define MAX_AUTOCRACY_EXTRA_VOTES 4
+#endif
 /// Treaty Organization One time increase of 45 Influence with City-States
 #define CS_INFLUENCE_BOOST
 /// Adopting all policies in the Liberty tree will decrease Unhappiness from each city by 1.
@@ -423,6 +428,8 @@
 #define POLICY_BUILDING_CLASS_FOOD_KEPT
 ///
 #define FIX_POLICY_BUILDING_CLASS_CULTURE_CHANGE_UI
+///
+#define NEW_NUM_CITIES_POLICIES_COST_MODIFIER
 /*POLICIES CHANGES END*/
 
 
@@ -443,7 +450,7 @@
 ///
 #define NO_SPEED_MOD_FOR_TOURISM_BLAST
 ///
-#define BLAST_TOURISM_ON_OWNERS_LAND
+// #define BLAST_TOURISM_ON_OWNERS_LAND
 /*TOURISM CHANGES END*/
 
 
@@ -678,9 +685,9 @@
 ///
 #define ALL_QUESTS_GET_END_TURN
 ///
-// #define CS_ALLYING_WAR_RESCTRICTION
+#define CS_ALLYING_WAR_RESCTRICTION
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-#define CS_ALLYING_WAR_RESCTRICTION_TIMER 40.f
+#define CS_ALLYING_WAR_RESCTRICTION_TIMER 60.f
 #endif
 ///
 #define NEW_BULLY_METRICS
@@ -689,6 +696,8 @@
 #ifdef CS_CANT_BUILD_EARLY_WORKERS
 #define CS_EARLY_WORKERS_TURN 20
 #endif
+///
+#define UPDATE_MINOR_BG_ICON_ON_UNIT_MOVE_OR_SET_DAMAGE
 /*CITY-STATES CHANGES END*/
 
 
@@ -762,9 +771,17 @@
 ///
 #define PREVENT_UNCAPPED_OVERFLOW
 ///
+#define FREE_BUILDINGS_COUNTS_AS_REAL_ON_CITY_ACQUIRE
+/// 
 #define DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
 ///
 #define FIX_UPDATE_CITY_VIEW_FREE_BUILDING
+///
+#define FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+///
+#define BUILDING_IMPROVEMENT_YIELD_CHANGE
+///
+#define FIX_BAZAAR_DOUBLE_RESOURCE_ONCE
 /*CITIES CHANGES END*/
 
 
@@ -816,10 +833,10 @@
 #define FIX_MAX_EFFECTIVE_CITIES
 ///
 #define FIX_RANGE_DEFENSE_MOD
-///
-#define FIX_RANGE_COMBAT_MOD
 /// if free tech notification is present, mark choose tech notification as redundant
 #define FIX_REDUNDANT_CHOOSE_TECH_NOTIFICATION
+///
+#define FIX_REMOVE_EXPIRED_FREE_TECH_NOTFICATION
 /*BUGS FIXES END*/
 
 
@@ -827,8 +844,6 @@
 /*TURN AND TIMER CHANGES START*/
 /// Randomizes the order in which player turns activate in simultaneous mode. E.g. this makes it so that the host no longer wins wonder races against all other players if they finish a wonder the same turn as another player.
 #define NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
-/// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
-#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
 ///
 #if defined (NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS) && defined (AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER)
 // #define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER_OPTION
@@ -849,6 +864,8 @@
 #define AUTOSAVE_END_OF_TURN
 /// Game.GetTurnTimeElapsed() returns elapsed time in milliseconds
 #define LUAAPI_GET_TURN_TIME_ELAPSED
+///
+#define AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 /*TURN AND TIMER CHANGES END*/
 
 
@@ -869,6 +886,8 @@
 
 
 /*LEAGUE CHANGES START*/
+/// If multiple civs have are eligible to found the league, choose a random one instead of the one with the highest slot
+#define AUI_VOTING_RANDOMIZED_LEAGUE_FOUNDER
 ///
 #define DIPLO_VICTORY_VOTING
 ///
@@ -982,11 +1001,13 @@
 //
 // 1000: v7.0   (initial)
 // 1001: v10.0  (adds GP_EXPENDED_GA, NEW_BELIEF_PROPHECY)
-# define BUMP_SAVE_VERSION_BELIEFS 1001
+// 1002: v10.2  (adds ENHANCED_GRAPHS)
+# define BUMP_SAVE_VERSION_BELIEFS 1002
 // 1000: v7.0   (initial)
 // 1001: v8.0   (adds CITY_EXTRA_ATTACK)
 // 1002: v8.2   (adds eReligionFoundedHere for MISSIONARY_ZEAL_AUTO_RELIGION_SPREAD)
-# define BUMP_SAVE_VERSION_CITY 1002
+// 1003: v10.2  (adds BUILDING_IMPROVEMENT_YIELD_CHANGE, FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE)
+# define BUMP_SAVE_VERSION_CITY 1003
 // 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_ESPIONAGE 1000
 // 1000: v7.0   (initial)
@@ -994,15 +1015,19 @@
 # define BUMP_SAVE_VERSION_GAME 1001
 // 1000: v7.0   (initial)
 // 1001: v7.3   (adds Workers Bully Turn)
-# define BUMP_SAVE_VERSION_MINORAI 1001
+// 1002: v10.2  (adds ENHANCED_GRAPHS)
+# define BUMP_SAVE_VERSION_MINORAI 1002
 // 1000: v7.0   (initial)
 // 1001: v7.2   (adds ENHANCED_GRAPHS)
 // 1002: v7.2a  (adds maya boost GP counters)
 // 1003: v8.1b  (adds second bunch of ENHANCED_GRAPHS)
-// 1004: v9.0   (adds GODDESS_LOVE_FREE_WORKER, TAJ_MAHAL_STARTS_GA_NEXT_TURN, CS_ALLYING_WAR_RESCTRICTION)
+// 1004: v9.0   (adds GODDESS_LOVE_FREE_WORKER, TAJ_MAHAL_STARTS_GA_NEXT_TURN)
 // 1005: v10.0  (adds POLICY_FREE_DEFENSIVE_BUILDINGS, GOD_SEA_FREE_WORK_BOAT, UNDERGROUND_SECT_REWORK)
 // 1006: v10.0g (adds PENALTY_FOR_DELAYING_POLICIES)
-# define BUMP_SAVE_VERSION_PLAYER 1006
+// 1007: v10.2  (adds third bunch of ENHANCED_GRAPHS)
+// 1008: v10.2b (adds third bunch of CS_ALLYING_WAR_RESCTRICTION, AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL)
+// 1009: v10.4a (separating CS_ALLYING_WAR_RESCTRICTION for different minors)
+# define BUMP_SAVE_VERSION_PLAYER 1009
 // 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_POLICIES 1000
 // 1000: v7.0   (initial)
@@ -1023,8 +1048,6 @@
 # define BUMP_SAVE_VERSION_REPLAYEVENT 1000
 // 1000: v8.2   (initial)
 # define BUMP_SAVE_VERSION_RESOLUTIONEFFECTS 1000
-// 1000: v10.2   (initial)
-# define BUMP_SAVE_VERSION_PREGAME 1000
 #endif
 ///
 #define ENHANCED_GRAPHS
@@ -1125,6 +1148,33 @@
 ///
 /// 
 #define EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
+///
+/// Third Bunch of Enhanced Graphs
+///
+#define EG_REPLAYDATASET_DIEDSPIES
+#define EG_REPLAYDATASET_KILLEDSPIES
+///
+#define EG_REPLAYDATASET_FOODFROMCS
+#define EG_REPLAYDATASET_PRODUCTIONFROMCS
+#define EG_REPLAYDATASET_CULTUREFROMCS
+#define EG_REPLAYDATASET_SCIENCEFROMCS
+#define EG_REPLAYDATASET_FAITHFROMCS
+#define EG_REPLAYDATASET_HAPPINESSFROMCS
+#define EG_REPLAYDATASET_UNITSFROMCS
+///
+#define EG_REPLAYDATASET_TOURISMPERTURN
+#define EG_REPLAYDATASET_NUMGREATWORKSANDARTIFACTS
+///
+#define EG_REPLAYDATASET_NUMLUXURY
+///
+#define EG_REPLAYDATASET_NUMWORLDWONDERS
+#define EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+///
+#define EG_REPLAYDATASET_NUMGPIMPROVEMENT
+///
+#define EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+#define EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+#define EG_REPLAYDATASET_NUMGOLDONUPGRADES
 #endif
 ///
 #define GRAPHS_REAL_TOTAL_CULTURE
@@ -1147,8 +1197,6 @@
 #define PREGAMEAPI_GET_NETID
 ///
 #define SHOW_ACTUAL_POPULATION
-///
-#define INGAME_MP_LOBBY_DRAFTS
 /*OTHER CHANGES END*/
 
 

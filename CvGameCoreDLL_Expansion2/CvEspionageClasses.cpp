@@ -666,6 +666,16 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 
 				}
 
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+				m_pPlayer->ChangeNumDiedSpies(1);
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+				if (!GET_PLAYER(eCityOwner).isMinorCiv())
+				{
+					GET_PLAYER(eCityOwner).ChangeNumKilledSpies(1);
+				}
+#endif
+
 				CvEspionageAI* pEspionageAI = m_pPlayer->GetEspionageAI();
 				CvAssertMsg(pEspionageAI, "pEspionageAI is null");
 				if(pEspionageAI)
@@ -2339,6 +2349,46 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+	{
+		if (ePreviousAlly != NO_PLAYER)
+		{
+			if (ePreviousAlly != NO_PLAYER)
+			{
+				if (GET_PLAYER(ePreviousAlly).isHuman() && GET_PLAYER(m_pPlayer->GetID()).isHuman() && GET_PLAYER(ePreviousAlly).getTeam() != GET_PLAYER(m_pPlayer->GetID()).getTeam())
+				{
+					CvGame& kGame = GC.getGame();
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+					float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+					float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
+					float fTimeElapsed = kGame.getTimeElapsed();
+					if (fGameTurnEnd - fTimeElapsed > CS_ALLYING_WAR_RESCTRICTION_TIMER)
+					{
+						GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn());
+						GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fTimeElapsed + CS_ALLYING_WAR_RESCTRICTION_TIMER);
+					}
+					else
+					{
+						GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn() + 1);
+						GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, CS_ALLYING_WAR_RESCTRICTION_TIMER - (fGameTurnEnd - fTimeElapsed));
+					}
+				}
+			}
+			if (GET_PLAYER(ePreviousAlly).isHuman())
+			{
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+				{
+					GET_PLAYER(ePreviousAlly).setTurnCSWarAllowingMinor((PlayerTypes)iI, eCityOwner, -1);
+					GET_PLAYER(ePreviousAlly).setTimeCSWarAllowingMinor((PlayerTypes)iI, eCityOwner, 0.f);
+				}
+			}
+		}
+	}
+#endif
 #ifdef REPLAY_EVENTS
 	std::vector<int> vArgs;
 	vArgs.push_back(static_cast<int>(uiSpyIndex));
@@ -2701,6 +2751,13 @@ bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncl
 	{
 		return false;
 	}
+
+#ifdef TOURISM_BONUS_DIPLOMAT
+	if ((uint)iSpyIndex >= m_aSpyList.size())
+	{
+		return false;
+	}
+#endif
 
 	if (!m_aSpyList[iSpyIndex].m_bIsDiplomat)
 	{
@@ -5003,11 +5060,13 @@ void CvEspionageAI::StealTechnology()
 				{
 					pEspionage->m_aaPlayerScienceToStealList[uiDefendingPlayer].pop_back();
 				}
-#endif
 				if (pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 				{
 					pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 				}
+#else
+				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
+#endif
 			}
 			else
 			{

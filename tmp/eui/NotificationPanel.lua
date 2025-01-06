@@ -5,9 +5,12 @@
 -- and minimize notification clutter
 -- code is common using gk_mode and bnw_mode switches
 -------------------------------------------------
--- edit: MP voting system for EUI
--- edit: Diplomacy stack left/right switch option for EUI
--- edit: FIX Events.NotificationRemoved missing PlayerID argument 
+-- edit:
+--     MP voting system
+--     Diplomacy stack left/right switch option
+--     FIX Events.NotificationRemoved missing PlayerID argument
+--     FIX stacked tech notifications
+-- for EUI
 -------------------------------------------------
 include( "EUI_tooltips" )
 
@@ -145,6 +148,9 @@ local g_mouseExit = true
 local g_SpareNotifications = {}
 local g_ActiveNotifications = {}
 local g_NotificationButtons = {}
+-- FIX stacked tech notifications
+g_TechActive = -1
+-- END
 --[[
 	{ (controls) Button etc..., (bundle) { { Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID }, ... } }
 --]]
@@ -652,6 +658,56 @@ for _, button in pairs( Controls ) do
 end
 
 -------------------------------------------------
+-- Remove Notification
+-------------------------------------------------
+
+local function RemoveNotificationID( Id )
+	-- FIX stacked tech notifications
+	if Id == g_TechActive then
+		print('remove active tech')
+		g_TechActive = -1
+	end
+	-- END
+	local index = g_ActiveNotifications[ Id ]
+	g_ActiveNotifications[ Id ] = nil
+	local instance = g_NotificationButtons[ index ]
+	if instance then
+		for i = 1, #instance do
+			-- Remove bundle item which corresponds to Id
+			if instance[i][ 1 ] == Id then
+				table_remove( instance, i )
+				break
+			end
+		end
+		local button = instance.Button
+		-- Is bundle now empty ?
+		if #instance <= 0 then
+			local name = instance.Name
+			if name then
+				local spares = g_SpareNotifications[ name ]
+				if not spares then
+					spares = {}
+					g_SpareNotifications[ name ] = spares
+				end
+				table_insert( spares, instance )
+				instance.Container:ChangeParent( Controls_Scrap )
+			else
+				button:SetHide( true )
+			end
+			g_NotificationButtons[ index ] = nil
+		-- Update notification
+		else
+			local sequence = instance.Sequence
+			if sequence > #instance then
+				sequence = 1
+			end
+			instance.Button:SetVoid1( instance[ sequence ][1] )
+			SetupNotification( instance, sequence )
+		end
+	end
+end
+
+-------------------------------------------------
 -- Notification Added
 -------------------------------------------------
 Events.NotificationAdded.Add(
@@ -712,52 +768,18 @@ function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID ) 
 
 		ProcessStackSizes( true )
 	end
+	-- FIX stacked tech notifications
+    if name == 'Tech' then
+    	if g_TechActive == -1 then
+    		print('g_TechActive -1')
+    	else
+    		print('g_TechActive already active', g_TechActive)
+    		RemoveNotificationID(g_TechActive)
+    	end
+    	g_TechActive = Id
+    end
+    -- END
 end)
-
--------------------------------------------------
--- Remove Notification
--------------------------------------------------
-
-local function RemoveNotificationID( Id )
-
-	local index = g_ActiveNotifications[ Id ]
-	g_ActiveNotifications[ Id ] = nil
-	local instance = g_NotificationButtons[ index ]
-	if instance then
-		for i = 1, #instance do
-			-- Remove bundle item which corresponds to Id
-			if instance[i][ 1 ] == Id then
-				table_remove( instance, i )
-				break
-			end
-		end
-		local button = instance.Button
-		-- Is bundle now empty ?
-		if #instance <= 0 then
-			local name = instance.Name
-			if name then
-				local spares = g_SpareNotifications[ name ]
-				if not spares then
-					spares = {}
-					g_SpareNotifications[ name ] = spares
-				end
-				table_insert( spares, instance )
-				instance.Container:ChangeParent( Controls_Scrap )
-			else
-				button:SetHide( true )
-			end
-			g_NotificationButtons[ index ] = nil
-		-- Update notification
-		else
-			local sequence = instance.Sequence
-			if sequence > #instance then
-				sequence = 1
-			end
-			instance.Button:SetVoid1( instance[ sequence ][1] )
-			SetupNotification( instance, sequence )
-		end
-	end
-end
 
 -- edit: FIX Events.NotificationRemoved missing PlayerID argument 
 Events.NotificationRemoved.Add(

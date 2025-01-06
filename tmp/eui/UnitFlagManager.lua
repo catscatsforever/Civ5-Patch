@@ -6,6 +6,7 @@
 -- flag offsets vs UI precedence
 --==========================================================
 
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
 local math_max = math.max
 local math_min = math.min
 local math_ceil = math.ceil
@@ -209,17 +210,22 @@ local function UpdatePlotFlags( plot )
 	local aflags = {}
 	local unit, flag, n
 	local city = plot:GetPlotCity()
+	local strToolTip = ""
 	if city then
 		local l, r, y = -43, 43, Game.GetActiveTeam() == city:GetTeam() and -39 or -36
 		local gflags = {}
 		for i = 0, GetPlotNumUnits( plot ) - 1 do
 			unit = GetPlotUnit( plot, i )
 			flag = g_UnitFlags[ unit:GetOwner() ][ unit:GetID() ]
-			if flag and flag.m_Plot then
+			if flag and flag.m_Plot and not unit:IsInvisible( Game.GetActiveTeam(), true ) then
 				if unit:IsCargo() then
 					table_insert( aflags, flag )
 				elseif flag.m_IsAirCraft then
 					table_insert( aflags, flag )
+					if (strToolTip ~= "") then
+						strToolTip = strToolTip .. "[NEWLINE]"
+					end
+					strToolTip = strToolTip .. Locale.ConvertTextKey(unit:GetNameKey())
 				elseif unit:IsGarrisoned() then
 					table_insert( gflags, flag )
 				else
@@ -303,8 +309,17 @@ local function UpdatePlotFlags( plot )
 			end
 			flag.Anchor:SetHide( not plot:IsVisible( g_activeTeamID, true ) )
 			flag.Button:SetText( n )
-			flag.Button:LocalizeAndSetToolTip( "TXT_KEY_STATIONED_AIRCRAFT", n )
+			flag.Button:SetToolTipString( strToolTip )
+			-- flag.Button:LocalizeAndSetToolTip( "TXT_KEY_STATIONED_AIRCRAFT", n )
 		elseif flag then
+			g_AirbaseFlags[ plotIndex ] = nil
+			flag.Anchor:ChangeParent( g_ScrapControls )
+			table_insert( g_spareAirbaseFlags, flag )
+		end
+	else
+		local plotIndex = plot:GetPlotIndex()
+		flag = g_AirbaseFlags[ plotIndex ]
+		if flag then
 			g_AirbaseFlags[ plotIndex ] = nil
 			flag.Anchor:ChangeParent( g_ScrapControls )
 			table_insert( g_spareAirbaseFlags, flag )
@@ -474,18 +489,46 @@ local function FinishMove( flag )
 		if flag.m_TransportUnit then
 			local oldCarrier = g_UnitFlags[ flag.m_TransportUnit:GetOwner() ][ flag.m_TransportUnit:GetID() ]
 			if oldCarrier then
-				local cargo = oldCarrier.m_Unit:GetCargo()
+				-- local cargo = oldCarrier.m_Unit:GetCargo()
+				local cargo = 0
+				local plot = unit:GetPlot()
+				local strToolTip = ""
+				for i = 0, GetPlotNumUnits( plot ) - 1 do
+					local loopUnit = GetPlotUnit( plot, i )
+					if loopUnit:GetTransportUnit() == flag.m_TransportUnit then
+						cargo = cargo + 1
+						if (strToolTip ~= "") then
+							strToolTip = strToolTip .. "[NEWLINE]"
+						end
+						strToolTip = strToolTip .. Locale.ConvertTextKey(loopUnit:GetNameKey())
+					end
+				end
 				oldCarrier.CargoBG:SetHide( cargo < 1 )
 				oldCarrier.Cargo:SetText( cargo )
+				oldCarrier.Cargo:SetToolTipString( strToolTip )
 			end
 		end
 		flag.m_TransportUnit = transportUnit
 		if transportUnit then
 			local newCarrier = g_UnitFlags[ transportUnit:GetOwner() ][ transportUnit:GetID() ]
 			if newCarrier then
-				local cargo = transportUnit:GetCargo()
+				-- local cargo = transportUnit:GetCargo()
+				local cargo = 0
+				local plot = unit:GetPlot()
+				local strToolTip = ""
+				for i = 0, GetPlotNumUnits( plot ) - 1 do
+					local loopUnit = GetPlotUnit( plot, i )
+					if loopUnit:GetTransportUnit() == flag.m_TransportUnit then
+						cargo = cargo + 1
+						if (strToolTip ~= "") then
+							strToolTip = strToolTip .. "[NEWLINE]"
+						end
+						strToolTip = strToolTip .. Locale.ConvertTextKey(loopUnit:GetNameKey())
+					end
+				end
 				newCarrier.CargoBG:SetHide( cargo < 1 )
 				newCarrier.Cargo:SetText( cargo )
+				newCarrier.Cargo:SetToolTipString( strToolTip )
 			end
 		end
 	end
@@ -633,7 +676,7 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		flag.m_IsCivilian = isCivilian
 		flag.m_IsGarrisoned = unit:IsGarrisoned()
 		flag.m_IsHiddenByFog = isHiddenByFog
-		flag.m_IsInvisibleToActiveTeam = isInvisibleToActiveTeam
+		flag.m_IsInvisibleToActiveTeam = (isInvisibleToActiveTeam or (flag.m_IsAirCraft and Players[playerID]:GetTeam() ~= Game.GetActiveTeam()))
 		flag.m_Plot = nil
 		flag.m_IsSelected = isSelected
 		flag.m_IsTrade = unit.IsTrade and unit:IsTrade()
@@ -661,13 +704,60 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 
 		---------------------------------------------------------
 		-- Can carry units
-		local cargo = unit:GetCargo()
+		-- local cargo = unit:GetCargo()
+		local cargo = 0
+		local plot = unit:GetPlot()
+		local strToolTip = ""
+		for i = 0, GetPlotNumUnits( plot ) - 1 do
+			local loopUnit = GetPlotUnit( plot, i )
+			if loopUnit:GetTransportUnit() == unit then
+				cargo = cargo + 1
+				if (strToolTip ~= "") then
+					strToolTip = strToolTip .. "[NEWLINE]"
+				end
+				strToolTip = strToolTip .. Locale.ConvertTextKey(loopUnit:GetNameKey())
+			end
+		end
 		flag.CargoBG:SetHide( cargo < 1 )
 		flag.Cargo:SetText( cargo )
+		flag.Cargo:SetToolTipString( strToolTip )
 
 		---------------------------------------------------------
 		-- update all other info
-		flag.Anchor:SetHide( isHiddenByFog or isInvisibleToActiveTeam )
+		flag.Anchor:SetHide( isHiddenByFog or isInvisibleToActiveTeam or (flag.m_IsAirCraft and Players[playerID]:GetTeam() ~= Game.GetActiveTeam()) )
+        if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+			if unit:CanMove() then
+				flag.IsOutOfAttacks:SetHide(g_activeTeamID ~= teamID or not unit:IsOutOfAttacks())
+			else
+				flag.IsOutOfAttacks:SetHide(true)
+			end
+            local bIsHealing = false
+            if not unit:IsEmbarked() then
+	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+	                if unit:IsAlwaysHeal() then
+	                    bIsHealing = true
+	                end
+	            else
+                    if unit:IsHurt() then
+                        if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                            if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
+                                bIsHealing = false
+                            else
+                                bIsHealing = true
+                            end
+                        else
+                            bIsHealing = true
+                        end
+                    end
+	            end
+	        end
+            flag.IsHealing:SetHide(g_activeTeamID ~= teamID or not bIsHealing)
+			flag.IsNoCapture:SetHide(g_activeTeamID ~= teamID or not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+		else
+			flag.IsOutOfAttacks:SetHide(true)
+			flag.IsHealing:SetHide(true)
+			flag.IsNoCapture:SetHide(true)
+		end
 		flag.FlagShadow:SetAlpha( unit:CanMove() and 1 or 0.5 )
 		flag.Button:SetDisabled( g_activeTeamID ~= teamID )
 		flag.Button:SetConsumeMouseOver( g_activeTeamID == teamID )
@@ -690,6 +780,31 @@ end--CreateNewFlag
 --==========================================================
 local function DestroyFlag( flag )
 	-- DebugFlag( flag, "DestroyFlag" ) end
+	local unit = flag.m_Unit
+	if flag.m_TransportUnit then
+		local Carrier = g_UnitFlags[ flag.m_TransportUnit:GetOwner() ][ flag.m_TransportUnit:GetID() ]
+		if Carrier then
+			-- local cargo = Carrier.m_Unit:GetCargo()
+			local cargo = 0
+			local plot = unit:GetPlot()
+			local strToolTip = ""
+			if plot then
+				for i = 0, GetPlotNumUnits( plot ) - 1 do
+					local loopUnit = GetPlotUnit( plot, i )
+					if loopUnit:GetTransportUnit() == flag.m_TransportUnit then
+						cargo = cargo + 1
+						if (strToolTip ~= "") then
+							strToolTip = strToolTip .. "[NEWLINE]"
+						end
+						strToolTip = strToolTip .. Locale.ConvertTextKey(loopUnit:GetNameKey())
+					end
+				end
+			end
+			Carrier.CargoBG:SetHide( cargo < 1 )
+			Carrier.Cargo:SetText( cargo )
+			Carrier.Cargo:SetToolTipString( strToolTip )
+		end
+	end
 	flag.Anchor:ChangeParent( g_ScrapControls )
 	table_insert( g_spareNewUnitFlags, flag )
 	g_UnitFlags[ flag.m_PlayerID ][ flag.m_UnitID ] = nil
@@ -787,8 +902,9 @@ function( playerID, unitID, isVisible, checkFlag )--, blendTime )
 		local flag = g_UnitFlags[ playerID ][ unitID ]
 		local unit = Players[ playerID ]:GetUnitByID( unitID )
 		if flag then
-			flag.m_IsInvisibleToActiveTeam = unit:IsInvisible( Game.GetActiveTeam(), true )
+			flag.m_IsInvisibleToActiveTeam = (unit:IsInvisible( Game.GetActiveTeam(), true ) or (flag.m_IsAirCraft and Players[playerID]:GetTeam() ~= Game.GetActiveTeam()))
 			flag.Anchor:SetHide( unit:IsInvisible( Game.GetActiveTeam(), true ) or flag.m_IsHiddenByFog )
+			UpdatePlotFlags(unit:GetPlot())
 		end
 	end
 end)
@@ -829,12 +945,96 @@ Events.SerialEventUnitSetDamage.Add(
 function( playerID, unitID, damage )--, previousDamage )
 	-- !!! can be called for dead unit !!!
 	-- DebugUnit( playerID, unitID, "SerialEventUnitSetDamage, damage=", damage ) end
+	local active_team = Game.GetActiveTeam();
+	local team = Players[playerID]:GetTeam();
+	local isActiveTeam = (active_team == team);
 	local flag = g_UnitFlags[ playerID ][ unitID ]
+	local player = Players[ playerID ]
+	local unit = player and player:GetUnitByID( unitID )
 	if flag then
+		if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+            local bIsHealing = false
+            if not unit:IsEmbarked() then
+	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+	                if unit:IsAlwaysHeal() then
+	                    bIsHealing = true
+	                end
+	            else
+                    if unit:IsHurt() then
+                        if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                            if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
+                                bIsHealing = false
+                            else
+                                bIsHealing = true
+                            end
+                        else
+                            bIsHealing = true
+                        end
+                    end
+	            end
+	        end
+            flag.IsHealing:SetHide(not isActiveTeam or not bIsHealing)
+		else
+			flag.IsHealing:SetHide(true)
+		end
 		UpdateFlagHealth( flag, damage )
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for SerialEventUnitSetDamage" ) end
 	end
+end)
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+Events.GameOptionsChanged.Add(
+function ()
+    local i = 0;
+    local player = Players[i];
+    while player ~= nil 
+    do
+        if( player:IsAlive() ) then
+            if (player:GetTeam() == Players[Game.GetActivePlayer()]:GetTeam()) then
+                for unit in player:Units() do
+                    if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                        local flag = g_UnitFlags[ i ][ unit:GetID() ];
+                        if unit:CanMove() then
+                            flag.IsOutOfAttacks:SetHide(not unit:IsOutOfAttacks())
+                        else
+                            flag.IsOutOfAttacks:SetHide(true)
+                        end
+			            local bIsHealing = false
+			            if not unit:IsEmbarked() then
+				            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+				                if unit:IsAlwaysHeal() then
+				                    bIsHealing = true
+				                end
+				            else
+                                if unit:IsHurt() then
+                                    if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                                        if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
+                                            bIsHealing = false
+                                        else
+                                            bIsHealing = true
+                                        end
+                                    else
+                                        bIsHealing = true
+                                    end
+                                end
+				            end
+				        end
+			            flag.IsHealing:SetHide(not bIsHealing)
+                        flag.IsNoCapture:SetHide(not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+                    else
+                        local flag = g_UnitFlags[ i ][ unit:GetID() ];
+                        flag.IsOutOfAttacks:SetHide(true)
+                        flag.IsHealing:SetHide(true)
+                        flag.IsNoCapture:SetHide(true)
+                    end
+                end
+            end
+        end
+
+        i = i + 1;
+        player = Players[i];
+    end
 end)
 
 --==========================================================
@@ -901,9 +1101,44 @@ function( playerID, unitID, isDimmed )
 	-- DebugUnit( playerID, unitID, "UnitShouldDimFlag, isDimmed=", isDimmed ) end
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag then
-	local active_team = Game.GetActiveTeam();
-	local team = Players[playerID]:GetTeam();
-	local isActiveTeam = (active_team == team);
+		local active_team = Game.GetActiveTeam();
+		local team = Players[playerID]:GetTeam();
+		local isActiveTeam = (active_team == team);
+		local player = Players[ playerID ]
+		local unit = player and player:GetUnitByID( unitID )
+		if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+			if unit:CanMove() then
+				flag.IsOutOfAttacks:SetHide(not isActiveTeam or not unit:IsOutOfAttacks())
+			else
+				flag.IsOutOfAttacks:SetHide(true)
+			end
+            local bIsHealing = false
+            if not unit:IsEmbarked() then
+	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+	                if unit:IsAlwaysHeal() then
+	                    bIsHealing = true
+	                end
+	            else
+                    if unit:IsHurt() then
+                        if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                            if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
+                                bIsHealing = false
+                            else
+                                bIsHealing = true
+                            end
+                        else
+                            bIsHealing = true
+                        end
+                    end
+	            end
+	        end
+            flag.IsHealing:SetHide(not isActiveTeam or not bIsHealing)
+			flag.IsNoCapture:SetHide(not isActiveTeam or not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+		else
+			flag.IsOutOfAttacks:SetHide(true)
+			flag.IsHealing:SetHide(true)
+			flag.IsNoCapture:SetHide(true)
+		end
 		flag.FlagShadow:SetAlpha( (isDimmed and isActiveTeam) and 0.5 or 1.0 )
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for UnitShouldDimFlag" ) end

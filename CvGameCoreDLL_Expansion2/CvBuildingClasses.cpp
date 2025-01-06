@@ -195,6 +195,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	m_ppaiImprovementYieldChange(NULL),
+#endif
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
@@ -243,6 +246,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
 
@@ -564,6 +570,31 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	//ImprovementYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiImprovementYieldChange, "Improvements", "Yields");
+
+		std::string strKey("Building_ImprovementYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, Yield from Building_ImprovementYieldChanges inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int ImprovementID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiImprovementYieldChange[ImprovementID][YieldID] = yield;
+		}
+	}
+#endif
 
 	//SpecialistYieldChanges
 	{
@@ -1618,7 +1649,7 @@ int CvBuildingEntry::GetYieldChange(int i) const
 		}
 		else if(i == YIELD_SCIENCE)
 		{
-			return m_piYieldChange ? (m_piYieldChange[i] - 1) : -1;
+			return m_piYieldChange ? (m_piYieldChange[i] - 1) : 2;
 		}
 		else
 		{
@@ -2021,6 +2052,26 @@ int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiTerrainYieldChange[i];
 }
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+/// Change to Improvement yield by type
+int CvBuildingEntry::GetImprovementYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiImprovementYieldChange ? m_ppaiImprovementYieldChange[i][j] : -1;
+}
+
+/// Array of changes to Improvement yield
+int* CvBuildingEntry::GetImprovementYieldChangeArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiImprovementYieldChange[i];
+}
+#endif
 
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
@@ -2700,6 +2751,12 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			if(isWorldWonderClass(kBuildingClassInfo))
 			{
 				m_pCity->changeNumWorldWonders(iChangeNumRealBuilding);
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+				if (eOriginalOwner == m_pCity->getOwner() && iChangeNumRealBuilding > 0 && GetBuildingOriginalTime(eIndex) == iOriginalTime)
+				{
+					GET_PLAYER(m_pCity->getOwner()).ChangeNumCreatedWorldWonders(iChangeNumRealBuilding);
+				}
+#endif
 				pPlayer->ChangeNumWonders(iChangeNumRealBuilding);
 			}
 			else if(isTeamWonderClass(kBuildingClassInfo))

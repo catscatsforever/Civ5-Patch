@@ -1190,6 +1190,9 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 
 					GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 					GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+					GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
+#endif
 				}
 
 				if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -1220,6 +1223,9 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 
 					GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 					GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+					GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
+#endif
 				}
 
 				if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
@@ -4289,6 +4295,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
+#endif
 			}
 
 			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -4319,6 +4328,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
+#endif
 			}
 		}
 		if (eMajority > RELIGION_PANTHEON && GC.getGame().GetGameReligions()->GetReligion(eMajority, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY")))
@@ -4355,6 +4367,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
+#endif
 			}
 
 			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -4385,6 +4400,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
+#endif
 			}
 
 			if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)

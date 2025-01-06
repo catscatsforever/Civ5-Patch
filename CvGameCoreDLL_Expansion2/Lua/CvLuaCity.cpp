@@ -2471,7 +2471,33 @@ int CvLuaCity::lGetReligionBuildingClassHappiness(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
+#ifdef NEW_BELIEF_PROPHECY
+			CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+			int iYieldFromBuilding = 0;
+
+			for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+			{
+				if (pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+				{
+					if (iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+					{
+						if (pBeliefs->GetEntry(i)->IsReformationBelief())
+						{
+							if (pReligion->m_eFounder == pkCity->getOwner())
+							{
+								iHappinessFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassHappiness(eBuildingClass);
+							}
+						}
+						else
+						{
+							iHappinessFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassHappiness(eBuildingClass);
+						}
+					}
+				}
+			}
+#else
 			iHappinessFromBuilding += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+#endif
 		}
 	}
 	lua_pushinteger(L, iHappinessFromBuilding);

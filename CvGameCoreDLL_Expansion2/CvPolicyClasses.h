@@ -624,6 +624,9 @@ public:
 	int GetTourismFromUnitCreation(UnitClassTypes eUnitClass) const;
 
 	// Functions to give current player status with respect to policies
+#ifdef NEW_NUM_CITIES_POLICIES_COST_MODIFIER
+	int GetNumCitiesPolicyCostMod(int iNumCities) const;
+#endif
 	int GetNextPolicyCost();
 	bool CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost = false) const;
 	int GetNumPoliciesCanBeAdopted();

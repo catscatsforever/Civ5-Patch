@@ -5939,7 +5939,11 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 
 				else if(pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
+#ifdef FIX_BAZAAR_DOUBLE_RESOURCE_ONCE
+					CvCity* pCity = GetResourceLinkedCity();
+#else
 					CvCity* pCity = getWorkingCity();
+#endif
 					if(pCity)
 					{
 						if(pCity->IsExtraLuxuryResources())
@@ -7732,7 +7736,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 #ifdef GREECE_UA_REWORK
 			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 			{
-				if (pWorkingCity != NULL && isMountain() && !IsNaturalWonder())
+				if (pWorkingCity != NULL && pWorkingCity->getOwner() == ePlayer && isMountain() && !IsNaturalWonder())
 				{
 					if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 					{
@@ -7746,6 +7750,20 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 #endif
 		}
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+		// Extra yield for improvements
+		if (getImprovementType() != NO_IMPROVEMENT)
+		{
+			if (!IsImprovementPillaged())
+			{
+				if (pWorkingCity != NULL)
+				{
+					iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				}
+			}
+		}
+#endif
 
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)
@@ -10559,6 +10577,20 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
 		}
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+		// Extra yield for improvements
+		if (getImprovementType() != NO_IMPROVEMENT)
+		{
+			if (!IsImprovementPillaged())
+			{
+				if (pWorkingCity != NULL)
+				{
+					iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+				}
+			}
+		}
+#endif
 
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)

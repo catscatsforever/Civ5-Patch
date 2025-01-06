@@ -170,6 +170,10 @@
                         <Image Anchor="C,C" Size="32,32" Offset="1,-1"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds" Color="240,199,0,255" ID="UnitIcon"  ToolTip="" />
                     </Image>
                 </AlphaAnim>
+
+                <Label ID="IsHealing" Anchor="L,T" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_GREEN_CROSS]" Hidden="1" />
+                <Label ID="IsOutOfAttacks" Anchor="L,B" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_WAR]" Hidden="1" />
+                <Label ID="IsNoCapture" Anchor="L,B" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_CAPITAL]" Hidden="1" />
             </Image>
         </WorldAnchor>
     </Instance>

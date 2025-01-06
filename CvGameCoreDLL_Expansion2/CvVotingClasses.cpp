@@ -1543,6 +1543,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 					}
 
 					// Other Cities
@@ -1552,6 +1555,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 					}
 				}
 
@@ -1572,6 +1578,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 					}
 
 					// Other Cities
@@ -1581,6 +1590,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 					}
 				}
 			}
@@ -1611,6 +1623,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 					}
 
 					// Other Cities
@@ -1620,6 +1635,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 					}
 				}
 
@@ -1640,6 +1658,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 					}
 
 					// Other Cities
@@ -1649,6 +1670,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 					}
 				}
 			}
@@ -1911,6 +1935,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 					}
 
 					// Other Cities
@@ -1920,6 +1947,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 					}
 				}
 
@@ -1940,6 +1970,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 					}
 
 					// Other Cities
@@ -1949,6 +1982,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldFood != iNewFood)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+						GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 					}
 				}
 			}
@@ -1979,6 +2015,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 					}
 
 					// Other Cities
@@ -1988,6 +2027,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 					}
 				}
 
@@ -2008,6 +2050,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 					}
 
 					// Other Cities
@@ -2017,6 +2062,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					if (iOldProduction != iNewProduction)
 					{
 						GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+						GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 					}
 				}
 			}
@@ -3863,8 +3911,8 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		int iPolicyVotes = 0;
 #endif
 #ifdef AUTOCRACY_EXTRA_VOTES
-		iPolicyVotes += std::min(6, iExtraAutoVotes);
-		iVotes += std::min(6, iExtraAutoVotes);
+		iPolicyVotes += std::min(MAX_AUTOCRACY_EXTRA_VOTES, iExtraAutoVotes);
+		iVotes += std::min(MAX_AUTOCRACY_EXTRA_VOTES, iExtraAutoVotes);
 #endif
 #ifdef PATRONAGE_FINISHER_REWORK
 		PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_PATRONAGE_FINISHER", true /*bHideAssert*/);
@@ -7054,7 +7102,12 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		// Free Social Policy
 		if (pRewardInfo->GetFreeSocialPolicies() > 0)
 		{
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+			GET_PLAYER(ePlayer).ChangeNumFreePolicies(1024 * pRewardInfo->GetFreeSocialPolicies());
+			GET_PLAYER(ePlayer).ChangeNumFreePoliciesEver(-1024 * pRewardInfo->GetFreeSocialPolicies());
+#else
 			GET_PLAYER(ePlayer).ChangeNumFreePolicies(pRewardInfo->GetFreeSocialPolicies());
+#endif
 		}
 
 		// Temporary Culture Modifier

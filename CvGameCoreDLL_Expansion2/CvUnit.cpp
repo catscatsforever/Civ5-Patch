@@ -1197,13 +1197,15 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 				else
-				{
-					bGivePromotion = true;
-				}
-					
-#else
-				bGivePromotion = true;
 #endif
+#ifdef ALLOW_HELICOPTER_WATERWALK
+				if (getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_HELICOPTER_GUNSHIP") && (ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_EMBARKATION") || ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DEFENSIVE_EMBARKATION") || ePromotion == (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION")))
+				{
+					bGivePromotion = false;
+				}
+				else
+#endif
+				bGivePromotion = true;
 			}
 
 			// New unit gets promotion for free (as per XML)
@@ -3189,8 +3191,16 @@ bool CvUnit::jumpToNearestValidPlot()
 					{
 						if (getDomainType() != DOMAIN_SEA || (plot()->isFriendlyCity(*this, true) && plot()->isCoastalLand()) || plot()->isWater())
 						{
+#ifdef FIX_JUMP_TO_NEAREST_CITY
+							if (!(plot()->getPlotCity() && plot()->getOwner() != getOwner()))
+							{
+								iBestValue = 0;
+								pBestPlot = plot();
+							}
+#else
 							iBestValue = 0;
 							pBestPlot = plot();
+#endif
 						}
 					}
 				}
@@ -3218,6 +3228,31 @@ bool CvUnit::jumpToNearestValidPlot()
 						{
 							if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || pLoopPlot->isWater())
 							{
+#ifdef FIX_JUMP_TO_NEAREST_CITY
+								if (!(pLoopPlot->getPlotCity() && pLoopPlot->getOwner() != getOwner()))
+								{
+									if (pLoopPlot->isRevealed(getTeam()))
+									{
+										iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+										if (pNearestCity != NULL)
+										{
+											iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
+										}
+
+										if (pLoopPlot->area() != area())
+										{
+											iValue *= 3;
+										}
+
+										if (iValue < iBestValue)
+										{
+											iBestValue = iValue;
+											pBestPlot = pLoopPlot;
+										}
+									}
+								}
+#else
 								if(pLoopPlot->isRevealed(getTeam()))
 								{
 									iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
@@ -3238,6 +3273,7 @@ bool CvUnit::jumpToNearestValidPlot()
 										pBestPlot = pLoopPlot;
 									}
 								}
+#endif
 							}
 						}
 					}
@@ -10131,6 +10167,9 @@ CvUnit* CvUnit::DoUpgrade()
 
 	// Gold Cost
 	int iUpgradeCost = upgradePrice(eUnitType);
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	GET_PLAYER(getOwner()).ChangeNumGoldSpentOnUgrades(iUpgradeCost);
+#endif
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
 	thisPlayer.GetTreasury()->LogExpenditure(getUnitInfo().GetText(), iUpgradeCost, 3);
 	thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
@@ -11796,9 +11835,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Domain modifier VS other unit
 		iModifier += domainModifier(pOtherUnit->getDomainType());
 
+#ifndef FIX_RANGE_DEFENSE_MOD
 		// Bonus VS fortified
 		if (pOtherUnit->getFortifyTurns() > 0)
 			iModifier += attackFortifiedModifier();
+#endif
 
 		// Bonus VS wounded
 		if (pOtherUnit->getDamage() > 0)
@@ -11861,6 +11902,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Rough Ground
 			if (pTargetPlot->isRoughGround())
 				iModifier += roughRangedAttackModifier();
+
+#ifdef FIX_RANGE_DEFENSE_MOD
+			// Bonus VS fortified
+			if (pOtherUnit->getFortifyTurns() > 0)
+				iModifier += attackFortifiedModifier();
+#endif
 
 			// Bonus for fighting in one's lands
 			if (pTargetPlot->IsFriendlyTerritory(getOwner()))
@@ -11972,6 +12019,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		iModifier += getDefenseModifier();
 
+#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
 		// Tourism Defense
 		if (pOtherUnit != NULL)
 		{
@@ -11982,10 +12030,60 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = GET_PLAYER(getOwner()).GetCulture()->GetDefenseAgainstInfluencedCiv(ePlayer);
 		}
 		iModifier += iTempModifier;
+#endif
 
 #ifdef FIX_RANGE_DEFENSE_MOD
 		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
+
+		// Bonus for fighting in one's lands
+		if (plot()->IsFriendlyTerritory(getOwner()))
+		{
+			iTempModifier = getFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Founder Belief bonus
+			CvCity* pPlotCity = plot()->getWorkingCity();
+			if (pPlotCity)
+			{
+				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+				if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+				{
+					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
+					if (pCityReligion)
+					{
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+						iModifier += iTempModifier;
+					}
+				}
+			}
+		}
+
+		// Bonus for fighting outside one's lands
+		else
+		{
+			iTempModifier = getOutsideFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Founder Belief bonus (this must be a city controlled by an enemy)
+			CvCity* pPlotCity = plot()->getWorkingCity();
+			if (pPlotCity)
+			{
+				if (atWar(getTeam(), pPlotCity->getTeam()))
+				{
+					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+					if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					{
+						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
+						if (pCityReligion)
+						{
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities();
+							iModifier += iTempModifier;
+						}
+					}
+				}
+			}
+		}
 #endif
 	}
 
@@ -12096,9 +12194,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Domain modifier VS other unit
 		iModifier += domainModifier(pOtherUnit->getDomainType());
 
+#ifndef FIX_RANGE_DEFENSE_MOD
 		// Bonus VS fortified
 		if(pOtherUnit->getFortifyTurns() > 0)
 			iModifier += attackFortifiedModifier();
+#endif
 
 		// Bonus VS wounded
 		if(pOtherUnit->getDamage() > 0)
@@ -12157,6 +12257,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Open Ground
 			if(pTargetPlot->isOpenGround())
 				iModifier += openRangedAttackModifier();
+
+#ifdef FIX_RANGE_DEFENSE_MOD
+			// Bonus VS fortified
+			if (pOtherUnit->getFortifyTurns() > 0)
+				iModifier += attackFortifiedModifier();
+#endif
 
 			// Rough Ground
 			if(pTargetPlot->isRoughGround())
@@ -12275,6 +12381,55 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #ifdef FIX_RANGE_DEFENSE_MOD
 		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
+
+		// Bonus for fighting in one's lands
+		if (plot()->IsFriendlyTerritory(getOwner()))
+		{
+			iTempModifier = getFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Founder Belief bonus
+			CvCity* pPlotCity = plot()->getWorkingCity();
+			if (pPlotCity)
+			{
+				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+				if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+				{
+					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
+					if (pCityReligion)
+					{
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+						iModifier += iTempModifier;
+					}
+				}
+			}
+		}
+
+		// Bonus for fighting outside one's lands
+		else
+		{
+			iTempModifier = getOutsideFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Founder Belief bonus (this must be a city controlled by an enemy)
+			CvCity* pPlotCity = plot()->getWorkingCity();
+			if (pPlotCity)
+			{
+				if (atWar(getTeam(), pPlotCity->getTeam()))
+				{
+					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+					if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					{
+						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
+						if (pCityReligion)
+						{
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities();
+							iModifier += iTempModifier;
+						}
+					}
+				}
+			}
+		}
 #endif
 	}
 
@@ -14287,6 +14442,23 @@ void CvUnit::setHotKeyNumber(int iNewValue)
 void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool bCheckPlotVisible, bool bNoMove)
 {
 	VALIDATE_OBJECT
+#ifdef UPDATE_MINOR_BG_ICON_ON_UNIT_MOVE_OR_SET_DAMAGE
+	std::vector<bool> oldCanBully(MAX_MAJOR_CIVS * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS));
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		for (int jJ = MAX_MAJOR_CIVS; jJ < MAX_MINOR_CIVS; jJ++)
+		{
+			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			{
+				oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] = GET_PLAYER((PlayerTypes)jJ).GetMinorCivAI()->CanMajorBullyGold((PlayerTypes)iI);
+			}
+			else
+			{
+				oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] = false;
+			}
+		}
+	}
+#endif
 	IDInfo* pUnitNode = 0;
 	CvCity* pOldCity = 0;
 	CvCity* pNewCity = 0;
@@ -14343,7 +14515,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 #ifdef INVISIBILITY_OF_NUCLEAR_MISSILESS_ON_SUBMARINES
 				setInvisibleType(NO_INVISIBLE);
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-				gDLL->GameplayUnitVisibility(pDllUnit.get(), NO_INVISIBLE, true);
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), false, true);
 #endif
 			}
 		}
@@ -15108,6 +15280,33 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 	}
+
+#ifdef UPDATE_MINOR_BG_ICON_ON_UNIT_MOVE_OR_SET_DAMAGE
+	for (int jJ = MAX_MAJOR_CIVS; jJ < MAX_MINOR_CIVS; jJ++)
+	{
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			{
+				if (oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] != GET_PLAYER((PlayerTypes)jJ).GetMinorCivAI()->CanMajorBullyGold((PlayerTypes)iI))
+				{
+					PlayerTypes eLoopMinor = (PlayerTypes)jJ;
+					if (GET_PLAYER(eLoopMinor).isAlive())
+					{
+						if (GET_PLAYER(eLoopMinor).getCapitalCity())
+						{
+							if (GET_PLAYER(eLoopMinor).getCapitalCity()->plot())
+							{
+								GET_PLAYER(eLoopMinor).getCapitalCity()->plot()->updateFog();
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -15333,6 +15532,23 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT
+#ifdef UPDATE_MINOR_BG_ICON_ON_UNIT_MOVE_OR_SET_DAMAGE
+		std::vector<bool> oldCanBully(MAX_MAJOR_CIVS * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS));
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		for (int jJ = MAX_MAJOR_CIVS; jJ < MAX_MINOR_CIVS; jJ++)
+		{
+			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			{
+				oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] = GET_PLAYER((PlayerTypes)jJ).GetMinorCivAI()->CanMajorBullyGold((PlayerTypes)iI);
+			}
+			else
+			{
+				oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] = false;
+			}
+		}
+	}
+#endif
 	int iOldValue;
 
 	iOldValue = getDamage();
@@ -15417,6 +15633,33 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			GET_PLAYER(ePlayer).DoUnitKilledCombat(getOwner(), getUnitType());
 		}
 	}
+
+#ifdef UPDATE_MINOR_BG_ICON_ON_UNIT_MOVE_OR_SET_DAMAGE
+	for (int jJ = MAX_MAJOR_CIVS; jJ < MAX_MINOR_CIVS; jJ++)
+	{
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			{
+				if (oldCanBully[iI * (MAX_MINOR_CIVS - MAX_MAJOR_CIVS) + jJ - MAX_MAJOR_CIVS] != GET_PLAYER((PlayerTypes)jJ).GetMinorCivAI()->CanMajorBullyGold((PlayerTypes)iI))
+				{
+					PlayerTypes eLoopMinor = (PlayerTypes)jJ;
+					if (GET_PLAYER(eLoopMinor).isAlive())
+					{
+						if (GET_PLAYER(eLoopMinor).getCapitalCity())
+						{
+							if (GET_PLAYER(eLoopMinor).getCapitalCity()->plot())
+							{
+								GET_PLAYER(eLoopMinor).getCapitalCity()->plot()->updateFog();
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	return iDiff;
 }

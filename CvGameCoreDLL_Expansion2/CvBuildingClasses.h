@@ -255,6 +255,10 @@ public:
 	int* GetGlobalYieldModifierArray() const;
 	int GetTechEnhancedYieldChange(int i) const;
 	int* GetTechEnhancedYieldChangeArray() const;
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	int GetImprovementYieldChanges(int i) const;
+	int* GetImprovementYieldChangesArray() const;
+#endif
 	int GetSeaPlotYieldChange(int i) const;
 	int* GetSeaPlotYieldChangeArray() const;
 	int GetRiverPlotYieldChange(int i) const;
@@ -295,6 +299,10 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	int GetImprovementYieldChange(int i, int j) const;
+	int* GetImprovementYieldChangeArray(int i) const;
+#endif
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 
@@ -496,6 +504,9 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	int** m_ppaiImprovementYieldChange;
+#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
 

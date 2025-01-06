@@ -522,10 +522,10 @@ function ScienceTipHandler( control )
 		end
 		
 		-- Let people know that building more cities makes techs harder to get
-		if (not OptionsManager.IsNoBasicHelp()) then
+		-- if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST", pPlayer:GetNumCitiesResearchCostModifier());
-		end
+		-- end
 	end
 	
 	tipControlTable.TooltipLabel:SetText( strText );
@@ -1066,10 +1066,10 @@ function CultureTipHandler( control )
 		end
 
 		-- Let people know that building more cities makes policies harder to get
-		if (not OptionsManager.IsNoBasicHelp()) then
+		-- if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_CITY_COST", Game.GetNumCitiesPolicyCostMod());
-		end
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_CITY_COST", pPlayer:GetNumCitiesPolicyCostMod());
+		-- end
 	end
 	
 	tipControlTable.TooltipLabel:SetText( strText );

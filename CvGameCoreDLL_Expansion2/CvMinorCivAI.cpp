@@ -1805,10 +1805,38 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abRouteConnectionEstablished;
 
 #ifdef EG_REPLAYDATASET_GOLDFROMBULLYING
-	kStream >> m_aiBullyGoldAmountTotalByPlayer;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1002)
+	{
+#endif
+		kStream >> m_aiBullyGoldAmountTotalByPlayer;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+		{
+			m_aiBullyGoldAmountTotalByPlayer[iI] = 0;
+		}
+	}
+#endif
 #endif
 #ifdef EG_REPLAYDATASET_WORKERSFROMBULLYING
-	kStream >> m_aiBullyWorkersAmountTotalByPlayer;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1002)
+	{
+#endif
+		kStream >> m_aiBullyWorkersAmountTotalByPlayer;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+		{
+			m_aiBullyWorkersAmountTotalByPlayer[iI] = 0;
+		}
+	}
+#endif
 #endif
 
 	kStream >> m_aiFriendshipWithMajorTimes100;
@@ -5910,25 +5938,38 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if (eOldAlly != NO_PLAYER && eNewAlly != NO_PLAYER)
+		if (eOldAlly != NO_PLAYER)
 		{
-			if (GET_PLAYER(eOldAlly).isHuman() && GET_PLAYER(eNewAlly).isHuman() && GET_PLAYER(eOldAlly).getTeam() != GET_PLAYER(eNewAlly).getTeam())
+			if (eNewAlly != NO_PLAYER)
 			{
-				CvGame& kGame = GC.getGame();
-				float fGameTurnEnd = kGame.getPreviousTurnLen();
-				float fTimeElapsed = kGame.getTimeElapsed();
-				if (fGameTurnEnd - fTimeElapsed > CS_ALLYING_WAR_RESCTRICTION_TIMER)
+				if (GET_PLAYER(eOldAlly).isHuman() && GET_PLAYER(eNewAlly).isHuman() && GET_PLAYER(eOldAlly).getTeam() != GET_PLAYER(eNewAlly).getTeam())
 				{
-					GET_PLAYER(eNewAlly).setTurnCSWarAllowing(eOldAlly, kGame.getGameTurn());
-					GET_PLAYER(eNewAlly).setTimeCSWarAllowing(eOldAlly, fTimeElapsed + CS_ALLYING_WAR_RESCTRICTION_TIMER);
+					CvGame& kGame = GC.getGame();
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+					float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+					float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
+					float fTimeElapsed = kGame.getTimeElapsed();
+					if (fGameTurnEnd - fTimeElapsed > CS_ALLYING_WAR_RESCTRICTION_TIMER)
+					{
+						GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn());
+						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fTimeElapsed + CS_ALLYING_WAR_RESCTRICTION_TIMER);
+					}
+					else
+					{
+						GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn() + 1);
+						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), CS_ALLYING_WAR_RESCTRICTION_TIMER - (fGameTurnEnd - fTimeElapsed));
+					}
 				}
-				else
+			}
+			if (GET_PLAYER(eOldAlly).isHuman())
+			{
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					GET_PLAYER(eNewAlly).setTurnCSWarAllowing(eOldAlly, kGame.getGameTurn() + 1);
-					GET_PLAYER(eNewAlly).setTimeCSWarAllowing(eOldAlly, CS_ALLYING_WAR_RESCTRICTION_TIMER - (fGameTurnEnd - fTimeElapsed));
+					GET_PLAYER(eOldAlly).setTurnCSWarAllowingMinor((PlayerTypes)iI, GetPlayer()->GetID(), -1);
+					GET_PLAYER(eOldAlly).setTimeCSWarAllowingMinor((PlayerTypes)iI, GetPlayer()->GetID(), 0.f);
 				}
-				GET_PLAYER(eOldAlly).setTurnCSWarAllowing(eNewAlly, -1);
-				GET_PLAYER(eOldAlly).setTimeCSWarAllowing(eNewAlly, 0.f);
 			}
 		}
 	}
@@ -6437,6 +6478,9 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		{
 			GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 			GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+			GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
+#endif
 		}
 #else
 		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
@@ -6536,6 +6580,9 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		{
 			GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 			GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+			GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
+#endif
 		}
 #else
 		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
@@ -7096,6 +7143,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 			}
 
 			// Other Cities
@@ -7106,6 +7156,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 			}
 		}
 
@@ -7127,6 +7180,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * (iNewFood - iOldFood));
+#endif
 			}
 
 			// Other Cities
@@ -7137,6 +7193,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+				GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(iNewFood - iOldFood);
+#endif
 			}
 		}
 	}
@@ -7276,6 +7335,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 			}
 
 			// Other Cities
@@ -7286,6 +7348,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 			}
 		}
 
@@ -7302,6 +7367,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * (iNewProduction - iOldProduction));
+#endif
 			}
 
 			// Other Cities
@@ -7312,6 +7380,9 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iNewProduction - iOldProduction);
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+				GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(iNewProduction - iOldProduction);
+#endif
 			}
 		}
 	}
@@ -8386,6 +8457,9 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 				strSummary << GetPlayer()->getNameKey();
 
 				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+				GET_PLAYER(eMajor).ChangeNumUnitsFromMinors(1);
+#endif
 			}
 			else
 				pNewUnit->kill(false);	// Could not find a spot!

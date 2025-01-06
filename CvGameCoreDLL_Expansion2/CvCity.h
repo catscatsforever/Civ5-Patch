@@ -118,6 +118,11 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
+#endif
+
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 
@@ -633,6 +638,10 @@ public:
 
 	int getProductionToYieldModifier(YieldTypes eIndex) const;
 	void changeProductionToYieldModifier(YieldTypes eIndex, int iChange);
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	int getProcessOverflowProductionTimes100() const;
+	void setProcessOverflowProductionTimes100(int iValue);
+#endif
 
 	int GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink = NULL) const;
 
@@ -948,6 +957,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiExtraSpecialistYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiProductionToYieldModifier;
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	int m_iProcessOverflowProductionTimes100;
+#endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiDomainFreeExperience;
 	FAutoVariable<std::vector<int>, CvCity> m_aiDomainProductionModifier;
 
@@ -993,6 +1005,9 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	int** m_ppaiImprovementYieldChange;
+#endif
 
 	CvCityBuildings* m_pCityBuildings;
 	CvCityStrategyAI* m_pCityStrategyAI;

@@ -2946,6 +2946,24 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 	return iTourism;
 }
 
+#ifdef NEW_NUM_CITIES_POLICIES_COST_MODIFIER
+int CvPlayerPolicies::GetNumCitiesPolicyCostMod(int iNumCities) const
+{
+	// Mod for City Count
+	int iMod = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();	// Default is 40, gets smaller on larger maps
+	int iPolicyModDiscount = m_pPlayer->GetNumCitiesPolicyCostDiscount();
+	if (iPolicyModDiscount != 0)
+	{
+		iMod = iMod * (100 + iPolicyModDiscount);
+		iMod /= 100;
+	}
+
+	iMod = ((iNumCities - 1) * iMod);
+
+	return iMod;
+}
+#endif
+
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {

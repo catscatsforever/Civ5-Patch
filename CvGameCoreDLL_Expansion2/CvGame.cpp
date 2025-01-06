@@ -1944,7 +1944,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 				if (kPlayer.isAlive() && kPlayer.isHuman() && !kPlayer.isConnected())
 				{
-					ePausePlayer = kPlayer.GetID();
+					// ePausePlayer = kPlayer.GetID();
 					break;
 				}
 			}
@@ -3681,7 +3681,7 @@ void CvGame::doControl(ControlTypes eControl)
 			{
 				// as there is no netcode for timer reset,
 				// this function will act as one, if called with special agreed upon arguments
-				resetTurnTimer(true);
+				// resetTurnTimer(true);
 				gDLL->sendGiftUnit(NO_PLAYER, -1);
 			}
 		}
@@ -7907,6 +7907,40 @@ void CvGame::doTurn()
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	GC.getGame().m_bIsPaused = false;
+#endif
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+	{
+		CvGame& kGame = GC.getGame();
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+		float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+		float gameTurnEnd = static_cast<float>(game.getMaxTurnLen());
+#endif
+		float fTimeElapsed = kGame.getTimeElapsed();
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			for (int jJ = 0; jJ < MAX_MAJOR_CIVS; jJ++)
+			{
+				for (int kK = MAX_MAJOR_CIVS; kK < MAX_MINOR_CIVS; kK++)
+				{
+					PlayerTypes eMinor = (PlayerTypes)kK;
+					if (kGame.getGameTurn() < GET_PLAYER((PlayerTypes)iI).getTurnCSWarAllowingMinor((PlayerTypes)jJ, eMinor))
+					{
+						GET_PLAYER((PlayerTypes)iI).setTimeCSWarAllowingMinor((PlayerTypes)jJ, eMinor, GET_PLAYER((PlayerTypes)iI).getTimeCSWarAllowingMinor((PlayerTypes)jJ, eMinor) + (fGameTurnEnd - fTimeElapsed));
+					}
+					if (kGame.getGameTurn() == GET_PLAYER((PlayerTypes)iI).getTurnCSWarAllowingMinor((PlayerTypes)jJ, eMinor))
+					{
+						if (fTimeElapsed < GET_PLAYER((PlayerTypes)iI).getTimeCSWarAllowingMinor((PlayerTypes)jJ, eMinor))
+						{
+							GET_PLAYER((PlayerTypes)iI).setTurnCSWarAllowingMinor((PlayerTypes)jJ, eMinor, kGame.getGameTurn() + 1);
+							GET_PLAYER((PlayerTypes)iI).setTimeCSWarAllowingMinor((PlayerTypes)jJ, eMinor, GET_PLAYER((PlayerTypes)iI).getTimeCSWarAllowingMinor((PlayerTypes)jJ, eMinor) - (fGameTurnEnd - fTimeElapsed));
+						}
+					}
+				}
+			}
+		}
+	}
 #endif
 	//We reset the turn timer now so that we know that the turn timer has been reset at least once for
 	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.

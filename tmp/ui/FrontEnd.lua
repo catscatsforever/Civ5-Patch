@@ -9,7 +9,7 @@ function ShowHideHandler( bIsHide, bIsInit )
 		UI:CheckForCommandLineInvitation();
 		
     if( not UI:HasShownLegal() ) then
-        UIManager:QueuePopup( Controls.LegalScreen, PopupPriority.LegalScreen );
+        -- UIManager:QueuePopup( Controls.LegalScreen, PopupPriority.LegalScreen );
     end
 
     if( not bIsHide ) then

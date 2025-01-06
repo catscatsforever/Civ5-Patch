@@ -265,6 +265,33 @@ CvPlayer::CvPlayer() :
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 	, m_iTimesEnteredCityScreen(0)
 #endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+	, m_iNumDiedSpies(0)
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+	, m_iNumKilledSpies(0)
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+	, m_iFoodFromMinorsTimes100(0)
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+	, m_iProductionFromMinorsTimes100(0)
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+	, m_iNumUnitsFromMinors(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+	, m_iNumCreatedWorldWonders(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	, m_iNumGoldSpentOnBuildingBuys(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+	, m_iNumGoldSpentOnUnitBuys(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+	, m_iNumGoldSpentOnUgrades(0)
+#endif
 	, m_iExtraLeagueVotes(0)
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
@@ -562,8 +589,8 @@ CvPlayer::CvPlayer() :
 	, m_bProcessedAutoMoves(false)
 	, m_kPlayerAchievements(*this)
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-	, m_paiTurnCSWarAllowing("CvPlayer::m_paiTurnCSWarAllowing", m_syncArchive)
-	, m_pafTimeCSWarAllowing("CvPlayer::m_pafTimeCSWarAllowing", m_syncArchive)
+	, m_ppaaiTurnCSWarAllowing("CvPlayer::m_ppaaiTurnCSWarAllowing", m_syncArchive)
+	, m_ppaafTimeCSWarAllowing("CvPlayer::m_ppaafTimeCSWarAllowing", m_syncArchive)
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 	, m_bIsDelayedPolicy(false)
@@ -830,8 +857,8 @@ void CvPlayer::uninit()
 	m_pabGetsScienceFromPlayer.clear();
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-	m_paiTurnCSWarAllowing.clear();
-	m_pafTimeCSWarAllowing.clear();
+	m_ppaaiTurnCSWarAllowing.clear();
+	m_ppaafTimeCSWarAllowing.clear();
 #endif
 
 	m_pPlayerPolicies->Uninit();
@@ -1039,6 +1066,33 @@ void CvPlayer::uninit()
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 	m_iTimesEnteredCityScreen = 0;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+	m_iNumDiedSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+	m_iNumKilledSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+	m_iFoodFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+	m_iProductionFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+	m_iNumUnitsFromMinors = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+	m_iNumCreatedWorldWonders = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	m_iNumGoldSpentOnBuildingBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+	m_iNumGoldSpentOnUnitBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+	m_iNumGoldSpentOnUgrades = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 	m_iSpecialPolicyBuildingHappiness = 0;
@@ -1444,11 +1498,29 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pabGetsScienceFromPlayer.resize(MAX_CIV_PLAYERS, false);
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-		m_paiTurnCSWarAllowing.clear();
-		m_paiTurnCSWarAllowing.resize(MAX_CIV_PLAYERS, -1);
+		Firaxis::Array< int, MAX_MINOR_CIVS > turn;
+		for (unsigned int j = 0; j < MAX_MINOR_CIVS; ++j)
+		{
+			turn[j] = -1;
+		}
+		m_ppaaiTurnCSWarAllowing.clear();
+		m_ppaaiTurnCSWarAllowing.resize(MAX_MAJOR_CIVS);
+		for (unsigned int i = 0; i < m_ppaaiTurnCSWarAllowing.size(); ++i)
+		{
+			m_ppaaiTurnCSWarAllowing.setAt(i, turn);
+		}
 
-		m_pafTimeCSWarAllowing.clear();
-		m_pafTimeCSWarAllowing.resize(MAX_CIV_PLAYERS, 0.f);
+		Firaxis::Array< float, MAX_MINOR_CIVS > time;
+		for (unsigned int j = 0; j < MAX_MINOR_CIVS; ++j)
+		{
+			time[j] = 0.f;
+		}
+		m_ppaafTimeCSWarAllowing.clear();
+		m_ppaafTimeCSWarAllowing.resize(MAX_MAJOR_CIVS);
+		for (unsigned int i = 0; i < m_ppaafTimeCSWarAllowing.size(); ++i)
+		{
+			m_ppaafTimeCSWarAllowing.setAt(i, time);
+		}
 #endif
 
 		m_pEconomicAI->Init(GC.GetGameEconomicAIStrategies(), this);
@@ -2186,6 +2258,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
+#ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
+	int iTurnsSinceAcquire = GC.getGame().getGameTurn() - pOldCity->getGameTurnAcquired();
+#endif
+
 	if(bConquest)
 	{
 		CvNotifications* pNotifications = GET_PLAYER(pOldCity->getOwner()).GetNotifications();
@@ -2466,7 +2542,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
+#ifdef FREE_BUILDINGS_COUNTS_AS_REAL_ON_CITY_ACQUIRE
+		paiNumRealBuilding[iI] = pOldCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes)iI) + pOldCity->GetCityBuildings()->GetNumFreeBuilding((BuildingTypes)iI);
+#else
 		paiNumRealBuilding[iI] = pOldCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes)iI);
+#endif
 		paiBuildingOriginalOwner[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iI);
 		paiBuildingOriginalTime[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iI);
 #ifdef DESTROYING_MOST_EXPENSIVE_BUILDINGS_ON_CITY_ACQUIRE
@@ -2995,7 +3075,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 									{
 										iNum += paiNumRealBuilding[*it];
 									}
-									else if (paiNumRealBuilding[*it] > 0 && iCountBuildingToDestroy < iNumBuildingsToDestroy)
+									else if (!bGift && !bRecapture && iTurnsSinceAcquire > 0 && paiNumRealBuilding[*it] > 0 && iCountBuildingToDestroy < iNumBuildingsToDestroy)
 									{
 										iCountBuildingToDestroy++;
 									}
@@ -5019,6 +5099,11 @@ void CvPlayer::doTurnPostDiplomacy()
 	}
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
+	int iNumFreePoliciesFromProjectReward = GetNumFreePolicies() / 1024;
+	if (iNumFreePoliciesFromProjectReward > 0)
+	{
+		ChangeNumFreePolicies(-1024 * iNumFreePoliciesFromProjectReward);
+	}
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
 		if (getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
@@ -5033,6 +5118,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			setIsDelayedPolicy(false);
 		}
 	}
+	ChangeNumFreePolicies(iNumFreePoliciesFromProjectReward);
 #endif
 #ifdef DO_TURN_CHANGE_ORDER
 	// Do turn for all Cities
@@ -5365,6 +5451,16 @@ void CvPlayer::doTurnPostDiplomacy()
 #ifdef DO_TURN_CHANGE_ORDER
 	// Gold
 	GetTreasury()->DoGold();
+#endif
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	if (getNumCities() > 0)
+	{
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			pLoopCity->setProcessOverflowProductionTimes100(0);
+		}
+	}
 #endif
 
 	GetEspionage()->DoTurn();
@@ -5990,6 +6086,12 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 		CvNotifications* pNotifications = GetNotifications();
 		if(pNotifications)
 		{
+#ifdef FIX_REMOVE_EXPIRED_FREE_TECH_NOTFICATION
+			if (GetNumFreeTechs() == 0)
+			{
+				pNotifications->Update();
+			}
+#endif
 			pNotifications->Add(NOTIFICATION_TECH, strBuffer, strSummary, -1, -1, iDiscover, iTechJustDiscovered);
 		}
 	}
@@ -5998,6 +6100,12 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 		CvNotifications* pNotifications = GetNotifications();
 		if(pNotifications)
 		{
+#ifdef FIX_REMOVE_EXPIRED_FREE_TECH_NOTFICATION
+			if (GetNumFreeTechs() == 0)
+			{
+				pNotifications->Update();
+			}
+#endif
 			pNotifications->Add(NOTIFICATION_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
 		}
 	}
@@ -8433,7 +8541,11 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 
 //	--------------------------------------------------------------------------------
+#ifdef NEW_BELIEF_PROPHECY
+bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink, const CvCity* pCity) const
+#else
 bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
+#endif
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo == NULL)
@@ -8514,14 +8626,18 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	if (eBranch != NO_POLICY_BRANCH_TYPE)
 	{
 #ifdef NEW_BELIEF_PROPHECY
-		ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer();
 		bool bReligionAllowsPolicyWonders = false;
-		if (eReligionFounded > RELIGION_PANTHEON)
+		if (pCity)
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
-			if (pReligion && pReligion->m_Beliefs.IsAllowPolicyWonders())
+			ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer();
+			ReligionTypes eCityReligion = pCity->GetCityReligions()->GetReligiousMajority();
+			if (eReligionFounded > RELIGION_PANTHEON && eReligionFounded == eCityReligion)
 			{
-				bReligionAllowsPolicyWonders = true;
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
+				if (pReligion && pReligion->m_Beliefs.IsAllowPolicyWonders())
+				{
+					bReligionAllowsPolicyWonders = true;
+				}
 			}
 		}
 		if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch) && !bReligionAllowsPolicyWonders)
@@ -10686,6 +10802,96 @@ int CvPlayer::GetNumHappinessFromTradeDeals() const
 	return iHappinessFromTradeDeals;
 }
 #endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+int CvPlayer::GetNumDiedSpies() const
+{
+	return m_iNumDiedSpies;
+}
+void CvPlayer::ChangeNumDiedSpies(int iChange)
+{
+	m_iNumDiedSpies = (m_iNumDiedSpies + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+int CvPlayer::GetNumKilledSpies() const
+{
+	return m_iNumKilledSpies;
+}
+void CvPlayer::ChangeNumKilledSpies(int iChange)
+{
+	m_iNumKilledSpies = (m_iNumKilledSpies + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+int CvPlayer::GetFoodFromMinorsTimes100() const
+{
+	return m_iFoodFromMinorsTimes100;
+}
+void CvPlayer::ChangeFoodFromMinorsTimes100(int iChange)
+{
+	m_iFoodFromMinorsTimes100 = (m_iFoodFromMinorsTimes100 + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+int CvPlayer::GetProductionFromMinorsTimes100() const
+{
+	return m_iProductionFromMinorsTimes100;
+}
+void CvPlayer::ChangeProductionFromMinorsTimes100(int iChange)
+{
+	m_iProductionFromMinorsTimes100 = (m_iProductionFromMinorsTimes100 + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+int CvPlayer::GetNumUnitsFromMinors() const
+{
+	return m_iNumUnitsFromMinors;
+}
+void CvPlayer::ChangeNumUnitsFromMinors(int iChange)
+{
+	m_iNumUnitsFromMinors = (m_iNumUnitsFromMinors + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+int CvPlayer::GetNumCreatedWorldWonders() const
+{
+	return m_iNumCreatedWorldWonders;
+}
+void CvPlayer::ChangeNumCreatedWorldWonders(int iChange)
+{
+	m_iNumCreatedWorldWonders = (m_iNumCreatedWorldWonders + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+int CvPlayer::GetNumGoldSpentOnBuildingBuys() const
+{
+	return m_iNumGoldSpentOnBuildingBuys;
+}
+void CvPlayer::ChangeNumGoldSpentOnBuildingBuys(int iChange)
+{
+	m_iNumGoldSpentOnBuildingBuys = (m_iNumGoldSpentOnBuildingBuys + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+int CvPlayer::GetNumGoldSpentOnUnitBuys() const
+{
+	return m_iNumGoldSpentOnUnitBuys;
+}
+void CvPlayer::ChangeNumGoldSpentOnUnitBuys(int iChange)
+{
+	m_iNumGoldSpentOnUnitBuys = (m_iNumGoldSpentOnUnitBuys + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+int CvPlayer::GetNumGoldSpentOnUgrades() const
+{
+	return m_iNumGoldSpentOnUgrades;
+}
+void CvPlayer::ChangeNumGoldSpentOnUgrades(int iChange)
+{
+	m_iNumGoldSpentOnUgrades = (m_iNumGoldSpentOnUgrades + iChange);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How much Units are eating Production?
@@ -12118,21 +12324,20 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 		if (pEntry && pEntry->IsPantheonBelief())
 		{
 			pBelief = eBelief;
-			break;
-		}
-	}
-	if (!m_bHasUsedGoddessLove && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_LOVE", true))
-	{
-		m_bHasUsedGoddessLove = true;
+			if (!m_bHasUsedGoddessLove && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_LOVE", true))
+			{
+				m_bHasUsedGoddessLove = true;
 
 #ifdef DUEL_GODDESS_LOVE_CHANGE
-		if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
-		{
-			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
-		}
+				if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
+				{
+					addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
+				}
 #else
-		addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
+				addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKER"));
 #endif
+		}
+	}
 	}
 #endif
 #ifdef GOD_SEA_FREE_WORK_BOAT
@@ -12144,21 +12349,20 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 		if (pEntry && pEntry->IsPantheonBelief())
 		{
 			pBelief = eBelief;
-			break;
-		}
-	}
-	if (!m_bHasUsedGodSea && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GOD_SEA", true))
-	{
-		m_bHasUsedGodSea = true;
+			if (!m_bHasUsedGodSea && pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GOD_SEA", true))
+			{
+				m_bHasUsedGodSea = true;
 
 #ifdef DUEL_GOD_SEA_CHANGE
-		if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
-		{
-			addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORK_BOAT"));
-		}
+				if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
+				{
+					addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORK_BOAT"));
+				}
 #else
-		addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKBOAT"));
+				addFreeUnit((UnitTypes)GC.getInfoTypeForString("UNIT_WORKBOAT"));
 #endif
+				}
+		}
 	}
 #endif
 
@@ -25293,6 +25497,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 
+#ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1008)
+	{
+# endif
+		kStream >> m_bIsDisconnected;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bIsDisconnected = false;
+	}
+# endif
+#endif
 	kStream >> m_iStartingX;
 	kStream >> m_iStartingY;
 	kStream >> m_iTotalPopulation;
@@ -25333,7 +25551,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iEspionageModifier;
 	kStream >> m_iSpyStartingRank;
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= 1003)
+	if (uiVersion >= 1007)
 	{
 #ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
 		kStream >> m_iNumStolenScience;
@@ -25440,8 +25658,170 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 		kStream >> m_iTimesEnteredCityScreen;
 #endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		kStream >> m_iNumDiedSpies;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		kStream >> m_iNumKilledSpies;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		kStream >> m_iFoodFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		kStream >> m_iProductionFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		kStream >> m_iNumUnitsFromMinors;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		kStream >> m_iNumCreatedWorldWonders;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		kStream >> m_iNumGoldSpentOnBuildingBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		kStream >> m_iNumGoldSpentOnUnitBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		kStream >> m_iNumGoldSpentOnUgrades;
+#endif
 # endif
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion >= 1003)
+	{
+#ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
+		kStream >> m_iNumStolenScience;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
+		kStream >> m_iNumTrainedUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMKILLEDUNITS
+		kStream >> m_iNumKilledUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMLOSTUNITS
+		kStream >> m_iNumLostUnits;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOUNITS
+		kStream >> m_iUnitsDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYUNITS
+		kStream >> m_iUnitsDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOCITIES
+		kStream >> m_iCitiesDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYCITIES
+		kStream >> m_iCitiesDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
+		kStream >> m_iNumScientistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
+		kStream >> m_iNumEngineersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
+		kStream >> m_iNumMerchantsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
+		kStream >> m_iNumWritersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
+		kStream >> m_iNumArtistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
+		kStream >> m_iNumMusiciansTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
+		kStream >> m_iNumGeneralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
+		kStream >> m_iNumAdmiralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
+		kStream >> m_iNumProphetsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
+		kStream >> m_iProductionGoldFromWonders;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALCHOPS
+		kStream >> m_iNumChops;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
+		kStream >> m_iNumTimesOpenedDemographics;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNSCIENTISTS
+		kStream >> m_bMayaBoostScientist;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNENGINEERS
+		kStream >> m_bMayaBoostEngineers;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMERCHANTS
+		kStream >> m_bMayaBoostMerchants;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNWRITERS
+		kStream >> m_bMayaBoostWriters;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNARTISTS
+		kStream >> m_bMayaBoostArtists;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMUSICIANS
+		kStream >> m_bMayaBoostMusicians;
+#endif
+#ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
+		kStream >> m_iScientistsTotalScienceBoost;
+#endif
+#ifdef EG_REPLAYDATASET_ENGINEERSTOTALHURRYBOOST
+		kStream >> m_iEngineersTotalHurryBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+		kStream >> m_iMerchantsTotalTradeBoost;
+#endif
+#ifdef EG_REPLAYDATASET_WRITERSTOTALCULTUREBOOST
+		kStream >> m_iWritersTotalCultureBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MUSICIANSTOTALTOURISMBOOST
+		kStream >> m_iMusiciansTotalTourismBoost;
+#endif
+#ifdef EG_REPLAYDATASET_POPULATIONLOSTFROMNUKES
+		kStream >> m_iNumPopulationLostFromNukes;
+#endif
+#ifdef EG_REPLAYDATASET_CSQUESTSCOMPLETED
+		kStream >> m_iNumCSQuestsCompleted;
+#endif
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+		kStream >> m_iNumAlliedCS;
+#endif
+#ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
+		kStream >> m_iTimesEnteredCityScreen;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		m_iNumDiedSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		m_iNumKilledSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		m_iFoodFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		m_iProductionFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		m_iNumUnitsFromMinors = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		m_iNumCreatedWorldWonders = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		m_iNumGoldSpentOnBuildingBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		m_iNumGoldSpentOnUnitBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		m_iNumGoldSpentOnUgrades = 0;
+#endif
 	}
 	else if (uiVersion == 1002)
 	{
@@ -25549,6 +25929,33 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 		m_iTimesEnteredCityScreen = 0;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		m_iNumDiedSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		m_iNumKilledSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		m_iFoodFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		m_iProductionFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		m_iNumUnitsFromMinors = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		m_iNumCreatedWorldWonders = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		m_iNumGoldSpentOnBuildingBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		m_iNumGoldSpentOnUnitBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		m_iNumGoldSpentOnUgrades = 0;
 #endif
 	}
 	else if (uiVersion == 1001)
@@ -25658,6 +26065,33 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 		m_iTimesEnteredCityScreen = 0;
 #endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		m_iNumDiedSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		m_iNumKilledSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		m_iFoodFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		m_iProductionFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		m_iNumUnitsFromMinors = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		m_iNumCreatedWorldWonders = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		m_iNumGoldSpentOnBuildingBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		m_iNumGoldSpentOnUnitBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		m_iNumGoldSpentOnUgrades = 0;
+#endif
 	}
 	else
 	{
@@ -25765,6 +26199,33 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 		m_iTimesEnteredCityScreen = 0;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		m_iNumDiedSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		m_iNumKilledSpies = 0;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		m_iFoodFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		m_iProductionFromMinorsTimes100 = 0;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		m_iNumUnitsFromMinors = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		m_iNumCreatedWorldWonders = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		m_iNumGoldSpentOnBuildingBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		m_iNumGoldSpentOnUnitBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		m_iNumGoldSpentOnUgrades = 0;
 #endif
 	}
 #endif
@@ -26348,19 +26809,38 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= 1004)
+	if (uiVersion >= 1009)
 	{
 # endif
-		kStream >> m_paiTurnCSWarAllowing;
-		kStream >> m_pafTimeCSWarAllowing;
+		kStream >> m_ppaaiTurnCSWarAllowing;
+		kStream >> m_ppaafTimeCSWarAllowing;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
 	else
 	{
-		m_paiTurnCSWarAllowing.clear();
-		m_paiTurnCSWarAllowing.resize(MAX_PLAYERS, -1);
-		m_pafTimeCSWarAllowing.clear();
-		m_pafTimeCSWarAllowing.resize(MAX_PLAYERS, 0.f);
+		Firaxis::Array< int, MAX_MINOR_CIVS > turn;
+		for (unsigned int j = 0; j < MAX_MINOR_CIVS; ++j)
+		{
+			turn[j] = -1;
+		}
+		m_ppaaiTurnCSWarAllowing.clear();
+		m_ppaaiTurnCSWarAllowing.resize(MAX_MAJOR_CIVS);
+		for (unsigned int i = 0; i < m_ppaaiTurnCSWarAllowing.size(); ++i)
+		{
+			m_ppaaiTurnCSWarAllowing.setAt(i, turn);
+		}
+
+		Firaxis::Array< float, MAX_MINOR_CIVS > time;
+		for (unsigned int j = 0; j < MAX_MINOR_CIVS; ++j)
+		{
+			time[j] = 0.f;
+		}
+		m_ppaafTimeCSWarAllowing.clear();
+		m_ppaafTimeCSWarAllowing.resize(MAX_MAJOR_CIVS);
+		for (unsigned int i = 0; i < m_ppaafTimeCSWarAllowing.size(); ++i)
+		{
+			m_ppaafTimeCSWarAllowing.setAt(i, time);
+		}
 	}
 # endif
 #endif
@@ -26538,6 +27018,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << g_CurrentCvPlayerVersion;
 #endif
 
+#ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
+	kStream << m_bIsDisconnected;
+#endif
 	kStream << m_iStartingX;
 	kStream << m_iStartingY;
 	kStream << m_iTotalPopulation;
@@ -26674,6 +27157,33 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 	kStream << m_iTimesEnteredCityScreen;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+	kStream << m_iNumDiedSpies;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+	kStream << m_iNumKilledSpies;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+	kStream << m_iFoodFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+	kStream << m_iProductionFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+	kStream << m_iNumUnitsFromMinors;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+	kStream << m_iNumCreatedWorldWonders;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	kStream << m_iNumGoldSpentOnBuildingBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+	kStream << m_iNumGoldSpentOnUnitBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+	kStream << m_iNumGoldSpentOnUgrades;
 #endif
 	kStream << m_iExtraLeagueVotes;
 	kStream << m_iSpecialPolicyBuildingHappiness;
@@ -26982,8 +27492,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabGetsScienceFromPlayer;
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-	kStream << m_paiTurnCSWarAllowing;
-	kStream << m_pafTimeCSWarAllowing;
+	kStream << m_ppaaiTurnCSWarAllowing;
+	kStream << m_ppaafTimeCSWarAllowing;
 #endif
 
 	m_pPlayerPolicies->Write(kStream);
@@ -27957,13 +28467,13 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 	if (bIncludePuppets)
 	{
 #ifdef FIX_MAX_EFFECTIVE_CITIES
-		if (m_iMaxEffectiveCities > getNumCities())
+		if (m_iMaxEffectiveCities > getNumCities() - iNumLimboCities)
 		{
 			return m_iMaxEffectiveCities;
 		}
 		else
 		{
-			return getNumCities();
+			return getNumCities() - iNumLimboCities;
 		}
 #else
 		return m_iMaxEffectiveCities + iNumPuppetCities;
@@ -28443,22 +28953,54 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 int CvPlayer::getTurnCSWarAllowing(PlayerTypes ePlayer)
 {
-	return m_paiTurnCSWarAllowing[ePlayer];
+	int iValue = -1;
+	for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
+	{
+		if (m_ppaaiTurnCSWarAllowing[ePlayer][iI] > iValue)
+		{
+			iValue = m_ppaaiTurnCSWarAllowing[ePlayer][iI];
+		}
+	}
+
+	return iValue;
 }
 
-void CvPlayer::setTurnCSWarAllowing(PlayerTypes ePlayer, int iValue)
+int CvPlayer::getTurnCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor)
 {
-	m_paiTurnCSWarAllowing.setAt(ePlayer, iValue);
+	return m_ppaaiTurnCSWarAllowing[ePlayer][int(eMinor) - MAX_MAJOR_CIVS];
+}
+
+void CvPlayer::setTurnCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor, int iValue)
+{
+	Firaxis::Array<int, MAX_MINOR_CIVS> turn = m_ppaaiTurnCSWarAllowing[ePlayer];
+	turn[int(eMinor) - MAX_MAJOR_CIVS] = iValue;
+	m_ppaaiTurnCSWarAllowing.setAt(ePlayer, turn);
 }
 
 float CvPlayer::getTimeCSWarAllowing(PlayerTypes ePlayer)
 {
-	return m_pafTimeCSWarAllowing[ePlayer];
+	float fValue = 0.f;
+	for (int iI = 0; iI < MAX_MINOR_CIVS; iI++)
+	{
+		if (m_ppaafTimeCSWarAllowing[ePlayer][iI] > fValue)
+		{
+			fValue = m_ppaafTimeCSWarAllowing[ePlayer][iI];
+		}
+	}
+
+	return fValue;
 }
 
-void CvPlayer::setTimeCSWarAllowing(PlayerTypes ePlayer, float fValue)
+float CvPlayer::getTimeCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor)
 {
-	m_pafTimeCSWarAllowing.setAt(ePlayer, fValue);
+	return m_ppaafTimeCSWarAllowing[ePlayer][int(eMinor) - MAX_MAJOR_CIVS];
+}
+
+void CvPlayer::setTimeCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor, float fValue)
+{
+	Firaxis::Array<float, MAX_MINOR_CIVS> time = m_ppaafTimeCSWarAllowing[ePlayer];
+	time[int(eMinor) - MAX_MAJOR_CIVS] = fValue;
+	m_ppaafTimeCSWarAllowing.setAt(ePlayer, time);
 }
 #endif
 
@@ -28951,8 +29493,29 @@ void CvPlayer::disconnected()
 			if (!CvPreGame::isPitBoss() || gDLL->IsPlayerKicked(GetID()))
 			{
 				setIsDisconnected(false); // kicked players should unpause the game
-				if (GC.getGame().getPausePlayer() == GetID())
-					GC.getGame().setPausePlayer(NO_PLAYER);
+				bool isAnyDisconnected = false;
+				for (int iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+					if (GET_PLAYER(eLoopPlayer).isDisconnected())
+					{
+						isAnyDisconnected = true;
+					}
+				}
+#ifdef TURN_TIMER_PAUSE_BUTTON
+				{
+					if (!isAnyDisconnected && GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !GC.getGame().isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
+					{
+						if ((GC.getGame().getElapsedGameTurns() > 0) && GET_PLAYER(GC.getGame().getActivePlayer()).isTurnActive())
+						{
+							// as there is no netcode for timer pause,
+							// this function will act as one, if called with special agreed upon arguments
+							// resetTurnTimer(true);
+							gDLL->sendGiftUnit(NO_PLAYER, -11);
+						}
+					}
+				}
+#endif
 				// JAR : First pass, automatically fall back to CPU so the
 				// game can continue. Todo : add popup on host asking whether
 				// the AI should take over or everyone should wait for the
@@ -28968,22 +29531,25 @@ void CvPlayer::disconnected()
 					checkRunAutoMovesForEveryone();
 				}
 #ifdef DO_CANCEL_DEALS_WITH_AI
-				GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
-				for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+				if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 				{
-					TeamTypes eTeam = (TeamTypes)iLoopTeam;
-					if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+					GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+					for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 					{
-						GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
-						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
-						GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
-						GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
-						GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
-						GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
-						GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+						TeamTypes eTeam = (TeamTypes)iLoopTeam;
+						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+						{
+							GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+							GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+							GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+							GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
 
-						// Bump Units out of places they shouldn't be
-						GC.getMap().verifyUnitValidPlot();
+							// Bump Units out of places they shouldn't be
+							GC.getMap().verifyUnitValidPlot();
+						}
 					}
 				}
 #endif
@@ -29017,22 +29583,25 @@ void CvPlayer::disconnected()
 				checkRunAutoMovesForEveryone();
 			}
 #ifdef DO_CANCEL_DEALS_WITH_AI
-			GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
-			for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+			if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			{
-				TeamTypes eTeam = (TeamTypes)iLoopTeam;
-				if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+				GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
+				for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 				{
-					GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
-					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
-					GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
-					GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
-					GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
-					GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
-					GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
+					TeamTypes eTeam = (TeamTypes)iLoopTeam;
+					if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
+					{
+						GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
+						GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
+						GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
+						GET_TEAM(eTeam).CancelResearchAgreement(getTeam());
+						GET_TEAM(getTeam()).EvacuateDiplomatsAtTeam(eTeam);
+						GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(getTeam());
 
-					// Bump Units out of places they shouldn't be
-					GC.getMap().verifyUnitValidPlot();
+						// Bump Units out of places they shouldn't be
+						GC.getMap().verifyUnitValidPlot();
+					}
 				}
 			}
 #endif
@@ -29050,11 +29619,23 @@ void CvPlayer::disconnected()
 		}
 #endif
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
-			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() &&
-				(GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)) && !gDLL->IsPlayerKicked(GetID()))
+			else if (/*GC.getGame().isOption("GAMEOPTION_AUTOPAUSE_ON_ACTIVE_DISCONNECT")*/ true && isAlive() && isTurnActive() && (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)) && !gDLL->IsPlayerKicked(GetID()))
 			{
 				setIsDisconnected(true);
-				GC.getGame().setPausePlayer(GetID());
+#ifdef TURN_TIMER_PAUSE_BUTTON
+				{
+					if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !GC.getGame().isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
+					{
+						if ((GC.getGame().getElapsedGameTurns() > 0) && GET_PLAYER(GC.getGame().getActivePlayer()).isTurnActive())
+						{
+							// as there is no netcode for timer pause,
+							// this function will act as one, if called with special agreed upon arguments
+							// resetTurnTimer(true);
+							gDLL->sendGiftUnit(NO_PLAYER, -10);
+						}
+					}
+				}
+#endif
 			}
 		}
 #endif
@@ -29134,7 +29715,29 @@ void CvPlayer::reconnected()
 		}
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 		setIsDisconnected(false);
-		GC.getGame().setPausePlayer(NO_PLAYER);
+		bool isAnyDisconnected = false;
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+			if (GET_PLAYER(eLoopPlayer).isDisconnected())
+			{
+				isAnyDisconnected = true;
+			}
+		}
+#ifdef TURN_TIMER_PAUSE_BUTTON
+		{
+			if (!isAnyDisconnected && GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !GC.getGame().isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
+			{
+				if ((GC.getGame().getElapsedGameTurns() > 0) && GET_PLAYER(GC.getGame().getActivePlayer()).isTurnActive())
+				{
+					// as there is no netcode for timer pause,
+					// this function will act as one, if called with special agreed upon arguments
+					// resetTurnTimer(true);
+					gDLL->sendGiftUnit(NO_PLAYER, -11);
+				}
+			}
+		}
+#endif
 		// Game pauses during a reconnection and will unpause when the reconnect is finished, so there's no need to insert unpause code here
 #endif
 	}
@@ -29541,10 +30144,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBUILTWONDERS"), iGameTurn, GetNumWonders());
 #endif
 
+#if defined EG_REPLAYDATASET_NUMREVEALEDTILES || defined EG_REPLAYDATASET_NUMLUXURY || defined EG_REPLAYDATASET_NUMGPIMPROVEMENT
+		CvPlot* pLoopPlot;
+#endif
 #ifdef EG_REPLAYDATASET_NUMREVEALEDTILES
 		// revealed tiles
 		int iRevealedTiles = 0;
-		CvPlot* pLoopPlot;
 		for (int iLoopPlot = 0; iLoopPlot < GC.getMap().numPlots(); iLoopPlot++)
 		{
 			pLoopPlot = GC.getMap().plotByIndexUnchecked(iLoopPlot);
@@ -29709,10 +30314,130 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 #ifdef  EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
 		int iEffectiveSciencePerTurn = GetScience();
+#ifdef NO_PUPPET_TECH_COST_MOD
+		int iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities());
+#else
 		int iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities(/*bIncludePuppets*/ true));
+#endif
 		iEffectiveSciencePerTurn *= (100 + GetPlayerTechs()->GetNumCitiesResearchCostModifier(1));
 		iEffectiveSciencePerTurn /= (100 + iMod);
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVESCIENCEPERTURN"), iGameTurn, iEffectiveSciencePerTurn);
+#endif
+
+		/// Third Bunch of Enhanced Graphs
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DIEDSPIES"), iGameTurn, GetNumDiedSpies());
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_KILLEDSPIES"), iGameTurn, GetNumKilledSpies());
+#endif
+
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		int iFoodFromMinersTimes100 = GetFoodFromMinorsTimes100() / 1024 + getNumCities() * (GetFoodFromMinorsTimes100() % 1024);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FOODFROMCS"), iGameTurn, iFoodFromMinersTimes100 / 100);
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		int iProductionFromMinersTimes100 = GetProductionFromMinorsTimes100() / 1024 + getNumCities() * (GetProductionFromMinorsTimes100() % 1024);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONFROMCS"), iGameTurn, iProductionFromMinersTimes100 / 100);
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMCS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREFROMCS"), iGameTurn, GetCulturePerTurnFromMinorCivs());
+#endif
+#ifdef EG_REPLAYDATASET_SCIENCEFROMCS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_SCIENCEFROMCS"), iGameTurn, GetSciencePerTurnFromMinorCivsTimes100() / 100);
+#endif
+#ifdef EG_REPLAYDATASET_FAITHFROMCS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FAITHFROMCS"), iGameTurn, GetFaithPerTurnFromMinorCivs());
+#endif
+#ifdef EG_REPLAYDATASET_HAPPINESSFROMCS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_HAPPINESSFROMCS"), iGameTurn, GetHappinessFromMinorCivs());
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_UNITSFROMCS"), iGameTurn, GetNumUnitsFromMinors());
+#endif
+
+#if defined EG_REPLAYDATASET_TOURISMPERTURN || defined EG_REPLAYDATASET_NUMWORLDWONDERS
+		int iLoopCity;
+#endif
+#ifdef EG_REPLAYDATASET_TOURISMPERTURN
+		iLoopCity = 0;
+		int iInfluencePerTurn = 0;
+		for (CvCity *pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+		{
+			iInfluencePerTurn += pLoopCity->GetCityCulture()->GetBaseTourism();
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, iInfluencePerTurn);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGREATWORKSANDARTIFACTS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGREATWORKSANDARTIFACTS"), iGameTurn, GetCulture()->GetNumGreatWorks());
+#endif
+
+#ifdef EG_REPLAYDATASET_NUMLUXURY
+		// luxury tiles
+		int iLuxuryTiles = 0;
+		for (int iLoopPlot = 0; iLoopPlot < GC.getMap().numPlots(); iLoopPlot++)
+		{
+			pLoopPlot = GC.getMap().plotByIndexUnchecked(iLoopPlot);
+			if (pLoopPlot)
+			{
+				if (pLoopPlot->getOwner() == GetID())
+				{
+					if (pLoopPlot->getResourceType() != NO_RESOURCE)
+					{
+						if (GC.getResourceInfo(pLoopPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							iLuxuryTiles++;
+						}
+					}
+				}
+			}
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMLUXURY"), iGameTurn, iLuxuryTiles);
+#endif
+
+#ifdef EG_REPLAYDATASET_NUMWORLDWONDERS
+		iLoopCity = 0;
+		int iNumWorldWonders = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+		{
+			iNumWorldWonders += pLoopCity->getNumWorldWonders();
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMWORLDWONDERS"), iGameTurn, iNumWorldWonders);
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMCREATEDWORLDWONDERS"), iGameTurn, GetNumCreatedWorldWonders());
+#endif
+
+#ifdef EG_REPLAYDATASET_NUMGPIMPROVEMENT
+		int iGPImprovementTiles = 0;
+		for (int iLoopPlot = 0; iLoopPlot < GC.getMap().numPlots(); iLoopPlot++)
+		{
+			pLoopPlot = GC.getMap().plotByIndexUnchecked(iLoopPlot);
+			if (pLoopPlot)
+			{
+				if (pLoopPlot->getOwner() == GetID())
+				{
+					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+					{
+						if (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsIgnoreOwnership() && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsRequiresImprovement())
+						{
+							iGPImprovementTiles++;
+						}
+					}
+				}
+			}
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGPIMPROVEMENT"), iGameTurn, iGPImprovementTiles);
+#endif
+
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONBUILDINGBUYS"), iGameTurn, GetNumGoldSpentOnBuildingBuys());
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONUNITBUYS"), iGameTurn, GetNumGoldSpentOnUnitBuys());
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONUPGRADES"), iGameTurn, GetNumGoldSpentOnUgrades());
 #endif
 
 /*#ifdef ENHANCED_GRAPHS

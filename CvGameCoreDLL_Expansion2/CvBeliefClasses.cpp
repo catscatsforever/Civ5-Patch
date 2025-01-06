@@ -1197,7 +1197,10 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iGoldenAgeCombatMod += belief->GetGoldenAgeCombatMod();
 #endif
 #ifdef NEW_BELIEF_PROPHECY
-	m_bAllowPolicyWonders = belief->IsAllowPolicyWonders();
+	if (!m_bAllowPolicyWonders)
+	{
+		m_bAllowPolicyWonders = belief->IsAllowPolicyWonders();
+	}
 #endif
 	m_iCityStateMinimumInfluence += belief->GetCityStateMinimumInfluence();
 	m_iCityStateInfluenceModifier += belief->GetCityStateInfluenceModifier();
@@ -2052,32 +2055,46 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassEnabled);
 #ifdef DUEL_ALLOW_SAMETURN_BELIEFS
-	int iNumEntries;
-	int iType;
-
-	kStream >> iNumEntries;
-
-	for (int iI = 0; iI < iNumEntries; iI++)
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1002)
 	{
-		bool bValid = true;
-		iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
-		if (iType != -1 || !bValid)
+# endif
+		int iNumEntries;
+		int iType;
+
+		kStream >> iNumEntries;
+
+		for (int iI = 0; iI < iNumEntries; iI++)
 		{
-			if (iType != -1)
+			bool bValid = true;
+			iType = CvInfosSerializationHelper::ReadHashed(kStream, &bValid);
+			if (iType != -1 || !bValid)
 			{
-				kStream >> m_paiBeliefAdoptionTurn[iType];
-			}
-			else
-			{
-				CvString szError;
-				szError.Format("LOAD ERROR: Belief Type not found");
-				GC.LogMessage(szError.GetCString());
-				CvAssertMsg(false, szError);
-				int iDummy;
-				kStream >> iDummy;	// Skip it.
+				if (iType != -1)
+				{
+					kStream >> m_paiBeliefAdoptionTurn[iType];
+				}
+				else
+				{
+					CvString szError;
+					szError.Format("LOAD ERROR: Belief Type not found");
+					GC.LogMessage(szError.GetCString());
+					CvAssertMsg(false, szError);
+					int iDummy;
+					kStream >> iDummy;	// Skip it.
+				}
 			}
 		}
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
+	else
+	{
+		for (int iI = 0; iI < GC.getNumBeliefInfos(); iI++)
+		{
+			m_paiBeliefAdoptionTurn[iI] = -1;
+		}
+	}
+# endif
 #endif
 }
 

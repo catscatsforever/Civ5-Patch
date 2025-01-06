@@ -255,7 +255,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentModifier);
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
-#ifdef FIX_RANGE_COMBAT_MOD
+#ifdef FIX_RANGE_DEFENSE_MOD
 	Method(RangedDefenseModifier);
 #endif
 #ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
@@ -2607,7 +2607,7 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#ifdef FIX_RANGE_COMBAT_MOD
+#ifdef FIX_RANGE_DEFENSE_MOD
 //------------------------------------------------------------------------------
 //int rangedDefenseModifier();
 int CvLuaUnit::lRangedDefenseModifier(lua_State* L)

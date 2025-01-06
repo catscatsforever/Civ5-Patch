@@ -2,6 +2,7 @@
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
 local g_MilitaryManager = InstanceManager:new( "NewUnitFlag", "Anchor", Controls.MilitaryFlags );
 local g_CivilianManager = InstanceManager:new( "NewUnitFlag", "Anchor", Controls.CivilianFlags );
 local g_AirCraftManager = InstanceManager:new( "NewUnitFlag", "Anchor", Controls.AirCraftFlags );
@@ -211,6 +212,39 @@ local g_UnitFlagClass =
             o.m_Instance.HealthBarButton:SetDisabled( false );
             o.m_Instance.HealthBarButton:SetConsumeMouseOver( true );
             
+            if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                if pUnit:CanMove() then
+                    o.m_Instance.IsOutOfAttacks:SetHide(not pUnit:IsOutOfAttacks())
+                else
+                    o.m_Instance.IsOutOfAttacks:SetHide(true)
+                end
+                local bIsHealing = false
+                if not pUnit:IsEmbarked() then
+                    if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                        if pUnit:IsAlwaysHeal() then
+                            bIsHealing = true
+                        end
+                    else
+                        if pUnit:IsHurt() then
+                            if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                                if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
+                                    bIsHealing = false
+                                else
+                                    bIsHealing = true
+                                end
+                            else
+                                bIsHealing = true
+                            end
+                        end
+                    end
+                end
+                o.m_Instance.IsHealing:SetHide(not bIsHealing)
+                o.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+            else
+                o.m_Instance.IsOutOfAttacks:SetHide(true)
+                o.m_Instance.IsHealing:SetHide(true)
+                o.m_Instance.IsNoCapture:SetHide(true)
+            end
         else
             o.m_Instance.NormalButton:SetDisabled( true );
             o.m_Instance.NormalButton:SetConsumeMouseOver( false );
@@ -228,6 +262,9 @@ local g_UnitFlagClass =
 				end);
             o.m_Instance.HealthBarButton:SetDisabled( true );
             o.m_Instance.HealthBarButton:SetConsumeMouseOver( false );
+            o.m_Instance.IsOutOfAttacks:SetHide(true)
+            o.m_Instance.IsHealing:SetHide(true)
+            o.m_Instance.IsNoCapture:SetHide(true)
         end
 
 
@@ -400,6 +437,34 @@ local g_UnitFlagClass =
         -- going to damaged state
         if( healthPercent < 1 )
         then
+            local pPlayer = Players[Game.GetActivePlayer()];
+            local active_team = pPlayer:GetTeam();
+            local team = self.m_Player:GetTeam();
+            if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                local bIsHealing = false
+                if not pUnit:IsEmbarked() then
+                    if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                        if pUnit:IsAlwaysHeal() then
+                            bIsHealing = true
+                        end
+                    else
+                        if pUnit:IsHurt() then
+                            if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                                if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
+                                    bIsHealing = false
+                                else
+                                    bIsHealing = true
+                                end
+                            else
+                                bIsHealing = true
+                            end
+                        end
+                    end
+                end
+                self.m_Instance.IsHealing:SetHide(active_team ~= team or not bIsHealing)
+            else
+                self.m_Instance.IsHealing:SetHide(true)
+            end
             -- show the bar and the button anim
             self.m_Instance.HealthBarBG:SetHide( false );
             self.m_Instance.HealthBar:SetHide( false );
@@ -432,6 +497,7 @@ local g_UnitFlagClass =
         --------------------------------------------------------------------    
         -- going to full health
         else
+            self.m_Instance.IsHealing:SetHide(true)
             self.m_Instance.HealthBar:SetFGColor( Vector4( 0, 1, 0, 1 ) );
             
             -- hide the bar and the button anim
@@ -1316,6 +1382,60 @@ function OnUnitSetDamage( playerID, unitID, iDamage, iPreviousDamage )
     end
 end
 Events.SerialEventUnitSetDamage.Add( OnUnitSetDamage );
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function OnOptionsChanged()
+    local i = 0;
+    local player = Players[i];
+    while player ~= nil 
+    do
+        if( player:IsAlive() ) then
+            if (player:GetTeam() == Players[Game.GetActivePlayer()]:GetTeam()) then
+                for pUnit in player:Units() do
+                    if pUnit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                        local flag = g_MasterList[ i ][ pUnit:GetID() ];
+                        if pUnit:CanMove() then
+                            flag.m_Instance.IsOutOfAttacks:SetHide(not pUnit:IsOutOfAttacks())
+                        else
+                            flag.m_Instance.IsOutOfAttacks:SetHide(true)
+                        end
+                        local bIsHealing = false
+                        if not pUnit:IsEmbarked() then
+                            if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                                if pUnit:IsAlwaysHeal() then
+                                    bIsHealing = true
+                                end
+                            else
+                                if pUnit:IsHurt() then
+                                    if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                                        if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
+                                            bIsHealing = false
+                                        else
+                                            bIsHealing = true
+                                        end
+                                    else
+                                        bIsHealing = true
+                                    end
+                                end
+                            end
+                        end
+                        flag.m_Instance.IsHealing:SetHide(active_team ~= team or not bIsHealing)
+                        flag.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+                    else
+                        local flag = g_MasterList[ i ][ pUnit:GetID() ];
+                        flag.m_Instance.IsOutOfAttacks:SetHide(true)
+                        flag.m_Instance.IsHealing:SetHide(true)
+                        flag.m_Instance.IsNoCapture:SetHide(true)
+                    end
+                end
+            end
+        end
+
+        i = i + 1;
+        player = Players[i];
+    end
+end
+Events.GameOptionsChanged.Add( OnOptionsChanged );
 
 --------------------------------------------------------------------------------
 -- A unit has changed its name, update the tool tip string
@@ -1463,8 +1583,46 @@ function OnDimEvent( playerID, unitID, bDim )
         	
         	if( active_team == team )
         	then
+                local pUnit = Players[ playerID ]:GetUnitByID( unitID )
+                if pUnit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                    if pUnit:CanMove() then
+                        flag.m_Instance.IsOutOfAttacks:SetHide(not pUnit:IsOutOfAttacks())
+                    else
+                        flag.m_Instance.IsOutOfAttacks:SetHide(true)
+                    end
+                    local bIsHealing = false
+                    if not pUnit:IsEmbarked() then
+                        if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                            if pUnit:IsAlwaysHeal() then
+                                bIsHealing = true
+                            end
+                        else
+                            if pUnit:IsHurt() then
+                                if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
+                                    if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
+                                        bIsHealing = false
+                                    else
+                                        bIsHealing = true
+                                    end
+                                else
+                                    bIsHealing = true
+                                end
+                            end
+                        end
+                    end
+                    flag.m_Instance.IsHealing:SetHide(active_team ~= team or not bIsHealing)
+                    flag.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+                else
+                    flag.m_Instance.IsOutOfAttacks:SetHide(true)
+                    flag.m_Instance.IsHealing:SetHide(true)
+                    flag.m_Instance.IsNoCapture:SetHide(true)
+                end
                 --print( "  Unit dim: " .. tostring( playerID ) .. " " .. tostring( unitID ) .. " " .. iDim );
                 flag:SetDim( bDim  );
+            else
+                o.m_Instance.IsOutOfAttacks:SetHide(true)
+                o.m_Instance.IsHealing:SetHide(true)
+                o.m_Instance.IsNoCapture:SetHide(true)
         	end
         end
     end

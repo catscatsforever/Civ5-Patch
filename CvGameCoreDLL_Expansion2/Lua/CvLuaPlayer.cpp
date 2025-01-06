@@ -382,6 +382,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPoliciesInBranch);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
+#ifdef NEW_NUM_CITIES_POLICIES_COST_MODIFIER
+	Method(GetNumCitiesPolicyCostMod);
+#endif
 	Method(GetNextPolicyCost);
 	Method(CanAdoptPolicy);
 	Method(DoAdoptPolicy);
@@ -2005,7 +2008,11 @@ int CvLuaPlayer::lGetNumCitiesResearchCostModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
+#ifdef NO_PUPPET_TECH_COST_MOD
+	const int iResult = pkPlayer->GetPlayerTechs()->GetNumCitiesResearchCostModifier(pkPlayer->GetMaxEffectiveCities());
+#else
 	const int iResult = pkPlayer->GetPlayerTechs()->GetNumCitiesResearchCostModifier(pkPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true));
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4971,6 +4978,18 @@ int CvLuaPlayer::lSetHasPolicy(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::setHasPolicy);
 }
+#ifdef NEW_NUM_CITIES_POLICIES_COST_MODIFIER
+//------------------------------------------------------------------------------
+//int GetNumCitiesPolicyCostMod(int iNumCities);
+int CvLuaPlayer::lGetNumCitiesPolicyCostMod(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumCitiesPolicyCostMod(pkPlayer->GetMaxEffectiveCities());
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getNextPolicyCost();
 int CvLuaPlayer::lGetNextPolicyCost(lua_State* L)

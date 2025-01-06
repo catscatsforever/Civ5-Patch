@@ -214,6 +214,9 @@ CvCity::CvCity() :
 	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
 	, m_aiExtraSpecialistYield("CvCity::m_aiExtraSpecialistYield", m_syncArchive)
 	, m_aiProductionToYieldModifier("CvCity::m_aiProductionToYieldModifier", m_syncArchive)
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	, m_iProcessOverflowProductionTimes100(0)
+#endif
 	, m_aiDomainFreeExperience("CvCity::m_aiDomainFreeExperience", m_syncArchive)
 	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
@@ -244,6 +247,9 @@ CvCity::CvCity() :
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
 	, m_ppaiTerrainYieldChange(0)
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	, m_ppaiImprovementYieldChange(0)
+#endif
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
 	, m_pCityCitizens(FNEW(CvCityCitizens, c_eCiv5GameplayDLL, 0))
@@ -637,6 +643,18 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange);
 
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	if (m_ppaiImprovementYieldChange)
+	{
+		for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange);
+	
+#endif
+
 	m_pCityBuildings->Uninit();
 	m_pCityStrategyAI->Uninit();
 	m_pCityCitizens->Uninit();
@@ -795,6 +813,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiExtraSpecialistYield.setAt(iI, 0);
 		m_aiProductionToYieldModifier.setAt(iI, 0);
 	}
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	m_iProcessOverflowProductionTimes100 = 0;
+#endif
 
 	m_aiDomainFreeExperience.resize(NUM_DOMAIN_TYPES);
 	m_aiDomainProductionModifier.resize(NUM_DOMAIN_TYPES);
@@ -983,6 +1004,22 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiTerrainYieldChange[iI][iJ] = 0;
 			}
 		}
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+		// int iNumImprovementInfos = GC.getNumImprovementInfos();
+		CvAssertMsg(m_ppaiImprovementYieldChange == NULL, "about to leak memory, CvCity::m_ppaiImprovementYieldChange");
+		m_ppaiImprovementYieldChange = FNEW(int* [iNumImprovementInfos], c_eCiv5GameplayDLL, 0);
+		for (iI = 0; iI < iNumImprovementInfos; iI++)
+		{
+			m_ppaiImprovementYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiImprovementYieldChange[iI][iJ] = 0;
+			}
+		}
+
+		
+#endif
 	}
 
 	if(!bConstructorCall)
@@ -2525,10 +2562,17 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
+#ifdef NEW_BELIEF_PROPHECY
+	if(!(GET_PLAYER(getOwner()).canConstruct(eBuilding, bContinue, bTestVisible, bIgnoreCost, toolTipSink, this)))
+	{
+		return false;
+	}
+#else
 	if(!(GET_PLAYER(getOwner()).canConstruct(eBuilding, bContinue, bTestVisible, bIgnoreCost, toolTipSink)))
 	{
 		return false;
 	}
+#endif
 
 	if(m_pCityBuildings->GetNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
 	{
@@ -2954,6 +2998,34 @@ void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, i
 		updateYield();
 	}
 }
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+//	--------------------------------------------------------------------------------
+/// Extra yield for a Improvement this city is working?
+int CvCity::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return m_ppaiImprovementYieldChange[eImprovement][eYield];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if (iChange != 0)
+	{
+		m_ppaiImprovementYieldChange[eImprovement][eYield] += iChange;
+
+		updateYield();
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Does this City have eResource nearby?
@@ -6538,10 +6610,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
 							{
+#ifdef FIX_BAZAAR_DOUBLE_RESOURCE_ONCE
+								if (pLoopPlot->GetResourceLinkedCity() == this && pLoopPlot->IsResourceLinkedCityActive())
+								{
+									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), -pLoopPlot->getNumResourceForPlayer(getOwner()), /*bIgnoreResourceWarning*/ true);
+								}
+#else
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
 									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), -pLoopPlot->getNumResourceForPlayer(getOwner()), /*bIgnoreResourceWarning*/ true);
 								}
+#endif
 							}
 						}
 					}
@@ -6564,10 +6643,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
 							{
+#ifdef FIX_BAZAAR_DOUBLE_RESOURCE_ONCE
+								if (pLoopPlot->GetResourceLinkedCity() == this && pLoopPlot->IsResourceLinkedCityActive())
+								{
+									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), pLoopPlot->getNumResourceForPlayer(getOwner()));
+								}
+#else
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
 									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), pLoopPlot->getNumResourceForPlayer(getOwner()));
 								}
+#endif
 							}
 						}
 					}
@@ -6648,6 +6734,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 			}
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+			for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+			{
+				ChangeImprovementExtraYield(((ImprovementTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetImprovementYieldChange(iJ, eYield) * iChange));
+			}
+#endif
 
 			if(pBuildingInfo->GetEnhancedYieldTech() != NO_TECH)
 			{
@@ -8056,7 +8149,8 @@ int CvCity::getCityAttackRangeModifier() const
 			if (pReligion)
 			{
 				BeliefTypes pBelief = NO_BELIEF;
-				for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+				int iI;
+				for (iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
 				{
 					const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
 					CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
@@ -8080,6 +8174,26 @@ int CvCity::getCityAttackRangeModifier() const
 								iTempMod++;
 							}
 						}
+					}
+				}
+#endif
+				pBelief = NO_BELIEF;
+				for (int jJ = iI + 1; jJ < pReligion->m_Beliefs.GetNumBeliefs(); jJ++)
+				{
+					const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(jJ);
+					CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+					if (pEntry && pEntry->IsPantheonBelief())
+					{
+						pBelief = eBelief;
+						break;
+					}
+				}
+#ifdef DUEL_GODDESS_STRATEGY_CHANGE
+				if (!(GC.getGame().isNetworkMultiPlayer() && GC.getGame().isOption("GAMEOPTION_DUEL_STUFF")))
+				{
+					if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+					{
+						iTempMod++;
 					}
 				}
 #endif
@@ -9536,7 +9650,33 @@ int CvCity::GetLocalHappiness() const
 				{
 					if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
+#ifdef NEW_BELIEF_PROPHECY
+						CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+						int iYieldFromBuilding = 0;
+
+						for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+						{
+							if (pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+							{
+								if (iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+								{
+									if (pBeliefs->GetEntry(i)->IsReformationBelief())
+									{
+										if (pReligion->m_eFounder == getOwner())
+										{
+											iHappinessFromReligion += pBeliefs->GetEntry(i)->GetBuildingClassHappiness(eBuildingClass);
+										}
+									}
+									else
+									{
+										iHappinessFromReligion += pBeliefs->GetEntry(i)->GetBuildingClassHappiness(eBuildingClass);
+									}
+								}
+							}
+						}
+#else
 						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+#endif
 					}
 				}
 			}
@@ -10195,7 +10335,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	{
 		if (eIndex == YIELD_SCIENCE && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ECONOMIC_UNION", true)))
 		{
-			iTempMod = getPopulation();
+			iTempMod = 20;
 			iModifier += iTempMod;
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_LARGEPOP_SCIENCEMOD", iTempMod);
@@ -10353,7 +10493,11 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 	{
 		CvAssertMsg(eIndex != YIELD_PRODUCTION, "GAMEPLAY: should not be trying to convert Production into Production via process.");
 
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+		iProcessYield = (getYieldRateTimes100(YIELD_PRODUCTION, false) + getOverflowProductionTimes100() + getProcessOverflowProductionTimes100()) * getProductionToYieldModifier(eIndex) / 100;
+#else
 		iProcessYield = getYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
+#endif
 	}
 
 	// Sum up yield rate
@@ -10795,6 +10939,21 @@ void CvCity::changeProductionToYieldModifier(YieldTypes eIndex, int iChange)
 		m_aiProductionToYieldModifier.setAt(eIndex, m_aiProductionToYieldModifier[eIndex] + iChange);
 	}
 }
+
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+//	--------------------------------------------------------------------------------
+int CvCity::getProcessOverflowProductionTimes100() const
+{
+	return m_iProcessOverflowProductionTimes100;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::setProcessOverflowProductionTimes100(int iValue)
+{
+	m_iProcessOverflowProductionTimes100 = iValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) const
@@ -13525,10 +13684,47 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					if (ePrereqTech == -1)
 					{
 						const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+						if (pReligion == NULL)
+						{
+							return false;
+						}
+						CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+						bool bIsFaithBuyingEnabled = false;
+
+						for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+						{
+							if (pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+							{
+								if (pBeliefs->GetEntry(i)->IsReformationBelief())
+								{
+									if (pReligion->m_eFounder == getOwner())
+									{
+										if (pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra((EraTypes)0))
+										{
+											bIsFaithBuyingEnabled = true;
+										}
+									}
+								}
+								else
+								{
+									if (pBeliefs->GetEntry(i)->IsFaithUnitPurchaseEra((EraTypes)0))
+									{
+										bIsFaithBuyingEnabled = true;
+									}
+								}
+							}
+						}
+						if (!bIsFaithBuyingEnabled)
+						{
+							return false;
+						}
+#else
 						if (!pReligion->m_Beliefs.IsFaithBuyingEnabled((EraTypes)0)) // Ed?
 						{
 							return false;
 						}
+#endif
 						if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 						{
 							return false;
@@ -13747,6 +13943,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameUnit->GetText(), iGoldCost, 2);
 			}
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+			kPlayer.ChangeNumGoldSpentOnUnitBuys(iGoldCost);
+#endif
 		// Building
 		}else if(eBuildingType != NO_BUILDING){
 			iGoldCost = GetPurchaseCost(eBuildingType);
@@ -13755,6 +13954,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
 			}
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+			kPlayer.ChangeNumGoldSpentOnBuildingBuys(iGoldCost);
+#endif
 		// Project
 		} else if(eProjectType != NO_PROJECT){
 			iGoldCost = GetPurchaseCost(eProjectType);
@@ -14632,6 +14834,16 @@ void CvCity::doProduction(bool bAllowNoProduction)
 
 		changeProductionTimes100(getCurrentProductionDifferenceTimes100(false, true));
 
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+		for (int iI = 0; iI < GC.getNUM_YIELD_TYPES(); iI++)
+		{
+			if (getProductionToYieldModifier((YieldTypes)iI) != 0)
+			{
+				setProcessOverflowProductionTimes100(getOverflowProductionTimes100());
+			}
+		}
+
+#endif
 		setOverflowProduction(0);
 		setFeatureProduction(0);
 
@@ -14642,8 +14854,8 @@ void CvCity::doProduction(bool bAllowNoProduction)
 	}
 	else
 	{
-#ifndef PREVENT_UNCAPPED_OVERFLOW
-		changeOverflowProductionTimes100(getCurrentProductionDifferenceTimes100(false, false));
+#ifdef PREVENT_UNCAPPED_OVERFLOW
+		setOverflowProductionTimes100(getCurrentProductionDifferenceTimes100(false, false));
 #endif
 	}
 }
@@ -15002,6 +15214,18 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_aiResourceYieldRateModifier;
 	kStream >> m_aiExtraSpecialistYield;
 	kStream >> m_aiProductionToYieldModifier;
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1003)
+	{
+# endif
+		kStream >> m_iProcessOverflowProductionTimes100;
+	}
+	else
+	{
+		m_iProcessOverflowProductionTimes100 = 0;
+	}
+#endif
 	kStream >> m_aiDomainFreeExperience;
 	kStream >> m_aiDomainProductionModifier;
 
@@ -15145,6 +15369,25 @@ void CvCity::read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1003)
+	{
+# endif
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+	}
+	else
+	{
+		for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		{
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; ++iJ)
+			{
+				m_ppaiImprovementYieldChange[iI][iJ] = 0;
+			}
+		}
+	}
+#endif
 
 	kStream >> m_iPopulationRank;
 	kStream >> m_bPopulationRankValid;
@@ -15353,6 +15596,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_aiResourceYieldRateModifier;
 	kStream << m_aiExtraSpecialistYield;
 	kStream << m_aiProductionToYieldModifier;
+#ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
+	kStream << m_iProcessOverflowProductionTimes100;
+#endif
 	kStream << m_aiDomainFreeExperience;
 	kStream << m_aiDomainProductionModifier;
 
@@ -15435,6 +15681,10 @@ void CvCity::write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+
+#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
+	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+#endif
 
 	kStream << m_iPopulationRank;
 	kStream << m_bPopulationRankValid;

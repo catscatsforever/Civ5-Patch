@@ -368,6 +368,9 @@ protected:
 	static int lGetNumPoliciesInBranch(lua_State* L);
 	static int lHasPolicy(lua_State* L);
 	static int lSetHasPolicy(lua_State* L);
+#ifdef NEW_NUM_CITIES_POLICIES_COST_MODIFIER
+	static int lGetNumCitiesPolicyCostMod(lua_State* L);
+#endif
 	static int lGetNextPolicyCost(lua_State* L);
 	static int lCanAdoptPolicy(lua_State* L);
 	static int lDoAdoptPolicy(lua_State* L);

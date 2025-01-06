@@ -264,7 +264,7 @@ protected:
 	static int lGetAdjacentModifier(lua_State* L);
 	static int lGetAttackModifier(lua_State* L);
 	static int lGetDefenseModifier(lua_State* L);
-#ifdef FIX_RANGE_COMBAT_MOD
+#ifdef FIX_RANGE_DEFENSE_MOD
 	static int lRangedDefenseModifier(lua_State* L);
 #endif
 #ifdef DEFENSE_AGAINST_INFLUENCED_CIVS

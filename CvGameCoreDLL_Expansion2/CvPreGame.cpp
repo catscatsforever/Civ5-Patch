@@ -309,127 +309,6 @@ std::vector<CvString> s_leaderNamesLocalized(MAX_PLAYERS);
 GameStartTypes	s_gameStartType;
 
 StorageLocation	s_loadFileStorage;
-#ifdef INGAME_MP_LOBBY_DRAFTS
-
-enum DraftProgressTypes
-{
-	DRAFT_PROGRESS_INIT,  // wait for hashes
-	DRAFT_PROGRESS_BANS,  // wait for bans
-	DRAFT_PROGRESS_BUSY,  // wait for secrets
-	DRAFT_PROGRESS_OVER,  // results
-};
-enum DraftResultTypes
-{
-	DRAFT_RESULT_NONE,
-	DRAFT_RESULT_OK,
-	DRAFT_RESULT_FAIL,
-};
-CvString s_draftLocalSecret;
-CvString s_draftLocalSecretHash;
-int s_draftCurrentProgress;
-int s_draftResult;
-std::vector<bool> s_draftPlayerBansReady(MAX_PLAYERS, false);
-std::vector<CvString> s_draftPlayerSecrets(MAX_PLAYERS, "");
-std::vector<CvString> s_draftPlayerSecretHashes(MAX_PLAYERS, "");
-CvString hash(CvString m) {
-	uint H[8] = { 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 };
-	uint K[64] = {
-		0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
-		0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
-		0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-		0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
-		0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
-		0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-		0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
-		0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
-	};
-	uint size = m.size();
-	uint l = size * 8;
-	uint pads = 64 - size % 64;
-	if (pads < 9) {
-		pads += 64;
-	}
-	uint8 pad[64] = { 0 };
-	pad[0] = 0x80;
-	uint8* l2 = reinterpret_cast<uint8*>(&l);
-	l2[0] ^= l2[3];
-	l2[3] ^= l2[0];
-	l2[0] ^= l2[3];
-	l2[1] ^= l2[2];
-	l2[2] ^= l2[1];
-	l2[1] ^= l2[2];
-	for (uint i = 0; i < 4; i++) {
-		pad[pads - 4 + i] = l2[i];
-	}
-
-	uint ind = 0;
-	for (uint chunk = 0; chunk < (pads + size) / 64; chunk++) {
-		uint8 msg[64 * 4];
-		uint* msgw = reinterpret_cast<uint*> (msg);
-		for (uint i = 0; i < 64; i++) {
-			if (ind < size) {
-				msg[i] = m[ind];
-				ind++;
-			}
-			else {
-				msg[i] = pad[ind - size];
-				ind++;
-			}
-		}
-
-		for (uint i = 0; i < 16; i++) {
-			msg[4 * i + 0] ^= msg[4 * i + 3];
-			msg[4 * i + 3] ^= msg[4 * i + 0];
-			msg[4 * i + 0] ^= msg[4 * i + 3];
-			msg[4 * i + 1] ^= msg[4 * i + 2];
-			msg[4 * i + 2] ^= msg[4 * i + 1];
-			msg[4 * i + 1] ^= msg[4 * i + 2];
-		}
-
-		for (uint i = 16; i < 64; i++) {
-			uint S0 = ((msgw[i - 15] >> 7) | (msgw[i - 15] << (32 - 7))) ^ ((msgw[i - 15] >> 18) | (msgw[i - 15] << (32 - 18))) ^ (msgw[i - 15] >> 3);
-			uint S1 = ((msgw[i - 2] >> 17) | (msgw[i - 2] << (32 - 17))) ^ ((msgw[i - 2] >> 19) | (msgw[i - 2] << (32 - 19))) ^ (msgw[i - 2] >> 10);
-			msgw[i] = msgw[i - 16] + msgw[i - 7] + S0 + S1;
-		}
-
-		uint block[8];
-		for (uint i = 0; i < 8; i++) {
-			block[i] = H[i];
-		}
-
-		for (uint i = 0; i < 64; i++) {
-			uint S1 = ((block[4] >> 6) | (block[4] << (32 - 6))) ^ ((block[4] >> 11) | (block[4] << (32 - 11))) ^ ((block[4] >> 25) | (block[4] << (32 - 25)));
-			uint ch = (block[4] & block[5]) ^ ((~block[4]) & block[6]);
-			uint t1 = block[7] + S1 + ch + K[i] + msgw[i];
-			uint S0 = ((block[0] >> 2) | (block[0] << (32 - 2))) ^ ((block[0] >> 13) | (block[0] << (32 - 13))) ^ ((block[0] >> 22) | (block[0] << (32 - 22)));
-			uint maj = (block[0] & block[1]) ^ (block[0] & block[2]) ^ (block[1] & block[2]);
-			uint t2 = S0 + maj;
-
-			block[7] = block[6];
-			block[6] = block[5];
-			block[5] = block[4];
-			block[4] = block[3] + t1;
-			block[3] = block[2];
-			block[2] = block[1];
-			block[1] = block[0];
-			block[0] = t1 + t2;
-		}
-
-		for (uint i = 0; i < 8; i++) {
-			H[i] += block[i];
-		}
-
-	}
-	CvString s;
-	for (uint i = 0; i < 8; i++) {
-		CvString t;
-		CvString::format(t, "%08x", H[i]);
-		s += t;
-	}
-	SLOG("msg: %s hash: %s", m.c_str(), s.c_str());
-	return s;
-}
-#endif
 
 //	-----------------------------------------------------------------------
 //	Bind a leader head key to the leader head using the current leader head ID
@@ -1137,12 +1016,6 @@ bool SetGameOption(const char* szOptionName, int iValue)
 		const char* szCurrentOptionName = option.GetName(bytes);
 		if(strncmp(szCurrentOptionName, szOptionName, bytes) == 0)
 		{
-#ifdef INGAME_MP_LOBBY_DRAFTS
-			if (strncmp(szCurrentOptionName, "GAMEOPTION_DRAFTS_BANNED_CIVS1", 31) == 0 || strncmp(szCurrentOptionName, "GAMEOPTION_DRAFTS_BANNED_CIVS2", 31) == 0)
-			{
-				SLOG("attempt %d", iValue)
-			}
-#endif
 			//I'd like to just set the value here, but that doesn't seem possible
 			//so instead, create a new CustomOption type and assign it to this index.
 			s_GameOptions.setAt(i, CustomOption(szOptionName, iValue));
@@ -1756,14 +1629,7 @@ const CvString& nicknameDisplayed(PlayerTypes p)
 		return netId;
 	}
 #endif
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	if ((((uint)p >> 28) & 15) == 2)  // draft data requested
-	{
-		CvString data = CvString::format("%s|%s|%s");
-
-		return data;
-	}
-#endif	if(p >= 0 && p < MAX_PLAYERS)
+	if(p >= 0 && p < MAX_PLAYERS)
 		return s_displayNicknames[p];
 	static const CvString none("");
 	return none;
@@ -2035,18 +1901,6 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 		loadFrom >> s_turnNotifyEmail;
 		loadFrom >> s_turnNotifyEmailAddress;
 	}
-#ifdef INGAME_MP_LOBBY_DRAFTS
-# ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= 1000)
-	{
-		loadFrom >> s_draftPlayerSecrets;
-		loadFrom >> s_draftPlayerSecretHashes;
-		loadFrom >> s_draftPlayerBansReady;
-		loadFrom >> s_draftCurrentProgress;
-		loadFrom >> s_draftResult;
-	}
-# endif
-#endif
 
 	// Rebuild the hash lookup to the options
 	s_GameOptionsHash.clear();
@@ -2157,13 +2011,6 @@ void resetGame()
 
 	ResetMapOptions();
 	ResetGameOptions();
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	std::fill(s_draftPlayerSecrets.begin(), s_draftPlayerSecrets.end(), "");
-	std::fill(s_draftPlayerSecretHashes.begin(), s_draftPlayerSecretHashes.end(), "");
-	std::fill(s_draftPlayerBansReady.begin(), s_draftPlayerBansReady.end(), false);
-	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
-	s_draftResult = DRAFT_RESULT_NONE;
-#endif
 }
 
 void ResetGameOptions()
@@ -2412,22 +2259,6 @@ const CvSeaLevelInfo& seaLevelInfo()
 
 void setActivePlayer(PlayerTypes p)
 {
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	SLOG("active p %d", p);
-	/*if (isNetworkMultiplayerGame() || isHotSeatGame())
-	{
-		if (s_draftCurrentProgress != DRAFT_PROGRESS_OVER)
-		{
-			int oldp = (int)s_activePlayer;
-			CvString t = s_draftPlayerSecrets[oldp];
-			s_draftPlayerSecrets[oldp] = s_draftPlayerSecrets[p];
-			s_draftPlayerSecrets[p] = t;
-			t = s_draftPlayerSecretHashes[oldp];
-			s_draftPlayerSecretHashes[oldp] = s_draftPlayerSecretHashes[p];
-			s_draftPlayerSecretHashes[p] = t;
-		}
-	}*/
-#endif
 	s_activePlayer = p;
 }
 
@@ -2705,14 +2536,6 @@ void setGameTurn(int turn)
 
 void setGameType(GameTypes g, GameStartTypes eStartType)
 {
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	SLOG("--- setGameType");
-	std::fill(s_draftPlayerSecrets.begin(), s_draftPlayerSecrets.end(), "");
-	std::fill(s_draftPlayerSecretHashes.begin(), s_draftPlayerSecretHashes.end(), "");
-	std::fill(s_draftPlayerBansReady.begin(), s_draftPlayerBansReady.end(), false);
-	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
-	s_draftResult = DRAFT_RESULT_NONE;
-#endif
 	s_gameType = g;
 	s_gameStartType = eStartType;
 	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
@@ -2721,8 +2544,6 @@ void setGameType(GameTypes g, GameStartTypes eStartType)
 
 void setGameType(GameTypes g)
 {
-#ifdef INGAME_MP_LOBBY_DRAFTS
-#endif
 	s_gameType = g;
 	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
 		s_isInternetGame = false;
@@ -2874,66 +2695,17 @@ void SetHasRemapToken(PlayerTypes p, bool bValue)
 		{
 			int i = -1;
 			CvPreGame::GetGameOption("GAMEOPTION_REMAP_VOTE_TOKENS", i);
-			//SLOG("OLD REMAP TOKEN %d", i);
+			SLOG("OLD REMAP TOKEN %d", i);
 			if (bValue)
 				((i) |= (1ULL << (static_cast<int>(p))));  // set bit
 			else
 				((i) &= ~(1ULL << (static_cast<int>(p))));  // clear bit
 			CvPreGame::SetGameOption("GAMEOPTION_REMAP_VOTE_TOKENS", i);
-			//SLOG("NEW REMAP TOKEN %d", i);
+			SLOG("NEW REMAP TOKEN %d", i);
 		}
 	}
 }
 
-#endif
-#ifdef INGAME_MP_LOBBY_DRAFTS
-bool IsCivBanned(int iCivId)
-{
-	if (iCivId < 0 || iCivId > 63)
-		return false;
-
-	int i = -1;
-	if (iCivId < 32)
-		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
-	else
-		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
-
-	return 1 == ((i >> iCivId) & 1);
-}
-
-void SetCivBanned(int iCivId, bool bValue)
-{
-	if (iCivId < 0 || iCivId > 63)
-		return;
-
-	int i = -1;
-	if (iCivId < 32)
-	{
-		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
-		SLOG("OLD DRAFT BANNED CIVS (0-31) %d", i);
-	}
-	else
-	{
-		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
-		SLOG("OLD DRAFT BANNED CIVS (32-63) %d", i);
-	}
-
-	if (bValue)
-		((i) |= (1ULL << (iCivId - (iCivId < 32 ? 0 : 32))));  // set bit
-	else
-		((i) &= ~(1ULL << (iCivId - (iCivId < 32 ? 0 : 32))));  // clear bit
-
-	if (iCivId < 32)
-	{
-		CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
-		SLOG("NEW DRAFT BANNED CIVS (0-31) %d", i);
-	}
-	else
-	{
-		CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
-		SLOG("NEW DRAFT BANNED CIVS (32-63) %d", i);
-	}
-}
 #endif
 
 void setLeaderKey(PlayerTypes p, const CvString& szKey)
@@ -2963,249 +2735,9 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 		uint uiPlayerID = (((uint)p >> 1) & 134217727);  // 27-bit
 		int iValue = (((uint)p) & 1);  // 1-bit
 
-		if (uiPlayerID >= MAX_MAJOR_CIVS)
+		if (uiPlayerID > MAX_MAJOR_CIVS)
 			return;
 		SetHasRemapToken((PlayerTypes)uiPlayerID, (bool)iValue);
-		return;
-	}
-#endif
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	// 3 - player ready
-	// 4 - receive secret hash
-	// 5 - parse bans
-	// 6 - receive secret
-	if ((((uint)p >> 28) & 15) == 3)  // player is ready for draft
-	{
-		if (s_draftCurrentProgress != DRAFT_PROGRESS_INIT)
-		{
-			SLOG("WARN attempt to start drafts outside DRAFT_PROGRESS_INIT stage %d %d", p, s_draftCurrentProgress);
-			return;
-		}
-		uint uiPlayerID = (((uint)p) & 268435455);  // 28-bit
-
-		if (uiPlayerID >= MAX_PLAYERS)
-			return;
-
-		int buf = -1;
-		HMODULE advapi = GetModuleHandle("advapi32.dll");
-		if (advapi != NULL)
-		{
-			BOOLEAN(APIENTRY * RtlGenRandom)(void*, ULONG) =
-				(BOOLEAN(APIENTRY*)(void*, ULONG))GetProcAddress(advapi, "SystemFunction036");
-			if (RtlGenRandom != NULL)
-			{
-				RtlGenRandom(&buf, 32UL);
-			}
-		}
-		SLOG("gen secret %d", buf);
-		s_draftLocalSecret = CvString::format("%d", buf); // CvString::format("%d%d%d%d%d%d%d%d", std::rand(), std::rand(), std::rand(), std::rand(), std::rand(), std::rand(), std::rand(), std::rand());  // TODO bad secret quality (32 bit)
-		s_draftLocalSecretHash = hash(s_draftLocalSecret);
-
-		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_INIT|%s", s_draftLocalSecretHash.c_str()).c_str());
-		return;
-	}
-	if ((((uint)p >> 28) & 15) == 4)  // receive secret hash
-	{
-		if (s_draftCurrentProgress != DRAFT_PROGRESS_INIT)
-		{
-			SLOG("WARN attempt to set secret hash outside DRAFT_PROGRESS_INIT stage %d %d", p, s_draftCurrentProgress);
-			return;
-		}
-		uint uiPlayerID = (((uint)p) & 268435455);  // 28-bit
-		if (uiPlayerID >= MAX_PLAYERS)
-		{
-			SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
-			return;
-		}
-		if (s_draftPlayerSecretHashes[uiPlayerID] != "")
-		{
-			SLOG("WARN attempt to overwrite secret hash for player %d", uiPlayerID);
-			return;
-		}
-		s_draftPlayerSecretHashes[uiPlayerID] = szKey;
-		SLOG("set secret hash for player %d to %s", uiPlayerID, szKey.c_str());
-
-		// check all secret hashes received
-		bool bReady = true;
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			if (isHuman((PlayerTypes)i) && (s_draftPlayerSecretHashes[i] == ""))
-				bReady = false;
-		}
-		if (bReady)
-		{
-			SLOG("received all secret hashes");
-			s_draftCurrentProgress = DRAFT_PROGRESS_BANS;
-			// TODO enable bans in UI
-			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), "DRAFT_PROGRESS_BANS|");
-
-		}
-		return;
-	}
-	if ((((uint)p >> 28) & 15) == 5)  // parse bans
-	{
-		if (s_draftCurrentProgress != DRAFT_PROGRESS_BANS)
-		{
-			SLOG("WARN attempt to set bans outside DRAFT_PROGRESS_BANS stage %d %d", p, s_draftCurrentProgress);
-			//return;  // TODO uncomment
-		}
-		uint uiPlayerID = (((uint)p) & 268435455);  // 28-bit
-
-		if (uiPlayerID >= MAX_PLAYERS)
-			return;
-
-		std::vector<CvString> tokens;
-		CvString s = CvString(szKey);
-		size_t pos = 0;
-		std::string token;
-		int civs1 = 0;
-		int civs2 = 0;
-		int id;
-		while ((pos = s.find(',')) != std::string::npos) {
-			token = s.substr(0, pos);
-			tokens.push_back(token);
-			s.erase(0, pos + 1);
-			if (sscanf(token.c_str(), "%d", &id) == 1)
-			{
-				if (id >= 0 && id <= 63)
-				{
-					if (id < 32)
-						civs1 |= 1 << id;
-					else
-						civs2 |= 1 << (id - 32);
-				}
-			}
-		}
-		tokens.push_back(s);
-		if (sscanf(s.c_str(), "%d", &id) == 1)
-		{
-			if (id >= 0 && id <= 63)
-			{
-				if (id < 32)
-					civs1 |= 1 << id;
-				else
-					civs2 |= 1 << (id - 32);
-			}
-		}
-		int old1, old2;
-		if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", old1))
-			old1 = 0;
-		if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", old2))
-			old2 = 0;
-		SLOG("1old %d new %d res %d", old1, civs1, old1 ^ civs1);
-		SLOG("2old %d new %d res %d", old2, civs2, old2 ^ civs2);
-		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ban|%d|%s", uiPlayerID, szKey.c_str()).c_str());
-		std::vector<CustomOption> opts;
-		opts.push_back(CustomOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", old1 ^ civs1));
-		opts.push_back(CustomOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", old2 ^ civs2));
-		CvPreGame::SetGameOptions(opts);
-		if (s_draftPlayerBansReady[uiPlayerID])
-		{
-			SLOG("WARN bans for player %d have been overwritten", uiPlayerID);
-		}
-		s_draftPlayerBansReady[uiPlayerID] = true;
-
-		// check bans ready
-		bool bReady = true;
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			if (isHuman((PlayerTypes)i) && !s_draftPlayerBansReady[i])
-				bReady = false;
-		}
-		if (bReady)
-		{
-			s_draftCurrentProgress = DRAFT_PROGRESS_BUSY;
-			// send secret via UI
-			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_BUSY|%s", s_draftLocalSecret.c_str()).c_str());
-		}
-		return;
-	}
-	if ((((uint)p >> 28) & 15) == 6)  // receive secret
-	{
-		if (s_draftCurrentProgress != DRAFT_PROGRESS_BUSY)
-		{
-			SLOG("WARN attempt to set secret outside DRAFT_PROGRESS_BUSY stage %d %d", p, s_draftCurrentProgress);
-			return;
-		}
-		uint uiPlayerID = (((uint)p) & 268435455);  // 28-bit
-		if (uiPlayerID >= MAX_PLAYERS)
-		{
-			SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
-			return;
-		}
-		if (s_draftPlayerSecrets[uiPlayerID] != "")
-		{
-			SLOG("WARN attempt to overwrite secret for player %d", uiPlayerID);
-			return;
-		}
-		if (s_draftPlayerSecretHashes[uiPlayerID] != hash(szKey))
-		{
-			SLOG("WARN received secret does not match declared secret hash: player %d declared %s received %s (hash %s)", uiPlayerID, s_draftPlayerSecretHashes[uiPlayerID].c_str(), szKey.c_str(), hash(szKey).c_str());
-			//s_draftResult = DRAFT_RESULT_FAIL;
-			return;
-		}
-		s_draftPlayerSecrets[uiPlayerID] = szKey;
-		SLOG("set secret for player %d to %s", uiPlayerID, szKey.c_str());
-
-		// check all secrets received
-		bool bReady = true;
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			if (isHuman((PlayerTypes)i) && (s_draftPlayerSecrets[i] == ""))
-				bReady = false;
-		}
-		if (bReady)
-		{
-			SLOG("received all secrets");
-			s_draftCurrentProgress = DRAFT_PROGRESS_OVER;
-			// TODO gather bans & roll civs
-			int sum = 0;
-			for (int i = 0; i < MAX_PLAYERS; i++)
-			{
-				CvString szSecret = s_draftPlayerSecrets[i];
-				if (szSecret != "")
-				{
-					int iSecret;
-					if (sscanf(szSecret.c_str(), "%d", &iSecret) == 1)
-					{
-						sum += iSecret;
-						SLOG("sum %d", sum);
-					}
-				}
-			}
-
-			std::vector<int> civList;
-			int bans1, bans2;
-			if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", bans1))
-				bans1 = 0;
-			if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", bans2))
-				bans2 = 0;
-			for (int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); ++iCiv)
-			{
-				CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes)iCiv);
-				if (pkCivilization != NULL && pkCivilization->isPlayable() && ((((iCiv < 32) ? bans1 : bans2) >> iCiv) & 1) != 1)
-				{
-					civList.push_back(iCiv);
-				}
-			}
-			SLOG("civList size: %d", civList.size());
-			// shuffle civs
-			std::srand(sum);
-			uint uiSize = civList.size();
-			for (uint k = 0; k < uiSize; k++) {
-				int r = k + std::rand() % (uiSize - k);
-				std::swap(civList[k], civList[r]);
-			}
-			CvString s;
-			for (std::vector<int>::const_iterator i = civList.begin(); i != civList.end(); ++i)
-			{
-				s += CvString::format("%d", *i);
-				s.append(",");
-			}
-			SLOG("shuffled civs %s", s.c_str());
-
-			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_OVER|%s", s.c_str()).c_str());
-		}
 		return;
 	}
 #endif
@@ -3750,9 +3282,6 @@ WorldSizeTypes worldSize()
 void writeArchive(FDataStream& saveTo)
 {
 	uint uiVersion = 6;
-#ifdef SAVE_BACKWARDS_COMPATIBILITY
-	uiVersion = BUMP_SAVE_VERSION_PREGAME;
-#endif
 	saveTo << uiVersion;
 
 	saveTo << s_activePlayer;
@@ -3841,13 +3370,6 @@ void writeArchive(FDataStream& saveTo)
 	saveTo << s_turnNotifySteamInvite;
 	saveTo << s_turnNotifyEmail;
 	saveTo << s_turnNotifyEmailAddress;
-#ifdef INGAME_MP_LOBBY_DRAFTS
-	saveTo >> s_draftPlayerSecrets;
-	saveTo >> s_draftPlayerSecretHashes;
-	saveTo >> s_draftPlayerBansReady;
-	saveTo >> s_draftCurrentProgress;
-	saveTo >> s_draftResult;
-#endif
 }
 
 void write(FDataStream& saveTo)

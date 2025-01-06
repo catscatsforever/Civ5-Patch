@@ -232,7 +232,11 @@ public:
 	void found(int iX, int iY);
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
+#ifdef NEW_BELIEF_PROPHECY
+	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL, const CvCity* pCity = NULL) const;
+#else
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
+#endif
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
@@ -414,6 +418,42 @@ public:
 #endif
 #ifdef EG_REPLAYDATASET_HAPPINESSFROMTRADEDEALS
 	int GetNumHappinessFromTradeDeals() const;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+	int GetNumDiedSpies() const;
+	void ChangeNumDiedSpies(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+	int GetNumKilledSpies() const;
+	void ChangeNumKilledSpies(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+	int GetFoodFromMinorsTimes100() const;
+	void ChangeFoodFromMinorsTimes100(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+	int GetProductionFromMinorsTimes100() const;
+	void ChangeProductionFromMinorsTimes100(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+	int GetNumUnitsFromMinors() const;
+	void ChangeNumUnitsFromMinors(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+	int GetNumCreatedWorldWonders() const;
+	void ChangeNumCreatedWorldWonders(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	int GetNumGoldSpentOnBuildingBuys() const;
+	void ChangeNumGoldSpentOnBuildingBuys(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+	int GetNumGoldSpentOnUnitBuys() const;
+	void ChangeNumGoldSpentOnUnitBuys(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+	int GetNumGoldSpentOnUgrades() const;
+	void ChangeNumGoldSpentOnUgrades(int iChange);
 #endif
 
 	int GetNumUnitsOutOfSupply() const;
@@ -1648,9 +1688,11 @@ public:
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	int getTurnCSWarAllowing(PlayerTypes ePlayer);
-	void setTurnCSWarAllowing(PlayerTypes ePlayer, int iValue);
+	int getTurnCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor);
+	void setTurnCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor, int iValue);
 	float getTimeCSWarAllowing(PlayerTypes ePlayer);
-	void setTimeCSWarAllowing(PlayerTypes ePlayer, float fValue);
+	float getTimeCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor);
+	void setTimeCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor, float fValue);
 #endif
 
 #ifdef PENALTY_FOR_DELAYING_POLICIES
@@ -1943,6 +1985,33 @@ protected:
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 	int m_iTimesEnteredCityScreen;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+	int m_iNumDiedSpies;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+	int m_iNumKilledSpies;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+	int m_iFoodFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+	int m_iProductionFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+	int m_iNumUnitsFromMinors;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+	int m_iNumCreatedWorldWonders;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+	int m_iNumGoldSpentOnBuildingBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+	int m_iNumGoldSpentOnUnitBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+	int m_iNumGoldSpentOnUgrades;
 #endif
 	int m_iExtraLeagueVotes;
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
@@ -2371,8 +2440,8 @@ protected:
 	CvPlayerAchievements m_kPlayerAchievements;
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiTurnCSWarAllowing;
-	FAutoVariable<std::vector<float>, CvPlayer> m_pafTimeCSWarAllowing;
+	FAutoVariable <std::vector< Firaxis::Array< int, MAX_MINOR_CIVS > >, CvPlayer> m_ppaaiTurnCSWarAllowing;
+	FAutoVariable <std::vector< Firaxis::Array< float, MAX_MINOR_CIVS > >, CvPlayer> m_ppaafTimeCSWarAllowing;
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 	bool m_bIsDelayedPolicy;

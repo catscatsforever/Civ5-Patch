@@ -690,9 +690,15 @@ local function OnBannerClick( plotIndex )
 		-- Active player city
 		if cityOwnerID == g_activePlayerID then
 
-			-- always open city screen, puppets are not that special
-			ClearHexHighlights()
-			UI.DoSelectCityAtPlot( plot )
+
+			if (city:IsPuppet() and not cityOwner:MayNotAnnex()) then
+				ClearHexHighlights()
+				AnnexPopup (plotIndex)
+			else
+				-- always open city screen, puppets are not that special
+				ClearHexHighlights()
+				UI.DoSelectCityAtPlot( plot )
+			end
 
 		-- Observers get to look at anything
 		elseif Game.IsDebugMode() or g_activePlayer:IsObserver() then
@@ -968,7 +974,8 @@ local function RefreshCityBannersNow()
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 
 			-- Garrisoned ?
-			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( g_activeTeamID, true ) and city:GetGarrisonedUnit() ) )
+			instance.GarrisonFrame:SetHide( true )
+			-- instance.GarrisonFrame:SetHide( not ( plot:IsVisible( g_activeTeamID, true ) and city:GetGarrisonedUnit() ) )
 
 			instance.CityBannerBackground:SetColor( backgroundColor )
 			instance.CityBannerRightBackground:SetColor( backgroundColor )
@@ -1415,7 +1422,8 @@ end)
 
 Events.StrategicViewStateChanged.Add( function(isStrategicView, showCityBanners)
 	local showBanners = showCityBanners or not isStrategicView
-	Controls.CityBanners:SetHide( not showBanners )
+	Controls.CityBanners:SetHide( false )
+	-- Controls.CityBanners:SetHide( not showBanners )
 	return Controls.StrategicViewStrikeButtons:SetHide( showBanners )
 end)
 
