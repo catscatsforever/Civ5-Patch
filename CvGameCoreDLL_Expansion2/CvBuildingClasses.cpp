@@ -1645,11 +1645,11 @@ int CvBuildingEntry::GetYieldChange(int i) const
 	{
 		if(i == YIELD_CULTURE)
 		{
-			return m_piYieldChange ? (m_piYieldChange[i] + 2) : -1;
+			return m_piYieldChange ? (3 /*m_piYieldChange[i]*/) : -1;
 		}
 		else if(i == YIELD_SCIENCE)
 		{
-			return m_piYieldChange ? (m_piYieldChange[i] - 1) : 2;
+			return m_piYieldChange ? (2 /*m_piYieldChange[i]*/) : -1;
 		}
 		else
 		{

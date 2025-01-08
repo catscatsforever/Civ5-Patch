@@ -8986,6 +8986,15 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 	VALIDATE_OBJECT
 	if(iChange != 0)
 		m_iNoOccupiedUnhappinessCount += iChange;
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+	if (iChange > 0 && GC.getGame().isNetworkMultiPlayer() && getOwner() != NO_PLAYER && getOriginalOwner() != NO_PLAYER)
+	{
+		if (!GET_PLAYER(getOriginalOwner()).isHuman() && !GET_PLAYER(getOriginalOwner()).isMinorCiv())
+		{
+			setOriginalOwner(getOwner());
+		}
+	}
+#endif
 }
 
 
@@ -12263,6 +12272,37 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 
 	DoUpdateCheapestPlotInfluence();
+
+#ifdef UPDATE_UNIT_PROMOTIONS_ON_ACQUIRED_PLOT
+	if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbark())
+	{
+		const IDInfo* pUnitNode;
+		UnitHandle pLoopUnit;
+
+		pUnitNode = pPlot->headUnitNode();
+
+		while (pUnitNode != NULL)
+		{
+			pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit)
+			{
+				if (pLoopUnit->getOwner() == getOwner())
+				{
+					// Land Unit
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+					{
+						// Civilian unit or the unit can acquire this promotion
+						PromotionTypes ePromotionEmbarkation = GET_PLAYER(getOwner()).GetEmbarkationPromotion();
+						if (!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+							pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------

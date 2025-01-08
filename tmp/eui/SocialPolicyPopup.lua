@@ -634,9 +634,16 @@ function UpdateDisplay()
 			if iUnhappiness < 0 then
 				strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
 				Controls.SwitchIdeologyButton:SetDisabled(false);
+				local eCurrentIdeology = player:GetLateGamePolicyTree();
+				local iCurrentIdeologyTenets = player:GetNumPoliciesInBranch(eCurrentIdeology);
 				local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
 				local strPreferredIdeology = tostring((GameInfo.PolicyBranchTypes[ePreferredIdeology] or {}).Description);
-				strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), 3);
+				local iPreferredIdeologyTenets = iCurrentIdeologyTenets - GameDefines["SWITCH_POLICY_BRANCHES_TENETS_LOST"];
+				if iPreferredIdeologyTenets < 0 then
+					iPreferredIdeologyTenets = 0;
+				end
+				iPreferredIdeologyTenets = iPreferredIdeologyTenets + Game.GetNumFreePolicies(ePreferredIdeology);
+				strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), iPreferredIdeologyTenets);
 
 				Controls.SwitchIdeologyButton:RegisterCallback(Mouse.eLClick, ChooseChangeIdeology );
 			else
@@ -1103,6 +1110,7 @@ if bnw_mode then
 		local iUnhappiness = player:GetPublicOpinionUnhappiness();
 		local strCurrentIdeology = GameInfo.PolicyBranchTypes[eCurrentIdeology].Description;
 		local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
+		iPreferredIdeologyTenets = iPreferredIdeologyTenets + Game.GetNumFreePolicies(ePreferredIdeology);
 		local strPreferredIdeology = tostring((GameInfo.PolicyBranchTypes[ePreferredIdeology] or {}).Description);
 		Controls.LabelConfirmChangeIdeology:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_CONFIRM_CHANGE_IDEOLOGY", iAnarchyTurns, iCurrentIdeologyTenets, strCurrentIdeology, iPreferredIdeologyTenets, strPreferredIdeology, iUnhappiness);
 		Controls.ChangeIdeologyConfirm:SetHide(false);

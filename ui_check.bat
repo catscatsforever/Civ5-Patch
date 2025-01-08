@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V10.4c
+set patchfolder=Tournament Mod V10.4e
 del /q "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 copy /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua" > nul

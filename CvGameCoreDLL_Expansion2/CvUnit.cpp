@@ -8933,6 +8933,36 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
+#ifdef UPDATE_UNIT_PROMOTIONS_ON_ACQUIRED_PLOT
+			if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbark())
+			{
+				const IDInfo* pUnitNode;
+				UnitHandle pLoopUnit;
+
+				pUnitNode = pLoopPlot->headUnitNode();
+
+				while (pUnitNode != NULL)
+				{
+					pLoopUnit = GetPlayerUnit(*pUnitNode);
+					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+					if (pLoopUnit)
+					{
+						if (pLoopUnit->getOwner() == getOwner())
+						{
+							// Land Unit
+							if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+							{
+								// Civilian unit or the unit can acquire this promotion
+								PromotionTypes ePromotionEmbarkation = GET_PLAYER(getOwner()).GetEmbarkationPromotion();
+								if (!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+									pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
+							}
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 

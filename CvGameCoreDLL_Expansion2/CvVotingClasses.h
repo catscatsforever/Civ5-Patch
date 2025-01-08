@@ -607,6 +607,9 @@ public:
 	CvString GetLeagueSplashThisEraDetails(LeagueSpecialSessionTypes eGoverningSpecialSession, bool bJustFounded);
 	CvString GetLeagueSplashNextEraDetails(LeagueSpecialSessionTypes eGoverningSpecialSession, bool bJustFounded);
 	CvString GetGreatPersonRateModifierDetails(UnitClassTypes eGreatPersonClass);
+#ifdef FIX_PROJECTS_NOTIFICATIONS_PERCENTAGE
+	void CheckProjectsProgress();
+#endif
 
 	// Achievements
 	void CheckProjectAchievements();
@@ -662,7 +665,9 @@ private:
 	void NotifyProjectProgress(LeagueProjectTypes eProject);
 
 	void StartProject(LeagueProjectTypes eLeagueProject);
+#ifndef FIX_PROJECTS_NOTIFICATIONS_PERCENTAGE
 	void CheckProjectsProgress();
+#endif
 	void DoProjectRewards(LeagueProjectTypes eLeagueProject);
 	void DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, ContributionTier eTier);
 

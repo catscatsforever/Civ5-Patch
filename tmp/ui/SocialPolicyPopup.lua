@@ -744,10 +744,17 @@ function UpdateDisplay()
 		local strChangeIdeologyTooltip = "";
 		if (iUnhappiness < 0) then
 			strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
-			Controls.SwitchIdeologyButton:SetDisabled(false);	
+			Controls.SwitchIdeologyButton:SetDisabled(false);
+			local eCurrentIdeology = player:GetLateGamePolicyTree();
+			local iCurrentIdeologyTenets = player:GetNumPoliciesInBranch(eCurrentIdeology);
 			local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
 			local strPreferredIdeology = GameInfo.PolicyBranchTypes[ePreferredIdeology].Description;
-		    strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), GameDefines["SWITCH_POLICY_BRANCHES_TENETS_LOST"] - Game.GetNumFreePolicies(ePreferredIdeology));
+			local iPreferredIdeologyTenets = iCurrentIdeologyTenets - GameDefines["SWITCH_POLICY_BRANCHES_TENETS_LOST"];
+			if (iPreferredIdeologyTenets < 0) then
+				iPreferredIdeologyTenets = 0;
+			end
+			iPreferredIdeologyTenets = iPreferredIdeologyTenets + Game.GetNumFreePolicies(ePreferredIdeology);
+		    strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), iPreferredIdeologyTenets);
 		    
 		    Controls.SwitchIdeologyButton:RegisterCallback(Mouse.eLClick, function()
 					ChooseChangeIdeology();

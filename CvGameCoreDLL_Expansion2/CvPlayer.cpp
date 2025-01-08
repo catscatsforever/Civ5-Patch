@@ -3106,7 +3106,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							}
 						}
 
+#ifdef FIX_MAX_EFFECTIVE_CITIES
+						pNewCity->SetIgnoreCityForHappiness(true);
+#endif
 						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[*it])), paiBuildingOriginalTime[*it]);
+#ifdef FIX_MAX_EFFECTIVE_CITIES
+						pNewCity->SetIgnoreCityForHappiness(false);
+#endif
 
 						if (iNum > 0)
 						{
@@ -3192,8 +3198,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							}
 						}
 
+#ifdef FIX_MAX_EFFECTIVE_CITIES
+						pNewCity->SetIgnoreCityForHappiness(true);
+#endif
 						pNewCity->GetCityBuildings()->SetNumRealBuildingTimed(eBuilding, iNum, false, ((PlayerTypes)(paiBuildingOriginalOwner[iI])), paiBuildingOriginalTime[iI]);
 
+#ifdef FIX_MAX_EFFECTIVE_CITIES
+						pNewCity->SetIgnoreCityForHappiness(false);
+#endif
 						if (iNum > 0)
 						{
 							if (pkBuildingInfo->GetGreatWorkCount() > 0)
@@ -4986,6 +4998,34 @@ void CvPlayer::doTurn()
 					}
 				}
 #endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+				if (GC.getGame().isNetworkMultiPlayer())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+						if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isHuman())
+						{
+							int iCityLoop;
+							CvCity* pLoopCity = NULL;
+							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+							{
+								if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+								{
+									if (pLoopCity->getOriginalOwner() == GetID())
+									{
+										if (pLoopCity->IsNoOccupiedUnhappiness())
+										{
+											pLoopCity->setOriginalOwner(eLoopPlayer);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 #ifndef DO_TURN_CHANGE_ORDER
 				GetTrade()->DoTurn();
 #endif
@@ -5099,26 +5139,21 @@ void CvPlayer::doTurnPostDiplomacy()
 	}
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
-	int iNumFreePoliciesFromProjectReward = GetNumFreePolicies() / 1024;
-	if (iNumFreePoliciesFromProjectReward > 0)
-	{
-		ChangeNumFreePolicies(-1024 * iNumFreePoliciesFromProjectReward);
-	}
+	bool bIsDelaydPolicy = IsDelayedPolicy();
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
 		if (getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0)
 		{
 			if (isHuman())
 			{
-				setIsDelayedPolicy(true);
+				bIsDelaydPolicy = true;
 			}
 		}
 		else
 		{
-			setIsDelayedPolicy(false);
+			bIsDelaydPolicy = false;
 		}
 	}
-	ChangeNumFreePolicies(iNumFreePoliciesFromProjectReward);
 #endif
 #ifdef DO_TURN_CHANGE_ORDER
 	// Do turn for all Cities
@@ -5451,6 +5486,9 @@ void CvPlayer::doTurnPostDiplomacy()
 #ifdef DO_TURN_CHANGE_ORDER
 	// Gold
 	GetTreasury()->DoGold();
+#endif
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	setIsDelayedPolicy(bIsDelaydPolicy);
 #endif
 #ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
 	if (getNumCities() > 0)
@@ -29553,6 +29591,34 @@ void CvPlayer::disconnected()
 					}
 				}
 #endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+				if (GC.getGame().isNetworkMultiPlayer())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+						if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isHuman())
+						{
+							int iCityLoop;
+							CvCity* pLoopCity = NULL;
+							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+							{
+								if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+								{
+									if (pLoopCity->getOriginalOwner() == GetID())
+									{
+										if (pLoopCity->IsNoOccupiedUnhappiness())
+										{
+											pLoopCity->setOriginalOwner(eLoopPlayer);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 #ifdef CHANGE_HOST_IF_DISCONNECTED
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 				if (pLeague != NULL)
@@ -29601,6 +29667,34 @@ void CvPlayer::disconnected()
 
 						// Bump Units out of places they shouldn't be
 						GC.getMap().verifyUnitValidPlot();
+					}
+				}
+			}
+#endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+			if (GC.getGame().isNetworkMultiPlayer())
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+					if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isHuman())
+					{
+						int iCityLoop;
+						CvCity* pLoopCity = NULL;
+						for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+						{
+							if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+							{
+								if (pLoopCity->getOriginalOwner() == GetID())
+								{
+									if (pLoopCity->IsNoOccupiedUnhappiness())
+									{
+										pLoopCity->setOriginalOwner(eLoopPlayer);
+									}
+								}
+							}
+						}
 					}
 				}
 			}
