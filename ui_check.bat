@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V10.4e
+set patchfolder=Tournament Mod V10.5b
 del /q "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 copy /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua" > nul
@@ -66,6 +66,12 @@ FIND %text% "%cd%\UI_bc1\UnitFlagManager\UnitFlagManager.lua" > nul 2>&1 && (
 ) || (
   copy /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.xml" "%cd%\%patchfolder%\UI\UnitFlagManager.xml" > nul
   copy /y "%cd%\%patchfolder%\tmp\ui\UnitFlagManager.lua" "%cd%\%patchfolder%\UI\UnitFlagManager.lua" > nul
+)
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\GameSetup\SelectCivilization.lua" (
+  copy /y "%cd%\%patchfolder%\tmp\eui\SelectCivilization.lua" "%cd%\%patchfolder%\UI\SelectCivilization.lua" > nul
+) ELSE (
+  copy /y "%cd%\%patchfolder%\tmp\ui\SelectCivilization.lua" "%cd%\%patchfolder%\UI\SelectCivilization.lua" > nul
 )
 REM -------------------------------------------------
 IF EXIST "%cd%\UI_bc1\FrontEnd\FrontEnd.lua" (

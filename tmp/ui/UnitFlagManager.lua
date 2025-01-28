@@ -115,6 +115,7 @@ local g_UnitFlagClass =
                 ContextPtr:BuildInstanceForControl( "AirButton", o.m_CargoControls, o.m_Instance.AirAnchor );
                 o.m_CargoControls.PullDown:RegisterSelectionCallback( UnitFlagClicked );
                 o.m_CargoControls.PullDown:ReprocessAnchoring();
+                o.m_CargoControls.PullDown:SetHide( true )
                -- print( "creation cargo" );
                 if (o.m_CarrierFlag ~= nil) then
                     o.m_CarrierFlag:UpdateCargo();
@@ -1620,9 +1621,9 @@ function OnDimEvent( playerID, unitID, bDim )
                 --print( "  Unit dim: " .. tostring( playerID ) .. " " .. tostring( unitID ) .. " " .. iDim );
                 flag:SetDim( bDim  );
             else
-                o.m_Instance.IsOutOfAttacks:SetHide(true)
-                o.m_Instance.IsHealing:SetHide(true)
-                o.m_Instance.IsNoCapture:SetHide(true)
+                flag.m_Instance.IsOutOfAttacks:SetHide(true)
+                flag.m_Instance.IsHealing:SetHide(true)
+                flag.m_Instance.IsNoCapture:SetHide(true)
         	end
         end
     end

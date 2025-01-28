@@ -241,8 +241,11 @@ CvUnit::CvUnit() :
 	, m_iFlags("CvUnit::m_iFlags", m_syncArchive)
 	, m_iNumAttacks("CvUnit::m_iNumAttacks", m_syncArchive)
 	, m_iAttacksMade("CvUnit::m_iAttacksMade", m_syncArchive)
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 	, m_iRebaseMade("CvUnit::m_iRebaseMade", m_syncArchive)
+#endif
+#ifdef REBASE_WITH_AIRPORTS
+	, m_iAirliftRebaseMade("CvUnit::m_iAirliftRebaseMade", m_syncArchive)
 #endif
 #ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
 	, m_iSecondHalfTimerParadrop("CvUnit::m_iSecondHalfTimerParadrop", m_syncArchive)
@@ -919,8 +922,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iFlags = 0;
 	m_iNumAttacks = 1;
 	m_iAttacksMade = 0;
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 	m_iRebaseMade = 0;
+#endif
+#ifdef REBASE_WITH_AIRPORTS
+	m_iAirliftRebaseMade = 0;
 #endif
 #ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
 	m_iSecondHalfTimerParadrop = 0;
@@ -3151,6 +3157,25 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	}
 #endif
 
+#if defined UPD_RECON_PLOT_IF_CARGO_MOVE && defined MADE_REBASE
+
+	if (hasCargo())
+	{
+		IDInfo* pUnitNode = plot()->headUnitNode();
+
+		while (pUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = plot()->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit->IsRecon() && !pLoopUnit->isOutOfRebases())
+			{
+				pLoopUnit->setReconPlot(&targetPlot);
+			}
+		}
+	}
+#endif
+
 	if(bShouldDeductCost)
 		changeMoves(-iMoveCost);
 	setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
@@ -3637,8 +3662,11 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 #ifdef CANT_GIFT_GP
 	else
 	{
-		if (getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER"))
-			return false;
+#ifdef DUEL_ALLOW_GIFT_GP
+		if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
+#endif
+			if (getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST")	|| getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT") || getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER"))
+				return false;
 	}
 #endif
 
@@ -4211,7 +4239,7 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
 		float fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
 #endif
 
-		if (fTimeElapsed * 2 > fGameTurnEnd)
+		if (fTimeElapsed * 4 > fGameTurnEnd)
 		{
 			return false;
 		}
@@ -5618,9 +5646,8 @@ bool CvUnit::canNuke(const CvPlot* /*pPlot*/) const
 		return false;
 	}
 
-#ifdef MOBILE_TACTICS_NUKING
-	TechTypes eTech = (TechTypes)GC.getInfoTypeForString("TECH_MOBILE_TACTICS", true);
-	if(!GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech))
+#ifdef TECH_ALLOWS_NUKING
+	if(!GET_TEAM(getTeam()).HasTechForNuking())
 	{
 		return false;
 	}
@@ -6057,7 +6084,7 @@ bool CvUnit::makeTradeRoute(int iX, int iY, TradeConnectionType eConnectionType)
 	}
 
 	bool bResult = GET_PLAYER(getOwner()).GetTrade()->CreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType);
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	GET_PLAYER(getOwner()).updateYield();
 #endif
 	return bResult;
@@ -6304,7 +6331,7 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 
-#ifdef NO_PILLAGE_CARGO_TREASURE_FLEETS
+#ifdef POLICY_NO_CARGO_PILLAGE
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 			int iTradeConnectionIndex = pTrade->GetIndexFromID(aiTradeUnitsAtPlot[0]);
 			PlayerTypes ePlayer = pTrade->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
@@ -6316,7 +6343,7 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 
 			TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[iTradeConnectionIndex]);
 			DomainTypes eDomain = pTradeConnection->m_eDomain;
-			if (eDomain == DOMAIN_SEA && GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_TREASURE_FLEETS", true /*bHideAssert*/)))
+			if (eDomain == DOMAIN_SEA && GET_PLAYER(ePlayer).IsNoCargoPillage())
 			{
 				return false;
 			}
@@ -6355,12 +6382,19 @@ bool CvUnit::plunderTradeRoute()
 		return false;
 	}
 
+#ifdef PLUNDERING_TRADE_ROUTE_DECREASES_MP
+	if (!hasFreePillageMove() && !IsCaptureDefeatedEnemy())
+	{
+		changeMoves(-GC.getMOVE_DENOMINATOR());
+	}
+#endif
+
 	// right now, plunder the first unit
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	PlayerTypes ePlayer = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 #endif
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	GET_PLAYER(ePlayer).updateYield();
 #endif
 	return true;
@@ -6646,8 +6680,15 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 		return false;
 	}
 
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 	if (isOutOfRebases())
+	{
+		return false;
+	}
+#endif
+
+#ifdef REBASE_WITH_AIRPORTS
+	if (isOutOfAirliftRebases())
 	{
 		return false;
 	}
@@ -6813,13 +6854,17 @@ bool CvUnit::rebase(int iX, int iY)
 	if(pTargetPlot == NULL)
 		return false;
 
+#ifdef MADE_REBASE
+	setMadeRebase(true);
+#endif
+
 #ifdef REBASE_WITH_AIRPORTS
 	if (oldPlot->isCity() && pTargetPlot->isCity())
 	{
 		// City must be owned by us
 		if (oldPlot->getPlotCity()->CanAirlift() && pTargetPlot->getPlotCity()->CanAirlift())
 		{
-			setMadeRebase(true);
+			setMadeAirliftRebase(true);
 		}
 		else
 		{
@@ -11840,7 +11885,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
 #endif
 
-#ifdef CLAUZEWITZS_LEGACY_RANGE_MODIFIER
+#ifdef POLICY_ATTACK_BONUS_TURNS_RANGE_MODIFIER
 	// Temporary attack bonus (Policies, etc.)
 	if (GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 	{
@@ -12199,7 +12244,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
 #endif
 
-#ifdef CLAUZEWITZS_LEGACY_RANGE_MODIFIER
+#ifdef POLICY_ATTACK_BONUS_TURNS_RANGE_MODIFIER
 	// Temporary attack bonus (Policies, etc.)
 	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
 	{
@@ -14701,7 +14746,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 				if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
 				{
+#ifndef FIX_POLICY_CULTURE_PER_GARRISONED_UNIT
 					pOldPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
+#endif
 				}
 			}
 
@@ -14756,7 +14803,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			
 			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
 			{
+#ifndef FIX_POLICY_CULTURE_PER_GARRISONED_UNIT
 				pNewPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies((GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
+#endif
 			}
 		}
 
@@ -17885,13 +17934,13 @@ void CvUnit::setMadeAttack(bool bNewValue)
 	}
 }
 
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 //	--------------------------------------------------------------------------------
 bool CvUnit::isOutOfRebases() const
 {
 	VALIDATE_OBJECT
 
-	return m_iRebaseMade > 0;
+		return m_iRebaseMade > 0;
 }
 
 
@@ -17906,6 +17955,31 @@ void CvUnit::setMadeRebase(bool bNewValue)
 		else
 		{
 			m_iRebaseMade = 0;
+		}
+}
+#endif
+
+#ifdef REBASE_WITH_AIRPORTS
+//	--------------------------------------------------------------------------------
+bool CvUnit::isOutOfAirliftRebases() const
+{
+	VALIDATE_OBJECT
+
+	return m_iAirliftRebaseMade > 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setMadeAirliftRebase(bool bNewValue)
+{
+	VALIDATE_OBJECT
+		if (bNewValue)
+		{
+			m_iAirliftRebaseMade++;
+		}
+		else
+		{
+			m_iAirliftRebaseMade = 0;
 		}
 }
 #endif
@@ -21401,7 +21475,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_REBASE:
-#ifdef REBASE_WITH_AIRPORTS
+#if defined REBASE_WITH_AIRPORTS || defined MADE_REBASE
 		if (getDomainType() == DOMAIN_AIR)
 		{
 			if (canRebase(plot()))

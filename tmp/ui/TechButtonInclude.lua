@@ -542,6 +542,17 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 	
+	if tech.AllowsNuking then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_NUKING" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	
 	if tech.ExtraVotesPerDiplomat > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];

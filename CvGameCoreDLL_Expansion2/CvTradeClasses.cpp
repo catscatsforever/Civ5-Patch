@@ -3773,7 +3773,7 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 	return aToolTips;
 }
 
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 int CvPlayerTrade::GetNumPlayerPlotTradeRoutes(CvPlot* pPlot)
 {
 	int iNumTradeRoutes = 0;

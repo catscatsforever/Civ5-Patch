@@ -181,6 +181,9 @@ void CvTeam::uninit()
 	m_bHasBrokenPeaceTreaty = false;
 	m_bHomeOfUnitedNations = false;
 	m_bHasTechForWorldCongress = false;
+#ifdef TECH_ALLOWS_NUKING
+	m_bHasTechForNuking = false;
+#endif
 
 	m_bBrokenMilitaryPromise = false;
 	m_bBrokenExpansionPromise = false;
@@ -6303,6 +6306,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		SetHasTechForWorldCongress(true);
 	}
 
+#ifdef TECH_ALLOWS_NUKING
+	if (pTech->IsAllowsNuking())
+	{
+		SetHasTechForNuking(true);
+	}
+#endif
+
 	if(pTech->IsTriggersArchaeologicalSites())
 	{
 		GC.getGame().TriggerArchaeologySiteCreation(true /*bCheckInitialized*/);
@@ -6755,6 +6765,20 @@ void CvTeam::SetHasTechForWorldCongress(bool bValue)
 {
 	m_bHasTechForWorldCongress = bValue;
 }
+
+#ifdef TECH_ALLOWS_NUKING
+//	--------------------------------------------------------------------------------
+bool CvTeam::HasTechForNuking() const
+{
+	return m_bHasTechForNuking;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::SetHasTechForNuking(bool bValue)
+{
+	m_bHasTechForNuking = bValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// What Era are we in?
@@ -7225,6 +7249,20 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_bHasBrokenPeaceTreaty;
 	kStream >> m_bHomeOfUnitedNations;
 	kStream >> m_bHasTechForWorldCongress;
+#ifdef TECH_ALLOWS_NUKING
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1001)
+	{
+# endif
+	kStream >> m_bHasTechForNuking;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHasTechForNuking = false;
+	}
+# endif
+#endif
 
 	kStream >> m_bBrokenMilitaryPromise;
 	kStream >> m_bBrokenExpansionPromise;
@@ -7403,6 +7441,9 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_bHasBrokenPeaceTreaty;
 	kStream << m_bHomeOfUnitedNations;
 	kStream << m_bHasTechForWorldCongress;
+#ifdef TECH_ALLOWS_NUKING
+	kStream << m_bHasTechForNuking;
+#endif
 
 	kStream << m_bBrokenMilitaryPromise;
 	kStream << m_bBrokenExpansionPromise;

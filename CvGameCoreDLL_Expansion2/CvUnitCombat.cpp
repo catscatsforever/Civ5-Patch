@@ -2141,14 +2141,11 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				if(pkUnit->IsCombatUnit() || pkUnit->IsCanAttackRanged())
 				{
 #ifdef UNIT_DIED_BY_NUKING_NOTIFICATIONS
-#ifdef GDR_LESS_NUKING_DAMAGE
+#ifdef UNIT_NUKE_DEFENSE
 					int iDamage = kEntry.GetDamage();
-					if (pkUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_MECH", true /*bHideAssert*/))
+					if (iDamage > 100 - pkUnit->getUnitInfo().GetNukeDefense())
 					{
-						if (iDamage > 40)
-						{
-							iDamage = 40;
-						}
+						iDamage = 100 - pkUnit->getUnitInfo().GetNukeDefense();
 					}
 					if (iDamage >= pkUnit->GetCurrHitPoints())
 #else
@@ -2198,7 +2195,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						{
 							if (eAttackerOwner == GC.getGame().getActivePlayer())
 							{
-#ifdef GDR_LESS_NUKING_DAMAGE
+#ifdef UNIT_NUKE_DEFENSE
 								if (eAttackerOwner != pkUnit->getOwner())
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", pkAttacker->getNameKey(), pkUnit->getNameKey(), iDamage);
@@ -2214,7 +2211,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							}
 						}
 
-#ifdef GDR_LESS_NUKING_DAMAGE
+#ifdef UNIT_NUKE_DEFENSE
 						if (eAttackerOwner != pkUnit->getOwner())
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), iDamage);
@@ -2227,13 +2224,22 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkUnit->getNameKey(), pkAttacker->getNameKey(), kEntry.GetDamage());
 #endif
 					}
-#ifdef GDR_LESS_NUKING_DAMAGE
+#ifdef UNIT_NUKE_DEFENSE
 					pkUnit->changeDamage(iDamage, eAttackerOwner);
 #else
 					pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
 #endif
 #else
+#ifdef UNIT_NUKE_DEFENSE
+					int iDamage = kEntry.GetDamage();
+					if (iDamage > 100 - pkUnit->getUnitInfo().GetNukeDefense())
+					{
+						iDamage = 100 - pkUnit->getUnitInfo().GetNukeDefense();
+					}
+					pkUnit->changeDamage(iDamage, eAttackerOwner);
+#else
 					pkUnit->changeDamage(kEntry.GetDamage(), eAttackerOwner);
+#endif
 #endif
 				}
 				else if(kEntry.GetDamage() >= /*6*/ GC.getNUKE_NON_COMBAT_DEATH_THRESHOLD())

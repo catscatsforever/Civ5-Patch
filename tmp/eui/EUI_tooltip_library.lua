@@ -1959,7 +1959,7 @@ local function GetCultureTooltip( city )
 	-- Puppet modifier
 	local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
 	if puppetMod ~= 0 then
-		tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
+		tips:insertLocalized( "TXT_KEY_PRODMOD_PUPPET", puppetMod )
 	end
 
 	-- Total

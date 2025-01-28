@@ -559,6 +559,11 @@ public:
 
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	int getBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2) const;
+	void changeBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2, int iChange);
+#endif
+
 	int GetNumCitiesFreeCultureBuilding() const;
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
 	int GetNumCitiesFreeFoodBuilding() const;
@@ -701,6 +706,16 @@ public:
 	int GetExtraLeagueVotes() const;
 	void ChangeExtraLeagueVotes(int iChange);
 
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	int GetMaxExtraVotesFromMinors() const;
+	void ChangeMaxExtraVotesFromMinors(int iChange);
+#endif
+
+#ifdef POLICY_EXTRA_VOTES
+	int GetPolicyExtraVotes() const;
+	void ChangePolicyExtraVotes(int iChange);
+#endif
+
 	int GetWoundedUnitDamageMod() const;
 	void SetWoundedUnitDamageMod(int iValue);
 	void ChangeWoundedUnitDamageMod(int iChange);
@@ -723,6 +738,51 @@ public:
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
 	void doAdoptPolicy(PolicyTypes ePolicy);
 	void DoBuyNewBranch(PolicyBranchTypes eBranch);
+
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	bool IsPolicyTechFromCityConquer() const;
+	void ChangePolicyTechFromCityConquer(int iChange);
+#endif
+
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	bool IsNoCultureSpecialistFood() const;
+	void ChangeNoCultureSpecialistFood(int iChange);
+#endif
+
+#ifdef POLICY_MINORS_GIFT_UNITS
+	bool IsMinorsGiftUnits() const;
+	void ChangeMinorsGiftUnits(int iChange);
+#endif
+
+#ifdef POLICY_NO_CARGO_PILLAGE
+	bool IsNoCargoPillage() const;
+	void ChangeNoCargoPillage(int iChange);
+#endif
+
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	int GetGreatWorkHappiness() const;
+	void ChangeGreatWorkHappiness(int iChange);
+#endif
+
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	int GetSciencePerXFollowers() const;
+	void ChangeSciencePerXFollowers(int iChange);
+#endif
+
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	bool IsNoDifferentIdeologiesTourismMod() const;
+	void ChangeNoDifferentIdeologiesTourismMod(int iChange);
+#endif
+
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	int GetGlobalPopChange() const;
+	void ChangeGlobalPopChange(int iChange);
+#endif
+
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	int GetGreatWorkTourismChanges() const;
+	void ChangeGreatWorkTourismChanges(int iChange);
+#endif
 
 	bool IsAnarchy() const;
 	int GetAnarchyNumTurns() const;
@@ -1316,6 +1376,16 @@ public:
 
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
+
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	int getGoldenAgeYieldModifier(YieldTypes eIndex) const;
+	void changeGoldenAgeYieldModifier(YieldTypes eIndex, int iChange);
+#endif
+
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	int getPlotExtraYieldFromTradeRoute(YieldTypes eIndex) const;
+	void changePlotExtraYieldFromTradeRoute(YieldTypes eIndex, int iChange);
+#endif
 
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
@@ -2014,6 +2084,39 @@ protected:
 	int m_iNumGoldSpentOnUgrades;
 #endif
 	int m_iExtraLeagueVotes;
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	int m_iMaxExtraVotesFromMinors;
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	int m_iPolicyExtraVotes;
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	int m_iPolicyTechFromCityConquer;
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	int m_iNoCultureSpecialistFood;
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	int m_iMinorsGiftUnits;
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	int m_iNoCargoPillage;
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	int m_iGreatWorkHappiness;
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	int m_iSciencePerXFollowers;
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	int m_iNoDifferentIdeologiesTourismMod;
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	int m_iGlobalPopChange;
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	int m_iGreatWorkTourismChanges;
+#endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
@@ -2199,6 +2302,9 @@ protected:
 	int m_iNumCitiesPolicyCostDiscount;
 	int m_iGarrisonedCityRangeStrikeModifier;
 	int m_iGarrisonFreeMaintenanceCount;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_SPECILIST_TYPES > >, CvPlayer> m_ppaaiBuildingScecialistCountChange;
+#endif
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
@@ -2264,6 +2370,12 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldModifier;
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiPlotExtraYieldFromTradeRoute;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;

@@ -79,6 +79,9 @@ public:
 	int IsFreePromotion(int i) const;
 	bool IsTriggersArchaeologicalSites() const;
 	bool IsAllowsWorldCongress() const;
+#ifdef TECH_ALLOWS_NUKING
+	bool IsAllowsNuking() const;
+#endif
 
 	std::string pyGetQuote()
 	{
@@ -143,6 +146,9 @@ private:
 	bool m_bWaterWork;
 	bool m_bTriggersArchaeologicalSites;
 	bool m_bAllowsWorldCongress;
+#ifdef TECH_ALLOWS_NUKING
+	bool m_bAllowsNuking;
+#endif
 
 	CvString m_strQuoteKey;
 	CvString m_wstrQuote;

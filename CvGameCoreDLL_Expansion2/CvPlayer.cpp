@@ -293,6 +293,39 @@ CvPlayer::CvPlayer() :
 	, m_iNumGoldSpentOnUgrades(0)
 #endif
 	, m_iExtraLeagueVotes(0)
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	, m_iMaxExtraVotesFromMinors(0)
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	, m_iPolicyExtraVotes(0)
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	, m_iPolicyTechFromCityConquer(0)
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	, m_iNoCultureSpecialistFood(0)
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	, m_iMinorsGiftUnits(0)
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	, m_iNoCargoPillage(0)
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	, m_iGreatWorkHappiness(0)
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	, m_iSciencePerXFollowers(0)
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	, m_iNoDifferentIdeologiesTourismMod(0)
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	, m_iGlobalPopChange(0)
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	, m_iGreatWorkTourismChanges(0)
+#endif
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
 	, m_iUnitUpgradeCostMod("CvPlayer::m_iUnitUpgradeCostMod", m_syncArchive)
@@ -479,6 +512,9 @@ CvPlayer::CvPlayer() :
 	, m_iNumCitiesPolicyCostDiscount(0)
 	, m_iGarrisonedCityRangeStrikeModifier(0)
 	, m_iGarrisonFreeMaintenanceCount(0)
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	, m_ppaaiBuildingScecialistCountChange("CvPlayer::m_ppaaiBuildingScecialistCountChange", m_syncArchive)
+#endif
 	, m_iNumCitiesFreeCultureBuilding(0)
 	, m_iNumCitiesFreeFoodBuilding(0)
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
@@ -526,6 +562,12 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	, m_aiGoldenAgeYieldModifier("CvPlayer::m_aiGoldenAgeYieldModifier", m_syncArchive)
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	, m_paiPlotExtraYieldFromTradeRoute("CvPlayer::m_paiPlotExtraYieldFromTradeRoute", m_syncArchive)
+#endif
 	, m_aiProximityToPlayer("CvPlayer::m_aiProximityToPlayer", m_syncArchive, true)
 	, m_aiResearchAgreementCounter("CvPlayer::m_aiResearchAgreementCounter", m_syncArchive)
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
@@ -1095,6 +1137,39 @@ void CvPlayer::uninit()
 	m_iNumGoldSpentOnUgrades = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	m_iMaxExtraVotesFromMinors = 0;
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	m_iPolicyExtraVotes = 0;
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	m_iPolicyTechFromCityConquer = 0;
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	m_iNoCultureSpecialistFood = 0;
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	m_iMinorsGiftUnits = 0;
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	m_iNoCargoPillage = 0;
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	m_iGreatWorkHappiness = 0;
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	m_iSciencePerXFollowers = 0;
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	m_iNoDifferentIdeologiesTourismMod = 0;
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	m_iGlobalPopChange = 0;
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	m_iGreatWorkTourismChanges = 0;
+#endif
 	m_iSpecialPolicyBuildingHappiness = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
@@ -1289,6 +1364,9 @@ void CvPlayer::uninit()
 	m_iGarrisonedCityRangeStrikeModifier = 0;
 	m_iGarrisonFreeMaintenanceCount = 0;
 	m_iNumCitiesFreeCultureBuilding = 0;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	m_ppaaiBuildingScecialistCountChange.clear();
+#endif
 	m_iNumCitiesFreeFoodBuilding = 0;
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
 	m_iNumCitiesFreeDevensiveBuilding = 0;
@@ -1405,6 +1483,16 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
+
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	m_aiGoldenAgeYieldModifier.clear();
+	m_aiGoldenAgeYieldModifier.resize(NUM_YIELD_TYPES, 0);
+#endif
+
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	m_paiPlotExtraYieldFromTradeRoute.clear();
+	m_paiPlotExtraYieldFromTradeRoute.resize(NUM_YIELD_TYPES, 0);
+#endif
 
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
@@ -1572,6 +1660,21 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 				m_pFlavorManager->AddFlavorRecipient(m_pWonderProductionAI);
 			}
 		}
+
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+		Firaxis::Array< int, NUM_SPECILIST_TYPES > specialist;
+		for (unsigned int j = 0; j < NUM_SPECILIST_TYPES; ++j)
+		{
+			specialist[j] = 0;
+		}
+
+		m_ppaaiBuildingScecialistCountChange.clear();
+		m_ppaaiBuildingScecialistCountChange.resize(GC.getNumBuildingInfos());
+		for (unsigned int i = 0; i < m_ppaaiBuildingScecialistCountChange.size(); ++i)
+		{
+			m_ppaaiBuildingScecialistCountChange.setAt(i, specialist);
+		}
+#endif
 
 		Firaxis::Array< int, NUM_YIELD_TYPES > yield;
 		for(unsigned int j = 0; j < NUM_YIELD_TYPES; ++j)
@@ -2426,8 +2529,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	if(bConquest)
 	{
-#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
-		if (GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_MILITARY_TRADITION", true)))
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+		if (IsPolicyTechFromCityConquer() && !GET_PLAYER(pOldCity->getOwner()).isMinorCiv() && !pOldCity->IsPuppet() && (!pOldCity->IsOccupied() || pOldCity->IsNoOccupiedUnhappiness()))
 #else
 		if (GetPlayerTraits()->IsTechFromCityConquer())
 #endif
@@ -5011,13 +5114,14 @@ void CvPlayer::doTurn()
 							CvCity* pLoopCity = NULL;
 							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 							{
-								if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
 								{
-									if (pLoopCity->getOriginalOwner() == GetID())
+									if (!GET_PLAYER(pLoopCity->getOriginalOwner()).isHuman() && pLoopCity->getOriginalOwner() == GetID())
 									{
 										if (pLoopCity->IsNoOccupiedUnhappiness())
 										{
 											pLoopCity->setOriginalOwner(eLoopPlayer);
+											pLoopCity->SetOccupied(false);
 										}
 									}
 								}
@@ -5066,7 +5170,7 @@ void CvPlayer::doTurn()
 			if(!isMinorCiv())
 			{
 				GetTrade()->DoTurn();
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 				updateYield();
 #endif
 			}
@@ -5346,86 +5450,8 @@ void CvPlayer::doTurnPostDiplomacy()
 	// if this is the human player, have the popup come up so that he can choose a new policy
 	if(isAlive() && isHuman() && getNumCities() > 0)
 	{
-
-#ifdef FreePolEveryTenTurns
-		bool bSuccess;
-		int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
-
-		if (GC.getGame().getElapsedGameTurns() % 6 == 0)
-		{
-			// ChangeNumFreePolicies(1);
-			bSuccess = false;
-			while (bSuccess == false)
-			{
-				iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
-				if (iNextPolicy == NO_POLICY)
-					continue;
-				PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
-				CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
-				if(pkPolicyEntry == NULL)
-					continue;
-				if (!GetPlayerPolicies()->HasPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
-					bSuccess = true;
-			}
-
-			// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
-			if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
-			{
-				GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
-			}
-			else
-			{
-				// m_pPlayerPolicies->SetPolicy((PolicyTypes)iNextPolicy, true);
-				setHasPolicy((PolicyTypes)iNextPolicy, true);
-				ChangeNumFreePoliciesEver(1);
-				// doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
-			}
-		}
-#endif
 		if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 		{
-#ifdef RandomPolicies
-			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
-			{
-				int iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
-
-				// Do we have enough points to buy a new policy?
-				if(getNextPolicyCost() > 0)
-				{
-					// Adopt new policies until we run out of freebies and culture (usually only one per turn)
-					while(getJONSCulture() >= getNextPolicyCost() || GetNumFreePolicies() > 0 || GetNumFreeTenets() > 0)
-					{
-						bSuccess = false;
-						while (bSuccess == false)
-						{
-							iNextPolicy = GC.getGame().getJonRandNum(GC.GetGamePolicies()->GetNumPolicies(), "Random Policy Pick");
-							if (iNextPolicy == NO_POLICY)
-								continue;
-							PolicyTypes ePolicy = (PolicyTypes)iNextPolicy;
-							CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
-							if(pkPolicyEntry == NULL)
-								continue;
-							if (canAdoptPolicy(ePolicy) && !(pkPolicyEntry->GetLevel() > 0))
-								bSuccess = true;
-						}
-						// Choose the policy we want next (or a branch)
-						// int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);
-						// if (iNextPolicy == NO_POLICY)
-							// break;
-
-						// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
-						if(iNextPolicy < GC.GetGamePolicies()->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
-						{
-							GetPlayerPolicies()->DoUnlockPolicyBranch((PolicyBranchTypes)iNextPolicy);
-						}
-						else
-						{
-							doAdoptPolicy((PolicyTypes)(iNextPolicy - GC.GetGamePolicies()->GetNumPolicyBranches()));
-						}
-					}
-				}
-			}
-#else
 			if(getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 			{
 				CvNotifications* pNotifications = GetNotifications();
@@ -5442,7 +5468,6 @@ void CvPlayer::doTurnPostDiplomacy()
 					pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
 				}
 			}
-#endif
 		}
 
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
@@ -5749,8 +5774,11 @@ void CvPlayer::DoUnitReset()
 		}
 		pLoopUnit->setMadeSecondHalfTimerParadrop(false);
 #endif
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 		pLoopUnit->setMadeRebase(false);
+#endif
+#ifdef REBASE_WITH_AIRPORTS
+		pLoopUnit->setMadeAirliftRebase(false);
 #endif
 		pLoopUnit->setMadeInterception(false);
 
@@ -11982,6 +12010,47 @@ int CvPlayer::GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 	return iSum;
 }
 
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+//	--------------------------------------------------------------------------------
+int CvPlayer::getBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumBuildInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_SPECILIST_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	if (eIndex2 == NO_SPECIALIST)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_ppaaiBuildingScecialistCountChange[eIndex1][eIndex2];
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumBuildInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_SPECILIST_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		CvAssertMsg(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+		Firaxis::Array<int, NUM_SPECILIST_TYPES> specialists = m_ppaaiBuildingScecialistCountChange[eIndex1];
+		specialists[eIndex2] = (m_ppaaiBuildingScecialistCountChange[eIndex1][eIndex2] + iChange);
+		m_ppaaiBuildingScecialistCountChange.setAt(eIndex1, specialists);
+		// CvAssert(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
+
+		// updateYield();
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Cities remaining to get a free culture building
 int CvPlayer::GetNumCitiesFreeCultureBuilding() const
@@ -12602,7 +12671,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		if (pInfo)
 		{
 			// They have it
-#ifdef DO_TECH_FROM_CITY_CONQ_FROM_POLICY
+#ifdef HAS_TECH_BY_HUMAN
 			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTechByHuman(e))
 #else
 			if (GET_TEAM(GET_PLAYER(eOpponent).getTeam()).GetTeamTechs()->HasTech(e))
@@ -13418,11 +13487,8 @@ int CvPlayer::GetHappinessFromPolicies() const
 		}
 	}
 
-#ifdef FINE_ARTS_HAPPINESS_FROM_GREAT_WORKS
-	if (GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_FINE_ARTS", true)))
-	{
-		iHappiness += 1 * GetCulture()->GetNumGreatWorks();
-	}
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	iHappiness += GetGreatWorkHappiness() * GetCulture()->GetNumGreatWorks();
 #endif
 
 	return iHappiness;
@@ -14624,6 +14690,48 @@ void CvPlayer::ChangeExtraLeagueVotes(int iChange)
 	}
 }
 
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetMaxExtraVotesFromMinors() const
+{
+	return m_iMaxExtraVotesFromMinors;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeMaxExtraVotesFromMinors(int iChange)
+{
+	m_iMaxExtraVotesFromMinors += iChange;
+	CvAssert(m_iMaxExtraVotesFromMinors >= 0);
+	if (m_iMaxExtraVotesFromMinors < 0)
+	{
+		m_iMaxExtraVotesFromMinors = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_EXTRA_VOTES
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetPolicyExtraVotes() const
+{
+	return m_iPolicyExtraVotes;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangePolicyExtraVotes(int iChange)
+{
+	m_iPolicyExtraVotes += iChange;
+	CvAssert(m_iPolicyExtraVotes >= 0);
+	if (m_iPolicyExtraVotes < 0)
+	{
+		m_iPolicyExtraVotes = 0;
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// How much weaker do Units get when wounded?
 int CvPlayer::GetWoundedUnitDamageMod() const
@@ -14855,6 +14963,206 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 
 	updateYield();		// Policies can change the yield
 }
+
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+//	--------------------------------------------------------------------------------
+///
+bool CvPlayer::IsPolicyTechFromCityConquer() const
+{
+	return m_iPolicyTechFromCityConquer > 0;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangePolicyTechFromCityConquer(int iChange)
+{
+	m_iPolicyTechFromCityConquer += iChange;
+	CvAssert(m_iPolicyTechFromCityConquer >= 0);
+	if (m_iPolicyTechFromCityConquer < 0)
+	{
+		m_iPolicyTechFromCityConquer = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+//	--------------------------------------------------------------------------------
+///
+bool CvPlayer::IsNoCultureSpecialistFood() const
+{
+	return m_iNoCultureSpecialistFood > 0;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeNoCultureSpecialistFood(int iChange)
+{
+	m_iNoCultureSpecialistFood += iChange;
+	CvAssert(m_iNoCultureSpecialistFood >= 0);
+	if (m_iNoCultureSpecialistFood < 0)
+	{
+		m_iNoCultureSpecialistFood = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_MINORS_GIFT_UNITS
+//	--------------------------------------------------------------------------------
+///
+bool CvPlayer::IsMinorsGiftUnits() const
+{
+	return m_iMinorsGiftUnits > 0;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeMinorsGiftUnits(int iChange)
+{
+	m_iMinorsGiftUnits += iChange;
+	CvAssert(m_iMinorsGiftUnits >= 0);
+	if (m_iMinorsGiftUnits < 0)
+	{
+		m_iMinorsGiftUnits = 0;
+	}
+	if (m_iMinorsGiftUnits > 0)
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinorCivLoop = (PlayerTypes)iMinorCivLoop;
+			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()) && GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->GetUnitSpawnCounter((PlayerTypes)GetID()) == -1)
+			{
+				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->DoSeedUnitSpawnCounter((PlayerTypes)GetID());
+			}
+		}
+	}
+}
+#endif
+
+#ifdef POLICY_NO_CARGO_PILLAGE
+//	--------------------------------------------------------------------------------
+///
+bool CvPlayer::IsNoCargoPillage() const
+{
+	return m_iNoCargoPillage > 0;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeNoCargoPillage(int iChange)
+{
+	m_iNoCargoPillage += iChange;
+	CvAssert(m_iNoCargoPillage >= 0);
+	if (m_iNoCargoPillage < 0)
+	{
+		m_iNoCargoPillage = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetGreatWorkHappiness() const
+{
+	return m_iGreatWorkHappiness;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeGreatWorkHappiness(int iChange)
+{
+	m_iGreatWorkHappiness += iChange;
+	CvAssert(m_iGreatWorkHappiness >= 0);
+	if (m_iGreatWorkHappiness < 0)
+	{
+		m_iGreatWorkHappiness = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetSciencePerXFollowers() const
+{
+	return m_iSciencePerXFollowers;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeSciencePerXFollowers(int iChange)
+{
+	m_iSciencePerXFollowers += iChange;
+	CvAssert(m_iSciencePerXFollowers >= 0);
+	if (m_iSciencePerXFollowers < 0)
+	{
+		m_iSciencePerXFollowers = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+//	--------------------------------------------------------------------------------
+///
+bool CvPlayer::IsNoDifferentIdeologiesTourismMod() const
+{
+	return m_iNoDifferentIdeologiesTourismMod > 0;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeNoDifferentIdeologiesTourismMod(int iChange)
+{
+	m_iNoDifferentIdeologiesTourismMod += iChange;
+	CvAssert(m_iNoDifferentIdeologiesTourismMod >= 0);
+	if (m_iNoDifferentIdeologiesTourismMod < 0)
+	{
+		m_iNoDifferentIdeologiesTourismMod = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_GLOBAL_POP_CHANGE
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetGlobalPopChange() const
+{
+	return m_iGlobalPopChange;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeGlobalPopChange(int iChange)
+{
+	m_iGlobalPopChange += iChange;
+	CvAssert(m_iGlobalPopChange >= 0);
+	if (m_iGlobalPopChange < 0)
+	{
+		m_iGlobalPopChange = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetGreatWorkTourismChanges() const
+{
+	return m_iGreatWorkTourismChanges;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeGreatWorkTourismChanges(int iChange)
+{
+	m_iGreatWorkTourismChanges += iChange;
+	CvAssert(m_iGreatWorkTourismChanges >= 0);
+	if (m_iGreatWorkTourismChanges < 0)
+	{
+		m_iGreatWorkTourismChanges = 0;
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Empire in Anarchy?
@@ -19972,9 +20280,9 @@ int CvPlayer::GetSciencePerTurnFromReligionTimes100() const
 				}
 			}
 
-#ifdef SCIENCE_FROM_PIETY_FINISHER
-			iTemp = X_FOLLOWERS;
-			if (GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_PIETY_FINISHER", true /*bHideAssert*/)))
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+			iTemp = GetSciencePerXFollowers();
+			if (iTemp > 0)
 			{
 				int iFollowers = pReligions->GetNumFollowers(eFoundedReligion);
 				if (iFollowers > 0)
@@ -20319,6 +20627,50 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGoldenAgeYieldModifier(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiGoldenAgeYieldModifier[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeGoldenAgeYieldModifier(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiGoldenAgeYieldModifier.setAt(eIndex, m_aiGoldenAgeYieldModifier[eIndex] + iChange);
+	}
+}
+#endif
+
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+//	--------------------------------------------------------------------------------
+int CvPlayer::getPlotExtraYieldFromTradeRoute(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiPlotExtraYieldFromTradeRoute[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changePlotExtraYieldFromTradeRoute(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_paiPlotExtraYieldFromTradeRoute.setAt(eIndex, m_paiPlotExtraYieldFromTradeRoute[eIndex] + iChange);
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)
@@ -24566,9 +24918,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeGetMinorFriendshipDecayMod(pPolicy->GetMinorFriendshipDecayMod() * iChange);
 	ChangeMinorScienceAlliesCount(pPolicy->IsMinorScienceAllies() * iChange);
 	ChangeMinorResourceBonusCount(pPolicy->IsMinorResourceBonus() * iChange);
-#ifndef RESETTLEMENT_CHANGE_GLOBAL_POP
 	ChangeNewCityExtraPopulation(pPolicy->GetNewCityExtraPopulation() * iChange);
-#endif
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
@@ -24627,6 +24977,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetSpecialistExtraYield(iI) * iChange;
 		if(iMod != 0)
 			changeSpecialistExtraYield(eYield, iMod);
+
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+		iMod = pPolicy->GetGoldenAgeYieldModifier(iI) * iChange;
+		if (iMod != 0)
+			changeGoldenAgeYieldModifier(eYield, iMod);
+#endif
+
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+		iMod = pPolicy->GetPlotExtraYieldFromTradeRoute(iI) * iChange;
+		if (iMod != 0)
+			changePlotExtraYieldFromTradeRoute(eYield, iMod);
+#endif
 	}
 
 	for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -24819,7 +25181,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
 		if(pLoopCity->GetGarrisonedUnit() != NULL)
 		{
+#ifndef FIX_POLICY_CULTURE_PER_GARRISONED_UNIT
 			iCityCultureChange += (pPolicy->GetCulturePerGarrisonedUnit() * iChange);
+#endif
 		}
 		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
 
@@ -24880,11 +25244,51 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		for (iJ = 0; iJ < NUM_SPECILIST_TYPES; iJ++)
+		{
+			changeBuildingScecialistCountChange(((BuildingTypes)iI), ((SpecialistTypes)iJ), (pPolicy->GetBuildingScecialistCountChanges(iI, iJ) * iChange));
+		}
+	}
+#endif
+
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
 	ChangeNumCitiesFreeDefensiveBuilding(iNumCitiesFreeDefensiveBuilding);
+#endif
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	ChangeMaxExtraVotesFromMinors(pPolicy->GetMaxExtraVotesFromMinors() * iChange);
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	ChangePolicyExtraVotes(pPolicy->GetExtraVotes() * iChange);
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	ChangePolicyTechFromCityConquer(pPolicy->IsTechFromCityConquer() * iChange);
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	ChangeNoCultureSpecialistFood(pPolicy->IsNoCultureSpecialistFood() * iChange);
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	ChangeMinorsGiftUnits(pPolicy->IsMinorsGiftUnits() * iChange);
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	ChangeNoCargoPillage(pPolicy->IsNoCargoPillage() * iChange);
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	ChangeGreatWorkHappiness(pPolicy->GetGreatWorkHappiness() * iChange);
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	ChangeSciencePerXFollowers(pPolicy->GetSciencePerXFollowers() * iChange);
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	ChangeNoDifferentIdeologiesTourismMod(pPolicy->IsNoDifferentIdeologiesTourismMod() * iChange);
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	ChangeGreatWorkTourismChanges(pPolicy->GetGreatWorkTourismChanges() * iChange);
 #endif
 
 	// Not really techs but this is what we use (for now)
@@ -24928,34 +25332,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeGoldenAgeTurns(iGoldenAgeTurns);
 	}
 
-#ifdef CS_INFLUENCE_BOOST
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
 	// City-State Influence Boost
 	//antonjs: todo: ordering, to prevent ally / no longer ally notif spam
-	int iInfluenceBoost = GC.getRETURN_CIVILIAN_FRIENDSHIP() * iChange;
+	int iInfluenceBoost = pPolicy->GetMinorInfluenceBoost() * iChange;
 	if (iInfluenceBoost > 0)
-	{
-		if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_TREATY_ORGANIZATION", true /*bHideAssert*/))
-		{
-			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
-			{
-				PlayerTypes eMinorCivLoop = (PlayerTypes) iMinorCivLoop;
-				if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
-				{
-					GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), iInfluenceBoost);
-				}
-			}
-		}
-	}
-#endif
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
-	if (ePolicy == (PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/))
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
 			PlayerTypes eMinorCivLoop = (PlayerTypes)iMinorCivLoop;
-			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()) && GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->GetUnitSpawnCounter((PlayerTypes)GetID()) == -1)
+			if (GET_PLAYER(eMinorCivLoop).isAlive() && GET_TEAM(GET_PLAYER((PlayerTypes)GetID()).getTeam()).isHasMet(GET_PLAYER(eMinorCivLoop).getTeam()))
 			{
-				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->DoSeedUnitSpawnCounter((PlayerTypes)GetID());
+				GET_PLAYER(eMinorCivLoop).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)GetID(), iInfluenceBoost);
 			}
 		}
 	}
@@ -25235,9 +25623,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
-#ifdef RESETTLEMENT_CHANGE_GLOBAL_POP
+#ifdef POLICY_GLOBAL_POP_CHANGE
 	// Global Pop change
-	if (pPolicy->GetNewCityExtraPopulation() != 0)
+	if (pPolicy->GetGlobalPopChange() != 0)
 	{
 		CvCity* pLoopCity;
 		int iLoop;
@@ -25246,11 +25634,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			if (iChange > 0)
 			{
-				pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetNewCityExtraPopulation())));
+				pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetGlobalPopChange())));
 			}
 		}
-		ChangeExtraHappinessPerCity(iChange * pPolicy->GetNewCityExtraPopulation() / 2);
 	}
+	ChangeGlobalPopChange(iChange * pPolicy->GetGlobalPopChange());
+#endif
+#ifdef POLICY_HAPPINESS_PER_CITY
+	ChangeExtraHappinessPerCity(iChange * pPolicy->GetHappinessPerCity());
 #endif
 
 	// Great People bonus from Allied city-states
@@ -26275,6 +26666,160 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		m_iExtraLeagueVotes = 0;
 	}
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iMaxExtraVotesFromMinors;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iMaxExtraVotesFromMinors = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_EXTRA_VOTES
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iPolicyExtraVotes;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iPolicyExtraVotes = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iPolicyTechFromCityConquer;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iPolicyTechFromCityConquer = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iNoCultureSpecialistFood;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNoCultureSpecialistFood = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iMinorsGiftUnits;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iMinorsGiftUnits = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iNoCargoPillage;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNoCargoPillage = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iGreatWorkHappiness;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatWorkHappiness = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iSciencePerXFollowers;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iSciencePerXFollowers = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iNoDifferentIdeologiesTourismMod;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNoDifferentIdeologiesTourismMod = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iGlobalPopChange;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGlobalPopChange = 0;
+	}
+#endif
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+#endif
+		kStream >> m_iGreatWorkTourismChanges;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iGreatWorkTourismChanges = 0;
+	}
+#endif
+#endif
 	kStream >> m_iSpecialPolicyBuildingHappiness;
 	kStream >> m_iWoundedUnitDamageMod;
 	kStream >> m_iUnitUpgradeCostMod;
@@ -26643,6 +27188,31 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iNumCitiesPolicyCostDiscount;
 	kStream >> m_iGarrisonFreeMaintenanceCount;
 	kStream >> m_iGarrisonedCityRangeStrikeModifier;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+# endif
+		kStream >> m_ppaaiBuildingScecialistCountChange;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		Firaxis::Array< int, NUM_SPECILIST_TYPES > specialist;
+		for (unsigned int j = 0; j < NUM_SPECILIST_TYPES; ++j)
+		{
+			specialist[j] = 0;
+		}
+
+		m_ppaaiBuildingScecialistCountChange.clear();
+		m_ppaaiBuildingScecialistCountChange.resize(GC.getNumBuildingInfos());
+		for (unsigned int i = 0; i < m_ppaaiBuildingScecialistCountChange.size(); ++i)
+		{
+			m_ppaaiBuildingScecialistCountChange.setAt(i, specialist);
+		}
+	}
+# endif
+#endif
 	kStream >> m_iNumCitiesFreeCultureBuilding;
 	kStream >> m_iNumCitiesFreeFoodBuilding;
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
@@ -26775,6 +27345,36 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 	kStream >> m_aiExtraYieldThreshold;
 	kStream >> m_aiSpecialistExtraYield;
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+# endif
+		kStream >> m_aiGoldenAgeYieldModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_aiGoldenAgeYieldModifier.clear();
+		m_aiGoldenAgeYieldModifier.resize(NUM_YIELD_TYPES, 0);
+	}
+# endif
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1010)
+	{
+# endif
+		kStream >> m_paiPlotExtraYieldFromTradeRoute;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_paiPlotExtraYieldFromTradeRoute.clear();
+		m_paiPlotExtraYieldFromTradeRoute.resize(NUM_YIELD_TYPES, 0);
+	}
+# endif
+#endif
 	kStream >> m_aiProximityToPlayer;
 	kStream >> m_aiResearchAgreementCounter;
 	if (uiVersion >= 5)
@@ -27224,6 +27824,39 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumGoldSpentOnUgrades;
 #endif
 	kStream << m_iExtraLeagueVotes;
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	kStream << m_iMaxExtraVotesFromMinors;
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	kStream << m_iPolicyExtraVotes;
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	kStream << m_iPolicyTechFromCityConquer;
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	kStream << m_iNoCultureSpecialistFood;
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	kStream << m_iMinorsGiftUnits;
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	kStream << m_iNoCargoPillage;
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	kStream << m_iGreatWorkHappiness;
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	kStream << m_iSciencePerXFollowers;
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	kStream << m_iNoDifferentIdeologiesTourismMod;
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	kStream << m_iGlobalPopChange;
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	kStream << m_iGreatWorkTourismChanges;
+#endif
 	kStream << m_iSpecialPolicyBuildingHappiness;
 	kStream << m_iWoundedUnitDamageMod;
 	kStream << m_iUnitUpgradeCostMod;
@@ -27412,6 +28045,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumCitiesPolicyCostDiscount;
 	kStream << m_iGarrisonFreeMaintenanceCount;
 	kStream << m_iGarrisonedCityRangeStrikeModifier;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	kStream << m_ppaaiBuildingScecialistCountChange;
+#endif
 	kStream << m_iNumCitiesFreeCultureBuilding;
 	kStream << m_iNumCitiesFreeFoodBuilding;
 #ifdef POLICY_FREE_DEFENSIVE_BUILDINGS
@@ -27485,6 +28121,12 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aiGreatWorkYieldChange;
 	kStream << m_aiExtraYieldThreshold;
 	kStream << m_aiSpecialistExtraYield;
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	kStream << m_aiGoldenAgeYieldModifier;
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	kStream << m_paiPlotExtraYieldFromTradeRoute;
+#endif
 	kStream << m_aiProximityToPlayer;
 	kStream << m_aiResearchAgreementCounter;   // Added in Version 2
 	kStream << m_aiIncomingUnitTypes;
@@ -29604,13 +30246,14 @@ void CvPlayer::disconnected()
 							CvCity* pLoopCity = NULL;
 							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 							{
-								if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
 								{
 									if (pLoopCity->getOriginalOwner() == GetID())
 									{
 										if (pLoopCity->IsNoOccupiedUnhappiness())
 										{
 											pLoopCity->setOriginalOwner(eLoopPlayer);
+											pLoopCity->SetOccupied(false);
 										}
 									}
 								}
@@ -29684,13 +30327,14 @@ void CvPlayer::disconnected()
 						CvCity* pLoopCity = NULL;
 						for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 						{
-							if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+							if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
 							{
 								if (pLoopCity->getOriginalOwner() == GetID())
 								{
 									if (pLoopCity->IsNoOccupiedUnhappiness())
 									{
 										pLoopCity->setOriginalOwner(eLoopPlayer);
+										pLoopCity->SetOccupied(false);
 									}
 								}
 							}

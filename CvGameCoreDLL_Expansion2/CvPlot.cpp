@@ -7594,18 +7594,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 	iYield = calculateNatureYield(eYield, ((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
 
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	if (getOwner() != NO_PLAYER)
 	{
-		if (eYield == YIELD_GOLD)
+		if (GET_PLAYER(getOwner()).GetTrade()->GetNumPlayerPlotTradeRoutes(this) > 0)
 		{
-			if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_CARAVANS", true /*bHideAssert*/)))
-			{
-				if (GET_PLAYER(getOwner()).GetTrade()->GetNumPlayerPlotTradeRoutes(this) > 0)
-				{
-					iYield += 1;
-				}
-			}
+			iYield += GET_PLAYER(getOwner()).getPlotExtraYieldFromTradeRoute(eYield);
 		}
 	}
 #endif

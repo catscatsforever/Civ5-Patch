@@ -96,6 +96,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bRangeAttackOnlyInDomain(false),
 	m_bTrade(false),
 	m_iNumExoticGoods(0),
+#ifdef UNIT_NUKE_DEFENSE
+	m_iNukeDefense(0),
+#endif
 	m_pbUpgradeUnitClass(NULL),
 	m_pbUnitAIType(NULL),
 	m_pbNotUnitAIType(NULL),
@@ -217,6 +220,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRangeAttackOnlyInDomain = kResults.GetBool("RangeAttackOnlyInDomain");
 	m_bTrade = kResults.GetBool("Trade");
 	m_iNumExoticGoods = kResults.GetInt("NumExoticGoods");
+#ifdef UNIT_NUKE_DEFENSE
+	m_iNukeDefense = kResults.GetInt("NukeDefense");
+#endif
 
 	m_strUnitArtInfoTag = kResults.GetText("UnitArtInfo");
 	m_bUnitArtInfoCulturalVariation = kResults.GetBool("UnitArtInfoCulturalVariation");
@@ -932,6 +938,14 @@ int CvUnitEntry::GetNumExoticGoods() const
 {
 	return m_iNumExoticGoods;
 }
+
+#ifdef UNIT_NUKE_DEFENSE
+///
+int CvUnitEntry::GetNukeDefense() const
+{
+	return m_iNukeDefense;
+}
+#endif
 
 /// Return unit's current command
 int CvUnitEntry::GetCommandType() const

@@ -601,6 +601,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 			addSmallGenericButtonIf( tech.AllowsWorldCongress and "TXT_KEY_ALLOWS_WORLD_CONGRESS" )
 			addSmallGenericButtonIf( tech.TriggersIdeology and "TXT_KEY_TRIGGERS_IDEOLOGY" )
+			addSmallGenericButtonIf( tech.AllowsNuking and "TXT_KEY_ALLOWS_NUKING" )
 
 			addSmallGenericButtonIf( (tonumber(tech.ExtraVotesPerDiplomat) or 0) > 0 and "TXT_KEY_EXTRA_VOTES_FROM_DIPLOMATS", tech.ExtraVotesPerDiplomat )
 

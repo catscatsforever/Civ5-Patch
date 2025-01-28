@@ -2032,18 +2032,8 @@ void CvCityCitizens::DoSpecialists()
 /// How many Specialists are assigned to this Building Type?
 int CvCityCitizens::GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kBuilding)
 {
-#ifdef POLICY_ETHICS_REWORK
-	if (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)) &&
-		((BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true) ||
-			(BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true) ||
-			(BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true)))
-	{
-		return kBuilding.GetSpecialistCount() + 1;
-	}
-	else
-	{
-		return kBuilding.GetSpecialistCount();
-	}
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	return kBuilding.GetSpecialistCount() + (GET_PLAYER(m_pCity->getOwner()).getBuildingScecialistCountChange((BuildingTypes)GC.getInfoTypeForString(kBuilding.GetType(), true), (SpecialistTypes)kBuilding.GetSpecialistType()));
 #else
 	return kBuilding.GetSpecialistCount();
 #endif
@@ -2057,27 +2047,12 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 
-#ifdef POLICY_ETHICS_REWORK
-	if (GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)) &&
-		((BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true) ||
-			(BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true) ||
-			(BuildingTypes)GC.getInfoTypeForString(GC.getBuildingInfo(eBuilding)->GetType(), true) == (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true)))
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
+		iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() + (GET_PLAYER(m_pCity->getOwner()).getBuildingScecialistCountChange(eBuilding, (SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType())) &&				// Limit for this particular Building
+		iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
 	{
-		if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
-			iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() + 1 &&				// Limit for this particular Building
-			iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
-		{
-			return true;
-		}
-	}
-	else
-	{
-		if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
-			iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
-			iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
-		{
-			return true;
-		}
+		return true;
 	}
 #else
 	if(iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City

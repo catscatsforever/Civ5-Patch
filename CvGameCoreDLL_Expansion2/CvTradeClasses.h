@@ -223,7 +223,7 @@ public:
 
 	std::vector<CvString> GetPlotToolTips (CvPlot* pPlot);
 	std::vector<CvString> GetPlotMouseoverToolTips (CvPlot* pPlot);
-#ifdef EXTRA_PLOT_GOLD_FROM_TRADE_ROUTES
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	int GetNumPlayerPlotTradeRoutes(CvPlot* pPlot);
 #endif
 

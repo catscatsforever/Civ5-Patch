@@ -181,6 +181,12 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piCapitalYieldModifier(NULL),
 	m_piGreatWorkYieldChange(NULL),
 	m_piSpecialistExtraYield(NULL),
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	m_piGoldenAgeYieldModifier(NULL),
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	m_piPlotExtraYieldFromTradeRoute(NULL),
+#endif
 	m_pabFreePromotion(NULL),
 	m_paiUnitCombatProductionModifiers(NULL),
 	m_paiUnitCombatFreeExperiences(NULL),
@@ -198,7 +204,49 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	m_ppiBuildingScecialistCountChange(NULL),
+#endif
 	m_piFlavorValue(NULL),
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	m_iMaxExtraVotesFromMinors(0),
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	m_iExtraVotes(0),
+#endif
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
+	m_iMinorInfluenceBoost(0),
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	m_bTechFromCityConquer(false),
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	m_bNoCultureSpecialistFood(false),
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	m_bMinorsGiftUnits(false),
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	m_bNoCargoPillage(false),
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	m_iGreatWorkHappiness(0),
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	m_iSciencePerXFollowers(0),
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	m_bNoDifferentIdeologiesTourismMod(false),
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	m_iGlobalPopChange(0),
+#endif
+#ifdef POLICY_HAPPINESS_PER_CITY
+	m_iHappinessPerCity(0),
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	m_iGreatWorkTourismChanges(0),
+#endif
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
@@ -217,6 +265,12 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piCapitalYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piSpecialistExtraYield);
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldModifier);
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	SAFE_DELETE_ARRAY(m_piPlotExtraYieldFromTradeRoute);
+#endif
 	SAFE_DELETE_ARRAY(m_pabFreePromotion);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatFreeExperiences);
@@ -237,6 +291,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingScecialistCountChange);
+#endif
 }
 
 /// Read from XML file (pass 1)
@@ -413,6 +470,46 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szFreeBuilding, true);
 	}
 
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	m_iMaxExtraVotesFromMinors = kResults.GetInt("MaxExtraVotesFromMinors");
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	m_iExtraVotes = kResults.GetInt("ExtraVotes");
+#endif
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
+	m_iMinorInfluenceBoost = kResults.GetInt("MinorInfluenceBoost");
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	m_bTechFromCityConquer = kResults.GetBool("TechFromCityConquer");
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	m_bNoCultureSpecialistFood = kResults.GetBool("NoCultureSpecialistFood");
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	m_bMinorsGiftUnits = kResults.GetBool("MinorsGiftUnits");
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	m_bNoCargoPillage = kResults.GetBool("NoCargoPillage");
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	m_iGreatWorkHappiness = kResults.GetInt("GreatWorkHappiness");
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	m_iSciencePerXFollowers = kResults.GetInt("SciencePerXFollowers");
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	m_bNoDifferentIdeologiesTourismMod = kResults.GetBool("NoDifferentIdeologiesTourismMod");
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	m_iGlobalPopChange = kResults.GetInt("GlobalPopChange");
+#endif
+#ifdef POLICY_HAPPINESS_PER_CITY
+	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	m_iGreatWorkTourismChanges = kResults.GetInt("GreatWorkTourismChanges");
+#endif
+
 	//Arrays
 	const char* szPolicyType = GetType();
 	kUtility.SetYields(m_piYieldModifier, "Policy_YieldModifiers", "PolicyType", szPolicyType);
@@ -423,6 +520,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCapitalYieldModifier, "Policy_CapitalYieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	kUtility.SetYields(m_piGoldenAgeYieldModifier, "Policy_GoldenAgeYieldModifiers", "PolicyType", szPolicyType);
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	kUtility.SetYields(m_piPlotExtraYieldFromTradeRoute, "Policy_PlotExtraYieldFromTradeRoute", "PolicyType", szPolicyType);
+#endif
 
 	kUtility.SetFlavors(m_piFlavorValue, "Policy_Flavors", "PolicyType", szPolicyType);
 
@@ -490,6 +593,31 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
 	}
+
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	//BuildingScecialistCountChange
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingScecialistCountChange, "Buildings", "Specialists");
+
+		std::string strKey("Policy_BuildingScecialistCountChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Buildings.ID as BuildingID, Specialists.ID as SpecialistID, SpecialistCountChange from Policy_BuildingScecialistCountChange inner join Buildings on Buildings.Type = BuildingType inner join Specialists on Specialists.Type = Policy_BuildingScecialistCountChange.SpecialistType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while (pResults->Step())
+		{
+			const int BuildingID = pResults->GetInt(0);
+			const int iSpecialistID = pResults->GetInt(1);
+			const int iSpecialistCountChange = pResults->GetInt(2);
+
+			m_ppiBuildingScecialistCountChange[BuildingID][iSpecialistID] = iSpecialistCountChange;
+		}
+	}
+#endif
 
 	//ImprovementYieldChanges
 	{
@@ -1622,6 +1750,38 @@ int* CvPolicyEntry::GetSpecialistExtraYieldArray() const
 	return m_piSpecialistExtraYield;
 }
 
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+///
+int CvPolicyEntry::GetGoldenAgeYieldModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGoldenAgeYieldModifier ? m_piGoldenAgeYieldModifier[i] : -1;
+}
+
+//
+int* CvPolicyEntry::GetGoldenAgeYieldModifierArray() const
+{
+	return m_piGoldenAgeYieldModifier;
+}
+#endif
+
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+///
+int CvPolicyEntry::GetPlotExtraYieldFromTradeRoute(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piPlotExtraYieldFromTradeRoute ? m_piPlotExtraYieldFromTradeRoute[i] : -1;
+}
+
+//
+int* CvPolicyEntry::GetPlotExtraYieldFromTradeRouteArray() const
+{
+	return m_piPlotExtraYieldFromTradeRoute;
+}
+#endif
+
 /// Production modifier by unit type
 int CvPolicyEntry::GetUnitCombatProductionModifiers(int i) const
 {
@@ -1761,6 +1921,18 @@ int CvPolicyEntry::GetBuildingClassYieldChanges(int i, int j) const
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
 
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+///
+int CvPolicyEntry::GetBuildingScecialistCountChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_SPECILIST_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingScecialistCountChange[i][j];
+}
+#endif
+
 /// Production modifier for a specific BuildingClass
 int CvPolicyEntry::GetBuildingClassProductionModifier(int i) const
 {
@@ -1798,6 +1970,110 @@ BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
 {
 	return m_eFreeBuildingOnConquest;
 }
+
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+///
+int CvPolicyEntry::GetMaxExtraVotesFromMinors() const
+{
+	return m_iMaxExtraVotesFromMinors;
+}
+#endif
+
+#ifdef POLICY_EXTRA_VOTES
+///
+int CvPolicyEntry::GetExtraVotes() const
+{
+	return m_iExtraVotes;
+}
+#endif
+
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
+///
+int CvPolicyEntry::GetMinorInfluenceBoost() const
+{
+	return m_iMinorInfluenceBoost;
+}
+#endif
+
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+///
+bool CvPolicyEntry::IsTechFromCityConquer() const
+{
+	return m_bTechFromCityConquer;
+}
+#endif
+
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+///
+bool CvPolicyEntry::IsNoCultureSpecialistFood() const
+{
+	return m_bNoCultureSpecialistFood;
+}
+#endif
+
+#ifdef POLICY_MINORS_GIFT_UNITS
+///
+bool CvPolicyEntry::IsMinorsGiftUnits() const
+{
+	return m_bMinorsGiftUnits;
+}
+#endif
+
+#ifdef POLICY_NO_CARGO_PILLAGE
+///
+bool CvPolicyEntry::IsNoCargoPillage() const
+{
+	return m_bNoCargoPillage;
+}
+#endif
+
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+///
+int CvPolicyEntry::GetGreatWorkHappiness() const
+{
+	return m_iGreatWorkHappiness;
+}
+#endif
+
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+///
+int CvPolicyEntry::GetSciencePerXFollowers() const
+{
+	return m_iSciencePerXFollowers;
+}
+#endif
+
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+///
+bool CvPolicyEntry::IsNoDifferentIdeologiesTourismMod() const
+{
+	return m_bNoDifferentIdeologiesTourismMod;
+}
+#endif
+
+#ifdef POLICY_GLOBAL_POP_CHANGE
+///
+int CvPolicyEntry::GetGlobalPopChange() const
+{
+	return m_iGlobalPopChange;
+}
+#endif
+
+#ifdef POLICY_HAPPINESS_PER_CITY
+///
+int CvPolicyEntry::GetHappinessPerCity() const
+{
+	return m_iHappinessPerCity;
+}
+#endif
+
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+///
+int CvPolicyEntry::GetGreatWorkTourismChanges() const
+{
+	return m_iGreatWorkTourismChanges;
+}
+#endif
 
 //=====================================
 // CvPolicyBranchEntry
@@ -2430,7 +2706,6 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 
 			SetPolicyBranchFinished(eThisBranch, bBranchFinished);
 
-#ifndef RandomPolicies
 			if(bBranchFinished)
 			{
 				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eThisBranch);
@@ -2444,7 +2719,6 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 					}
 				}
 			}
-#endif
 		}
 	}
 }
@@ -3056,7 +3330,6 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 
 	PolicyBranchTypes eBranch = (PolicyBranchTypes) pkPolicyEntry->GetPolicyBranchType();
 
-#ifndef RandomPolicies
 	// If it doesn't have a branch, it's a freebie that comes WITH the branch, so we can't pick it manually
 	if(eBranch == NO_POLICY_BRANCH_TYPE)
 	{
@@ -3067,7 +3340,6 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	{
 		return false;
 	}
-#endif
 
 	// Is it from a branch with Levels?
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);

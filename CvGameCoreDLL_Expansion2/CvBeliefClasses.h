@@ -74,6 +74,9 @@ public:
 #ifdef NEW_BELIEF_PROPHECY
 	bool IsAllowPolicyWonders() const;
 #endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	bool IsHalfFaithInCity() const;
+#endif
 	int GetCityStateMinimumInfluence() const;
 	int GetCityStateInfluenceModifier() const;
 	int GetOtherReligionPressureErosion() const;
@@ -181,6 +184,9 @@ protected:
 #endif
 #ifdef NEW_BELIEF_PROPHECY
 	bool m_bAllowPolicyWonders;
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	bool m_bHalfFaithInCity;
 #endif
 	int m_iCityStateMinimumInfluence;
 	int m_iCityStateInfluenceModifier;
@@ -393,6 +399,12 @@ public:
 		return m_bAllowPolicyWonders;
 	};
 #endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	bool IsHalfFaithInCity() const
+	{
+		return m_bHalfFaithInCity;
+	};
+#endif
 	int GetCityStateMinimumInfluence() const
 	{
 		return m_iCityStateMinimumInfluence;
@@ -523,6 +535,9 @@ private:
 #endif
 #ifdef NEW_BELIEF_PROPHECY
 	bool m_bAllowPolicyWonders;
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	bool m_bHalfFaithInCity;
 #endif
 	int m_iCityStateMinimumInfluence;
 	int m_iCityStateInfluenceModifier;

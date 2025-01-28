@@ -3891,9 +3891,9 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 		// City-State allies
 		int iCityStateVotes = 0;
-#ifdef AUTOCRACY_EXTRA_VOTES
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
 		CvPlayerAI& kPlayer(GET_PLAYER(ePlayer));
-		PolicyTypes ePolicy = (PolicyTypes) GC.getInfoTypeForString("POLICY_GUNBOAT_DIPLOMACY", true /*bHideAssert*/);
+		int iMaxExtraVotesFromMinors = kPlayer.GetMaxExtraVotesFromMinors();
 		int iExtraAutoVotes = 0;
 #endif
 		for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
@@ -3902,27 +3902,25 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 			{
 				iCityStateVotes += pInfo->GetCityStateDelegates();
-#ifdef AUTOCRACY_EXTRA_VOTES
-				if (kPlayer.GetPlayerPolicies()->HasPolicy(ePolicy))
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+				if (iExtraAutoVotes < iMaxExtraVotesFromMinors)
+				{
 					iExtraAutoVotes++;
+				}
 #endif
 			}
 		}
 		iVotes += iCityStateVotes;
-#if defined AUTOCRACY_EXTRA_VOTES || defined PATRONAGE_FINISHER_REWORK
+#if defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS || defined PATRONAGE_FINISHER_REWORK
 		int iPolicyVotes = 0;
 #endif
-#ifdef AUTOCRACY_EXTRA_VOTES
-		iPolicyVotes += std::min(MAX_AUTOCRACY_EXTRA_VOTES, iExtraAutoVotes);
-		iVotes += std::min(MAX_AUTOCRACY_EXTRA_VOTES, iExtraAutoVotes);
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+		iPolicyVotes += iExtraAutoVotes;
+		iVotes += iExtraAutoVotes;
 #endif
-#ifdef PATRONAGE_FINISHER_REWORK
-		PolicyTypes ePolicy2 = (PolicyTypes)GC.getInfoTypeForString("POLICY_PATRONAGE_FINISHER", true /*bHideAssert*/);
-		if (GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(ePolicy2))
-		{
-			iPolicyVotes += 2;
-			iVotes += 2;
-		}
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+		iPolicyVotes += kPlayer.GetPolicyExtraVotes();
+		iVotes += kPlayer.GetPolicyExtraVotes();
 #endif
 
 		// Diplomats after Globalization tech
@@ -4050,7 +4048,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				sTemp << iWonderVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
-#if defined PATRONAGE_FINISHER_REWORK || defined AUTOCRACY_EXTRA_VOTES
+#if defined PATRONAGE_FINISHER_REWORK || defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS
 			if (iPolicyVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_POLICY_VOTES");

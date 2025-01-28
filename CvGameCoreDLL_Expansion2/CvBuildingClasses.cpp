@@ -3073,7 +3073,7 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
 	}
-#ifdef FINE_ARTS_HAPPINESS_FROM_GREAT_WORKS
+#ifdef POLICY_GREAT_WORK_HAPPINESS
 	GET_PLAYER(m_pCity->getOwner()).DoUpdateHappiness();
 #endif
 

@@ -957,9 +957,14 @@ public:
 	bool isOutOfAttacks() const;
 	void setMadeAttack(bool bNewValue);
 
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 	bool isOutOfRebases() const;
 	void setMadeRebase(bool bNewValue);
+#endif
+
+#ifdef REBASE_WITH_AIRPORTS
+	bool isOutOfAirliftRebases() const;
+	void setMadeAirliftRebase(bool bNewValue);
 #endif
 
 #ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
@@ -1426,8 +1431,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
-#ifdef REBASE_WITH_AIRPORTS
+#ifdef MADE_REBASE
 	FAutoVariable<int, CvUnit> m_iRebaseMade;
+#endif
+#ifdef REBASE_WITH_AIRPORTS
+		FAutoVariable<int, CvUnit> m_iAirliftRebaseMade;
 #endif
 #ifdef CAPTURE_RESTRICTION_AFTER_PARADROPPING
 	FAutoVariable<int, CvUnit> m_iSecondHalfTimerParadrop;

@@ -206,6 +206,14 @@ public:
 	int* GetGreatWorkYieldChangeArray() const;
 	int GetSpecialistExtraYield(int i) const;
 	int* GetSpecialistExtraYieldArray() const;
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	int GetGoldenAgeYieldModifier(int i) const;
+	int* GetGoldenAgeYieldModifierArray() const;
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	int GetPlotExtraYieldFromTradeRoute(int i) const;
+	int* GetPlotExtraYieldFromTradeRouteArray() const;
+#endif
 	int IsFreePromotion(int i) const;
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 	int GetUnitCombatProductionModifiers(int i) const;
@@ -226,12 +234,55 @@ public:
 	int GetImprovementYieldChanges(int i, int j) const;
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	int GetBuildingScecialistCountChanges(int i, int j) const;
+#endif
 	int GetFlavorValue(int i) const;
 
 	bool IsOneShot() const;
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
+
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	int GetMaxExtraVotesFromMinors() const;
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	int GetExtraVotes() const;
+#endif
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
+	int GetMinorInfluenceBoost() const;
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	bool IsTechFromCityConquer() const;
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	bool IsNoCultureSpecialistFood() const;
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	bool IsMinorsGiftUnits() const;
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	bool IsNoCargoPillage() const;
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	int GetGreatWorkHappiness() const;
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	int GetSciencePerXFollowers() const;
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	bool IsNoDifferentIdeologiesTourismMod() const;
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	int GetGlobalPopChange() const;
+#endif
+#ifdef POLICY_HAPPINESS_PER_CITY
+	int GetHappinessPerCity() const;
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	int GetGreatWorkTourismChanges() const;
+#endif
 
 private:
 	int m_iTechPrereq;
@@ -392,6 +443,46 @@ private:
 
 	BuildingTypes m_eFreeBuildingOnConquest;
 
+#ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+	int m_iMaxExtraVotesFromMinors;
+#endif
+#ifdef POLICY_EXTRA_VOTES
+	int m_iExtraVotes;
+#endif
+#ifdef POLICY_MINOR_INFLUENCE_BOOST
+	int m_iMinorInfluenceBoost;
+#endif
+#ifdef POLICY_DO_TECH_FROM_CITY_CONQ
+	bool m_bTechFromCityConquer;
+#endif
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+	bool m_bNoCultureSpecialistFood;
+#endif
+#ifdef POLICY_MINORS_GIFT_UNITS
+	bool m_bMinorsGiftUnits;
+#endif
+#ifdef POLICY_NO_CARGO_PILLAGE
+	bool m_bNoCargoPillage;
+#endif
+#ifdef POLICY_GREAT_WORK_HAPPINESS
+	int m_iGreatWorkHappiness;
+#endif
+#ifdef POLICY_SCIENCE_PER_X_FOLLOWERS
+	int m_iSciencePerXFollowers;
+#endif
+#ifdef POLICY_NO_DIFFERENT_IDEOLOGIES_TOURISM_MOD
+	bool m_bNoDifferentIdeologiesTourismMod;
+#endif
+#ifdef POLICY_GLOBAL_POP_CHANGE
+	int m_iGlobalPopChange;
+#endif
+#ifdef POLICY_HAPPINESS_PER_CITY
+	int m_iHappinessPerCity;
+#endif
+#ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
+	int m_iGreatWorkTourismChanges;
+#endif
+
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
 	int* m_piPrereqOrPolicies;
@@ -405,6 +496,12 @@ private:
 	int* m_piCapitalYieldModifier;
 	int* m_piGreatWorkYieldChange;
 	int* m_piSpecialistExtraYield;
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+	int* m_piGoldenAgeYieldModifier;
+#endif
+#ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
+	int* m_piPlotExtraYieldFromTradeRoute;
+#endif
 	int* m_piImprovementCultureChange;
 	bool* m_pabFreePromotion;
 	int* m_paiUnitCombatProductionModifiers;
@@ -425,6 +522,9 @@ private:
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
+#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+	int** m_ppiBuildingScecialistCountChange;
+#endif
 	int* m_piFlavorValue;
 };
 

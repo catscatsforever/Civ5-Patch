@@ -64,6 +64,9 @@ CvBeliefEntry::CvBeliefEntry() :
 #ifdef NEW_BELIEF_PROPHECY
 	m_bAllowPolicyWonders(false),
 #endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	m_bHalfFaithInCity(false),
+#endif
 	m_iCityStateMinimumInfluence(0),
 	m_iCityStateInfluenceModifier(0),
 	m_iOtherReligionPressureErosion(0),
@@ -359,6 +362,14 @@ int CvBeliefEntry::GetGoldenAgeCombatMod() const
 bool CvBeliefEntry::IsAllowPolicyWonders() const
 {
 	return m_bAllowPolicyWonders;
+}
+#endif
+
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+///
+bool CvBeliefEntry::IsHalfFaithInCity() const
+{
+	return m_bHalfFaithInCity;
 }
 #endif
 
@@ -736,7 +747,10 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGoldenAgeCombatMod             =	kResults.GetInt("GoldenAgeCombatMod");
 #endif
 #ifdef NEW_BELIEF_PROPHECY
-	m_bAllowPolicyWonders             = kResults.GetInt("AllowPolicyWonders");
+	m_bAllowPolicyWonders             = kResults.GetBool("AllowPolicyWonders");
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	m_bHalfFaithInCity                = kResults.GetBool("HalfFaithInCity");
 #endif
 	m_iCityStateMinimumInfluence      = kResults.GetInt("CityStateMinimumInfluence");
 	m_iCityStateInfluenceModifier     = kResults.GetInt("CityStateInfluenceModifier");
@@ -1031,6 +1045,9 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 #ifdef NEW_BELIEF_PROPHECY
 	m_bAllowPolicyWonders = source.m_bAllowPolicyWonders;
 #endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	m_bHalfFaithInCity = source.m_bHalfFaithInCity;
+#endif
 	m_iCityStateMinimumInfluence = source.m_iCityStateMinimumInfluence;
 	m_iCityStateInfluenceModifier = source.m_iCityStateInfluenceModifier;
 	m_iOtherReligionPressureErosion = source.m_iOtherReligionPressureErosion;
@@ -1114,6 +1131,9 @@ void CvReligionBeliefs::Reset()
 #endif
 #ifdef NEW_BELIEF_PROPHECY
 	m_bAllowPolicyWonders = false;
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	m_bHalfFaithInCity = false;
 #endif
 	m_iCityStateMinimumInfluence = 0;
 	m_iCityStateInfluenceModifier = 0;
@@ -1200,6 +1220,12 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	if (!m_bAllowPolicyWonders)
 	{
 		m_bAllowPolicyWonders = belief->IsAllowPolicyWonders();
+	}
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	if (!m_bHalfFaithInCity)
+	{
+		m_bHalfFaithInCity = belief->IsHalfFaithInCity();
 	}
 #endif
 	m_iCityStateMinimumInfluence += belief->GetCityStateMinimumInfluence();
@@ -2011,6 +2037,20 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1003)
+	{
+# endif
+		kStream >> m_bHalfFaithInCity;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_bHalfFaithInCity = false;
+	}
+# endif
+#endif
 	kStream >> m_iCityStateMinimumInfluence;
 	kStream >> m_iCityStateInfluenceModifier;
 	kStream >> m_iOtherReligionPressureErosion;
@@ -2137,6 +2177,9 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 #endif
 #ifdef NEW_BELIEF_PROPHECY
 	kStream << m_bAllowPolicyWonders;
+#endif
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	kStream << m_bHalfFaithInCity;
 #endif
 	kStream << m_iCityStateMinimumInfluence;
 	kStream << m_iCityStateInfluenceModifier;

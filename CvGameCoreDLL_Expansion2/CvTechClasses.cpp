@@ -61,6 +61,9 @@ CvTechEntry::CvTechEntry(void):
 	m_bWaterWork(false),
 	m_bTriggersArchaeologicalSites(false),
 	m_bAllowsWorldCongress(false),
+#ifdef TECH_ALLOWS_NUKING
+	m_bAllowsNuking(false),
+#endif
 	m_piDomainExtraMoves(NULL),
 	m_piTradeRouteDomainExtraRange(NULL),
 	m_piFlavorValue(NULL),
@@ -111,6 +114,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bGoodyTech = kResults.GetBool("GoodyTech");
 	m_bTriggersArchaeologicalSites = kResults.GetBool("TriggersArchaeologicalSites");
 	m_bAllowsWorldCongress = kResults.GetBool("AllowsWorldCongress");
+#ifdef TECH_ALLOWS_NUKING
+	m_bAllowsNuking = kResults.GetBool("AllowsNuking");
+#endif
 	m_bExtraWaterSeeFrom = kResults.GetBool("ExtraWaterSeeFrom");
 	m_bMapCentering = kResults.GetBool("MapCentering");
 	m_bMapVisible = kResults.GetBool("MapVisible");
@@ -371,6 +377,14 @@ bool CvTechEntry::IsAllowsWorldCongress() const
 {
 	return m_bAllowsWorldCongress;
 }
+
+#ifdef TECH_ALLOWS_NUKING
+///
+bool CvTechEntry::IsAllowsNuking() const
+{
+	return m_bAllowsNuking;
+}
+#endif
 
 /// Expand visibility over water?
 bool CvTechEntry::IsExtraWaterSeeFrom() const

@@ -3329,7 +3329,7 @@ ReligionTypes CvCityReligions::GetSecondaryReligion()
 #ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
 	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pCity->getOwner());
 	ReligionTypes eMajority = GetReligiousMajority();
-	if (eFoundedReligion == eMajority/* && eFoundedReligion > RELIGION_PANTHEON*/)
+	if (eFoundedReligion == eMajority)
 	{
 		return eFoundedReligion;
 	}

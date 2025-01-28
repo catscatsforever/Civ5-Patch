@@ -397,6 +397,11 @@ public:
 	bool HasTechForWorldCongress() const;
 	void SetHasTechForWorldCongress(bool bValue);
 
+#ifdef TECH_ALLOWS_NUKING
+	bool HasTechForNuking() const;
+	void SetHasTechForNuking(bool bValue);
+#endif
+
 	EraTypes GetCurrentEra() const;
 	void SetCurrentEra(EraTypes eNewValue);
 
@@ -462,6 +467,9 @@ protected:
 	bool m_bHasBrokenPeaceTreaty;
 	bool m_bHomeOfUnitedNations;
 	bool m_bHasTechForWorldCongress;
+#ifdef TECH_ALLOWS_NUKING
+	bool m_bHasTechForNuking;
+#endif
 
 	bool m_bBrokenMilitaryPromise;
 	bool m_bBrokenExpansionPromise;

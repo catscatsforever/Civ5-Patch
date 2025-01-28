@@ -8184,9 +8184,9 @@
 			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
-			<TechPrereq>TECH_COMBUSTION</TechPrereq> 
-			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1> 
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2> 
+			<TechPrereq>TECH_REPLACEABLE_PARTS</TechPrereq> 
+			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1> 
+			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2> 
 			<PediaType>PEDIA_MELEE</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_AMBUSH_1</PediaEntry> 
 		</Row>
@@ -10975,10 +10975,6 @@
 			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
-			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_1</PromotionPrereqOr1> 
-			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_1</PromotionPrereqOr2> 
-			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr3> 
-			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr4> 
 			<PediaType>PEDIA_AIR</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_1</PediaEntry> 
 		</Row>
@@ -11908,6 +11904,7 @@
 			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr2> 
 			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_2</PromotionPrereqOr3> 
 			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_2</PromotionPrereqOr4> 
+			<PromotionPrereqOr5>PROMOTION_AIR_TARGETING_2</PromotionPrereqOr5> 
 			<PediaType>PEDIA_HEAL</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_AIR_REPAIR</PediaEntry> 
 		</Row>
@@ -33003,6 +33000,137 @@
 			<HeavyCharge>false</HeavyCharge> 
 			<PediaType>PEDIA_ATTRIBUTES</PediaType> 
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_FASTER_HEAL</PediaEntry> 
+		</Row>
+		<Row> 
+			<ID>234</ID> 
+			<Type>PROMOTION_AIR_TARGETING_3</Type> 
+			<Description>TXT_KEY_PROMOTION_AIR_TARGETING_3</Description> 
+			<Help>TXT_KEY_PROMOTION_AIR_TARGETING_3_HELP</Help> 
+			<PortraitIndex>54</PortraitIndex> 
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas> 
+			<HotKeyPriority>0</HotKeyPriority> 
+			<HotKeyPriorityAlt>0</HotKeyPriorityAlt> 
+			<OrderPriority>3</OrderPriority> 
+			<AltDown>false</AltDown> 
+			<AltDownAlt>false</AltDownAlt> 
+			<ShiftDown>false</ShiftDown> 
+			<ShiftDownAlt>false</ShiftDownAlt> 
+			<CtrlDown>false</CtrlDown> 
+			<CtrlDownAlt>false</CtrlDownAlt> 
+			<Sound>AS2D_IF_LEVELUP</Sound> 
+			<CannotBeChosen>false</CannotBeChosen> 
+			<LostWithUpgrade>false</LostWithUpgrade> 
+			<NotWithUpgrade>false</NotWithUpgrade> 
+			<InstaHeal>false</InstaHeal> 
+			<Leader>false</Leader> 
+			<Blitz>false</Blitz> 
+			<Amphib>false</Amphib> 
+			<River>false</River> 
+			<EnemyRoute>false</EnemyRoute> 
+			<RivalTerritory>false</RivalTerritory> 
+			<MustSetUpToRangedAttack>false</MustSetUpToRangedAttack> 
+			<RangedSupportFire>false</RangedSupportFire> 
+			<CanMoveAfterAttacking>false</CanMoveAfterAttacking> 
+			<AlwaysHeal>false</AlwaysHeal> 
+			<HealOutsideFriendly>false</HealOutsideFriendly> 
+			<HillsDoubleMove>false</HillsDoubleMove> 
+			<RoughTerrainEndsTurn>false</RoughTerrainEndsTurn> 
+			<IgnoreTerrainCost>false</IgnoreTerrainCost> 
+			<HoveringUnit>false</HoveringUnit> 
+			<FlatMovementCost>false</FlatMovementCost> 
+			<CanMoveImpassable>false</CanMoveImpassable> 
+			<NoCapture>false</NoCapture> 
+			<OnlyDefensive>false</OnlyDefensive> 
+			<NoDefensiveBonus>false</NoDefensiveBonus> 
+			<NukeImmune>false</NukeImmune> 
+			<HiddenNationality>false</HiddenNationality> 
+			<AlwaysHostile>false</AlwaysHostile> 
+			<NoRevealMap>false</NoRevealMap> 
+			<Recon>false</Recon> 
+			<CanMoveAllTerrain>false</CanMoveAllTerrain> 
+			<FreePillageMoves>false</FreePillageMoves> 
+			<AirSweepCapable>false</AirSweepCapable> 
+			<AllowsEmbarkation>false</AllowsEmbarkation> 
+			<EmbarkedAllWater>false</EmbarkedAllWater> 
+			<HealIfDestroyExcludesBarbarians>false</HealIfDestroyExcludesBarbarians> 
+			<RangeAttackIgnoreLOS>false</RangeAttackIgnoreLOS> 
+			<CityAttackOnly>false</CityAttackOnly> 
+			<CaptureDefeatedEnemy>false</CaptureDefeatedEnemy> 
+			<HealOnPillage>false</HealOnPillage> 
+			<IgnoreGreatGeneralBenefit>false</IgnoreGreatGeneralBenefit> 
+			<IgnoreZOC>false</IgnoreZOC> 
+			<HasPostCombatPromotions>false</HasPostCombatPromotions> 
+			<PostCombatPromotionsExclusive>false</PostCombatPromotionsExclusive> 
+			<RangedAttackModifier>0</RangedAttackModifier> 
+			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
+			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
+			<AirSweepCombatModifier>0</AirSweepCombatModifier> 
+			<ExtraAttacks>0</ExtraAttacks> 
+			<ExtraNavalMovement>0</ExtraNavalMovement> 
+			<VisibilityChange>0</VisibilityChange> 
+			<MovesChange>0</MovesChange> 
+			<MoveDiscountChange>0</MoveDiscountChange> 
+			<RangeChange>0</RangeChange> 
+			<InterceptChanceChange>0</InterceptChanceChange> 
+			<NumInterceptionChange>0</NumInterceptionChange> 
+			<EvasionChange>0</EvasionChange> 
+			<CargoChange>0</CargoChange> 
+			<EnemyHealChange>0</EnemyHealChange> 
+			<NeutralHealChange>0</NeutralHealChange> 
+			<FriendlyHealChange>0</FriendlyHealChange> 
+			<SameTileHealChange>0</SameTileHealChange> 
+			<AdjacentTileHealChange>0</AdjacentTileHealChange> 
+			<EnemyDamageChance>0</EnemyDamageChance> 
+			<NeutralDamageChance>0</NeutralDamageChance> 
+			<EnemyDamage>0</EnemyDamage> 
+			<NeutralDamage>0</NeutralDamage> 
+			<CombatPercent>0</CombatPercent> 
+			<CityAttack>0</CityAttack> 
+			<CityDefense>0</CityDefense> 
+			<RangedDefenseMod>0</RangedDefenseMod> 
+			<HillsAttack>0</HillsAttack> 
+			<HillsDefense>0</HillsDefense> 
+			<OpenAttack>0</OpenAttack> 
+			<OpenRangedAttackMod>0</OpenRangedAttackMod> 
+			<OpenDefense>0</OpenDefense> 
+			<RoughAttack>0</RoughAttack> 
+			<RoughRangedAttackMod>0</RoughRangedAttackMod> 
+			<RoughDefense>0</RoughDefense> 
+			<AttackFortifiedMod>0</AttackFortifiedMod> 
+			<AttackWoundedMod>0</AttackWoundedMod> 
+			<FlankAttackModifier>0</FlankAttackModifier> 
+			<NearbyEnemyCombatMod>0</NearbyEnemyCombatMod> 
+			<NearbyEnemyCombatRange>0</NearbyEnemyCombatRange> 
+			<UpgradeDiscount>0</UpgradeDiscount> 
+			<ExperiencePercent>0</ExperiencePercent> 
+			<AdjacentMod>0</AdjacentMod> 
+			<AttackMod>0</AttackMod> 
+			<DefenseMod>0</DefenseMod> 
+			<DropRange>0</DropRange> 
+			<GreatGeneral>false</GreatGeneral> 
+			<GreatAdmiral>false</GreatAdmiral> 
+			<GreatGeneralModifier>0</GreatGeneralModifier> 
+			<GreatGeneralReceivesMovement>false</GreatGeneralReceivesMovement> 
+			<GreatGeneralCombatModifier>0</GreatGeneralCombatModifier> 
+			<FriendlyLandsModifier>0</FriendlyLandsModifier> 
+			<FriendlyLandsAttackModifier>0</FriendlyLandsAttackModifier> 
+			<OutsideFriendlyLandsModifier>0</OutsideFriendlyLandsModifier> 
+			<HPHealedIfDestroyEnemy>0</HPHealedIfDestroyEnemy> 
+			<ExtraWithdrawal>0</ExtraWithdrawal> 
+			<EmbarkExtraVisibility>0</EmbarkExtraVisibility> 
+			<EmbarkDefenseModifier>0</EmbarkDefenseModifier> 
+			<CapitalDefenseModifier>0</CapitalDefenseModifier> 
+			<CapitalDefenseFalloff>0</CapitalDefenseFalloff> 
+			<CityAttackPlunderModifier>0</CityAttackPlunderModifier> 
+			<ReligiousStrengthLossRivalTerritory>0</ReligiousStrengthLossRivalTerritory> 
+			<TradeMissionInfluenceModifier>0</TradeMissionInfluenceModifier> 
+			<TradeMissionGoldModifier>0</TradeMissionGoldModifier> 
+			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
+			<Sapper>false</Sapper> 
+			<HeavyCharge>false</HeavyCharge> 
+			<PromotionPrereqOr1>PROMOTION_AIR_TARGETING_2</PromotionPrereqOr1> 
+			<PediaType>PEDIA_AIR</PediaType> 
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_3</PediaEntry> 
 		</Row>
 	</UnitPromotions> 
 

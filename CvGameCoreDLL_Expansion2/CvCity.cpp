@@ -591,7 +591,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Garrisoned?
 	if (GetGarrisonedUnit())
 	{
+#ifndef FIX_POLICY_CULTURE_PER_GARRISONED_UNIT
 		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+#endif
 	}
 
 	AI_init();
@@ -4757,11 +4759,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	TraitTypes eTrait = (TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/);
 	if(eUnit == (UnitTypes)GC.getInfoTypeForString("UNIT_SETTLER") && GET_PLAYER(getOwner()).GetPlayerTraits()->HasTrait(eTrait))
 	{
-#ifdef SettlerCost
-		iCost *= 41;
-#else
 		iCost *= 73;
-#endif
 		iCost /= 100;
 	}
 #endif
@@ -4960,7 +4958,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 				}
 			}
 		}
-#ifdef MANDATE_OF_HEAVEN_ALL_PURCHASES
+#ifdef POLICY_FAITH_COST_MODIFIER_ALL_PURCHASES
 		int iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 		iCost = iCost * iMultiplier / 100;
 #endif
@@ -4975,13 +4973,13 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
 		iCost = iCost * iMultiplier / 100;
 
-#ifndef MANDATE_OF_HEAVEN_ALL_PURCHASES
+#ifndef POLICY_FAITH_COST_MODIFIER_ALL_PURCHASES
 		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 		{
 #endif
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 			iCost = iCost * iMultiplier / 100;
-#ifndef MANDATE_OF_HEAVEN_ALL_PURCHASES
+#ifndef POLICY_FAITH_COST_MODIFIER_ALL_PURCHASES
 		}
 #endif
 	}
@@ -7254,8 +7252,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 	{
 		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
-#ifdef POLICY_ETHICS_REWORK
-		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
+		if (GET_PLAYER(getOwner()).IsNoCultureSpecialistFood())
 		{
 			SpecialistTypes eSpecialist;
 
@@ -7273,11 +7271,11 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
 	}
-#ifdef POLICY_ETHICS_REWORK
+#ifdef POLICY_NO_CULTURE_SPECIALIST_FOOD
 	else
 	{
 		int iFoodReduction = 0;
-		if (GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ETHICS", true)))
+		if (GET_PLAYER(getOwner()).IsNoCultureSpecialistFood())
 		{
 			SpecialistTypes eSpecialist;
 
@@ -7291,7 +7289,7 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 				}
 			}
 		}
-		iNum -= iFoodReduction;
+		iNum -= (iFoodReduction / 2);
 	}
 #endif
 
@@ -8505,7 +8503,18 @@ void CvCity::ChangeJONSCulturePerTurnFromBuildings(int iChange)
 int CvCity::GetJONSCulturePerTurnFromPolicies() const
 {
 	VALIDATE_OBJECT
+#ifdef FIX_POLICY_CULTURE_PER_GARRISONED_UNIT
+	if (GetGarrisonedUnit())
+	{
+		return m_iJONSCulturePerTurnFromPolicies + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON);
+	}
+	else
+	{
+		return m_iJONSCulturePerTurnFromPolicies;
+	}
+#else
 	return m_iJONSCulturePerTurnFromPolicies;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -8595,10 +8604,12 @@ int CvCity::GetFaithPerTurn() const
 #ifdef BELIEF_GREAT_WORK_YIELD_CHANGES
 	iFaith += GetFaithPerTurnFromGreatWorks();
 #endif
+#if defined BELIEF_SPECIALIST_YIELD_CHANGES || defined BELIEF_HALF_FAITH_IN_CITY
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+#endif
 #ifdef BELIEF_SPECIALIST_YIELD_CHANGES
 	CvAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -8626,6 +8637,26 @@ int CvCity::GetFaithPerTurn() const
 		iFaith *= (100 + iModifier);
 		iFaith /= 100;
 	}
+
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	if (GetCityReligions()->GetReligiousMajority() != NO_RELIGION && GC.getGame().GetGameReligions()->GetReligion(GetCityReligions()->GetReligiousMajority(), getOwner())->m_eFounder == getOwner())
+	{
+	}
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if (pReligion)
+		{
+			if (pReligion->m_eFounder == getOwner())
+			{
+				if (pReligion->m_Beliefs.IsHalfFaithInCity())
+				{
+					iFaith /= 2;
+				}
+			}
+		}
+	}
+#endif
 
 	return iFaith;
 }
@@ -8987,11 +9018,12 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 	if(iChange != 0)
 		m_iNoOccupiedUnhappinessCount += iChange;
 #ifdef CHANGE_CITY_ORIGINAL_OWNER
-	if (iChange > 0 && GC.getGame().isNetworkMultiPlayer() && getOwner() != NO_PLAYER && getOriginalOwner() != NO_PLAYER)
+	if (iChange > 0 && GC.getGame().isNetworkMultiPlayer() && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != NO_PLAYER)
 	{
-		if (!GET_PLAYER(getOriginalOwner()).isHuman() && !GET_PLAYER(getOriginalOwner()).isMinorCiv())
+		if (!GET_PLAYER(getOriginalOwner()).isHuman() && !GET_PLAYER(getOriginalOwner()).isMinorCiv() && !IsOriginalCapital())
 		{
 			setOriginalOwner(getOwner());
+			SetOccupied(false);
 		}
 	}
 #endif
@@ -9621,7 +9653,7 @@ int CvCity::GetLocalHappiness() const
 				}
 			}
 #else
-			if (plot()->isFreshWater() || plot()->isCoastalLand())
+			if (plot()->isFreshWater())
 			{
 				iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness();
 				if (eSecondaryPantheon != NO_BELIEF)
@@ -10365,24 +10397,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				iTempMod += 10;
 			}
 #endif
-#ifdef GOLDEN_AGE_SCIENCE_MODIFIER
-			if (eIndex == 3 && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_ARTISTIC_GENIUS", true)))
-			{
-				iModifier += iTempMod;
-				if (toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
-			}
-			else if (eIndex != 3)
-			{
-				iModifier += iTempMod;
-				if (toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
-			}
-#else
+#ifdef POLICY_GOLDEN_AGE_YIELD_MOD
+			iTempMod += GET_PLAYER(getOwner()).getGoldenAgeYieldModifier(eIndex);
+#endif
 			iModifier += iTempMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
-#endif
 		}
 	}
 
@@ -10552,10 +10572,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
 	iValue += GetBaseYieldRateFromReligion(eIndex);
-#ifdef GoldForTechs
-	if (isCapital() && eIndex == YIELD_GOLD)
-		iValue += GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
-#endif
 
 	return iValue;
 }
@@ -13339,40 +13355,6 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		IncrementUnitStatCount(pUnit);
 	}
 
-#ifdef FiveTrainedFreePromotion
-	std::vector<int> aPossiblePromotions;
-
-	for (int iI = 1; iI < GC.GetGamePromotions()->GetNumPromotions(); iI++)
-	{
-		// if (iI != 191)
-		aPossiblePromotions.push_back(iI);
-	}
-
-	int iNumChoices = aPossiblePromotions.size();
-	int iI = 0;
-	int iSwap;
-	if (pUnit->isHuman() && pUnit->IsCombatUnit())
-		while (iI < 5)
-		{
-			if (iNumChoices - iI > 0)
-			{
-				int iChoice = GC.getGame().getJonRandNum(iNumChoices - iI, "Random Promotion Pick");
-				PromotionTypes ePromotion = (PromotionTypes)aPossiblePromotions[iChoice];
-				CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
-				if (!promotionInfo == NULL)
-					if (!promotionInfo->IsCannotBeChosen())
-						if (!pUnit->isHasPromotion(ePromotion))
-						{
-							pUnit->setHasPromotion(ePromotion, true);
-							iSwap = aPossiblePromotions[iChoice];
-							aPossiblePromotions[iChoice] = aPossiblePromotions[iNumChoices - iI - 1];
-							aPossiblePromotions[iNumChoices - iI - 1] = iSwap;
-							iI++;
-						}
-			}
-		}
-#endif
-
 #ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
 	if (GC.getUnitInfo(eUnitType)->GetUnitCombatType() != NO_UNITCOMBAT)
 	{
@@ -13699,6 +13681,17 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			{
 				return false;
 			}
+
+#ifdef FAITH_FOR_THE_FIRST_SCIENTIST
+			const UnitClassTypes eUnitClass = (UnitClassTypes)GC.getUnitInfo(eUnitType)->GetUnitClassType();
+			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true /*bHideAssert*/))
+			{
+				if (GET_PLAYER(getOwner()).getScientistsFromFaith() > 1)
+				{
+					return false;
+				}
+			}
+#endif
 
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 			if(pkUnitInfo)

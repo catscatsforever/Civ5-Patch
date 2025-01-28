@@ -6404,7 +6404,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Cultured
 	if(eTrait == MINOR_CIV_TRAIT_CULTURED)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -6426,7 +6426,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Maritime
 	else if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -6490,7 +6490,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -6503,7 +6503,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -6516,7 +6516,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Scientific
 	if (eTrait == MINOR_CIV_TRAIT_SCIENTIFIC)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -6528,7 +6528,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Manufactory
 	else if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (bAdd)
 		{
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
@@ -8194,7 +8194,7 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 
 	int iNumTurns = GetSpawnBaseTurns(ePlayer);
 
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 	if (iNumTurns > 0)
 	{
 		// Add some randomness
@@ -8264,7 +8264,7 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 
 	// Must be Militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 #ifdef RELIGIOUS_UNITY_CS_BONUS
 	{
 		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
@@ -8273,13 +8273,13 @@ bool CvMinorCivAI::IsUnitSpawningAllowed(PlayerTypes ePlayer)
 		{
 			eMajority = m_pPlayer->getCapitalCity()->GetCityReligions()->GetReligiousMajority();
 		}
-		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)) ||
+		if (!GET_PLAYER(ePlayer).IsMinorsGiftUnits() ||
 			!(eFoundedReligion > NO_RELIGION && eFoundedReligion == eMajority && GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY"))
 				|| IsAllies(ePlayer)))
 			return false;
 	}
 #else
-		if (!GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_UNITED_FRONT", true /*bHideAssert*/)) || !IsAllies(ePlayer))
+		if (!GET_PLAYER(ePlayer).IsMinorsGiftUnits() || !IsAllies(ePlayer))
 			return false;
 #endif
 #else
@@ -8493,7 +8493,7 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 				DoSpawnUnit(eMajor);
 			}
 
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 			// Seed Counter if it hasn't been done yet in this game. We don't have to undo this at any point because the counter is not processed if we are no longer Friends
 			if (GetUnitSpawnCounter(eMajor) == -1)
 			{
@@ -8522,7 +8522,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 #endif
 		return 0;
 
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 	int iNumTurns;
 	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC && GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER) == 0)
 	{
@@ -8575,12 +8575,12 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
 	iNumTurns /= 100;
 
 	// Modify for policies
-#ifndef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifndef POLICY_MINORS_GIFT_UNITS
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iPolicyMod = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER);
 	if(iPolicyMod > 0)
 	{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 		if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 #else
 		if(GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()))
@@ -8613,7 +8613,7 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 #endif
 		return 0;
 
-#ifndef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifndef POLICY_MINORS_GIFT_UNITS
 	// This guy isn't militaristic
 	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
@@ -8621,7 +8621,7 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 
 	int iNumTurns = GetSpawnBaseTurns(ePlayer) * 100;
 
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 	if (iNumTurns > 0)
 	{
 		int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN() * 100;
@@ -10623,7 +10623,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		}
 		else if (!IsAtWarWithPlayersTeam(ePlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(eTeam))
 		{
-#ifdef UNITED_FRONT_ALL_CITIES_GIFT_UNITS
+#ifdef POLICY_MINORS_GIFT_UNITS
 #ifdef RELIGIOUS_UNITY_CS_BONUS
 			ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
 			ReligionTypes eMajority = NO_RELIGION;

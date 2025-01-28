@@ -15,7 +15,7 @@ local eStatus   = 1;
 local eHealth = 2;
 
 local m_SortMode = eName;
-local m_bSortReverse = true;
+local m_bSortReverse = false;
 
 
 -------------------------------------------------
@@ -33,7 +33,6 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 function OnClose( )
     ContextPtr:SetHide( true );
     Events.OpenInfoCorner( InfoCornerID.None );
-    m_bSortReverse = true;
 end
 Controls.CloseButton:RegisterCallback( Mouse.eLClick, OnClose );
 
@@ -172,6 +171,14 @@ function UpdateDisplay()
         if( unit:GetDomainType() == DomainTypes.DOMAIN_AIR and pCity ~= nil ) then
             sortEntry.status = pCity:GetName();
             instance.Status:SetHide( false );
+        elseif( unit:GetUnitCombatType() == 14 ) then
+            if( unit:CanParadrop(unit:GetPlot()) == true ) then
+                sortEntry.status = "TXT_KEY_CAN_PARADROP";
+                instance.Status:SetHide( false );
+            else
+                sortEntry.status = "";
+                instance.Status:SetHide( true );
+            end
         elseif( unit:IsEmbarked() ) then
             sortEntry.status = "TXT_KEY_UNIT_STATUS_EMBARKED";
             instance.Status:SetHide( false );
@@ -318,8 +325,8 @@ function SortFunction( a, b )
 			valueA = entryA.status;
 			valueB = entryB.status;
 		else -- health
-			valueA = 100 - entryA.health;
-			valueB = 100 - entryB.health;
+			valueA = entryA.unit:GetDamage();
+			valueB = entryB.unit:GetDamage();
 		end
 	    
 		if( valueA == valueB ) then
@@ -341,7 +348,7 @@ function SortFunction( a, b )
                 if ( valueA ~= valueB ) then
                     return valueA > valueB;
                 else
-                    if ( valueC ~= valueC ) then
+                    if ( valueC ~= valueD ) then
                         return valueC > valueD;
                     else
                         return healthA > healthB;
@@ -351,7 +358,7 @@ function SortFunction( a, b )
                 if ( valueA ~= valueB ) then
                     return valueB > valueA;
                 else
-                    if ( valueC ~= valueC ) then
+                    if ( valueC ~= valueD ) then
                         return valueD > valueC;
                     else
                         return healthB > healthA;
@@ -402,6 +409,7 @@ Controls.SortHealth:SetVoid1( eHealth );
 -------------------------------------------------
 function OnOpenInfoCorner( iInfoType )
     if( iInfoType == InfoCornerID.Units ) then
+        m_bSortReverse = not m_bSortReverse
         ContextPtr:SetHide( false );
         OnSort( m_SortMode );
     else
