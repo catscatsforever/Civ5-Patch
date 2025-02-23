@@ -266,6 +266,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetThemingBonus);
 	Method(GetThemingTooltip);
 
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	Method(GetFaithMod);
+#endif
 	Method(GetFaithPerTurn);
 	Method(GetFaithPerTurnFromBuildings);
 	Method(GetFaithPerTurnFromPolicies);
@@ -2302,6 +2305,14 @@ int CvLuaCity::lGetThemingTooltip(lua_State* L)
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
 }
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+//------------------------------------------------------------------------------
+//int GetFaithMod() const;
+int CvLuaCity::lGetFaithMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetFaithMod);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetFaithPerTurn() const;
 int CvLuaCity::lGetFaithPerTurn(lua_State* L)

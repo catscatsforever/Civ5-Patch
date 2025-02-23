@@ -637,7 +637,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 #endif
 #ifdef RES_AGR_COUNT
 		CvGame& kGame = GC.getGame();
-		if(kGame.isOption("GAMEOPTION_LIMITATION_RA") && (pFromTeam->getResearchAgreementCount() > 1 + GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_RATIONALISM")) || pToTeam->getResearchAgreementCount() > 1 + GET_PLAYER(eToPlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_RATIONALISM"))))
+		if(kGame.isOption("GAMEOPTION_LIMITATION_RA") && (pFromTeam->getResearchAgreementCount() > 1 || pToTeam->getResearchAgreementCount() > 1))
 			return false;
 #endif
 		// Already has RA
@@ -2962,6 +2962,18 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			{
 				kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eToPlayer);
 			}
+#ifdef ESPIONAGE_SYSTEM_REWORK
+			CvPlayerEspionage* pEspionage = toPlayer.GetEspionage();
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			{
+				PlayerTypes ePlayerToStealFrom = (PlayerTypes)iI;
+				if (pEspionage->GetNumTechsToSteal(ePlayerToStealFrom) == 0)
+				{
+					toPlayer.GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
+					toPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
+				}
+			}
+#endif
 
 			pNotifications = toPlayer.GetNotifications();
 			if(pNotifications)

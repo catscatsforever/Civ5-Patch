@@ -2515,6 +2515,17 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 	iTime *= GC.getGame().getStartEraInfo().getBuildPercent();
 	iTime /= 100;
 
+#ifdef FAST_BUILD_PREREQ_TECH
+	if (GC.getBuildInfo(eBuild)->getFastBuildPrereqTech() != NO_TECH)
+	{
+		bool bHasFastBuildTech = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getFastBuildPrereqTech());
+		if (bHasFastBuildTech)
+		{
+			iTime = 100;
+		}
+	}
+#endif
+
 	return iTime;
 }
 

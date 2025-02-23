@@ -326,6 +326,9 @@ CvPlayer::CvPlayer() :
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	, m_iGreatWorkTourismChanges(0)
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	, m_iCityScienceSquaredModPerXPop(0)
+#endif
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
 	, m_iUnitUpgradeCostMod("CvPlayer::m_iUnitUpgradeCostMod", m_syncArchive)
@@ -512,7 +515,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumCitiesPolicyCostDiscount(0)
 	, m_iGarrisonedCityRangeStrikeModifier(0)
 	, m_iGarrisonFreeMaintenanceCount(0)
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	, m_ppaaiBuildingScecialistCountChange("CvPlayer::m_ppaaiBuildingScecialistCountChange", m_syncArchive)
 #endif
 	, m_iNumCitiesFreeCultureBuilding(0)
@@ -1170,6 +1173,9 @@ void CvPlayer::uninit()
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	m_iGreatWorkTourismChanges = 0;
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	m_iCityScienceSquaredModPerXPop = 0;
+#endif
 	m_iSpecialPolicyBuildingHappiness = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
@@ -1364,7 +1370,7 @@ void CvPlayer::uninit()
 	m_iGarrisonedCityRangeStrikeModifier = 0;
 	m_iGarrisonFreeMaintenanceCount = 0;
 	m_iNumCitiesFreeCultureBuilding = 0;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	m_ppaaiBuildingScecialistCountChange.clear();
 #endif
 	m_iNumCitiesFreeFoodBuilding = 0;
@@ -1661,7 +1667,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			}
 		}
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 		Firaxis::Array< int, NUM_SPECILIST_TYPES > specialist;
 		for (unsigned int j = 0; j < NUM_SPECILIST_TYPES; ++j)
 		{
@@ -2530,7 +2536,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(bConquest)
 	{
 #ifdef POLICY_DO_TECH_FROM_CITY_CONQ
-		if (IsPolicyTechFromCityConquer() && !GET_PLAYER(pOldCity->getOwner()).isMinorCiv() && !pOldCity->IsPuppet() && (!pOldCity->IsOccupied() || pOldCity->IsNoOccupiedUnhappiness()))
+		if (IsPolicyTechFromCityConquer() && !GET_PLAYER(pOldCity->getOwner()).isMinorCiv() && !pOldCity->IsPuppet() && pOldCity->getPopulation() > 4 && (!pOldCity->IsOccupied() || pOldCity->IsNoOccupiedUnhappiness()))
 #else
 		if (GetPlayerTraits()->IsTechFromCityConquer())
 #endif
@@ -9916,24 +9922,24 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			{
 				for(uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
 				{
-					pEspionage->LevelUpSpy(ui);
-				}
-			}
 #ifdef NEW_DIPLOMATS_MISSIONS
-			if (pEspionage)
-			{
-				for (uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
-				{
 					CvCity* pCity = pEspionage->GetCityWithSpy(ui);
 					int iSurveillanceSightRange = GetEspionage()->SurveillanceSightRange(pCity);
 					if (iSurveillanceSightRange > 0)
 					{
-						pCity->plot()->changeSightInRing(getTeam(), iSurveillanceSightRange - iChange, false, NO_INVISIBLE);
+						pCity->plot()->changeSightInRing(getTeam(), iSurveillanceSightRange, false, NO_INVISIBLE);
+					}
+#endif
+					pEspionage->LevelUpSpy(ui);
+#ifdef NEW_DIPLOMATS_MISSIONS
+					iSurveillanceSightRange = GetEspionage()->SurveillanceSightRange(pCity);
+					if (iSurveillanceSightRange > 0)
+					{
 						pCity->plot()->changeSightInRing(getTeam(), iSurveillanceSightRange, true, NO_INVISIBLE);
 					}
+#endif
 				}
 			}
-#endif
 		}
 
 		if(pBuildingInfo->GetSpyRankChange() > 0)
@@ -12010,7 +12016,7 @@ int CvPlayer::GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 	return iSum;
 }
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2) const
 {
@@ -15160,6 +15166,27 @@ void CvPlayer::ChangeGreatWorkTourismChanges(int iChange)
 	if (m_iGreatWorkTourismChanges < 0)
 	{
 		m_iGreatWorkTourismChanges = 0;
+	}
+}
+#endif
+
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+//	--------------------------------------------------------------------------------
+///
+int CvPlayer::GetCityScienceSquaredModPerXPop() const
+{
+	return m_iCityScienceSquaredModPerXPop;
+}
+
+//	--------------------------------------------------------------------------------
+///
+void CvPlayer::ChangeCityScienceSquaredModPerXPop(int iChange)
+{
+	m_iCityScienceSquaredModPerXPop += iChange;
+	CvAssert(m_iCityScienceSquaredModPerXPop >= 0);
+	if (m_iCityScienceSquaredModPerXPop < 0)
+	{
+		m_iCityScienceSquaredModPerXPop = 0;
 	}
 }
 #endif
@@ -25244,7 +25271,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
 		for (iJ = 0; iJ < NUM_SPECILIST_TYPES; iJ++)
@@ -25289,6 +25316,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	ChangeGreatWorkTourismChanges(pPolicy->GetGreatWorkTourismChanges() * iChange);
+#endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	ChangeCityScienceSquaredModPerXPop(pPolicy->GetCityScienceSquaredModPerXPop()* iChange);
 #endif
 
 	// Not really techs but this is what we use (for now)
@@ -26820,6 +26850,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 #endif
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1011)
+	{
+#endif
+		kStream >> m_iCityScienceSquaredModPerXPop;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iCityScienceSquaredModPerXPop = 0;
+	}
+#endif
+#endif
 	kStream >> m_iSpecialPolicyBuildingHappiness;
 	kStream >> m_iWoundedUnitDamageMod;
 	kStream >> m_iUnitUpgradeCostMod;
@@ -27188,7 +27232,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iNumCitiesPolicyCostDiscount;
 	kStream >> m_iGarrisonFreeMaintenanceCount;
 	kStream >> m_iGarrisonedCityRangeStrikeModifier;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	if (uiVersion >= 1010)
 	{
@@ -27857,6 +27901,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	kStream << m_iGreatWorkTourismChanges;
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	kStream << m_iCityScienceSquaredModPerXPop;
+#endif
 	kStream << m_iSpecialPolicyBuildingHappiness;
 	kStream << m_iWoundedUnitDamageMod;
 	kStream << m_iUnitUpgradeCostMod;
@@ -28045,7 +28092,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumCitiesPolicyCostDiscount;
 	kStream << m_iGarrisonFreeMaintenanceCount;
 	kStream << m_iGarrisonedCityRangeStrikeModifier;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	kStream << m_ppaaiBuildingScecialistCountChange;
 #endif
 	kStream << m_iNumCitiesFreeCultureBuilding;

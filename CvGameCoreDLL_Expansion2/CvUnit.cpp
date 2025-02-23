@@ -11880,6 +11880,21 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if (kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+#ifdef GP_EXPENDED_GA
+	// Golden Age gained
+	ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+	if (eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
+		if (pReligion)
+		{
+			if (kPlayer.isGoldenAge())
+			{
+				iModifier += pReligion->m_Beliefs.GetGoldenAgeCombatMod();
+			}
+		}
+	}
+#endif
 
 #ifdef FUTURE_TECH_RESEARCHING_BONUSES
 	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
@@ -12239,6 +12254,21 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+#ifdef GP_EXPENDED_GA
+	// Golden Age gained
+	ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+	if (eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
+		if (pReligion)
+		{
+			if (kPlayer.isGoldenAge())
+			{
+				iModifier += pReligion->m_Beliefs.GetGoldenAgeCombatMod();
+			}
+		}
+	}
+#endif
 
 #ifdef FUTURE_TECH_RESEARCHING_BONUSES
 	iModifier += 10 * GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));

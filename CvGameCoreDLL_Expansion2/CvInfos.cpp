@@ -3675,6 +3675,9 @@ CvBuildInfo::CvBuildInfo() :
 	m_iCost(0),
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
+#ifdef FAST_BUILD_PREREQ_TECH
+	m_iFastBuildPrereqTech(NO_TECH),
+#endif
 	m_iImprovement(NO_IMPROVEMENT),
 	m_iRoute(NO_ROUTE),
 	m_iEntityEvent(ENTITY_EVENT_NONE),
@@ -3728,6 +3731,13 @@ int CvBuildInfo::getTechPrereq() const
 {
 	return m_iTechPrereq;
 }
+#ifdef FAST_BUILD_PREREQ_TECH
+//------------------------------------------------------------------------------
+int CvBuildInfo::getFastBuildPrereqTech() const
+{
+	return m_iFastBuildPrereqTech;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvBuildInfo::getImprovement() const
 {
@@ -3847,6 +3857,11 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	const char* szPrereqTech = kResults.GetText("PrereqTech");
 	m_iTechPrereq = GC.getInfoTypeForString(szPrereqTech, true);
+
+#ifdef FAST_BUILD_PREREQ_TECH
+	const char* szFastBuildPrereqTech = kResults.GetText("FastBuildPrereqTech");
+	m_iFastBuildPrereqTech = GC.getInfoTypeForString(szFastBuildPrereqTech, true);
+#endif
 
 	const char* szImprovementType = kResults.GetText("ImprovementType");
 	m_iImprovement = GC.getInfoTypeForString(szImprovementType, true);

@@ -232,6 +232,11 @@ void CvPlayerEspionage::DoTurn()
 				m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
 			}
 		}
+		if (pEspionage->GetNumTechsToSteal(ePlayerToStealFrom) == 0)
+		{
+			m_pPlayer->GetEspionage()->m_aaPlayerScienceToStealList[ePlayerToStealFrom].clear();
+			m_pPlayer->GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] = 0;
+		}
 	}
 #endif
 #ifdef BUILD_STEALABLE_TECH_LIST_ONCE_PER_TURN
@@ -2315,6 +2320,16 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 			pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 		}
 	}
+
+#ifdef AUTO_PEACE_WITH_MINOR_ON_COUP
+	if (iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
+	{
+		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eCityOwner).getTeam()))
+		{
+			GET_TEAM(m_pPlayer->getTeam()).makePeace(GET_PLAYER(eCityOwner).getTeam());
+		}
+	}
+#endif
 
 	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), aiNewInfluenceValueTimes100[m_pPlayer->GetID()]);
 	pMinorCivAI->SetDisableNotifications(false);

@@ -559,7 +559,7 @@ public:
 
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	int getBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2) const;
 	void changeBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2, int iChange);
 #endif
@@ -782,6 +782,11 @@ public:
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	int GetGreatWorkTourismChanges() const;
 	void ChangeGreatWorkTourismChanges(int iChange);
+#endif
+
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	int GetCityScienceSquaredModPerXPop() const;
+	void ChangeCityScienceSquaredModPerXPop(int iChange);
 #endif
 
 	bool IsAnarchy() const;
@@ -2117,6 +2122,9 @@ protected:
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	int m_iGreatWorkTourismChanges;
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	int m_iCityScienceSquaredModPerXPop;
+#endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
@@ -2302,7 +2310,7 @@ protected:
 	int m_iNumCitiesPolicyCostDiscount;
 	int m_iGarrisonedCityRangeStrikeModifier;
 	int m_iGarrisonFreeMaintenanceCount;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_SPECILIST_TYPES > >, CvPlayer> m_ppaaiBuildingScecialistCountChange;
 #endif
 	int m_iNumCitiesFreeCultureBuilding;

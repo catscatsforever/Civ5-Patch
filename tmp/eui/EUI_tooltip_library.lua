@@ -2079,6 +2079,20 @@ local function GetFaithTooltip( city )
 		-- Puppet modifier
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
 
+		local iMod = 0;
+		iMod = city:GetFaithMod()
+
+		if (iMod ~= 0) then
+			tips:insert( "----------------")
+			-- Base Total
+			local baseFaithPerTurn = city:GetFaithPerTurnFromBuildings() + city:GetFaithPerTurnFromTraits() + city:GetBaseYieldRateFromTerrain( YieldTypes.YIELD_FAITH ) + city:GetFaithPerTurnFromPolicies() + city:GetFaithPerTurnFromReligion()
+			tips:insertLocalized( "TXT_KEY_YIELD_BASE", baseFaithPerTurn, "[ICON_PEACE]" )
+			tips:insert( "" )
+
+			-- Faith modifier
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_PLAYER_MOD", iMod )
+		end
+
 		-- Citizens breakdown
 		tips:insert( "----------------")
 		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", city:GetFaithPerTurn(), "[ICON_PEACE]" )

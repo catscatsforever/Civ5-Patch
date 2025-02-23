@@ -774,6 +774,15 @@ function GetFaithTooltip(pCity)
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));
 			end
 		end
+
+		local iMod = 0;
+		iMod = pCity:GetFaithMod()
+
+		if (iMod ~= 0) then
+			table.insert(faithTips, "");
+			-- Faith modifier
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_PLAYER_MOD", iMod));
+		end
 	
 		-- Citizens breakdown
 		table.insert(faithTips, "----------------");

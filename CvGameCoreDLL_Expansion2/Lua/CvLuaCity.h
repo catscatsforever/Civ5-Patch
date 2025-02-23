@@ -266,6 +266,9 @@ protected:
 	static int lGetThemingBonus(lua_State* L);
 	static int lGetThemingTooltip(lua_State* L);
 
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	static int lGetFaithMod(lua_State* L);
+#endif
 	static int lGetFaithPerTurn(lua_State* L);
 	static int lGetFaithPerTurnFromBuildings(lua_State* L);
 	static int lGetFaithPerTurnFromPolicies(lua_State* L);

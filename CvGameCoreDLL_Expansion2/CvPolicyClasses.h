@@ -234,7 +234,7 @@ public:
 	int GetImprovementYieldChanges(int i, int j) const;
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	int GetBuildingScecialistCountChanges(int i, int j) const;
 #endif
 	int GetFlavorValue(int i) const;
@@ -282,6 +282,9 @@ public:
 #endif
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	int GetGreatWorkTourismChanges() const;
+#endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	int GetCityScienceSquaredModPerXPop() const;
 #endif
 
 private:
@@ -482,6 +485,9 @@ private:
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	int m_iGreatWorkTourismChanges;
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	int m_iCityScienceSquaredModPerXPop;
+#endif
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -522,7 +528,7 @@ private:
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	int** m_ppiBuildingScecialistCountChange;
 #endif
 	int* m_piFlavorValue;

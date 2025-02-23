@@ -204,7 +204,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	m_ppiBuildingScecialistCountChange(NULL),
 #endif
 	m_piFlavorValue(NULL),
@@ -246,6 +246,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 #endif
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	m_iGreatWorkTourismChanges(0),
+#endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	m_iCityScienceSquaredModPerXPop(0),
 #endif
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
@@ -291,7 +294,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingScecialistCountChange);
 #endif
 }
@@ -509,6 +512,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #ifdef POLICY_GREAT_WORK_TOURISM_CHANGES
 	m_iGreatWorkTourismChanges = kResults.GetInt("GreatWorkTourismChanges");
 #endif
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+	m_iCityScienceSquaredModPerXPop = kResults.GetInt("CityScienceSquaredModPerXPop");
+#endif
 
 	//Arrays
 	const char* szPolicyType = GetType();
@@ -594,7 +600,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 	}
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	//BuildingScecialistCountChange
 	{
 		kUtility.Initialize2DArray(m_ppiBuildingScecialistCountChange, "Buildings", "Specialists");
@@ -1921,7 +1927,7 @@ int CvPolicyEntry::GetBuildingClassYieldChanges(int i, int j) const
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
 
-#ifdef POLICY_BUILDING_SPECIALIST_COUNT_CHANGE
+#ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 ///
 int CvPolicyEntry::GetBuildingScecialistCountChanges(int i, int j) const
 {
@@ -2072,6 +2078,14 @@ int CvPolicyEntry::GetHappinessPerCity() const
 int CvPolicyEntry::GetGreatWorkTourismChanges() const
 {
 	return m_iGreatWorkTourismChanges;
+}
+#endif
+
+#ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
+///
+int CvPolicyEntry::GetCityScienceSquaredModPerXPop() const
+{
+	return m_iCityScienceSquaredModPerXPop;
 }
 #endif
 

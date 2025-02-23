@@ -396,7 +396,9 @@ public:
 	void changeCultureRateModifier(int iChange);
 
 	// END Culture
-
+#ifdef BELIEF_HALF_FAITH_IN_CITY
+	int GetFaithMod() const;
+#endif
 	int GetFaithPerTurn() const;
 	int GetFaithPerTurnFromBuildings() const;
 	void ChangeFaithPerTurnFromBuildings(int iChange);
