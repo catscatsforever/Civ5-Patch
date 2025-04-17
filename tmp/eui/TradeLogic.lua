@@ -1434,8 +1434,13 @@ function OnOpenPlayerDealScreen( playerID )
 		g_Deal:SetFromPlayer( g_iUs )
 		g_Deal:SetToPlayer( g_iThem )
 		if isAtWar then
-			g_Deal:AddPeaceTreaty( g_iUs, g_iPeaceDuration )
-			g_Deal:AddPeaceTreaty( g_iThem, g_iPeaceDuration )
+        	if g_pUs:IsHuman() and g_pThem:IsHuman() then
+				g_Deal:AddPeaceTreaty( g_iUs, g_iPeaceDuration )
+				g_Deal:AddPeaceTreaty( g_iThem, g_iPeaceDuration )
+			else
+				g_Deal:AddPeaceTreaty( g_iUs, 5 )
+				g_Deal:AddPeaceTreaty( g_iThem, 5 )
+			end
 
 			for iLoopMinor = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 				pLoopMinor = Players[ iLoopMinor ];
@@ -2208,7 +2213,11 @@ end --bnw_mode
 -- handlers for when a leader is clicked
 ----------------------------------------------------
 local function AddThirdPartyPeace( firstPartyID, playerID )
-	g_Deal:AddThirdPartyPeace( firstPartyID, Players[ playerID ]:GetTeam(), g_iPeaceDuration )
+	if Players[ firstPartyID ]:IsHuman() and Players[ playerID ]:IsHuman() then
+		g_Deal:AddThirdPartyPeace( firstPartyID, Players[ playerID ]:GetTeam(), g_iPeaceDuration )
+	else
+		g_Deal:AddThirdPartyPeace( firstPartyID, Players[ playerID ]:GetTeam(), 5 )
+	end
 	DoUIDealChangedByHuman()
 end
 
@@ -2303,11 +2312,20 @@ for tradeableItem, controls in pairs( g_itemControls ) do
 	table_insert( g_tableControls, controls[4] )
 end
 
-Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
-Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
-Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
-Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
-Controls.UsTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration )
-Controls.ThemTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration )
+if g_pUs and g_pThem and g_pUs:IsHuman() and g_pThem:IsHuman() then
+	Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
+	Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
+	Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
+	Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_iPeaceDuration )
+	Controls.UsTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration )
+	Controls.ThemTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration )
+else
+	Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 5 )
+	Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 5 )
+	Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 5 )
+	Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", 5 )
+	Controls.UsTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", 5 )
+	Controls.ThemTablePeaceTreaty:LocalizeAndSetText( "TXT_KEY_DIPLO_PEACE_TREATY", 5 )
+end
 
 DisplayDeal()

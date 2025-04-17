@@ -301,8 +301,13 @@ function OnOpenPlayerDealScreen( iOtherPlayer )
     	g_Deal:SetToPlayer( g_iThem );
     	
         if( g_pUsTeam:IsAtWar( g_iThemTeam ) ) then
-            g_Deal:AddPeaceTreaty( g_iUs, GameDefines.PEACE_TREATY_LENGTH );
-            g_Deal:AddPeaceTreaty( g_iThem, GameDefines.PEACE_TREATY_LENGTH );
+        	if g_pUs:IsHuman() and g_pThem:IsHuman() then
+            	g_Deal:AddPeaceTreaty( g_iUs, GameDefines.PEACE_TREATY_LENGTH );
+            	g_Deal:AddPeaceTreaty( g_iThem, GameDefines.PEACE_TREATY_LENGTH );
+			else
+            	g_Deal:AddPeaceTreaty( g_iUs, 5 );
+            	g_Deal:AddPeaceTreaty( g_iThem, 5 );
+			end
 
             for iLoopMinor = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 				pLoopMinor = Players[ iLoopMinor ];
@@ -2018,7 +2023,12 @@ function DisplayDeal()
         end
         
         if( TradeableItems.TRADE_ITEM_PEACE_TREATY == itemType ) then
-			local str = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration);
+        	local str;
+        	if g_pUs:IsHuman() and g_pThem:IsHuman() then
+				str = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration);
+			else
+				str = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_TREATY", 5);
+			end
             if( bFromUs ) then
 				Controls.UsTablePeaceTreaty:SetText(str);
                 Controls.UsTablePeaceTreaty:SetHide( false );
@@ -3413,7 +3423,11 @@ function LeaderSelected( iOtherPlayer, isUs )
 	if( mode == WAR ) then
     	g_Deal:AddThirdPartyWar( iWho, iOtherTeam );
 	else
-    	g_Deal:AddThirdPartyPeace( iWho, iOtherTeam, GameDefines.PEACE_TREATY_LENGTH );
+		if Players[ iWho ]:IsHuman() and pOtherPlayer:IsHuman() then
+    		g_Deal:AddThirdPartyPeace( iWho, iOtherTeam, GameDefines.PEACE_TREATY_LENGTH );
+		else
+    		g_Deal:AddThirdPartyPeace( iWho, iOtherTeam, 5 );
+		end
     end
     
     DisplayDeal();

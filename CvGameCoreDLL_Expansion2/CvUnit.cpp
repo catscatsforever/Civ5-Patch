@@ -284,6 +284,9 @@ CvUnit::CvUnit() :
 #endif
 	, m_bPromotionReady("CvUnit::m_bPromotionReady", m_syncArchive)
 	, m_bDeathDelay("CvUnit::m_bDeathDelay", m_syncArchive)
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+	, m_bIsUpgrade("CvUnit::m_bIsUpgrade", m_syncArchive)
+#endif
 	, m_bCombatFocus("CvUnit::m_bCombatFocus", m_syncArchive)
 	, m_bInfoBarDirty("CvUnit::m_bInfoBarDirty", m_syncArchive)
 	, m_bNotConverting("CvUnit::m_bNotConverting", m_syncArchive)
@@ -360,10 +363,10 @@ CvUnit::~CvUnit()
 
 
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, bool bIsGifted)
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, bool bIsUpgrade)
 {
-	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, bIsGifted);
+	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, bIsUpgrade);
 }
 #else
 void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped)
@@ -374,8 +377,8 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 
 // ---------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, bool bIsGifted)
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, bool bIsUpgrade)
 #else
 void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
 #endif
@@ -433,33 +436,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	plot()->updateCenterUnit();
 
 	SetGreatWork(NO_GREAT_WORK);
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-	if (!bIsGifted)
-	{
-		iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
-		int iNumNames = getUnitInfo().GetNumUnitNames();
-		if(iUnitName < iNumNames)
-		{
-			if(iNameOffset == -1)
-			{
-				iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection");
-			}
-	
-			for(iI = 0; iI < iNumNames; iI++)
-			{
-				int iIndex = (iNameOffset + iI) % iNumNames;
-				CvString strName = getUnitInfo().GetUnitNames(iIndex);
-				if(!GC.getGame().isGreatPersonBorn(strName))
-				{
-					setName(strName);
-					SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
-					GC.getGame().addGreatPersonBornName(strName);
-					break;
-				}
-			}
-		}
-	}
-#else
 	iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
 	int iNumNames = getUnitInfo().GetNumUnitNames();
 	if(iUnitName < iNumNames)
@@ -482,7 +458,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
-#endif
 
 	setGameTurnCreated(GC.getGame().getGameTurn());
 
@@ -508,6 +483,19 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	kPlayer.changeExtraUnitCost(getUnitInfo().GetExtraMaintenanceCost());
 
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+	if (!bIsUpgrade)
+	{
+		// Add Resource Quantity to Used
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			if (getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
+			{
+				kPlayer.changeNumResourceUsed((ResourceTypes)iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+			}
+		}
+	}
+#else
 	// Add Resource Quantity to Used
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -516,6 +504,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
+#endif
 
 	if(getUnitInfo().GetNukeDamageLevel() != -1)
 	{
@@ -711,12 +700,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		kPlayer.GetUnitCycler().AddUnit( GetID() );
 	}
 
-	// Message for World Unit being born
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-	if (!bIsGifted && isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
-#else
-	if(isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
-#endif
+	// Message for World Unit being
+	if (isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
 	{
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -753,11 +738,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	kPlayer.UpdateUnitProductionMaintenanceMod();
 
 	// Minor Civ quest
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-	if (!bIsGifted && !kPlayer.isMinorCiv() && !isBarbarian())
-#else
 	if(!kPlayer.isMinorCiv() && !isBarbarian())
-#endif
 	{
 		PlayerTypes eMinor;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
@@ -956,6 +937,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_bPromotionReady = false;
 	m_bDeathDelay = false;
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+	m_bIsUpgrade = false;
+#endif
 	m_bCombatFocus = false;
 	m_bInfoBarDirty = false;
 	m_bNotConverting = false;
@@ -1242,26 +1226,6 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	SetCultureBombStrength(pUnit->GetCultureBombStrength());
 #endif
 	SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-#ifdef NEW_SCIENTISTS_BULB
-	SetResearchBulbAmount(pUnit->GetResearchBulbAmount());
-#endif
-	SetGreatWork(pUnit->GetGreatWork());
-	m_iAttacksMade = pUnit->m_iAttacksMade;
-	m_iMadeInterceptionCount = pUnit->m_iMadeInterceptionCount;
-	setSetUpForRangedAttack(pUnit->isSetUpForRangedAttack());
-
-	if (pUnit->getOwner() != pUnit->GetOriginalOwner())
-	{
-		SetOriginalOwner(pUnit->GetOriginalOwner());
-	}
-
-	SetImmobile(pUnit->IsImmobile());
-
-	GetReligionData()->SetReligion(pUnit->GetReligionData()->GetReligion());
-	GetReligionData()->SetSpreadsLeft(pUnit->GetReligionData()->GetSpreadsLeft());
-	GetReligionData()->SetReligiousStrength(pUnit->GetReligionData()->GetReligiousStrength());
-#endif
 
 #ifdef GIFTED_UNITS_ATTACK
 	m_iAttacksMade = pUnit->m_iAttacksMade;
@@ -1566,6 +1530,19 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if(pPlot)
 		pPlot->removeUnit(this, false);
 
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+	if (!m_bIsUpgrade)
+	{
+		// Remove Resource Quantity from Used
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			if (getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
+			{
+				GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes)iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
+			}
+		}
+	}
+#else
 	// Remove Resource Quantity from Used
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -1574,6 +1551,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
+#endif
 
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
@@ -3737,11 +3715,7 @@ void CvUnit::gift(bool bTestTransport)
 	}
 
 	CvAssertMsg(plot()->getOwner() != NO_PLAYER, "plot()->getOwner() is not expected to be equal with NO_PLAYER");
-#ifdef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-	pGiftUnit = GET_PLAYER(plot()->getOwner()).initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), NO_DIRECTION, false, false, DEFAULT_UNIT_MAP_LAYER, 0, true);
-#else
 	pGiftUnit = GET_PLAYER(plot()->getOwner()).initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), NO_DIRECTION, false, false);
-#endif
 
 	CvAssertMsg(pGiftUnit != NULL, "GiftUnit is not assigned a valid value");
 
@@ -3751,12 +3725,6 @@ void CvUnit::gift(bool bTestTransport)
 
 		pGiftUnit->convert(this, false);
 		pGiftUnit->setupGraphical();
-
-#ifndef AUI_UNIT_FIX_GIFTED_UNITS_ARE_GIFTED_NOT_CLONED
-		pGiftUnit->GetReligionData()->SetReligion(GetReligionData()->GetReligion());
-		pGiftUnit->GetReligionData()->SetReligiousStrength(GetReligionData()->GetReligiousStrength());
-		pGiftUnit->GetReligionData()->SetSpreadsLeft(GetReligionData()->GetSpreadsLeft());
-#endif
 
 		if(pGiftUnit->getOwner() == GC.getGame().getActivePlayer())
 		{
@@ -10250,7 +10218,11 @@ CvUnit* CvUnit::DoUpgrade()
 	thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
 
 	// Add newly upgraded Unit & kill the old one
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, NO_DIRECTION, false, false, 0, 0, true);
+#else
 	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, NO_DIRECTION, false, false);
+#endif
 
 	if(NULL != pNewUnit)
 	{
@@ -10287,6 +10259,16 @@ CvUnit* CvUnit::DoUpgrade()
 
 		// Can't move after upgrading
 		pNewUnit->finishMoves();
+
+#ifdef UNIT_UPGRADE_NUM_RESOURE_USED_CHANGE
+		// Remove Resource Quantity from Used
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes)iResourceLoop, pNewUnit->getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) - getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
+		}
+
+		m_bIsUpgrade = true;
+#endif
 
 		kill(true);
 	}

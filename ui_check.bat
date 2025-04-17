@@ -1,7 +1,7 @@
 @ECHO off
 pushd "%~dp0"
 cd ..
-set patchfolder=Tournament Mod V10.5d
+set patchfolder=Tournament Mod V10.5g
 del /q "%cd%\%patchfolder%\UI\"
 REM -------------------------------------------------
 copy /y "%cd%\%patchfolder%\tmp\ui\CultureOverview.lua" "%cd%\%patchfolder%\UI\CultureOverview.lua" > nul
@@ -253,4 +253,12 @@ IF EXIST "%cd%\UI_bc1\CityView\CityView_small.xml" (
 ) ELSE (
   copy /y "%cd%\%patchfolder%\tmp\ui\CityView_small.xml" "%cd%\%patchfolder%\UI\CityView_small.xml" > nul
 )
+
+REM -------------------------------------------------
+IF EXIST "%cd%\UI_bc1\Improvements\YieldIconManager.lua" (
+  copy /y "%cd%\%patchfolder%\tmp\eui\YieldIconManager.lua" "%cd%\%patchfolder%\UI\YieldIconManager.lua" > nul
+) ELSE (
+  copy /y "%cd%\%patchfolder%\tmp\ui\YieldIconManager.lua" "%cd%\%patchfolder%\UI\YieldIconManager.lua" > nul
+)
+
 EXIT
