@@ -369,6 +369,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetFriendlyLandsModifier);
 	Method(GetFriendlyLandsAttackModifier);
 	Method(GetOutsideFriendlyLandsModifier);
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	Method(GetNavalCombatModifierNearCity);
+#endif
 	Method(GetExtraCityAttackPercent);
 	Method(GetExtraCityDefensePercent);
 	Method(GetExtraHillsAttackPercent);
@@ -1759,7 +1762,16 @@ int CvLuaUnit::lWorkRate(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bMax = lua_toboolean(L, 2);
 
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	int iCityWorkRate = 0;
+	if (pkUnit->plot() && pkUnit->plot()->getWorkingCity())
+	{
+		iCityWorkRate = pkUnit->plot()->getWorkingCity()->getCityTileWorkSpeedModifier();
+	}
+	const int iResult = pkUnit->workRate(bMax, iCityWorkRate);
+#else
 	const int iResult = pkUnit->workRate(bMax);
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3642,6 +3654,31 @@ int CvLuaUnit::lGetOutsideFriendlyLandsModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+//------------------------------------------------------------------------------
+//int GetNavalCombatModifierNearCity();
+int CvLuaUnit::lGetNavalCombatModifierNearCity(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	int iRtnValue = 0;
+
+	if (pkUnit->getDomainType() == DOMAIN_SEA)
+	{
+		if (pkPlot)
+		{
+			CvCity* pPlotCity = pkPlot->getWorkingCity();
+			if (pPlotCity)
+			{
+				iRtnValue = pPlotCity->getNavalCombatModifierNearCity();
+			}
+		}
+	}
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getExtraCityAttackPercent();
 int CvLuaUnit::lGetExtraCityAttackPercent(lua_State* L)

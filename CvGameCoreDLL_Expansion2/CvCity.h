@@ -347,15 +347,19 @@ public:
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
 
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	int getCityAttackRangeModifier() const;
 	void changeCityAttackRangeModifier(int iChange);
 #endif
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	int getCityExtraAttack() const;
 	void changeCityExtraAttack(int iChange);
 	int getCityCurrentExtraAttack() const;
 	void changeCityCurrentExtraAttack(int iChange);
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	int getCityExtraHeal() const;
+	void changeCityExtraHeal(int iChange);
 #endif
 
 	// Culture stuff
@@ -586,6 +590,11 @@ public:
 
 	int getRiverPlotYield(YieldTypes eIndex) const;
 	void changeRiverPlotYield(YieldTypes eIndex, int iChange);
+
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	int getNearMountainYield(YieldTypes eIndex) const;
+	void changeNearMountainYield(YieldTypes eIndex, int iChange);
+#endif
 
 	int getLakePlotYield(YieldTypes eIndex) const;
 	void changeLakePlotYield(YieldTypes eIndex, int iChange);
@@ -842,6 +851,59 @@ public:
 	void			clearCombat();
 	bool			isFighting() const;
 
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	int getFaithToScience() const;
+	void changeFaithToScience(int iChange);
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	int getCityTileWorkSpeedModifier() const;
+	void changeCityTileWorkSpeedModifier(int iChange);
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int getBuildingHurryCostModifier() const;
+	void changeBuildingHurryCostModifier(int iChange);
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	int getGrowthGold() const;
+	void changeGrowthGold(int iChange);
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	int getSciencePerXPop() const;
+	void changeSciencePerXPop(int iChange);
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	int getCulturePerXAncientBuildings() const;
+	void changeCulturePerXAncientBuildings(int iChange);
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	int getNoHolyCityAndNoOccupiedUnhappiness() const;
+	void changeNoHolyCityAndNoOccupiedUnhappiness(int iChange);
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	int getNearbyEnemyDamage() const;
+	void changeNearbyEnemyDamage(int iChange);
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	int getNavalCombatModifierNearCity() const;
+	void changeNavalCombatModifierNearCity(int iChange);
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	int getHappinessForFilledGreatWorkSlot() const;
+	void changeHappinessForFilledGreatWorkSlot(int iChange);
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	int getFoodBonusIfNoCitiesAround() const;
+	void changeFoodBonusIfNoCitiesAround(int iChange);
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	int getLocalCityConnectionTradeRouteModifier() const;
+	void changeLocalCityConnectionTradeRouteModifier(int iChange);
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	int getNonAirUnitMaxHeal() const;
+	void changeNonAirUnitMaxHeal(int iChange);
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -865,12 +927,15 @@ protected:
 	FAutoVariable<int, CvCity> m_iNumGreatPeople;
 	FAutoVariable<int, CvCity> m_iBaseGreatPeopleRate;
 	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	FAutoVariable<int, CvCity> m_iCityAttackRangeModifier;
 #endif
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	FAutoVariable<int, CvCity> m_iCityExtraAttack;
 	FAutoVariable<int, CvCity> m_iCityCurrentExtraAttack;
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	FAutoVariable<int, CvCity> m_iCityExtraHeal;
 #endif
 	FAutoVariable<int, CvCity> m_iJONSCultureStored;
 	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
@@ -1030,6 +1095,49 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abYieldRankValid;
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
+
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	FAutoVariable<int, CvCity> m_iFaithToScience;
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	FAutoVariable<int, CvCity> m_iCityTileWorkSpeedModifier;
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	FAutoVariable<int, CvCity> m_iBuildingHurryCostModifier;
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	FAutoVariable<int, CvCity> m_iGrowthGold;
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	FAutoVariable<int, CvCity> m_iSciencePerXPop;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	FAutoVariable<int, CvCity> m_iCulturePerXAncientBuildings;
+#endif
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	FAutoVariable<std::vector<int>, CvCity> m_aiNearMountainYield;
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	FAutoVariable<int, CvCity> m_iNoHolyCityAndNoOccupiedUnhappiness;
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	FAutoVariable<int, CvCity> m_iNearbyEnemyDamage;
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	FAutoVariable<int, CvCity> m_iNavalCombatModifierNearCity;
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	FAutoVariable<int, CvCity> m_iHappinessForFilledGreatWorkSlot;
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	FAutoVariable<int, CvCity> m_iFoodBonusIfNoCitiesAround;
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	FAutoVariable<int, CvCity> m_iLocalCityConnectionTradeRouteModifier;
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	FAutoVariable<int, CvCity> m_iNonAirUnitMaxHeal;
+#endif
 
 	void doGrowth();
 	void doProduction(bool bAllowNoProduction);

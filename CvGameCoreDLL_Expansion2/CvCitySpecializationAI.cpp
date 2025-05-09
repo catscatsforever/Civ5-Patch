@@ -1358,7 +1358,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	int iYieldChanges = pCity->GetBaseYieldRateFromBuildings(eYield);
 	if (eYield == YIELD_PRODUCTION)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_FACTORY", true);
+		BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(pCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 		if (pCity->isCityHasCoal())
 		{
 			iYieldChanges += (GC.getBuildingInfo(eBuilding)->GetYieldChange(YIELD_PRODUCTION) + pCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding)->GetBuildingClassType(), YIELD_PRODUCTION)) * pCity->GetCityBuildings()->GetNumBuilding(eBuilding);

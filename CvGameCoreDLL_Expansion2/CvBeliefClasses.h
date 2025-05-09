@@ -58,7 +58,7 @@ public:
 	int GetProphetStrengthModifier() const;
 	int GetProphetCostModifier() const;
 	int GetMissionaryStrengthModifier() const;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	int GetExtraTradeRoutes() const;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -169,7 +169,7 @@ protected:
 	int m_iProphetStrengthModifier;
 	int m_iProphetCostModifier;
 	int m_iMissionaryStrengthModifier;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	int m_iExtraTradeRoutes;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -359,7 +359,7 @@ public:
 	{
 		return m_iMissionaryStrengthModifier;
 	};
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	int GetExtraTradeRoutes() const
 	{
 		return m_iExtraTradeRoutes;
@@ -520,7 +520,7 @@ private:
 	int m_iProphetStrengthModifier;
 	int m_iProphetCostModifier;
 	int m_iMissionaryStrengthModifier;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	int m_iExtraTradeRoutes;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF

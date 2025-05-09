@@ -203,7 +203,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCityConnectionGold);
 	Method(GetCityConnectionGoldTimes100);
 	Method(GetGoldPerTurnFromReligion);
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	Method(GetGoldPerTurnFromPolicies);
 #endif
 	Method(GetGoldPerTurnFromTradeRoutes);
@@ -1040,6 +1040,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
 	Method(AddReplayEnteredCityScreen);
+#endif
+
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	Method(GetBuildingClassTourismChanges);
 #endif
 
 
@@ -2262,7 +2266,7 @@ int CvLuaPlayer::lGetGoldPerTurnFromReligion(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldPerTurnFromReligion());
 	return 1;
 }
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 //------------------------------------------------------------------------------
 //int GetGoldPerTurnFromPolicies();
 int CvLuaPlayer::lGetGoldPerTurnFromPolicies(lua_State* L)
@@ -3255,7 +3259,12 @@ int CvLuaPlayer::lChangeHappinessPerTradeRoute(lua_State* L)
 int CvLuaPlayer::lGetCityConnectionTradeRouteGoldModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	const int iResult = pkPlayer->GetTreasury()->GetCityConnectionTradeRouteGoldModifier() + pkCity->getLocalCityConnectionTradeRouteModifier();
+#else
 	const int iResult = pkPlayer->GetTreasury()->GetCityConnectionTradeRouteGoldModifier();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -9727,6 +9736,15 @@ int CvLuaPlayer::lGetPlayerBuildingClassYieldChange(lua_State* L)
 	if(pkPlayer)
 	{
 		int iChange = pkPlayer->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+		if (eYieldType != YIELD_FOOD && eYieldType != YIELD_FAITH)
+		{
+			CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
+			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+			iChange += pBuildingInfo->GetIncreaseBonusesPerEra() * pkPlayer->GetCurrentEra();
+		}
+#endif
 		lua_pushinteger(L, iChange);
 
 		return 1;
@@ -11310,6 +11328,29 @@ int CvLuaPlayer::lAddReplayEnteredCityScreen(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	pkPlayer->ChangeTimesEnteredCityScreen(1);
+	return 1;
+}
+#endif
+
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+int CvLuaPlayer::lGetBuildingClassTourismChanges(lua_State* L)
+{
+	int iTourismFromBuilding = 0;
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
+
+	CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eBuildingClass);
+	if (pInfo)
+	{
+		int iTourismChange = pkPlayer->GetPlayerPolicies()->GetBuildingClassTourismChanges(eBuildingClass);
+		if (iTourismChange != 0)
+		{
+			iTourismFromBuilding += iTourismChange;
+		}
+	}
+
+	lua_pushinteger(L, iTourismFromBuilding);
 	return 1;
 }
 #endif

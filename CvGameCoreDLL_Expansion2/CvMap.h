@@ -130,7 +130,11 @@ public:
 	void updateYield();
 	void updateAdjacency();
 
+#ifdef BUMP_UNITS_OUT_MINOR_LAND
+	void verifyUnitValidPlot(bool bIsMinor = false, TeamTypes eTeam = NO_TEAM, TeamTypes eMinorTeam = NO_TEAM);
+#else
 	void verifyUnitValidPlot();
+#endif
 
 	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100);
 

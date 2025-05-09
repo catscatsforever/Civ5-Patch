@@ -1177,7 +1177,18 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	}
 
 	// Bump Units out of places they shouldn't be
+#ifdef BUMP_UNITS_OUT_MINOR_LAND
+	if (!isMinorCiv() && GET_TEAM(eTeam).isMinorCiv())
+	{
+		GC.getMap().verifyUnitValidPlot(true, GetID(), eTeam);
+	}
+	else
+	{
+		GC.getMap().verifyUnitValidPlot();
+	}
+#else
 	GC.getMap().verifyUnitValidPlot();
+#endif
 
 	setAtWar(eTeam, true);
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
@@ -7007,6 +7018,45 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				{
 					kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
 				}
+
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+				CvCity* pLoopCity;
+				int iLoop;
+
+				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+				{
+					for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+					{
+						BuildingTypes eBuildingLoop = (BuildingTypes)iBuildingLoop;
+						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingLoop);
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+						{
+							for (int k = 0; k < NUM_YIELD_TYPES; k++)
+							{
+								if (pBuildingInfo->GetIncreaseBonusesPerEra() > 0)
+								{
+									if ((YieldTypes)k == YIELD_CULTURE)
+									{
+										pLoopCity->ChangeJONSCulturePerTurnFromBuildings(pBuildingInfo->GetIncreaseBonusesPerEra() * (eNewValue - GetCurrentEra() * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop)));
+									}
+									else if ((YieldTypes)k == YIELD_FAITH)
+									{
+										pLoopCity->GetCityBuildings()->ChangeBuildingDefense(100 * pBuildingInfo->GetIncreaseBonusesPerEra() * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop));
+										pLoopCity->updateStrengthValue();
+									}
+									else if ((YieldTypes)k == YIELD_FOOD)
+									{
+									}
+									else
+									{
+										pLoopCity->ChangeBaseYieldRateFromBuildings((YieldTypes)k, pBuildingInfo->GetIncreaseBonusesPerEra() * (eNewValue - GetCurrentEra()) * pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop));
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 			}
 		}
 

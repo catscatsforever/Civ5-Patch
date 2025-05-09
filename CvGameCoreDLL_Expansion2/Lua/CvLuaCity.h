@@ -452,7 +452,7 @@ protected:
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeNow(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	static int lGetCityAttackRangeModifier(lua_State* L);
 #endif
 	static int lHasPerformedRangedStrikeThisTurn(lua_State* L);
@@ -501,6 +501,10 @@ protected:
 	static int lGetCultureFromSpecialist(lua_State* L);
 
 	static int lGetReligionCityRangeStrikeModifier(lua_State* L);
+
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	static int lGetCapitalCultureModPerDiplomat(lua_State* L);
+#endif
 };
 
 #endif //CVLUACITY_H

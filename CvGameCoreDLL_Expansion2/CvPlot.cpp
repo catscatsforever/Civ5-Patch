@@ -705,6 +705,132 @@ void CvPlot::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
+#ifdef BUMP_UNITS_OUT_MINOR_LAND
+void CvPlot::verifyUnitValidPlot(bool bIsMinor, TeamTypes eTeam, TeamTypes eMinorTeam)
+{
+	FStaticVector<IDInfo, 50, true, c_eCiv5GameplayDLL, 0> oldUnitList;
+
+	IDInfo* pUnitNode;
+	CvUnit* pLoopUnit;
+
+	oldUnitList.clear();
+
+	pUnitNode = headUnitNode();
+
+	while (pUnitNode != NULL)
+	{
+		oldUnitList.push_back(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+	}
+
+	int iUnitListSize = (int)oldUnitList.size();
+	for (int iVectorLoop = 0; iVectorLoop < (int)iUnitListSize; ++iVectorLoop)
+	{
+		pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+		if (pLoopUnit != NULL)
+		{
+			if (!pLoopUnit->isDelayedDeath())
+			{
+				if (pLoopUnit->atPlot(*this))
+				{
+					if (!(pLoopUnit->isCargo()))
+					{
+						if (!(pLoopUnit->isInCombat()))
+						{
+							// Unit not allowed to be here
+							if (getNumFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
+							{
+#ifndef AVOID_UNIT_SPLIT_MID_TURN
+								if (!pLoopUnit->jumpToNearestValidPlot())
+								{
+									pLoopUnit->kill(false);
+									pLoopUnit = NULL;
+								}
+#endif
+							}
+
+							if (pLoopUnit != NULL)
+							{
+#ifdef NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
+								bool bIsOwnedByMinor = false;
+								if (isOwned())
+								{
+									if (GET_PLAYER(getOwner()).isMinorCiv())
+									{
+										bIsOwnedByMinor = true;
+									}
+								}
+								// may want to make an extra check here about if it's owned by minor, we can still enter territory but with ignoring right of passage
+								if (!isValidDomainForLocation(*pLoopUnit) || (!bIsOwnedByMinor && !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/, isCity()))) || bIsMinor && pLoopUnit->getTeam() == eTeam && eMinorTeam == getTeam() && !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/, isCity(), false, bIsMinor)))
+#else
+								if (!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/, isCity())) || bIsMinor && pLoopUnit->getTeam() == eTeam && eMinorTeam == getTeam() && !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/, isCity(), false, bIsMinor)))
+#endif
+								{
+									if (!pLoopUnit->jumpToNearestValidPlot(bIsMinor))
+										pLoopUnit->kill(false);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Unit not allowed in a plot owned by someone?
+	if (isOwned())
+	{
+		for (int iVectorLoop = 0; iVectorLoop < (int)iUnitListSize; ++iVectorLoop)
+		{
+			pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+			if (pLoopUnit != NULL)
+			{
+				if (!pLoopUnit->isDelayedDeath())
+				{
+					if (pLoopUnit->atPlot(*this))  // it may have jumped
+					{
+						if (!(pLoopUnit->isInCombat()))
+						{
+							if (bIsMinor && pLoopUnit->getTeam() == eTeam && eMinorTeam == getTeam())
+							{
+								if (pLoopUnit->getTeam() != getTeam())
+								{
+									if (isVisibleEnemyUnit(pLoopUnit))
+									{
+										if (!(pLoopUnit->isInvisible(getTeam(), false)))
+										{
+											if (!pLoopUnit->jumpToNearestValidPlot(bIsMinor))
+												pLoopUnit->kill(false);
+										}
+									}
+								}
+							}
+							else
+							{
+#ifdef NQ_NEVER_PUSH_OUT_OF_MINORS_ON_PEACE
+								if (pLoopUnit->getTeam() != getTeam() && !GET_PLAYER(getOwner()).isMinorCiv())
+#else
+								if (pLoopUnit->getTeam() != getTeam()) // && getTeam() == NO_TEAM)// || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
+#endif
+								{
+									if (isVisibleEnemyUnit(pLoopUnit))
+									{
+										if (!(pLoopUnit->isInvisible(getTeam(), false)))
+										{
+											if (!pLoopUnit->jumpToNearestValidPlot())
+												pLoopUnit->kill(false);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+#else
 void CvPlot::verifyUnitValidPlot()
 {
 	FStaticVector<IDInfo, 50, true, c_eCiv5GameplayDLL, 0> oldUnitList;
@@ -812,6 +938,7 @@ void CvPlot::verifyUnitValidPlot()
 		}
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 // Left-over method, primarily because it is exposed to Lua.
@@ -2558,9 +2685,27 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowEx
 		{
 			if(pLoopUnit->canMove())
 			{
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+				int iCityWorkRate = 0;
+				if (getWorkingCity())
+				{
+					iCityWorkRate = getWorkingCity()->getCityTileWorkSpeedModifier();
+				}
+				iNowBuildRate += pLoopUnit->workRate(false, iCityWorkRate);
+#else
 				iNowBuildRate += pLoopUnit->workRate(false);
+#endif
 			}
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+			int iCityWorkRate = 0;
+			if (getWorkingCity())
+			{
+				iCityWorkRate = getWorkingCity()->getCityTileWorkSpeedModifier();
+			}
+			iThenBuildRate += pLoopUnit->workRate(true, iCityWorkRate);
+#else
 			iThenBuildRate += pLoopUnit->workRate(true);
+#endif
 		}
 	}
 
@@ -2610,9 +2755,27 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 		{
 			if(pLoopUnit->canMove())
 			{
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+				int iCityWorkRate = 0;
+				if (getWorkingCity())
+				{
+					iCityWorkRate = getWorkingCity()->getCityTileWorkSpeedModifier();
+				}
+				iNowBuildRate += pLoopUnit->workRate(false, iCityWorkRate);
+#else
 				iNowBuildRate += pLoopUnit->workRate(false);
+#endif
 			}
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+			int iCityWorkRate = 0;
+			if (getWorkingCity())
+			{
+				iCityWorkRate = getWorkingCity()->getCityTileWorkSpeedModifier();
+			}
+			iThenBuildRate += pLoopUnit->workRate(true, iCityWorkRate);
+#else
 			iThenBuildRate += pLoopUnit->workRate(true);
+#endif
 		}
 	}
 
@@ -4222,7 +4385,11 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
+#ifdef FIX_DOMAIN_SEA_ZOC
+		return (isWater() || isCity() && unit.getOwner() == getOwner() || unit.canMoveAllTerrain());
+#else
 		return (isWater() || unit.canMoveAllTerrain());
+#endif
 		break;
 
 	case DOMAIN_AIR:
@@ -7722,6 +7889,39 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 		}
 
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+		bool bFoundMountain = false;
+
+		CvPlot* pAdjacentPlot;
+		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+		{
+			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+
+			if (pAdjacentPlot != NULL)
+			{
+				if (pAdjacentPlot->isMountain())
+				{
+					bFoundMountain = true;
+					break;
+				}
+			}
+		}
+
+		if (bFoundMountain)
+		{
+			if (!isImpassable() && !isMountain())
+			{
+				if (NULL != pWorkingCity)
+				{
+					if (!bDisplay || pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					{
+						iYield += pWorkingCity->getNearMountainYield(eYield);
+					}
+				}
+			}
+		}
+#endif
+
 		// Extra yield for features
 		if(getFeatureType() != NO_FEATURE)
 		{
@@ -10565,6 +10765,39 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				}
 			}
 		}
+
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+		bool bFoundMountain = false;
+
+		CvPlot* pAdjacentPlot;
+		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+		{
+			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+
+			if (pAdjacentPlot != NULL)
+			{
+				if (pAdjacentPlot->isMountain())
+				{
+					bFoundMountain = true;
+					break;
+				}
+			}
+		}
+
+		if (bFoundMountain)
+		{
+			if (!isImpassable() && !isMountain())
+			{
+				if (NULL != pWorkingCity)
+				{
+					if (pWorkingCity->isRevealed(eTeam, false))
+					{
+						iYield += pWorkingCity->getNearMountainYield(eYield);
+					}
+				}
+			}
+		}
+#endif
 
 		// Worked Feature extra yield (e.g. University bonus)
 		if(getFeatureType() != NO_FEATURE)

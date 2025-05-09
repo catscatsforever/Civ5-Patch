@@ -594,6 +594,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Embassy has not been established
 		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
 			return false;
+#else
+		if (!(pFromTeam->GetCurrentEra() < GC.getInfoTypeForString("ERA_FUTURE", true)) || !(pToTeam->GetCurrentEra() < GC.getInfoTypeForString("ERA_FUTURE", true)))
+		{
+			return false;
+		}
 #endif
 #ifdef DEF_PACT_COUNT
 		CvGame& kGame = GC.getGame();
@@ -2740,32 +2745,6 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 
 				// Cancel individual items
 				TradedItemList::iterator itemIter;
-/*#ifndef AI_PEACE_TURNS
-				bool bIsPeaceTreaty = false;
-				for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
-				{
-					if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
-					{
-						bSomethingChanged = true;
-
-						itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
-
-						eFromPlayer = itemIter->m_eFromPlayer;
-						eToPlayer = it->GetOtherPlayer(eFromPlayer);
-
-						DoEndTradedItem(&*itemIter, eToPlayer, true);
-					}
-					else
-					{
-						it->m_iFinalTurn = itemIter->m_iFinalTurn;
-						bIsPeaceTreaty = true;
-					}
-				}
-				if (bIsPeaceTreaty)
-				{
-					m_CurrentDeals.push_back(*it);
-				}
-#else*/
 				for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 				{
 					bSomethingChanged = true;
@@ -2777,7 +2756,6 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 
 					DoEndTradedItem(&*itemIter, eToPlayer, true);
 				}
-// #endif
 				m_HistoricalDeals.push_back(*it);
 			}
 			else

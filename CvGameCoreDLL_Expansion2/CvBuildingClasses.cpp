@@ -123,11 +123,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iExtraLeagueVotes(0),
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	m_iCityAttackRangeModifier(0),
 #endif
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	m_iCityExtraAttack(0),
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	m_iCityExtraHeal(0),
 #endif
 	m_bTeamShare(false),
 	m_bWater(false),
@@ -201,6 +204,64 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	m_iFaithToScience(0),
+#endif
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+	m_iIncreaseBonusesPerEra(0),
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	m_iCityTileWorkSpeedModifier(0),
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	m_iBuildingHurryCostModifier(0),
+#endif
+#ifdef BUILDING_RIVER_GOLD
+	m_iRiverGold(0),
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	m_iGrowthGold(0),
+#endif
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+	m_iBaktunGoldenAgePoints(0),
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	m_iSciencePerXPop(0),
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	m_iCulturePerXAncientBuildings(0),
+#endif
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	m_piNearMountainYieldChanges(NULL),
+#endif
+#ifdef BUILDING_DOUBLE_DEFENSE_NEAR_MOUNTAIN
+	m_bDoubleDefenseNearMountain(false),
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	m_bNoHolyCityAndNoOccupiedUnhappiness(false),
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	m_iNearbyEnemyDamage(0),
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	m_iNavalCombatModifierNearCity(0),
+#endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	m_piYieldForEachBuildingInEmpire(NULL),
+	m_piMaxYieldForEachBuildingInEmpire(NULL),
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	m_iHappinessForFilledGreatWorkSlot(0),
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	m_iFoodBonusIfNoCitiesAround(0),
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	m_iLocalCityConnectionTradeRouteModifier(0),
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	m_bNonAirUnitMaxHeal(false),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -250,6 +311,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	SAFE_DELETE_ARRAY(m_piNearMountainYieldChanges);
+#endif
 }
 
 /// Read from XML file
@@ -371,11 +436,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	m_iCityAttackRangeModifier = kResults.GetInt("CityAttackRangeModifier");
 #endif
-#ifdef CITY_EXTRA_ATTACK
-	m_iCityExtraAttack = kResults.GetBool("CityExtraAttack");
+#ifdef BUILDING_CITY_EXTRA_ATTACK
+	m_iCityExtraAttack = kResults.GetInt("CityExtraAttack");
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	m_iCityExtraHeal = kResults.GetInt("CityExtraHeal");
 #endif
 
 	m_bArtInfoCulturalVariation = kResults.GetBool("ArtInfoCulturalVariation");
@@ -704,6 +772,65 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iNumThemingBonuses = idx;
 		pResourceTypes->Reset();
 	}
+
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	m_iFaithToScience = kResults.GetInt("FaithToScience");
+#endif
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+	m_iIncreaseBonusesPerEra = kResults.GetInt("IncreaseBonusesPerEra");
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	m_iCityTileWorkSpeedModifier = kResults.GetInt("CityTileWorkSpeedModifier");
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	m_iBuildingHurryCostModifier = kResults.GetInt("BuildingHurryCostModifier");
+#endif
+#ifdef BUILDING_RIVER_GOLD
+	m_iRiverGold = kResults.GetInt("RiverGold");
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	m_iGrowthGold = kResults.GetInt("GrowthGold");
+#endif
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+	m_iBaktunGoldenAgePoints = kResults.GetInt("BaktunGoldenAgePoints");
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	m_iSciencePerXPop = kResults.GetInt("SciencePerXPop");
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	m_iCulturePerXAncientBuildings = kResults.GetInt("CulturePerXAncientBuildings");
+#endif
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	kUtility.SetYields(m_piNearMountainYieldChanges, "Building_NearMountainYieldChanges", "BuildingType", szBuildingType);
+#endif
+#ifdef BUILDING_DOUBLE_DEFENSE_NEAR_MOUNTAIN
+	m_bDoubleDefenseNearMountain = kResults.GetBool("DoubleDefenseNearMountain");
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	m_bNoHolyCityAndNoOccupiedUnhappiness = kResults.GetBool("NoHolyCityAndNoOccupiedUnhappiness");
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	m_iNavalCombatModifierNearCity = kResults.GetInt("NavalCombatModifierNearCity");
+#endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	kUtility.SetYields(m_piYieldForEachBuildingInEmpire, "Building_YieldForEachBuildingInEmpire", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByValue(m_piMaxYieldForEachBuildingInEmpire, "Yields", "Building_YieldForEachBuildingInEmpire", "YieldType", "BuildingType", szBuildingType, "MaxYield");
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	m_iHappinessForFilledGreatWorkSlot = kResults.GetInt("HappinessForFilledGreatWorkSlot");
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	m_iFoodBonusIfNoCitiesAround = kResults.GetInt("FoodBonusIfNoCitiesAround");
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	m_iLocalCityConnectionTradeRouteModifier = kResults.GetInt("LocalCityConnectionTradeRouteModifier");
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	m_bNonAirUnitMaxHeal = kResults.GetBool("NonAirUnitMaxHeal");
+#endif
 
 	return true;
 }
@@ -1378,17 +1505,24 @@ int CvBuildingEntry::GetPortraitIndex() const
 	return m_iPortraitIndex;
 }
 
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 int CvBuildingEntry::getCityAttackRangeModifier() const
 {
 	return m_iCityAttackRangeModifier;
 }
 #endif
 
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 int CvBuildingEntry::GetCityExtraAttack() const
 {
 	return m_iCityExtraAttack;
+}
+#endif
+
+#ifdef BUILDING_CITY_EXTRA_HEAL
+int CvBuildingEntry::GetCityExtraHeal() const
+{
+	return m_iCityExtraHeal;
 }
 #endif
 
@@ -2105,6 +2239,165 @@ CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
 		return &m_paThemingBonusInfo[i];
 	}
 }
+
+#ifdef BUILDING_FAITH_TO_SCIENCE
+int CvBuildingEntry::GetFaithToScience() const
+{
+	return m_iFaithToScience;
+}
+#endif
+
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+int CvBuildingEntry::GetIncreaseBonusesPerEra() const
+{
+	return m_iIncreaseBonusesPerEra;
+}
+#endif
+
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+int CvBuildingEntry::GetCityTileWorkSpeedModifier() const
+{
+	return m_iCityTileWorkSpeedModifier;
+}
+#endif
+
+#ifdef BUILDING_HURRY_COST_MODIFIER
+int CvBuildingEntry::GetBuildingHurryCostModifier() const
+{
+	return m_iBuildingHurryCostModifier;
+}
+#endif
+
+#ifdef BUILDING_RIVER_GOLD
+int CvBuildingEntry::GetRiverGold() const
+{
+	return m_iRiverGold;
+}
+#endif
+
+#ifdef BUILDING_GROWTH_GOLD
+int CvBuildingEntry::GetGrowthGold() const
+{
+	return m_iGrowthGold;
+}
+#endif
+
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+int CvBuildingEntry::GetBaktunGoldenAgePoints() const
+{
+	return m_iBaktunGoldenAgePoints;
+}
+#endif
+
+#ifdef BUILDING_SCIENCE_PER_X_POP
+int CvBuildingEntry::GetSciencePerXPop() const
+{
+	return m_iSciencePerXPop;
+}
+#endif
+
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+int CvBuildingEntry::GetCulturePerXAncientBuildings() const
+{
+	return m_iCulturePerXAncientBuildings;
+}
+#endif
+
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+int CvBuildingEntry::GetNearMountainYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNearMountainYieldChanges ? m_piNearMountainYieldChanges[i] : -1;
+}
+
+int* CvBuildingEntry::GetNearMountainYieldChangeArray() const
+{
+	return m_piNearMountainYieldChanges;
+}
+#endif
+
+#ifdef BUILDING_DOUBLE_DEFENSE_NEAR_MOUNTAIN
+bool CvBuildingEntry::IsDoubleDefenseNearMountain() const
+{
+	return m_bDoubleDefenseNearMountain;
+}
+#endif
+
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+bool CvBuildingEntry::IsNoHolyCityAndNoOccupiedUnhappiness() const
+{
+	return m_bNoHolyCityAndNoOccupiedUnhappiness;
+}
+#endif
+
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+int CvBuildingEntry::GetNearbyEnemyDamage() const
+{
+	return m_iNearbyEnemyDamage;
+}
+#endif
+
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+int CvBuildingEntry::GetNavalCombatModifierNearCity() const
+{
+	return m_iNavalCombatModifierNearCity;
+}
+#endif
+
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+int CvBuildingEntry::GetYieldForEachBuildingInEmpire(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldForEachBuildingInEmpire ? m_piYieldForEachBuildingInEmpire[i] : -1;
+}
+
+int* CvBuildingEntry::GetYieldForEachBuildingInEmpireArray() const
+{
+	return m_piYieldForEachBuildingInEmpire;
+}
+
+int CvBuildingEntry::GetMaxYieldForEachBuildingInEmpire(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piMaxYieldForEachBuildingInEmpire ? m_piMaxYieldForEachBuildingInEmpire[i] : 0;
+}
+
+int* CvBuildingEntry::GetMaxYieldForEachBuildingInEmpireArray() const
+{
+	return m_piMaxYieldForEachBuildingInEmpire;
+}
+#endif
+
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+int CvBuildingEntry::GetHappinessForFilledGreatWorkSlot() const
+{
+	return m_iHappinessForFilledGreatWorkSlot;
+}
+#endif
+
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+int CvBuildingEntry::GetFoodBonusIfNoCitiesAround() const
+{
+	return m_iFoodBonusIfNoCitiesAround;
+}
+#endif
+
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+int CvBuildingEntry::GetLocalCityConnectionTradeRouteModifier() const
+{
+	return m_iLocalCityConnectionTradeRouteModifier;
+}
+#endif
+
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+bool CvBuildingEntry::IsNonAirUnitMaxHeal() const
+{
+	return m_bNonAirUnitMaxHeal;
+}
+#endif
 
 //=====================================
 // CvBuildingXMLEntries

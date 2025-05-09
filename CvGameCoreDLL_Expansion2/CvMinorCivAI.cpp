@@ -3978,6 +3978,15 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		// Minor must not already share player's religion
 		if(IsSameReligionAsMajor(ePlayer))
 			return false;
+
+#ifdef QUESTS_SYSTEM_OVERHAUL
+		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer);
+		int iNumTradeRoutes;
+		if (pMinorsCapital->GetCityReligions()->GetPressurePerTurn(eReligion, iNumTradeRoutes) <= 0)
+		{
+			return false;
+		}
+#endif
 	}
 	// Trade route
 	else if(eQuest == MINOR_CIV_QUEST_TRADE_ROUTE)
@@ -5051,6 +5060,30 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 				continue;
 			}
 
+#ifdef QUESTS_SYSTEM_OVERHAUL
+			bool bResourceInBorders = false;
+			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+			{
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+
+				if (pLoopPlot != NULL)
+				{
+					if (eResource != pLoopPlot->getResourceType() && pLoopPlot->getOwner() != NO_PLAYER)
+					{
+						if (GET_PLAYER(pLoopPlot->getOwner()).isHuman() || GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
+						{
+							bResourceInBorders = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!bResourceInBorders)
+			{
+				continue;
+			}
+#endif
+
 			veValidResources.push_back(eResource);
 		}
 
@@ -5215,6 +5248,52 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+		
+#ifdef QUESTS_SYSTEM_OVERHAUL
+		if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL", true /*bHideAssert*/))
+		{
+			bool bCityCoastal = false;
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				if (pLoopCity->isCoastal())
+				{
+					bCityCoastal = true;
+					break;
+				}
+			}
+			if (!bCityCoastal)
+			{
+				continue;
+			}
+		}
+
+		if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER", true /*bHideAssert*/))
+		{
+
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_DRAMA", true /*bHideAssert*/)))
+			{
+				continue;
+			}
+		}
+
+		if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST", true /*bHideAssert*/))
+		{
+
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_GUILDS", true /*bHideAssert*/)))
+			{
+				continue;
+			}
+		}
+
+		if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true /*bHideAssert*/))
+		{
+
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getInfoTypeForString("TECH_ACOUSTICS", true /*bHideAssert*/)))
+			{
+				continue;
+			}
+		}
+#endif
 
 		veValidUnits.push_back(eUnit);
 	}
@@ -5304,6 +5383,12 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer)
 PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest() const
 {
 	PlayerTypes eBully = NO_PLAYER;
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		return eBully;
+	}
+#endif
 	int iTurn = -1;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5630,6 +5715,14 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE);
 			iShift += kPlayer.GetPlayerTraits()->GetAfraidMinorPerTurnInfluence();
 		}
+
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+		CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
+		if (pEspionage->IsAnySurveillanceEstablished(GetPlayer()->GetID()))
+		{
+			iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SPY_INFLUENCE);
+		}
+#endif
 		
 		if (iShift != 0)
 		{
@@ -9478,7 +9571,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 	iScore += iPoliciesScore;
 
-#ifdef MONGOL_CS_BULLY
+#ifdef MONGOL_UA_REWORK
 	int iTraitsScore = 0;
 	int iTraitsMod = 0;
 	if(strcmp(GET_PLAYER(eBullyPlayer).getCivilizationTypeKey(), "CIVILIZATION_MONGOL") == 0)

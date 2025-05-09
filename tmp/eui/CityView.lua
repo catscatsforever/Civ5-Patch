@@ -779,6 +779,9 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		local buildingClassID = GameInfoTypes[ building.BuildingClass ] or -1
 		local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
 		local defenseChange = tonumber(building.Defense) or 0
+		if (activePlayer and building.IncreaseBonusesPerEra > 0) then
+			defenseChange = defenseChange + 100 * activePlayer:GetCurrentEra() * building.IncreaseBonusesPerEra;
+		end
 		local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
 		local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and city:GetCultureFromSpecialist( specialist.ID ) or 0) * numSpecialistsInBuilding
 		local buildingCultureModifier = tonumber(building.CultureRateModifier) or 0
@@ -877,6 +880,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 					) or 0 )
 --			local enhancedYieldTechID = GameInfoTypes[ building.EnhancedYieldTech ]
 			tourism = tourism + (tonumber(building.TechEnhancedTourism) or 0)
+			tourism = tourism + (tonumber(cityOwner:GetBuildingClassTourismChanges(buildingClassID)) or 0)
 			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
 		end
 

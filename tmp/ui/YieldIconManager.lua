@@ -145,7 +145,7 @@ function SetYieldIcon( yieldType, amount, parent, record )
 			end
        elseif (yieldType == 4) then
             imageInstance.Image:SetTexture(cultureTexture);
-            if( amount >= 5 ) then
+            if( amount >= 6 ) then
                 imageInstance.Image:SetTextureOffsetVal( 0 * 128, 512 );
             else
                 imageInstance.Image:SetTextureOffsetVal( 0 * 128, 128 * ( amount - 1 ) );
@@ -158,21 +158,39 @@ function SetYieldIcon( yieldType, amount, parent, record )
 			end
 			table.insert( record.ImageInstances, imageInstance );
 
+             if( amount > 5 ) then
+                local textImageInstance = g_ImageIM:GetInstance();
+                textImageInstance.Image:SetTexture(defaultTexture);
+
+                textImageInstance.Image:SetTextureOffsetVal( GetNumberOffset( amount ) );
+                
+                textImageInstance.Image:ChangeParent( imageInstance.Image );
+                table.insert( record.ImageInstances, textImageInstance );
+            end
        elseif (yieldType == 5) then
             imageInstance.Image:SetTexture(faithTexture);
-            if( amount >= 5 ) then
+            if( amount >= 6 ) then
                 imageInstance.Image:SetTextureOffsetVal( 0 * 128, 512 );
             else
                 imageInstance.Image:SetTextureOffsetVal( 0 * 128, 128 * ( amount - 1 ) );
             end
             
-			imageInstance.Image:ChangeParent( parent );
+            imageInstance.Image:ChangeParent( parent );
 
-			if( record.ImageInstances == nil ) then
-				record.ImageInstances = {};
-			end
-			table.insert( record.ImageInstances, imageInstance );
+            if( record.ImageInstances == nil ) then
+                record.ImageInstances = {};
+            end
+            table.insert( record.ImageInstances, imageInstance );
 
+             if( amount > 5 ) then
+                local textImageInstance = g_ImageIM:GetInstance();
+                textImageInstance.Image:SetTexture(defaultTexture);
+
+                textImageInstance.Image:SetTextureOffsetVal( GetNumberOffset( amount ) );
+                
+                textImageInstance.Image:ChangeParent( imageInstance.Image );
+                table.insert( record.ImageInstances, textImageInstance );
+            end
         end
     end
 end

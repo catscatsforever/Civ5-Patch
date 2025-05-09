@@ -58,7 +58,16 @@ void CvUnitCycler::Rebuild(CvUnit *pkStartUnit /* = NULL */)
 		if (!pkStartUnit)
 		{
 			// Workers first
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+			int iCityWorkRate = 0;
+			if (pLoopUnit->plot() && pLoopUnit->plot()->getWorkingCity())
+			{
+				iCityWorkRate = pLoopUnit->plot()->getWorkingCity()->getCityTileWorkSpeedModifier();
+			}
+			if (pLoopUnit->workRate(true, iCityWorkRate) > 0)
+#else
 			if(pLoopUnit->workRate(true) > 0)
+#endif
 				pkStartUnit = pLoopUnit;
 		}
 	}

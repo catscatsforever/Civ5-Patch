@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edit:
+	- Patch Updates Checker and Changelog Button
+for EUI and vanilla UI -->
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow" Name="MainMenu" >
+
+  <Image Anchor="R,T" Offset="0,0"  Size="630,200" Texture="CivilzationV_Logo.dds" ID="Civ5Logo" Hidden="0" />
+
+  <Grid Size="480,480" Anchor="C,C" Offset="0.32" Padding="0,0" Style="Grid9Detail140" >
+
+
+    <Box Color="Black.200" Anchor="C,T" Offset="0.44" Size="320.393" Hidden="0" >
+
+      <Grid Size="48,393" Anchor="L,T" AnchorSide="O.I" Offset="0.0" Padding="0,0" Style="WindowGrid" />
+      <Grid Size="48,393" Anchor="R,T" AnchorSide="O.I" Offset="0.0" Padding="0,0" Style="WindowGrid" />
+
+
+    </Box>
+
+    <Image Anchor="C,T" Offset="0,-33" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/topframe.dds" Size="512,128" />
+    <Image Anchor="C,B" Offset="0,-109" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/bottomframe.dds" Size="512,128" />
+
+    <Stack Anchor="C,T" Offset="0,54" Padding="0" StackGrowth="Bottom" ID="MainStack" >
+
+      <GridButton Anchor="C,T" ID="SinglePlayerButton"  Size="320,45"    Style="ZoomButton" String="TXT_KEY_MODDING_SINGLE_PLAYER" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+
+        </ShowOnMouseOver>
+      </GridButton>
+
+      <GridButton Anchor="C,T" ID="MultiplayerButton"   Size="320,45"    Style="ZoomButton" String="TXT_KEY_MULTIPLAYER" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+
+        </ShowOnMouseOver>
+
+        <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+      </GridButton>
+
+      <GridButton Anchor="C,T" ID="ModsButton"          Size="320,45"    Style="ZoomButton" String="TXT_KEY_MODS" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+
+        </ShowOnMouseOver>
+        <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+      </GridButton>
+
+      <GridButton Anchor="C,T" ID="OptionsButton"       Size="320,45"    Style="ZoomButton" String="TXT_KEY_OPTIONS" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+
+
+        </ShowOnMouseOver>
+        <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+      </GridButton>
+
+      <GridButton Anchor="C,T" ID="OtherButton"         Size="320,45"    Style="ZoomButton" String="TXT_KEY_OTHER" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+
+        </ShowOnMouseOver>
+        <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+      </GridButton>
+
+      <GridButton Anchor="C,T" ID="ExpansionRulesSwitch" Offset="0,0" Size="320,45" Style="ZoomButton" String="TXT_KEY_LOAD_MENU_DLC" >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+            <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+
+          <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+            <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="WindowGlowRight.dds" Size="42,86" />
+            <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="WindowGlowLeft.dds" Size="42,86" />
+          </AlphaAnim>
+        </ShowOnMouseOver>
+
+        <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+      </GridButton>
+
+    </Stack>
+
+    <GridButton Anchor="C,B" ID="ExitButton" Offset="0,44" Size="320,45" Style="ZoomButton" String="TXT_KEY_EXIT_BUTTON" >
+      <ShowOnMouseOver>
+        <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+          <Grid   Size="320,48" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+        </AlphaAnim>
+
+
+        <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+          <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+          <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+
+      <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+    </GridButton>
+
+    <Button Anchor="C,B" ID="MapPack2PromoButton" Offset="0,91" Size="320,65" Color="255,255,255,80" Texture="CW_Continents_MapPack_Available_Background.dds" NoStateChange="1" >
+      <Label Anchor="C,C" Offset="0,-10" String="TXT_KEY_DLC_MAP_PACK_2_AVAILABLE" Color="234,227,113,255" Color1="0,0,0,255" />
+      <Label Anchor="C,C" Offset="0,12" String="TXT_KEY_DLC_AVAILABLE" Color="234,227,113,255" Color1="0,0,0,255" Color2="0,0,0,0" Font="TwCenMT20" />
+      <ShowOnMouseOver>
+        <AlphaAnim Anchor="L,T" Size="320,65" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="0.5">
+          <Image Anchor="L,T" Size="320,65" Color="255,255,255,105" Texture="CW_Continents_MapPack_Available_Background.dds" />
+        </AlphaAnim>
+
+
+        <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+          <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+          <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+
+      <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+    </Button>
+
+    <Button Anchor="C,B" ID="MapPack3PromoButton" Offset="0,91" Size="320,65" Color="255,255,255,80" Texture="CW_Countries_MapPack_Available_Background.dds" NoStateChange="1" >
+      <Label Anchor="C,C" Offset="0,-10" String="TXT_KEY_DLC_MAP_PACK_3_AVAILABLE" Color="234,227,113,255" Color1="0,0,0,255" />
+      <Label Anchor="C,C" Offset="0,12" String="TXT_KEY_DLC_AVAILABLE" Color="234,227,113,255" Color1="0,0,0,255" Color2="0,0,0,0" Font="TwCenMT20" />
+      <ShowOnMouseOver>
+        <AlphaAnim Anchor="L,T" Size="320,65" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="0.5">
+          <Image Anchor="L,T" Size="320,65" Color="255,255,255,105" Texture="CW_Countries_MapPack_Available_Background.dds" />
+        </AlphaAnim>
+
+
+        <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+          <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+          <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+
+      <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+    </Button>
+
+    <Button Anchor="C,B" ID="AcePatrolPromoButton" Offset="0,91" Size="320,65" Color="255,255,255,155" Texture="AP2_Available_Background.dds" NoStateChange="1" >
+      <ShowOnMouseOver>
+        <AlphaAnim Anchor="L,T" Size="320,65" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="0.5">
+          <Image Anchor="L,T" Size="320,65" Color="255,255,255,105" Texture="AP2_Available_Background.dds" />
+        </AlphaAnim>
+
+
+        <AlphaAnim Anchor="L,T" Size="320,48" Pause="0" Cycle="Once" Speed="1" AlphaStart=".2" AlphaEnd="0">
+          <Image Anchor="R,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowRight.dds" Size="42,86" />
+          <Image Anchor="L,C" Offset="0,0" AnchorSide="O.I" Texture="Assets/UI/Art/WorldView/WindowGlowLeft.dds" Size="42,86" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+
+      <Image Anchor="C,T" AnchorSide="I.O" Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+    </Button>
+	
+    <Image Anchor="C,T" Offset="-184,44"  Texture="Assets/UI/Art/WorldView/WindowTrimLeft.dds" Size="98,394" />
+    <Image Anchor="C,T" Offset="184,44"  Texture="Assets/UI/Art/WorldView/WindowTrimRight.dds" Size="98,394" />
+
+  </Grid>
+
+  <!-- Version Information  -->
+  <Label Anchor="C,B" Offset="0,32" String="InvalidVersionNumber" Font="TwCenMT16" ID="VersionNumber"/>
+  <!-- Patch Updates Checker and Changelog Button START-->
+  <Button Anchor="C,B" Size="200,28" Offset="0,0" Texture="blank.dds" Color="0,0,0,0" NoStateChange="1" ID="PatchChangelog" />
+  <Box ID="PatchNotesBGBlock" Anchor="C,C" Size="Full,Full" Color="0,0,0,160" ConsumeMouse="1" Hidden="1" >
+	<Grid Size="960,750" Anchor="C,C" Offset="0,0" Style="Grid9DetailSix140" />
+	<Grid ID="PatchNotesPopup" Size="960,750" Anchor="C,C" Offset="0,0" Style="Grid9DetailSix140" ConsumeMouse="0" >
+		<Label ID="PatchNotesTitle" Anchor="C,T" String="TXT_KEY_PATCH_UPDATE_NOTES_TITLE" Offset="0,64" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+		<ScrollPanel Anchor="L,T" Offset="-4,102" Size="915,550" Vertical="1" ID="PatchNotesScrollPanel" >
+			<Stack ID="PatchNotesStack" Anchor="L,T" Padding="7" StackGrowth="Down" >
+			</Stack>
+			<Label ID="PatchNotesLoadingLabel" Anchor="L,T" String="TXT_KEY_PATCH_UPDATE_NOTES_LOADING" Offset="35,0" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			<ScrollBar ID="PatchNotesScrollBar" Offset="0,10" Style="VertSlider" AnchorSide="O.I" Anchor="R,T" Length="530" ConsumeMouse="True" />
+			<UpButton  Offset="0,-6"  Style="ScrollBarUp" AnchorSide="O.I" Anchor="R,T" />
+			<DownButton Offset="0,-6" Style="ScrollBarDown" AnchorSide="O.I" Anchor="R,B" />
+		</ScrollPanel>
+		<Stack ID="PatchNotesLangStack" Anchor="L,B" Offset="30,50" Padding="7" StackGrowth="Right" >
+		</Stack>
+		<GridButton Style="BaseButton" ID="PatchNotesCloseButton" Size="200,42" Anchor="R,B" Offset="30,50" Hidden="0">
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow"/>
+		</GridButton>
+	</Grid>
+  </Box>
+   <!-- Patch Updates Checker and Changelog Button END-->
+  
+  <Button Anchor="R,B" Size="128,128" TextureOffset="384,128" ToolTip="TXT_KEY_TOUCH_HELP" Texture="Civ5_TouchIconAtlas_128.dds" NoStateChange="1" ID="TouchHelpButton" />
+
+
+	<!-- Patch Updates Checker and Changelog Button START-->
+	<Instance Name="PatchNotesVersion" >
+		<Image Anchor="C,T" Size="500,64" Offset="10,0" Texture="CivilopediaTitle.dds" ID="Root" >
+			<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT22" FontStyle="Shadow" ID="Version" />
+		</Image>
+	</Instance>
+	<Instance Name="PatchNotesEntry" >
+		<Container ID="Root" Anchor="C,T" Size="908,255" >
+			<Stack ID="LinesStack" Anchor="L,T" Padding="7" StackGrowth="Down" >
+			</Stack>
+		</Container>
+	</Instance>
+	<Instance Name="PatchNotesLine" >
+		<Label ID="Text" Anchor="L,T" Offset="35,0" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="870" />
+	</Instance>
+	<Instance Name="PatchNotesLangButton" >
+		<GridButton Style="BaseButton" ID="Button" Size="100,42" Anchor="L,B" >
+			<Label Anchor="C,C" Font="TwCenMT20" FontStyle="Shadow" ID="Text" />
+		</GridButton>
+	</Instance>
+	<!-- Patch Updates Checker and Changelog Button END-->
+  <!-- Child Screens -->
+  <LuaContext FileName="Assets/UI/Options/OptionsMenu" ID="OptionsMenu_FrontEnd" Hidden="1" />
+
+  <LuaContext FileName="Assets/UI/FrontEnd/SinglePlayer" ID="SinglePlayerScreen" Hidden="1"/>
+  <LuaContext FileName="Assets/UI/FrontEnd/Multiplayer/MultiplayerSelect" ID="MultiplayerSelectScreen" Hidden="1"/>
+  <LuaContext FileName="Assets/UI/FrontEnd/Modding/EULA" ID="ModsEULAScreen" Hidden="1" />
+
+  <LuaContext FileName="Assets/UI/FrontEnd/OtherMenu" ID="Other" Hidden="1" />
+  <LuaContext FileName="Assets/UI/FrontEnd/Multiplayer/JoiningRoom" ID="JoinScreen" Hidden="1" />
+
+  <LuaContext FileName="Assets/UI/FrontEnd/Multiplayer/StagingRoom" ID="StagingRoomScreen" DeferLoad="1" Hidden="1" />
+  <LuaContext FileName="Assets/UI/FrontEnd/PremiumContentMenu" ID="PremiumContentScreen" Hidden="1" />
+
+  <LuaContext FileName="Assets/UI/FrontEnd/Multiplayer/DedicatedServer" ID="DedicatedServerScreen" Hidden="1"/>
+  <LuaContext FileName="Assets/UI/FrontEnd/TouchControlsMenu" ID="TouchControlsMenu" DeferLoad="1" Hidden="1" />
+
+
+</Context>

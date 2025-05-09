@@ -3911,7 +3911,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			}
 		}
 		iVotes += iCityStateVotes;
-#if defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS || defined PATRONAGE_FINISHER_REWORK
+#if defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS || defined POLICY_EXTRA_VOTES
 		int iPolicyVotes = 0;
 #endif
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
@@ -4048,7 +4048,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				sTemp << iWonderVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
-#if defined PATRONAGE_FINISHER_REWORK || defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS
+#if defined POLICY_EXTRA_VOTES || defined POLICY_MAX_EXTRA_VOTES_FROM_MINORS
 			if (iPolicyVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_POLICY_VOTES");
@@ -6248,6 +6248,69 @@ void CvLeague::FinishSession()
 			eRecurringProposal = pInfo->GetRecurringProposal();
 		}
 	}
+
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
+	{
+		if (GET_PLAYER(it->ePlayer).isAlive())
+		{
+			int iNumVotes = CalculateStartingVotesForMember(it->ePlayer, /*bForceUpdateSources*/ true);
+			for (int jJ = 0; jJ < GC.getNUM_YIELD_TYPES(); jJ++)
+			{
+				YieldTypes eLoopYield = (YieldTypes)jJ;
+				if (eLoopYield == YIELD_SCIENCE)
+				{
+					int iBeakersBonus = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+					TechTypes eCurrentTech = GET_PLAYER(it->ePlayer).GetPlayerTechs()->GetCurrentResearch();
+					if (eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(it->ePlayer).changeOverflowResearch(iNumVotes * iBeakersBonus);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(it->ePlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iNumVotes * iBeakersBonus, it->ePlayer);
+					}
+				}
+				else if (eLoopYield == YIELD_GOLD)
+				{
+					int iTradeGold = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+					GET_PLAYER(it->ePlayer).GetTreasury()->ChangeGold(iNumVotes * iTradeGold);
+				}
+				else if (eLoopYield == YIELD_CULTURE)
+				{
+					int iCultureBonus = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+					if (iCultureBonus != 0)
+					{
+						GET_PLAYER(it->ePlayer).changeJONSCulture(iNumVotes * iCultureBonus);
+						// if this is the human player, have the popup come up so that he can choose a new policy
+						if (GET_PLAYER(it->ePlayer).isAlive() && GET_PLAYER(it->ePlayer).isHuman() && GET_PLAYER(it->ePlayer).getNumCities() > 0)
+						{
+							if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+							{
+								if (GET_PLAYER(it->ePlayer).getNextPolicyCost() <= GET_PLAYER(it->ePlayer).getJONSCulture() && GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+								{
+									CvNotifications* pNotifications = GET_PLAYER(it->ePlayer).GetNotifications();
+									if (pNotifications)
+									{
+										CvString strBuffer;
+
+										if (GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+										else
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+										CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+										pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Notify players of vote results
 	NotifySessionDone();

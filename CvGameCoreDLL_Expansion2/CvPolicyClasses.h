@@ -149,7 +149,7 @@ public:
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
 	int GetCityStateTradeChange() const;
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	int GetGoldPerCSFriendsip() const;
 #endif
 	bool IsMinorGreatPeopleAllies() const;
@@ -286,6 +286,36 @@ public:
 #ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
 	int GetCityScienceSquaredModPerXPop() const;
 #endif
+#ifdef POLICY_EXTRA_SPIES
+	int GetExtraSpies() const;
+#endif
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+	int GetSpyMinorPerTurnInfluence() const;
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+	int GetFoeTourismModifier() const;
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+	int GetHappyTourismModifier() const;
+#endif
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	int GetBuildingClassTourismChanges(int i) const;
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	int GetCapitalCultureModPerDiplomat() const;
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	int GetExtraTradeRoutes() const;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	int GetHappinessPerTradeRouteToCap() const;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	int GetHappinessPerTradeRouteToMinor() const;
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	int GetLeagueSessionYieldBoostPerDelegate(int i) const;
+#endif
 
 private:
 	int m_iTechPrereq;
@@ -404,7 +434,7 @@ private:
 	int m_iTradeRouteTourismModifier;
 	int m_iOpenBordersTourismModifier;
 	int m_iCityStateTradeChange;
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	int m_iGoldPerCSFriendsip;
 #endif
 	bool m_bMinorGreatPeopleAllies;
@@ -488,6 +518,30 @@ private:
 #ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
 	int m_iCityScienceSquaredModPerXPop;
 #endif
+#ifdef POLICY_EXTRA_SPIES
+	int m_iExtraSpies;
+#endif
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+	int m_iSpyMinorPerTurnInfluence;
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+	int m_iFoeTourismModifier;
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+	int m_iHappyTourismModifier;
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	int m_iCapitalCultureModPerDiplomat;
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	int m_iExtraTradeRoutes;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	int m_iHappinessPerTradeRouteToCap;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	int m_iHappinessPerTradeRouteToMinor;
+#endif
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -530,6 +584,12 @@ private:
 	int** m_ppiBuildingClassYieldChanges;
 #ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	int** m_ppiBuildingScecialistCountChange;
+#endif
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	int* m_paiBuildingClassTourismChanges;
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	int* m_paiLeagueSessionYieldBoostPerDelegate;
 #endif
 	int* m_piFlavorValue;
 };
@@ -666,13 +726,34 @@ enum PolicyModifierType
 	POLICYMOD_STEAL_TECH_FASTER_MODIFIER,
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
-#ifdef GOLD_PER_CS_FRIENDSHIP
-	POLICYMOD_GOLD_PER_CS_FRIENDSHIP,
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
+	POLICYMOD_POLICY_GOLD_PER_CS_FRIENDSHIP,
 #endif
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+	POLICYMOD_SPY_INFLUENCE,
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+	POLICYMOD_TOURISM_MOD_FOE,
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+	POLICYMOD_TOURISM_MOD_HAPPY,
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	POLICYMOD_CAPITAL_CULTURE_MOD_PER_DIPLOMAT,
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	POLICYMOD_EXTRA_TRADE_ROUTES,
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_CAP,
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR,
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -803,6 +884,13 @@ public:
 	// Functions to process AI each turn
 	void DoPolicyAI();
 	void DoChooseIdeology();
+
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	int GetBuildingClassTourismChanges(BuildingClassTypes eBuildingClass);
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	int GetLeagueSessionYieldBoostPerDelegateChanges(YieldTypes eYield);
+#endif
 
 private:
 	void AddFlavorAsStrategies(int iPropagatePercent);

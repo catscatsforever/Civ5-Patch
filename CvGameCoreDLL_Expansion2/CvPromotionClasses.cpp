@@ -140,6 +140,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
 	m_bCanHeavyCharge(false),
+#ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
+	m_bNoUnhappinessPenalty(false),
+#endif
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
@@ -595,6 +598,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		pResults->Reset();
 	}
+
+#ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
+	m_bNoUnhappinessPenalty = kResults.GetBool("NoUnhappinessPenalty");
+#endif
 
 	kUtility.PopulateArrayByExistence(m_pbPostCombatRandomPromotion,
 		"UnitPromotions",
@@ -1433,6 +1440,13 @@ void CvPromotionEntry::SetSound(const char* szVal)
 {
 	m_strSound = szVal;
 }
+
+#ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
+bool CvPromotionEntry::IsNoUnhappinessPenalty() const
+{
+	return m_bNoUnhappinessPenalty;
+}
+#endif
 
 // ARRAYS
 

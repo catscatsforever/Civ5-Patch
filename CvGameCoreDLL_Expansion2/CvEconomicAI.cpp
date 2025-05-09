@@ -1410,7 +1410,7 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "GPT - Connects", pTreasury->GetCityConnectionGold());
 	AppendToLog(strHeader, strLog, "GPT - Diplo", pTreasury->GetGoldPerTurnFromDiplomacy());
 	AppendToLog(strHeader, strLog, "GPT - Religion", pTreasury->GetGoldPerTurnFromReligion());
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	AppendToLog(strHeader, strLog, "GPT - Policies", pTreasury->GetGoldPerTurnFromPolicies());
 #endif
 	AppendToLog(strHeader, strLog, "GPT - Traits", pTreasury->GetGoldPerTurnFromTraits());
@@ -1419,13 +1419,13 @@ void CvEconomicAI::LogMonitor(void)
 	int iGPTFromDiplomacy = pTreasury->GetGoldPerTurnFromDiplomacy();
 	int iGoldFromCityConnect = pTreasury->GetCityConnectionGoldTimes100() / 100;
 	int iGPTFromReligion = pTreasury->GetGoldPerTurnFromReligion();
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	int iGPTFromPolicies = pTreasury->GetGoldPerTurnFromPolicies();
 #endif
 	int iGPTFromTraits = pTreasury->GetGoldPerTurnFromTraits();
 	int iTradeRouteGold = (int)(iInternationalTradeGPT / 100);
 	int iTotalIncome = iGoldFromCitiesMinusTR + iGPTFromDiplomacy + iGoldFromCityConnect + iGPTFromReligion + iGPTFromTraits + iTradeRouteGold;
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	iTotalIncome += iGPTFromPolicies;
 #endif
 	AppendToLog(strHeader, strLog, "Total Income", iTotalIncome);

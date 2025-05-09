@@ -592,7 +592,6 @@ function SetUpMinorMeter( iMajor, iMinor, controls, minorColor )
 	if (GetCityStateStatusType(iMajor, iMinor) == "MINOR_FRIENDSHIP_STATUS_NEUTRAL") then
 		controls.StatusIcon:SetColor( minorColor );
 		-- controls.StatusIconBG:SetHide( true );
-    	controls.StatusIcon:SetOffsetX( -5 );
     end
 	
 	-- If INF is 0, don't bother showing the meter

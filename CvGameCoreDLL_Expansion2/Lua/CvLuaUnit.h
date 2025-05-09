@@ -381,6 +381,9 @@ protected:
 	static int lGetFriendlyLandsModifier(lua_State* L);
 	static int lGetFriendlyLandsAttackModifier(lua_State* L);
 	static int lGetOutsideFriendlyLandsModifier(lua_State* L);
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	static int lGetNavalCombatModifierNearCity(lua_State* L);
+#endif
 	static int lGetExtraCityAttackPercent(lua_State* L);
 	static int lGetExtraCityDefensePercent(lua_State* L);
 	static int lGetExtraHillsAttackPercent(lua_State* L);

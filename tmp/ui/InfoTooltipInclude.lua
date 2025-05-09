@@ -188,6 +188,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	-- Defense
 	local iDefense = pBuildingInfo.Defense;
 	if (iDefense ~= nil and iDefense ~= 0) then
+		if (pActivePlayer and pBuildingInfo.IncreaseBonusesPerEra > 0) then
+			iDefense = iDefense + 100 * pActivePlayer:GetCurrentEra() * pBuildingInfo.IncreaseBonusesPerEra;
+		end
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_DEFENSE", iDefense / 100));
 	end
 	
@@ -304,7 +307,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	local iTechEnhancedTourism = pBuildingInfo.TechEnhancedTourism;
 	local iEnhancingTech = GameInfoTypes[pBuildingInfo.EnhancedYieldTech];
 	if(iTechEnhancedTourism > 0 and pActiveTeam:GetTeamTechs():HasTech(iEnhancingTech)) then
-		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTechEnhancedTourism);
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTechEnhancedTourism + pActivePlayer:GetBuildingClassTourismChanges(buildingClassID));
+		table.insert(lines, localizedText);
+	elseif(pActivePlayer:GetBuildingClassTourismChanges(buildingClassID) > 0) then
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", pActivePlayer:GetBuildingClassTourismChanges(buildingClassID));
 		table.insert(lines, localizedText);
 	end	
 	
@@ -670,6 +676,13 @@ function GetCultureTooltip(pCity)
 		if (iAmount ~= 0) then
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_CITY_MOD", iAmount);
+		end
+		
+		-- Policy Culture modifier
+		local iAmount = pCity:GetCapitalCultureModPerDiplomat();
+		if (iAmount ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_POLICY_MOD", iAmount);
 		end
 		
 		-- Culture Wonders modifier

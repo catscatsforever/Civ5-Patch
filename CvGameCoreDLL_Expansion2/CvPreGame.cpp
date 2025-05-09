@@ -309,6 +309,119 @@ std::vector<CvString> s_leaderNamesLocalized(MAX_PLAYERS);
 GameStartTypes	s_gameStartType;
 
 StorageLocation	s_loadFileStorage;
+#ifdef INGAME_CIV_DRAFTER
+
+CvString s_draftLocalSecret = "";
+CvString s_draftLocalSecretHash = "";
+CvString s_draftShuffledCivs = "";
+int s_draftPlayersReady = 0;
+int s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
+int s_draftResult = DRAFT_RESULT_NONE;
+std::vector<CvString> s_draftPlayerBans;
+std::vector<CvString> s_draftPlayerSecrets(MAX_MAJOR_CIVS);
+std::vector<CvString> s_draftPlayerSecretHashes(MAX_MAJOR_CIVS);
+std::vector<CvString> s_draftBansMsgQueue(MAX_PLAYERS);
+std::vector<bool> s_draftAllBansReceived(MAX_MAJOR_CIVS);
+int s_draftCurrBansMsgNumber = 0;
+CvString hash(CvString m) {
+	uint H[8] = { 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 };
+	uint K[64] = {
+		0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+		0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+		0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+		0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+		0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+		0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+		0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+		0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
+	};
+	uint size = m.size();
+	uint l = size * 8;
+	uint pads = 64 - size % 64;
+	if (pads < 9) {
+		pads += 64;
+	}
+	uint8 pad[64] = { 0 };
+	pad[0] = 0x80;
+	uint8* l2 = reinterpret_cast<uint8*>(&l);
+	l2[0] ^= l2[3];
+	l2[3] ^= l2[0];
+	l2[0] ^= l2[3];
+	l2[1] ^= l2[2];
+	l2[2] ^= l2[1];
+	l2[1] ^= l2[2];
+	for (uint i = 0; i < 4; i++) {
+		pad[pads - 4 + i] = l2[i];
+	}
+
+	uint ind = 0;
+	for (uint chunk = 0; chunk < (pads + size) / 64; chunk++) {
+		uint8 msg[64 * 4];
+		uint* msgw = reinterpret_cast<uint*> (msg);
+		for (uint i = 0; i < 64; i++) {
+			if (ind < size) {
+				msg[i] = m[ind];
+				ind++;
+			}
+			else {
+				msg[i] = pad[ind - size];
+				ind++;
+			}
+		}
+
+		for (uint i = 0; i < 16; i++) {
+			msg[4 * i + 0] ^= msg[4 * i + 3];
+			msg[4 * i + 3] ^= msg[4 * i + 0];
+			msg[4 * i + 0] ^= msg[4 * i + 3];
+			msg[4 * i + 1] ^= msg[4 * i + 2];
+			msg[4 * i + 2] ^= msg[4 * i + 1];
+			msg[4 * i + 1] ^= msg[4 * i + 2];
+		}
+
+		for (uint i = 16; i < 64; i++) {
+			uint S0 = ((msgw[i - 15] >> 7) | (msgw[i - 15] << (32 - 7))) ^ ((msgw[i - 15] >> 18) | (msgw[i - 15] << (32 - 18))) ^ (msgw[i - 15] >> 3);
+			uint S1 = ((msgw[i - 2] >> 17) | (msgw[i - 2] << (32 - 17))) ^ ((msgw[i - 2] >> 19) | (msgw[i - 2] << (32 - 19))) ^ (msgw[i - 2] >> 10);
+			msgw[i] = msgw[i - 16] + msgw[i - 7] + S0 + S1;
+		}
+
+		uint block[8];
+		for (uint i = 0; i < 8; i++) {
+			block[i] = H[i];
+		}
+
+		for (uint i = 0; i < 64; i++) {
+			uint S1 = ((block[4] >> 6) | (block[4] << (32 - 6))) ^ ((block[4] >> 11) | (block[4] << (32 - 11))) ^ ((block[4] >> 25) | (block[4] << (32 - 25)));
+			uint ch = (block[4] & block[5]) ^ ((~block[4]) & block[6]);
+			uint t1 = block[7] + S1 + ch + K[i] + msgw[i];
+			uint S0 = ((block[0] >> 2) | (block[0] << (32 - 2))) ^ ((block[0] >> 13) | (block[0] << (32 - 13))) ^ ((block[0] >> 22) | (block[0] << (32 - 22)));
+			uint maj = (block[0] & block[1]) ^ (block[0] & block[2]) ^ (block[1] & block[2]);
+			uint t2 = S0 + maj;
+
+			block[7] = block[6];
+			block[6] = block[5];
+			block[5] = block[4];
+			block[4] = block[3] + t1;
+			block[3] = block[2];
+			block[2] = block[1];
+			block[1] = block[0];
+			block[0] = t1 + t2;
+		}
+
+		for (uint i = 0; i < 8; i++) {
+			H[i] += block[i];
+		}
+
+	}
+	CvString s;
+	for (uint i = 0; i < 8; i++) {
+		CvString t;
+		CvString::format(t, "%08x", H[i]);
+		s += t;
+	}
+	SLOG("msg: %s hash: %s", m.c_str(), s.c_str());
+	return s;
+}
+#endif
 
 //	-----------------------------------------------------------------------
 //	Bind a leader head key to the leader head using the current leader head ID
@@ -1615,6 +1728,11 @@ const CvString& nickname(PlayerTypes p)
 const CvString& nicknameDisplayed(PlayerTypes p)
 {
 #ifdef PREGAMEAPI_GET_NETID
+	// UI <- dll
+	// 0001 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - get steamID
+	// 0010 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - get drafts data
+	// 0011 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - get s_draftPlayersReady
+	// 
 	// intercept Pregame.GetNickName here
 	// it actually limits max PlayerType value to 2^28 (it's OK)
 	if ((((uint)p >> 28) & 15) == 1)  // check if leftmost bits are 0001
@@ -1627,6 +1745,52 @@ const CvString& nicknameDisplayed(PlayerTypes p)
 			netId = (CvString)(nickname(pId).substr(ind + 1));  // extract steamID from nickname
 		}
 		return netId;
+	}
+#endif
+#ifdef INGAME_CIV_DRAFTER
+	if ((((uint)p >> 28) & 15) == 2)  // draft data requested
+	{
+		static CvString data;
+		CvString s = "";
+		uint i = 0;
+		for (i = 0; i < s_draftPlayerBans.size(); i++)
+		{
+			if (s_draftPlayerBans[i] != "")
+			{
+				s += s_draftPlayerBans[i];
+			}
+		}
+
+		switch (s_draftCurrentProgress) {
+		case DRAFT_PROGRESS_INIT:
+			for (i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+			{
+				s.append(s_draftPlayerSecretHashes[i] == "" ? "0" : "1");
+				s.append(",");
+			}
+			data = CvString::format("DRAFT_PROGRESS_INIT|%s", s.c_str());
+			break;
+		case DRAFT_PROGRESS_BANS:
+			data = CvString::format("DRAFT_PROGRESS_BANS|%s", s.c_str());
+			break;
+		case DRAFT_PROGRESS_BUSY:
+			data = CvString::format("DRAFT_PROGRESS_BUSY|%s", s.c_str());
+			break;
+		case DRAFT_PROGRESS_OVER:
+			data = CvString::format("DRAFT_PROGRESS_OVER|%s|%s", s.c_str(), s_draftShuffledCivs.c_str());
+			break;
+		default:
+			data = "DRAFT_PROGRESS_DEFAULT|";
+			break;
+		}
+
+		return data;
+	}
+	if ((((uint)p >> 28) & 15) == 3)  // s_draftPlayersReady requested
+	{
+		static CvString data;
+		data = CvString::format("%d", s_draftPlayersReady);
+		return data;
 	}
 #endif
 	if(p >= 0 && p < MAX_PLAYERS)
@@ -2011,6 +2175,30 @@ void resetGame()
 
 	ResetMapOptions();
 	ResetGameOptions();
+#ifdef INGAME_CIV_DRAFTER
+	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
+	{
+		s_draftPlayerSecrets[i] = "";
+	}
+	for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+	{
+		s_draftPlayerSecretHashes[i] = "";
+	}
+	for (uint i = 0; i < s_draftAllBansReceived.size(); i++)
+	{
+		s_draftAllBansReceived[i] = false;
+	}
+	s_draftPlayerBans.clear();
+	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
+	s_draftResult = DRAFT_RESULT_NONE;
+	s_draftShuffledCivs= "";
+	s_draftPlayersReady = 0;
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", 0);
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", 0);
+	s_draftBansMsgQueue.clear();
+	s_draftCurrBansMsgNumber = 0;
+
+#endif
 }
 
 void ResetGameOptions()
@@ -2259,6 +2447,14 @@ const CvSeaLevelInfo& seaLevelInfo()
 
 void setActivePlayer(PlayerTypes p)
 {
+#ifdef INGAME_CIV_DRAFTER
+	SLOG("active p %d", p);
+	if (isNetworkMultiplayerGame() || isHotSeatGame())
+	{
+		CvString strP = CvString::format("%d", (int)p);
+		gDLL->SendRenameCity(-6, strP);
+	}
+#endif
 	s_activePlayer = p;
 }
 
@@ -2536,6 +2732,30 @@ void setGameTurn(int turn)
 
 void setGameType(GameTypes g, GameStartTypes eStartType)
 {
+#ifdef INGAME_CIV_DRAFTER
+	SLOG("--- setGameType");
+	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
+	{
+		s_draftPlayerSecrets[i] = "";
+	}
+	for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+	{
+		s_draftPlayerSecretHashes[i] = "";
+	}
+	for (uint i = 0; i < s_draftAllBansReceived.size(); i++)
+	{
+		s_draftAllBansReceived[i] = false;
+	}
+	s_draftPlayerBans.clear();
+	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
+	s_draftResult = DRAFT_RESULT_NONE;
+	s_draftShuffledCivs = "";
+	s_draftPlayersReady = 0;
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", 0);
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", 0);
+	s_draftBansMsgQueue.clear();
+	s_draftCurrBansMsgNumber = 0;
+#endif
 	s_gameType = g;
 	s_gameStartType = eStartType;
 	if(s_gameType != GAME_NETWORK_MULTIPLAYER)
@@ -2695,22 +2915,610 @@ void SetHasRemapToken(PlayerTypes p, bool bValue)
 		{
 			int i = -1;
 			CvPreGame::GetGameOption("GAMEOPTION_REMAP_VOTE_TOKENS", i);
-			SLOG("OLD REMAP TOKEN %d", i);
+			//SLOG("OLD REMAP TOKEN %d", i);
 			if (bValue)
 				((i) |= (1ULL << (static_cast<int>(p))));  // set bit
 			else
 				((i) &= ~(1ULL << (static_cast<int>(p))));  // clear bit
 			CvPreGame::SetGameOption("GAMEOPTION_REMAP_VOTE_TOKENS", i);
-			SLOG("NEW REMAP TOKEN %d", i);
+			//SLOG("NEW REMAP TOKEN %d", i);
 		}
 	}
 }
 
 #endif
+#ifdef INGAME_CIV_DRAFTER
+bool IsDraftPlayerReady(PlayerTypes p)
+{
+	if ((int)p < 0 || (int)p > MAX_MAJOR_CIVS)
+		return false;
+	return 1 == ((s_draftPlayersReady >> static_cast<int>(p)) & 1);
+}
+
+void SetDraftPlayerReady(PlayerTypes p, bool bValue)
+{
+	if ((int)p < 0 || (int)p > MAX_MAJOR_CIVS)
+		return;
+	SLOG("OLD DRAFT READY %d", s_draftPlayersReady);
+	if (bValue)
+		((s_draftPlayersReady) |= (1ULL << (static_cast<int>(p))));  // set bit
+	else
+		((s_draftPlayersReady) &= ~(1ULL << (static_cast<int>(p))));  // clear bit
+	SLOG("NEW DRAFT READY %d", s_draftPlayersReady);
+}
+
+void DraftResponseSecretHash(PlayerTypes p, const char* szHash)
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_INIT)
+	{
+		SLOG("WARN attempt to set secret hash outside DRAFT_PROGRESS_INIT stage %d %d", p, s_draftCurrentProgress);
+		return;
+	}
+	uint uiPlayerID = (uint)p;
+	if (uiPlayerID >= MAX_MAJOR_CIVS)
+	{
+		SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
+		return;
+	}
+	SetDraftPlayerReady(p, true);
+	if (s_draftPlayerSecretHashes[uiPlayerID] != "")
+	{
+		SLOG("WARN attempt to overwrite secret hash for player %d", uiPlayerID);
+		return;
+	}
+	s_draftPlayerSecretHashes[uiPlayerID] = CvString(szHash);
+	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ready|%d", uiPlayerID).c_str());
+	SLOG("set secret hash for player %d to %s", uiPlayerID, szHash);
+
+	// check all secret hashes received
+	bool bReady = true;
+	for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+	{
+		if (isHuman((PlayerTypes)i) && (s_draftPlayerSecretHashes[i] == ""))
+			bReady = false;
+	}
+	if (bReady)
+	{
+		SLOG("received all secret hashes");
+		s_draftCurrentProgress = DRAFT_PROGRESS_BANS;
+		// TODO enable bans in UI
+		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), "DRAFT_PROGRESS_BANS|");
+	}
+}
+
+void DraftSyncBans(PlayerTypes p, const char* szBans)
+{
+	CvString msg = CvString::format("%d|%d|%s", s_draftCurrBansMsgNumber, static_cast<int>(p), szBans);
+	s_draftCurrBansMsgNumber++;
+	gDLL->SendRenameCity(-5, msg);
+}
+
+void DraftResponseBans(PlayerTypes p, const char* szBans)
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_BANS)
+	{
+		SLOG("WARN attempt to set bans outside DRAFT_PROGRESS_BANS stage %d %d", p, s_draftCurrentProgress);
+		return;
+	}
+	uint uiPlayerID = (uint)p;
+
+	if (uiPlayerID >= MAX_MAJOR_CIVS)
+	{
+		SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
+		return;
+	}
+
+	std::vector<CvString> tokens;
+	CvString s = CvString(szBans);
+	size_t pos = 0;
+	std::string token;
+	int civs1 = 0;
+	int civs2 = 0;
+	uint id;
+
+	// TODO probably redundant
+	// create bans bitmap (using 2x32 bit integers)
+	while ((pos = s.find(',')) != std::string::npos) {
+		token = s.substr(0, pos);
+		tokens.push_back(token);
+		s.erase(0, pos + 1);
+		if (sscanf(token.c_str(), "%d", &id) == 1)
+		{
+			if (id >= 0 && id <= 63)
+			{
+				if (id < 32)
+					civs1 |= 1 << id;
+				else
+					civs2 |= 1 << (id - 32);
+			}
+		}
+	}
+	tokens.push_back(s);
+	if (sscanf(s.c_str(), "%d", &id) == 1)
+	{
+		if (id >= 0 && id <= 63)
+		{
+			if (id < 32)
+				civs1 |= 1 << id;
+			else
+				civs2 |= 1 << (id - 32);
+		}
+	}
+
+	// TODO probably redundant
+	int old1, old2;
+	if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", old1))
+		old1 = 0;
+	if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", old2))
+		old2 = 0;
+
+	// verify bans uniqueness (host only)
+	if (old1 & civs1 || old2 & civs2)
+	{
+		SLOG("WARN bans not unique 1old %d new %d 2old %d new %d", old1, civs1, old2, civs2);
+		if (gDLL->IsHost())
+		{
+			CvString s2 = CvString::format("%d:%s;", uiPlayerID, szBans);
+			gDLL->SendRenameCity(-4, s2);
+		}
+		return;
+	}
+
+	SLOG("1old %d new %d res %d", old1, civs1, old1 ^ civs1);
+	SLOG("2old %d new %d res %d", old2, civs2, old2 ^ civs2);
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", old1 ^ civs1);
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", old2 ^ civs2);
+
+	// notify UI
+	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ban-success|%d|%s", uiPlayerID, szBans).c_str());
+	s_draftPlayerBans.push_back(CvString::format("%d:%s;", uiPlayerID, szBans));
+
+	// check bans ready
+	bool bReady = true;
+	std::vector<bool> vPlayers(MAX_MAJOR_CIVS);
+	for (uint i = 0; i < s_draftPlayerBans.size(); i++)
+	{
+		if ((pos = s_draftPlayerBans[i].find(':')) != std::string::npos)
+		{
+			if (sscanf(s_draftPlayerBans[i].substr(0, pos).c_str(), "%d", &id) == 1)
+			{
+				if (id >= 0 && id < vPlayers.size())
+				{
+					vPlayers[id] = true;
+				}
+			}
+		}
+	}
+	for (uint i = 0; i < vPlayers.size(); i++)
+	{
+		if (isHuman((PlayerTypes)i) && !vPlayers[i])
+			bReady = false;
+	}
+	if (bReady)
+	{
+		// extra step required due to network jitter
+		gDLL->SendRenameCity(-7, "");
+	}
+}
+
+void DraftResponseAllBansReceived(PlayerTypes p)
+{
+	uint uiPlayerID = (uint)p;
+	if (uiPlayerID >= MAX_MAJOR_CIVS)
+	{
+		SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
+		return;
+	}
+	
+	s_draftAllBansReceived[uiPlayerID] = true;
+
+	// check AllBansReceived
+	bool bReady = true;
+	for (uint i = 0; i < s_draftAllBansReceived.size(); i++)
+	{
+		if (isHuman((PlayerTypes)i) && !s_draftAllBansReceived[i])
+			bReady = false;
+	}
+	if (bReady)
+	{
+		s_draftCurrentProgress = DRAFT_PROGRESS_BUSY;
+		// send secret via UI
+		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_BUSY|%s", s_draftLocalSecret.c_str()).c_str());
+	}
+};
+
+void DraftResponseSecret(PlayerTypes p, const char* szSecret)
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_BUSY)
+	{
+		SLOG("WARN attempt to set secret outside DRAFT_PROGRESS_BUSY stage %d %d", p, s_draftCurrentProgress);
+		return;
+	}
+	uint uiPlayerID = (uint)p;
+	if (uiPlayerID >= MAX_MAJOR_CIVS)
+	{
+		SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
+		return;
+	}
+	if (s_draftPlayerSecrets[uiPlayerID] != "")
+	{
+		SLOG("WARN attempt to overwrite secret for player %d", uiPlayerID);
+		return;
+	}
+	if (s_draftPlayerSecretHashes[uiPlayerID] != hash(szSecret))
+	{
+		SLOG("WARN received secret does not match declared secret hash: player %d declared %s received %s (hash %s)", uiPlayerID, s_draftPlayerSecretHashes[uiPlayerID].c_str(), szSecret, hash(CvString(szSecret)).c_str());
+		DraftLocalReset(GetLocalizedText("TXT_KEY_DRAFTS_RESET_HASH_MISMATCH", nicknameDisplayed((PlayerTypes)uiPlayerID).c_str()).c_str());
+		return;
+	}
+	s_draftPlayerSecrets[uiPlayerID] = CvString(szSecret);
+	SLOG("set secret for player %d to %s", uiPlayerID, szSecret);
+
+	// check all secrets received
+	bool bReady = true;
+	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
+	{
+		if (isHuman((PlayerTypes)i) && (s_draftPlayerSecrets[i] == ""))
+			bReady = false;
+	}
+	if (bReady)
+	{
+		SLOG("received all secrets");
+		s_draftCurrentProgress = DRAFT_PROGRESS_OVER;
+		// TODO gather bans & roll civs
+		int sum = 0;
+		for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
+		{
+			CvString szSecret = s_draftPlayerSecrets[i];
+			if (szSecret != "")
+			{
+				int iSecret;
+				if (sscanf(szSecret.c_str(), "%d", &iSecret) == 1)
+				{
+					sum += iSecret;
+					SLOG("sum %d", sum);
+				}
+			}
+		}
+
+		std::vector<int> civList;
+		int bans1, bans2;
+		if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", bans1))
+			bans1 = 0;
+		if (!CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", bans2))
+			bans2 = 0;
+		for (int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); ++iCiv)
+		{
+			CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes)iCiv);
+			if (pkCivilization != NULL && pkCivilization->isPlayable() && ((((iCiv < 32) ? bans1 : bans2) >> iCiv) & 1) != 1)
+			{
+				civList.push_back(iCiv);
+			}
+		}
+		SLOG("civList size: %d", civList.size());
+		// shuffle civs
+		std::srand(sum);
+		uint uiSize = civList.size();
+		for (uint k = 0; k < uiSize; k++) {
+			int r = k + std::rand() % (uiSize - k);
+			std::swap(civList[k], civList[r]);
+		}
+		CvString s;
+		for (std::vector<int>::const_iterator i = civList.begin(); i != civList.end(); ++i)
+		{
+			s += CvString::format("%d", *i);
+			s.append(",");
+		}
+		SLOG("shuffled civs %s", s.c_str());
+		s_draftShuffledCivs = s;
+
+		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_OVER|%s", s.c_str()).c_str());
+	}
+}
+
+void DraftResponseBanRollback(PlayerTypes p, const char* szBans)
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_BANS)
+	{
+		SLOG("WARN attempt to set bans outside DRAFT_PROGRESS_BANS stage %d %d", p, s_draftCurrentProgress);
+		return;
+	}
+	uint uiPlayerID = (uint)p;
+
+	if (uiPlayerID >= MAX_MAJOR_CIVS)
+	{
+		SLOG("WARN uiPlayerID out of bounds %d", uiPlayerID);
+		return;
+	}
+
+	CvString s = CvString(szBans);
+	for (uint i = 0; i < s_draftPlayerBans.size(); i++)
+	{
+		if (s_draftPlayerBans[i] == s)
+		{
+			s_draftPlayerBans.erase(s_draftPlayerBans.begin() + i);
+			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ban-failure|%s", szBans).c_str());
+			return;
+		}
+	}
+	SLOG("WARN could not find bans for rollback: %s", szBans);
+};
+
+void DraftResponseSwapPlayers(PlayerTypes p, const char* szSwapWith)
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_OVER)
+	{
+		CvString strSwapWith = CvString(szSwapWith);
+		int newp = -1;
+		if (strSwapWith != "")
+		{
+			if (sscanf(strSwapWith.c_str(), "%d", &newp) != 1)
+			{
+				return;
+			}
+		}
+		int oldp = (int)p;
+		if (newp >= 0 && newp < MAX_MAJOR_CIVS)
+		{
+			s_draftPlayerSecretHashes[oldp] = "";
+			s_draftPlayerSecretHashes[p] = "";
+			SetDraftPlayerReady((PlayerTypes)oldp, false);
+			SetDraftPlayerReady(p, false);
+			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("upd|%s", szSwapWith).c_str());
+		}
+	}
+};
+
+
+void DraftLocalReady()
+{
+	if (s_draftCurrentProgress != DRAFT_PROGRESS_INIT)
+	{
+		SLOG("WARN attempt to start drafts outside DRAFT_PROGRESS_INIT stage %d", s_draftCurrentProgress);
+		return;
+	}
+
+	if (s_draftLocalSecret != "")
+	{
+		SLOG("WARN attempt to overwrite local secret");
+		SLOG("reusing old secret instead: %s", s_draftLocalSecret.c_str());
+		s_draftLocalSecretHash = hash(s_draftLocalSecret);
+		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_INIT|%s", s_draftLocalSecretHash.c_str()).c_str());
+		return;
+	}
+
+	// generate random secret -- as invulnerable as possible
+	int buf = -1;
+	HMODULE advapi = GetModuleHandle("advapi32.dll");
+	if (advapi != NULL)
+	{
+		BOOLEAN(APIENTRY * RtlGenRandom)(void*, ULONG) =
+			(BOOLEAN(APIENTRY*)(void*, ULONG))GetProcAddress(advapi, "SystemFunction036");
+		if (RtlGenRandom != NULL)
+		{
+			RtlGenRandom(&buf, 32UL);
+		}
+	}
+	SLOG("gen secret %d", buf);
+	s_draftLocalSecret = CvString::format("%d", buf); // TODO bad secret quality (32 bit)
+	s_draftLocalSecretHash = hash(s_draftLocalSecret);
+
+	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_INIT|%s", s_draftLocalSecretHash.c_str()).c_str());
+}
+
+void DraftLocalReset(const char* szReason)
+{
+	SLOG("--- DRAFT RESET ---");
+	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
+	{
+		s_draftPlayerSecrets[i] = "";
+	}
+	for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+	{
+		s_draftPlayerSecretHashes[i] = "";
+	}
+	for (uint i = 0; i < s_draftAllBansReceived.size(); i++)
+	{
+		s_draftAllBansReceived[i] = false;
+	}
+	s_draftPlayerBans.clear();
+	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
+	s_draftResult = DRAFT_RESULT_NONE;
+	s_draftShuffledCivs = "";
+	s_draftPlayersReady = 0;
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", 0);
+	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", 0);
+	s_draftBansMsgQueue.clear();
+	s_draftCurrBansMsgNumber = 0;
+	s_draftLocalSecret = "";
+	s_draftLocalSecretHash = "";
+	CvString strReason(CvString("reset|") + szReason);
+	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), strReason.c_str());
+}
+
+void DraftLocalUpdate()
+{
+	bool bOk = true;
+	if (s_draftCurrentProgress == DRAFT_PROGRESS_INIT)
+	{
+		// check all secret hashes received
+		bool bReady = true;
+		for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+		{
+			if (isHuman((PlayerTypes)i) && (s_draftPlayerSecretHashes[i] == ""))
+				bReady = false;
+		}
+		if (bReady)
+		{
+			SLOG("received all secret hashes");
+			s_draftCurrentProgress = DRAFT_PROGRESS_BANS;
+			// TODO enable bans in UI
+			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), "DRAFT_PROGRESS_BANS|");
+		}
+	}
+	else if (s_draftCurrentProgress == DRAFT_PROGRESS_BANS || s_draftCurrentProgress == DRAFT_PROGRESS_BUSY)
+	{
+		// validate active players
+		for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
+		{
+			if (isHuman((PlayerTypes)i))
+			{
+				if (s_draftPlayerSecretHashes[i] == "")
+					bOk = false;  // new player joined after draft has started?
+			}
+			else
+			{
+				if (s_draftPlayerSecretHashes[i] != "")
+					bOk = false;  // player dissappeared or was kicked out during drafts?
+				if (s_draftPlayerSecrets[i] != "")
+					bOk = false;  // player sent secret and then dissappeared?
+			}
+		}
+	}
+
+	if (!bOk)
+	{
+		DraftLocalReset("TXT_KEY_DRAFTS_RESET_MISSING_PLAYER");  // something went wrong; abort draft progress
+	}
+}
+
+bool IsCivBanned(int iCivId)
+{
+	if (iCivId < 0 || iCivId > 63)
+		return false;
+
+	int i = -1;
+	if (iCivId < 32)
+		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
+	else
+		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
+
+	return 1 == ((i >> iCivId) & 1);
+}
+
+void SetCivBanned(int iCivId, bool bValue)
+{
+	if (iCivId < 0 || iCivId > 63)
+		return;
+
+	int i = -1;
+	if (iCivId < 32)
+	{
+		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
+		SLOG("OLD DRAFT BANNED CIVS (0-31) %d", i);
+	}
+	else
+	{
+		CvPreGame::GetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
+		SLOG("OLD DRAFT BANNED CIVS (32-63) %d", i);
+	}
+
+	if (bValue)
+		((i) |= (1ULL << (iCivId - (iCivId < 32 ? 0 : 32))));  // set bit
+	else
+		((i) &= ~(1ULL << (iCivId - (iCivId < 32 ? 0 : 32))));  // clear bit
+
+	if (iCivId < 32)
+	{
+		CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", i);
+		SLOG("NEW DRAFT BANNED CIVS (0-31) %d", i);
+	}
+	else
+	{
+		CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", i);
+		SLOG("NEW DRAFT BANNED CIVS (32-63) %d", i);
+	}
+}
+
+CvString getDraftShuffledCivs()
+{
+	return s_draftShuffledCivs;
+}
+
+int getDraftPlayersReady()
+{
+	return s_draftPlayersReady;
+}
+
+int getDraftCurrentProgress()
+{
+	return s_draftCurrentProgress;
+}
+
+int getDraftResult()
+{
+	return s_draftResult;
+}
+
+std::vector<CvString> getDraftPlayerBans()
+{
+	return s_draftPlayerBans;
+}
+
+std::vector<CvString> getDraftPlayerSecrets()
+{
+	return s_draftPlayerSecrets;
+}
+
+std::vector<CvString> getDraftPlayerSecretHashes()
+{
+	return s_draftPlayerSecretHashes;
+}
+
+std::vector<bool> getDraftAllBansReceived()
+{
+	return s_draftAllBansReceived;
+}
+
+void setDraftShuffledCivs(CvString value)
+{
+	s_draftShuffledCivs = value;
+}
+
+void setDraftPlayersReady(int value)
+{
+	s_draftPlayersReady = value;
+}
+
+void setDraftCurrentProgress(int value)
+{
+	s_draftCurrentProgress = value;
+}
+void setDraftResult(int value)
+{
+	s_draftResult = value;
+}
+
+void setDraftPlayerBans(std::vector<CvString> value)
+{
+	s_draftPlayerBans = value;
+}
+
+void setDraftPlayerSecrets(std::vector<CvString> value)
+{
+	s_draftPlayerSecrets = value;
+}
+
+void setDraftAllBansReceived(std::vector<bool> value)
+{
+	s_draftAllBansReceived = value;
+}
+
+void setDraftPlayerSecretHashes(std::vector<CvString> value)
+{
+	s_draftPlayerSecretHashes = value;
+}
+#endif
 
 void setLeaderKey(PlayerTypes p, const CvString& szKey)
 {
 #ifdef INGAME_HOTKEY_MANAGER
+	// UI -> dll
+	// 0001 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - update hotkey
+	// 0010 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - set remap token
+	// 0011 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local player ready
+	// 0100 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local reset
+	// 0101 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local update
 	// intercept Pregame.SetLeaderKey here, check if leftmost bits are 0001
 	// it actually limits max PlayerType value to 2^28 (it's OK)
 	if ((((uint)p >> 28) & 15) == 1)  // 4 left-most bits reserved for mode (0 default; 1-15 moddable)
@@ -2735,9 +3543,26 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 		uint uiPlayerID = (((uint)p >> 1) & 134217727);  // 27-bit
 		int iValue = (((uint)p) & 1);  // 1-bit
 
-		if (uiPlayerID > MAX_MAJOR_CIVS)
+		if (uiPlayerID >= MAX_MAJOR_CIVS)
 			return;
 		SetHasRemapToken((PlayerTypes)uiPlayerID, (bool)iValue);
+		return;
+	}
+#endif
+#ifdef INGAME_CIV_DRAFTER
+	if ((((uint)p >> 28) & 15) == 3)  // player is ready for draft
+	{
+		DraftLocalReady();
+		return;
+	}
+	else if ((((uint)p >> 28) & 15) == 4)  // force reset
+	{
+		DraftLocalReset(szKey.c_str());
+		return;
+	}
+	else if ((((uint)p >> 28) & 15) == 5)  // local update
+	{
+		DraftLocalUpdate();
 		return;
 	}
 #endif

@@ -138,6 +138,13 @@ g_YourCultureSortOptions = {
 		SortType = "numeric",
 	},
 	{
+		Button = Controls.AmoxcalliButton,
+		Column = "AmoxcalliSort",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
 		Button = Controls.RoyalLibraryButton,
 		Column = "RoyalLibrarySort",
 		DefaultDirection = "desc",
@@ -633,6 +640,14 @@ function RefreshYourCulture()
 			ColumnImageControl = Controls.HeroicEpicImage,
 		},		
 		
+		BuildingEntry{
+			BuildingType = "BUILDING_AMOXCALLI",
+			BuildingSortColumn = "AmoxcalliSort",
+			IconControlNames = {"AmoxcalliGreatWork"},
+			HighlightIconControlNames = {"AmoxcalliGreatWorkHL"},
+			GhostIconControlNames = {"AmoxcalliGreatWorkGhost"},
+			ColumnImageControl = Controls.AmoxcalliImage,
+		},	
 		BuildingEntry{
 			BuildingType = "BUILDING_ROYAL_LIBRARY",
 			BuildingSortColumn = "RoyalLibrarySort",

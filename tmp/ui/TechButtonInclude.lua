@@ -102,11 +102,14 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
  	end
  	
+	playerID = Game.GetActivePlayer();
+	player = Players[playerID];
+	civID = GameInfo.Civilizations[player:GetCivilizationType()].ID;
  	for thisBuildingInfo in GameInfo.Buildings(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to construct this building
  -- Duel Mode
 		if validBuildingBuilds[thisBuildingInfo.BuildingClass] == thisBuildingInfo.Type then
-			if not (PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
+			if not (civID == 21 and thisBuildingInfo.ID == 162 or PreGame.GetGameOption("GAMEOPTION_DUEL_STUFF") > 0 and (PreGame.GetGameOption("GAMEOPTION_BAN_WORLD_WONDERS") > 0 
 				and (PreGame.GetGameOption("GAMEOPTION_BAN_WONDER1") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER2") == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_BAN_WONDER3") == thisBuildingInfo.ID) or 70 == thisBuildingInfo.ID or PreGame.GetGameOption("GAMEOPTION_DISABLE_OXFORD_UNIVERSITY") > 0 and 61 == thisBuildingInfo.ID)) then
 				local buttonName = "B"..tostring(buttonNum);
 				local thisButton = thisTechButtonInstance[buttonName];
@@ -141,7 +144,32 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	end
 
 	-- if this tech grants this player the ability to perform this action (usually only workers can do these)
+	playerID = Game.GetActivePlayer();
+	player = Players[playerID];
+	civID = GameInfo.Civilizations[player:GetCivilizationType()].ID;
 	for thisBuildInfo in GameInfo.Builds{PrereqTech = techType, ShowInTechTree  = 1} do
+		if not (civID == 10 and thisBuildInfo.ID == 5) then
+			if thisBuildInfo.ImprovementType then
+				if validImprovementBuilds[thisBuildInfo.ImprovementType] == thisBuildInfo.ImprovementType then
+					local buttonName = "B"..tostring(buttonNum);
+					local thisButton = thisTechButtonInstance[buttonName];
+					if thisButton then
+						AdjustArtOnGrantedActionButton( thisButton, thisBuildInfo, textureSize );
+	 					buttonNum = buttonNum + 1;
+	 				end
+	 			end
+			else
+				local buttonName = "B"..tostring(buttonNum);
+				local thisButton = thisTechButtonInstance[buttonName];
+				if thisButton then
+					AdjustArtOnGrantedActionButton( thisButton, thisBuildInfo, textureSize );
+	 				buttonNum = buttonNum + 1;
+	 			end
+			end
+		end
+	end
+	if civID == 10 and tech.ID == 0 then
+		local thisBuildInfo = GameInfo.Builds[5];
 		if thisBuildInfo.ImprovementType then
 			if validImprovementBuilds[thisBuildInfo.ImprovementType] == thisBuildInfo.ImprovementType then
 				local buttonName = "B"..tostring(buttonNum);

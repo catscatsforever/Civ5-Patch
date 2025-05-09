@@ -168,11 +168,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			}
 
 			int iRange = GC.getCITY_ATTACK_RANGE();
-#ifdef DUEL_WALL_CHANGE
-			if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
-				iRange += 1;
-#endif
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 			iRange += pLoopCity->getCityAttackRangeModifier();
 #endif
 			CvPlot* pCityPlot = pLoopCity->plot();

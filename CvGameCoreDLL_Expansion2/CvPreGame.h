@@ -222,6 +222,38 @@ void                                       setLeaderName(PlayerTypes p, const Cv
 bool                                       IsHasRemapToken(PlayerTypes p);
 void                                       SetHasRemapToken(PlayerTypes p, bool bValue);
 #endif
+#ifdef INGAME_CIV_DRAFTER
+bool                                       IsDraftPlayerReady(PlayerTypes p);
+void                                       SetDraftPlayerReady(PlayerTypes p, bool bValue);
+void                                       DraftResponseSecretHash(PlayerTypes p, const char* szHash);
+void                                       DraftSyncBans(PlayerTypes p, const char* szBans);
+void                                       DraftResponseBans(PlayerTypes p, const char* szBans);
+void                                       DraftResponseSecret(PlayerTypes p, const char* szSecret);
+void                                       DraftResponseBanRollback(PlayerTypes p, const char* szBans);
+void                                       DraftResponseSwapPlayers(PlayerTypes p, const char* szSwapWith);
+void                                       DraftResponseAllBansReceived(PlayerTypes p);
+void                                       DraftLocalReady();
+void                                       DraftLocalReset(const char* szReason);
+void                                       DraftLocalUpdate();
+bool                                       IsCivBanned(int iCivId);
+void                                       SetCivBanned(int iCivId, bool bValue);
+CvString                                   getDraftShuffledCivs();
+int                                        getDraftPlayersReady();
+int                                        getDraftCurrentProgress();
+int                                        getDraftResult();
+std::vector<CvString>                      getDraftPlayerBans();
+std::vector<CvString>                      getDraftPlayerSecrets();
+std::vector<CvString>                      getDraftPlayerSecretHashes();
+std::vector<bool>                          getDraftAllBansReceived();
+void                                       setDraftShuffledCivs(CvString value);
+void                                       setDraftPlayersReady(int value);
+void                                       setDraftCurrentProgress(int value);
+void                                       setDraftResult(int value);
+void                                       setDraftPlayerBans(std::vector<CvString> value);
+void                                       setDraftPlayerSecrets(std::vector<CvString> value);
+void                                       setDraftPlayerSecretHashes(std::vector<CvString> value);
+void                                       setDraftAllBansReceived(std::vector<bool> value);
+#endif
 void                                       setLeaderKey(PlayerTypes p, const CvString& n);
 void                                       setLeaderKeyPackageID(PlayerTypes p, const GUID& n);
 void										 setLoadFileName(const CvString& fileName);

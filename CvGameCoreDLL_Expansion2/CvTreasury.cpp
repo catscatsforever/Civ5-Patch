@@ -9,7 +9,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreUtils.h"
 #include "ICvDLLUserInterface.h"
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 #include "CvMinorCivAI.h"
 #endif
 
@@ -256,6 +256,15 @@ int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) cons
 	iGold += (pNonCapitalCity->getPopulation() * iTradeRouteCityGoldMultiplier);	// City Multiplier
 	iGold += GetCityConnectionTradeRouteGoldChange() * 100;
 
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	if (GetCityConnectionTradeRouteGoldModifier() + pNonCapitalCity->getLocalCityConnectionTradeRouteModifier() != 0)
+	{
+		iGold *= (100 + GetCityConnectionTradeRouteGoldModifier()) + pNonCapitalCity->getLocalCityConnectionTradeRouteModifier();
+		iGold /= 100;
+	}
+
+	return iGold;
+#else
 	if(GetCityConnectionTradeRouteGoldModifier() != 0)
 	{
 		iGold *= (100 + GetCityConnectionTradeRouteGoldModifier());
@@ -263,6 +272,7 @@ int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) cons
 	}
 
 	return iGold;
+#endif
 }
 
 
@@ -427,8 +437,26 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
+#if defined MOROCCO_UA_REWORK || defined TRAIT_GOLD_FOR_LUXURY_EXPORT
+	int iGoldPerTurnFromTraits = 0;
 #ifdef MOROCCO_UA_REWORK
-	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners() * (m_pPlayer->GetCurrentEra() + 1);
+	iGoldPerTurnFromTraits += m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners() * (m_pPlayer->GetCurrentEra() + 1);
+#else
+	iGoldPerTurnFromTraits += m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
+#endif
+#endif
+#ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
+	for (int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iResource;
+		if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		{
+			iGoldPerTurnFromTraits += m_pPlayer->getResourceExport(eResource) * m_pPlayer->GetPlayerTraits()->GetGoldForLuxuryExport();
+		}
+	}
+#endif
+#if defined MOROCCO_UA_REWORK || defined TRAIT_GOLD_FOR_LUXURY_EXPORT
+	return iGoldPerTurnFromTraits;
 #else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
 #endif
@@ -488,7 +516,7 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 	return iGoldFromReligion;
 }
 
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 /// Gold Per Turn from Policies
 int CvTreasury::GetGoldPerTurnFromPolicies() const
 {
@@ -507,7 +535,7 @@ int CvTreasury::GetGoldPerTurnFromPolicies() const
 			iGoldPerCSFriendship += 1;
 		}
 	}
-	iGoldPerCSFriendship *= m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GOLD_PER_CS_FRIENDSHIP);
+	iGoldPerCSFriendship *= m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_POLICY_GOLD_PER_CS_FRIENDSHIP);
 
 	iGoldFromPolicies += iGoldPerCSFriendship;
 
@@ -538,7 +566,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// Religion
 	iNetGold += GetGoldPerTurnFromReligion() * 100;
 
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	// Policies
 	iNetGold += GetGoldPerTurnFromPolicies() * 100;
 #endif
@@ -1104,6 +1132,9 @@ void CvTreasury::Write(FDataStream& kStream)
 {
 	// Current version number
 	uint uiVersion = 1;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_TREASURY;
+#endif
 	kStream << uiVersion;
 
 	kStream << m_iGold;

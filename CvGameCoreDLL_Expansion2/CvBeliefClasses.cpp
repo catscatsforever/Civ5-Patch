@@ -48,7 +48,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iProphetStrengthModifier(0),
 	m_iProphetCostModifier(0),
 	m_iMissionaryStrengthModifier(0),
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	m_iExtraTradeRoutes(0),
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -311,7 +311,7 @@ int CvBeliefEntry::GetMissionaryStrengthModifier() const
 	return m_iMissionaryStrengthModifier;
 }
 
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 /// Accessor:: extra trade routes
 int CvBeliefEntry::GetExtraTradeRoutes() const
 {
@@ -733,7 +733,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iProphetStrengthModifier        = kResults.GetInt("ProphetStrengthModifier");
 	m_iProphetCostModifier            = kResults.GetInt("ProphetCostModifier");
 	m_iMissionaryStrengthModifier     = kResults.GetInt("MissionaryStrengthModifier");
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	m_iExtraTradeRoutes				  = kResults.GetInt("ExtraTradeRoutes");
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -1029,7 +1029,7 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_iProphetStrengthModifier = source.m_iProphetStrengthModifier;
 	m_iProphetCostModifier = source.m_iProphetCostModifier;
 	m_iMissionaryStrengthModifier = source.m_iMissionaryStrengthModifier;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	m_iExtraTradeRoutes	= source.m_iExtraTradeRoutes;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -1116,7 +1116,7 @@ void CvReligionBeliefs::Reset()
 	m_iProphetStrengthModifier = 0;
 	m_iProphetCostModifier = 0;
 	m_iMissionaryStrengthModifier = 0;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	m_iExtraTradeRoutes	= 0;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -1203,7 +1203,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	m_iProphetStrengthModifier += belief->GetProphetStrengthModifier();
 	m_iProphetCostModifier += belief->GetProphetCostModifier();
 	m_iMissionaryStrengthModifier += belief->GetMissionaryStrengthModifier();
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	m_iExtraTradeRoutes	+= belief->GetExtraTradeRoutes();
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF
@@ -1976,7 +1976,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_iProphetStrengthModifier;
 	kStream >> m_iProphetCostModifier;
 	kStream >> m_iMissionaryStrengthModifier;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	if (uiVersion >= 1000)
 	{
@@ -2162,7 +2162,7 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	kStream << m_iProphetStrengthModifier;
 	kStream << m_iProphetCostModifier;
 	kStream << m_iMissionaryStrengthModifier;
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	kStream << m_iExtraTradeRoutes;
 #endif
 #ifdef NQ_GOLDEN_AGE_TURNS_FROM_BELIEF

@@ -70,7 +70,7 @@ public:
 	// Religion
 	int GetGoldPerTurnFromReligion() const;
 
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	// Policies
 	int GetGoldPerTurnFromPolicies() const;
 #endif

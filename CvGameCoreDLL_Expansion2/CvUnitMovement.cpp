@@ -23,7 +23,11 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	TerrainTypes eTerrain = pToPlot->getTerrainType();
 	CvTerrainInfo* pTerrainInfo = (eTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eTerrain) : 0;
 
+#ifdef IROQUOIS_UA_REWORK
+	if (bIgnoreTerrainCost || (bFasterAlongRiver && pToPlot->isRiver()) || (bFasterInHills && pToPlot->isHills()) || pTraits->IsMoveFriendlyWoodsAsRoad() && pUnit->getOwner() != pToPlot->getOwner() && eFeature == FEATURE_FOREST)
+#else
 	if(bIgnoreTerrainCost || (bFasterAlongRiver && pToPlot->isRiver()) || (bFasterInHills && pToPlot->isHills()))
+#endif
 	{
 		iRegularCost = 1;
 	}

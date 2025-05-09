@@ -105,6 +105,13 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 
 	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
+#ifdef POLICY_ONLY_INTERNAL_TRADE_ROUTE_YIELD_MODIFIER
+		if (GET_PLAYER(pOriginCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER) > 0)
+		{
+			return false;
+		}
+#endif
+
 		// can't have an international trade route within the same team
 		if (eOriginTeam == eDestTeam)
 		{
@@ -122,6 +129,12 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		if (eConnectionType == TRADE_CONNECTION_FOOD)
 		{
 			bool bAllowsFoodConnection = false;
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+			if (GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsAlwaysAllowedInnerTradeRoutes())
+			{
+				bAllowsFoodConnection = true;
+			}
+#endif
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
@@ -151,6 +164,12 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		else if (eConnectionType == TRADE_CONNECTION_PRODUCTION)
 		{
 			bool bAllowsProductionConnection = false;
+#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+			if (GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsAlwaysAllowedInnerTradeRoutes())
+			{
+				bAllowsProductionConnection = true;
+			}
+#endif
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
@@ -369,8 +388,13 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	}
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
+#ifdef TRADE_ROUTES_TARGET_TURNS
+	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iRouteSpeed * (TRADE_ROUTES_TARGET_TURNS + 1);
+	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = TRADE_ROUTES_TARGET_TURNS + GC.getGame().getGameTurn();
+#else
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iCircuitsToComplete;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = (iTurnsPerCircuit * iCircuitsToComplete) + GC.getGame().getGameTurn();
+#endif
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
@@ -983,6 +1007,37 @@ void CvGameTrade::ClearAllCityStateTradeRoutes (void)
 	}
 }
 
+#ifdef POLICY_ONLY_INTERNAL_TRADE_ROUTE_YIELD_MODIFIER
+//	--------------------------------------------------------------------------------
+void CvGameTrade::ClearAllTradeRoutesByType(TradeConnectionType eConnectionType)
+{
+	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
+	{
+		if (IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		TradeConnectionType eType = m_aTradeConnections[ui].m_eConnectionType;
+		if (eType == eConnectionType)
+		{
+			// if the destination was wiped, the origin gets a trade unit back
+			if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())
+			{
+				UnitTypes eUnitType = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).GetTrade()->GetTradeUnit(m_aTradeConnections[ui].m_eDomain);
+				CvAssertMsg(eUnitType != NO_UNIT, "No trade unit found");
+				if (eUnitType != NO_UNIT)
+				{
+					GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).initUnit(eUnitType, m_aTradeConnections[ui].m_iOriginX, m_aTradeConnections[ui].m_iOriginY, UNITAI_TRADE_UNIT);
+				}
+			}
+
+			EmptyTradeRoute(ui);
+		}
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Called when war is declared between teams
 void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
@@ -1358,9 +1413,14 @@ bool CvGameTrade::StepUnit (int iIndex)
 		kTradeConnection.m_iTradeUnitLocationIndex -= 1;
 		if (kTradeConnection.m_iTradeUnitLocationIndex == 0)
 		{
+#ifndef TRADE_ROUTES_TARGET_TURNS
 			kTradeConnection.m_iCircuitsCompleted += 1;
+#endif
 		}
 	}
+#ifdef TRADE_ROUTES_TARGET_TURNS
+	kTradeConnection.m_iCircuitsCompleted += 1;
+#endif
 
 	// Move the visualization
 	CvUnit *pkUnit = GetVis(iIndex);
@@ -3354,13 +3414,16 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		}
 	}
 
-#ifdef NQ_EXTRA_TRADE_ROUTES_FROM_BELIEF
+#ifdef BELIEF_EXTRA_TRADE_ROUTES
 	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
 	if (eFoundedReligion && eFoundedReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, NO_PLAYER);
 		iNumRoutes += pReligion->m_Beliefs.GetExtraTradeRoutes();
 	}
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	iNumRoutes += m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_TRADE_ROUTES);
 #endif
 
 	CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();

@@ -2321,16 +2321,6 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 	}
 
-#ifdef AUTO_PEACE_WITH_MINOR_ON_COUP
-	if (iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
-	{
-		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eCityOwner).getTeam()))
-		{
-			GET_TEAM(m_pPlayer->getTeam()).makePeace(GET_PLAYER(eCityOwner).getTeam());
-		}
-	}
-#endif
-
 	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), aiNewInfluenceValueTimes100[m_pPlayer->GetID()]);
 	pMinorCivAI->SetDisableNotifications(false);
 	// send notification to player
@@ -2364,6 +2354,16 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
+
+#ifdef AUTO_PEACE_WITH_MINOR_ON_COUP
+	if (bAttemptSuccess)
+	{
+		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eCityOwner).getTeam()))
+		{
+			GET_TEAM(m_pPlayer->getTeam()).makePeace(GET_PLAYER(eCityOwner).getTeam());
+		}
+	}
+#endif
 
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))

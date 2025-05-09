@@ -632,13 +632,13 @@ function LoadChatMessages()
 end
 
 -- NEW: populate Emote Picker
-Controls.EmotePickerButton:RegisterCallback( Mouse.eLClick, function() Controls.EmotePicker:SetHide(not Controls.EmotePicker:IsHidden()) end );
+Controls.EmotePickerButton:RegisterCallback( Mouse.eLClick, function() Controls.ChatEntry:TakeFocus(); Controls.EmotePicker:SetHide(not Controls.EmotePicker:IsHidden()) end );
 for i in GameInfo.IconFontMapping('1 ORDER BY LENGTH(IconFontTexture), rowid') do
     local ins = {};
     ContextPtr:BuildInstanceForControl('EmoteInstance', ins, Controls.EmoteStack);
     local emoteText = string.format('[%s]', i.IconName);
     ins.EmoteButton:SetText(emoteText);
-    ins.EmoteButton:RegisterCallback( Mouse.eLClick, function() Controls.ChatEntry:TakeFocus(); Controls.ChatEntry:SetText(Controls.ChatEntry:GetText() .. emoteText); return true; end );
+    ins.EmoteButton:RegisterCallback( Mouse.eLClick, function() Controls.ChatEntry:TakeFocus(); Controls.ChatEntry:SetText(Controls.ChatEntry:GetText() .. emoteText); UI.PostKeyMessage(35); return true; end );
 end
 Controls.EmotesScrollPanel:ReprocessAnchoring()
 Controls.EmotesScrollPanel:CalculateInternalSize()

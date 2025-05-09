@@ -80,4 +80,14 @@ private:
 	char m_szDebugString[512];
 
 	unsigned int m_uiRefCount;
+#ifdef INGAME_CIV_DRAFTER
+	CvString m_draftShuffledCivs;
+	int m_draftPlayersReady;
+	int m_draftCurrentProgress;
+	int m_draftResult;
+	std::vector<CvString> m_draftPlayerBans;
+	std::vector<CvString> m_draftPlayerSecrets;
+	std::vector<CvString> m_draftPlayerSecretHashes;
+	std::vector<bool> m_draftAllBansReceived;
+#endif
 };

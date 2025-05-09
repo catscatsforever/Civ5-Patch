@@ -336,7 +336,7 @@ function UpdateAndSort(Id, iResult)
 	elseif proposalType == 3 then  -- remap
 		Controls.ProposalName:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_SUMMARY_REMAP")
 	end
-	if owner then
+	if owner and proposalType == 0 then
 		Controls.ProposalStartedBy:LocalizeAndSetText("TXT_KEY_MP_PROPOSAL_SCREEN_STARTED_BY", owner);
 	else
 		Controls.ProposalStartedBy:LocalizeAndSetText(" ");

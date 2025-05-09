@@ -45,6 +45,16 @@ CvDllNetInitInfo::CvDllNetInitInfo()
 	m_iNumMinorCivs = CvPreGame::numMinorCivs();
 	m_iNumAdvancedStartPoints = CvPreGame::advancedStartPoints();
 	m_eMode = CvPreGame::gameMode();
+#ifdef INGAME_CIV_DRAFTER
+	m_draftShuffledCivs = CvPreGame::getDraftShuffledCivs();
+	m_draftPlayersReady = CvPreGame::getDraftPlayersReady();
+	m_draftCurrentProgress = CvPreGame::getDraftCurrentProgress();
+	m_draftResult = CvPreGame::getDraftResult();
+	m_draftPlayerBans = CvPreGame::getDraftPlayerBans();
+	m_draftPlayerSecrets = CvPreGame::getDraftPlayerSecrets();
+	m_draftPlayerSecretHashes = CvPreGame::getDraftPlayerSecretHashes();
+	m_draftAllBansReceived = CvPreGame::getDraftAllBansReceived();
+#endif
 
 	ZeroMemory(m_szDebugString, sizeof m_szDebugString);
 }
@@ -178,6 +188,20 @@ bool CvDllNetInitInfo::Read(FDataStream& kStream)
 	kStream >> m_iNumAdvancedStartPoints;
 	kStream >> m_eMode;
 	kStream >> m_bStatReporting;
+#ifdef INGAME_CIV_DRAFTER
+	SLOG("READ >>");
+	kStream >> m_draftShuffledCivs;
+	kStream >> m_draftPlayersReady;
+	kStream >> m_draftCurrentProgress;
+	kStream >> m_draftResult;
+	kStream >> m_draftPlayerBans;
+	kStream >> m_draftPlayerSecrets;
+	kStream >> m_draftPlayerSecretHashes;
+	kStream >> m_draftAllBansReceived;
+	SLOG("m_draftShuffledCivs %s", m_draftShuffledCivs);
+	SLOG("m_draftPlayersReady %d", m_draftPlayersReady);
+	SLOG("m_draftCurrentProgress %d", m_draftCurrentProgress);
+#endif
 
 	return true;
 }
@@ -216,6 +240,17 @@ bool CvDllNetInitInfo::Write(FDataStream& kStream)
 	kStream << m_iNumAdvancedStartPoints;
 	kStream << m_eMode;
 	kStream << m_bStatReporting;
+#ifdef INGAME_CIV_DRAFTER
+	SLOG("WRITE <<");
+	kStream << m_draftShuffledCivs;
+	kStream << m_draftPlayersReady;
+	kStream << m_draftCurrentProgress;
+	kStream << m_draftResult;
+	kStream << m_draftPlayerBans;
+	kStream << m_draftPlayerSecrets;
+	kStream << m_draftPlayerSecretHashes;
+	kStream << m_draftAllBansReceived;
+#endif
 
 	return true;
 }
@@ -263,6 +298,17 @@ bool CvDllNetInitInfo::Commit()
 	CvPreGame::setNumMinorCivs(m_iNumMinorCivs);
 	CvPreGame::setAdvancedStartPoints(m_iNumAdvancedStartPoints);
 	CvPreGame::setGameMode(m_eMode);
+#ifdef INGAME_CIV_DRAFTER
+	SLOG("COMMIT");
+	CvPreGame::setDraftShuffledCivs(m_draftShuffledCivs);
+	CvPreGame::setDraftPlayersReady(m_draftPlayersReady);
+	CvPreGame::setDraftCurrentProgress(m_draftCurrentProgress);
+	CvPreGame::setDraftResult(m_draftResult);
+	CvPreGame::setDraftPlayerBans(m_draftPlayerBans);
+	CvPreGame::setDraftPlayerSecrets(m_draftPlayerSecrets);
+	CvPreGame::setDraftPlayerSecretHashes(m_draftPlayerSecretHashes);
+	CvPreGame::setDraftAllBansReceived(m_draftAllBansReceived);
+#endif
 
 	return true;
 }

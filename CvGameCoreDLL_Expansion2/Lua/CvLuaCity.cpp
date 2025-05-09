@@ -449,7 +449,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeNow);
 	Method(CanRangeStrikeAt);
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	Method(GetCityAttackRangeModifier)
 #endif
 	Method(HasPerformedRangedStrikeThisTurn);
@@ -491,6 +491,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumForcedWorkingPlots);
 
 	Method(GetReligionCityRangeStrikeModifier);
+
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	Method(GetCapitalCultureModPerDiplomat);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaCity::HandleMissingInstance(lua_State* L)
@@ -1004,7 +1008,8 @@ int CvLuaCity::lIsCityHasCoal(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+	BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_FACTORY", true);
+	BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(pkCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 	if (pkCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 	{
 		bResult = pkCity->isCityHasCoal();
@@ -3059,7 +3064,8 @@ int CvLuaCity::lGetBaseYieldRateFromBuildings(lua_State* L)
 	int iYieldChanges = pkCity->GetBaseYieldRateFromBuildings(eIndex);
 	if (eIndex == YIELD_PRODUCTION)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_FACTORY", true);
+		BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(pkCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 		if (pkCity->isCityHasCoal())
 		{
 			iYieldChanges += (GC.getBuildingInfo(eBuilding)->GetYieldChange(YIELD_PRODUCTION) + pkCity->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding)->GetBuildingClassType(), YIELD_PRODUCTION)) * pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
@@ -3158,7 +3164,8 @@ int CvLuaCity::lGetYieldRateModifier(lua_State* L)
 	int iResult = pkCity->getYieldRateModifier(eIndex);
 	if (eIndex == YIELD_PRODUCTION)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_FACTORY", true);
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_FACTORY", true);
+		BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(pkCity->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 		if (pkCity->isCityHasCoal())
 		{
 			iResult += (GC.getBuildingInfo(eBuilding)->GetYieldModifier(YIELD_PRODUCTION)) * pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
@@ -3691,7 +3698,7 @@ int CvLuaCity::lCanRangeStrikeAt(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::canRangeStrikeAt);
 }
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 //------------------------------------------------------------------------------
 //int GetCityAttackRangeModifier()
 int CvLuaCity::lGetCityAttackRangeModifier(lua_State* L)
@@ -3707,7 +3714,7 @@ int CvLuaCity::lGetCityAttackRangeModifier(lua_State* L)
 int CvLuaCity::lHasPerformedRangedStrikeThisTurn(lua_State* L)
 {
 
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	CvCity* pkCity = GetInstance(L);
 	const bool bResult = (pkCity->getCityCurrentExtraAttack() == 0) && pkCity->isMadeAttack();
 
@@ -4151,4 +4158,29 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 
 	return 1;
 }
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+//------------------------------------------------------------------------------
+//int GetCapitalCultureModPerDiplomat() const;
+int CvLuaCity::lGetCapitalCultureModPerDiplomat(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iModifier = 0;
+	if (pkCity->isCapital())
+	{
+		int iNumDiplomats = 0;
+		for (uint ui = 0; ui < GET_PLAYER(pkCity->getOwner()).GetEspionage()->m_aSpyList.size(); ui++)
+		{
+			if (GET_PLAYER(pkCity->getOwner()).GetEspionage()->IsDiplomat(ui) && GET_PLAYER(pkCity->getOwner()).GetEspionage()->m_aSpyList[ui].m_eSpyState == SPY_STATE_SCHMOOZE)
+			{
+				iNumDiplomats++;
+			}
+		}
+		iModifier += iNumDiplomats * GET_PLAYER(pkCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CAPITAL_CULTURE_MOD_PER_DIPLOMAT);
+	}
+
+	lua_pushinteger(L, iModifier);
+
+	return 1;
+}
+#endif
 

@@ -184,6 +184,13 @@ public:
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
 
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
+	bool IsAlwaysAllowedInnerTradeRoutes() const;
+#endif
+#ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
+	int GetGoldForLuxuryExport() const;
+#endif
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -313,6 +320,13 @@ protected:
 	std::multimap<int, int> m_FreePromotionUnitCombats;
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
+
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
+	bool m_bAlwaysAllowedInnerTradeRoutes;
+#endif
+#ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
+	int m_iGoldForLuxuryExport;
+#endif
 
 private:
 	CvTraitEntry(const CvTraitEntry&);
@@ -808,6 +822,19 @@ public:
 	void SetUnitBaktun(UnitTypes eUnit);
 	bool IsFreeMayaGreatPersonChoice() const;
 
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
+	bool IsAlwaysAllowedInnerTradeRoutes() const
+	{
+		return m_bAlwaysAllowedInnerTradeRoutes;
+	};
+#endif
+#ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
+	int GetGoldForLuxuryExport() const
+	{
+		return m_iGoldForLuxuryExport;
+	};
+#endif
+
 	// Serialization
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
@@ -950,6 +977,13 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
+
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
+	bool m_bAlwaysAllowedInnerTradeRoutes;
+#endif
+#ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
+	int m_iGoldForLuxuryExport;
+#endif
 };
 
 #endif //CIV5_TRAIT_CLASSES_H

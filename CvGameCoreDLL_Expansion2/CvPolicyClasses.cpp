@@ -138,7 +138,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
 	m_iCityStateTradeChange(0),
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	m_iGoldPerCSFriendsip(0),
 #endif
 	m_bMinorGreatPeopleAllies(false),
@@ -250,6 +250,36 @@ CvPolicyEntry::CvPolicyEntry(void):
 #ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
 	m_iCityScienceSquaredModPerXPop(0),
 #endif
+#ifdef POLICY_EXTRA_SPIES
+	m_iExtraSpies(0),
+#endif
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+	m_iSpyMinorPerTurnInfluence(0),
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+	m_iFoeTourismModifier(0),
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+	m_iHappyTourismModifier(0),
+#endif
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	m_paiBuildingClassTourismChanges(NULL),
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	m_iCapitalCultureModPerDiplomat(0),
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	m_iExtraTradeRoutes(0),
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	m_iHappinessPerTradeRouteToCap(0),
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	m_iHappinessPerTradeRouteToMinor(0),
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	m_paiLeagueSessionYieldBoostPerDelegate(NULL),
+#endif
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
@@ -286,6 +316,12 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismChanges);
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	SAFE_DELETE_ARRAY(m_paiLeagueSessionYieldBoostPerDelegate);
+#endif
 
 //	SAFE_DELETE_ARRAY(m_pabHurry);
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
@@ -440,7 +476,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
 	m_iCityStateTradeChange = kResults.GetInt("CityStateTradeChange");
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 	m_iGoldPerCSFriendsip = kResults.GetInt("GoldPerCSFriendsip");
 #endif
 	m_bMinorGreatPeopleAllies = kResults.GetBool("MinorGreatPeopleAllies");
@@ -515,6 +551,30 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
 	m_iCityScienceSquaredModPerXPop = kResults.GetInt("CityScienceSquaredModPerXPop");
 #endif
+#ifdef POLICY_EXTRA_SPIES
+	m_iExtraSpies = kResults.GetInt("ExtraSpies");
+#endif
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+	m_iSpyMinorPerTurnInfluence = kResults.GetInt("SpyMinorPerTurnInfluence");
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+	m_iFoeTourismModifier = kResults.GetInt("FoeTourismModifier");
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+	m_iHappyTourismModifier = kResults.GetInt("HappyTourismModifier");
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+	m_iCapitalCultureModPerDiplomat = kResults.GetInt("CapitalCultureModPerDiplomat");
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+	m_iExtraTradeRoutes = kResults.GetInt("ExtraTradeRoutes");
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	m_iHappinessPerTradeRouteToCap = kResults.GetInt("HappinessPerTradeRouteToCap");
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	m_iHappinessPerTradeRouteToMinor = kResults.GetInt("HappinessPerTradeRouteToMinor");
+#endif
 
 	//Arrays
 	const char* szPolicyType = GetType();
@@ -553,6 +613,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	kUtility.PopulateArrayByValue(m_paiFreeUnitClasses, "UnitClasses", "Policy_FreeUnitClasses", "UnitClassType", "PolicyType", szPolicyType, "Count");
 	kUtility.PopulateArrayByValue(m_paiTourismOnUnitCreation, "UnitClasses", "Policy_TourismOnUnitCreation", "UnitClassType", "PolicyType", szPolicyType, "Tourism");
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismChanges, "BuildingClasses", "Policy_BuildingClassTourismChanges", "BuildingClassType", "PolicyType", szPolicyType, "TourismChange");
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	kUtility.PopulateArrayByValue(m_paiLeagueSessionYieldBoostPerDelegate, "Yields", "Policy_LeagueSessionYieldBoostPerDelegate", "YieldType", "PolicyType", szPolicyType, "Yield");
+#endif
 
 	//BuildingYieldModifiers
 	{
@@ -1446,7 +1512,7 @@ int CvPolicyEntry::GetCityStateTradeChange() const
 	return m_iCityStateTradeChange;
 }
 
-#ifdef GOLD_PER_CS_FRIENDSHIP
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
 int CvPolicyEntry::GetGoldPerCSFriendsip() const
 {
 	return m_iGoldPerCSFriendsip;
@@ -2086,6 +2152,90 @@ int CvPolicyEntry::GetGreatWorkTourismChanges() const
 int CvPolicyEntry::GetCityScienceSquaredModPerXPop() const
 {
 	return m_iCityScienceSquaredModPerXPop;
+}
+#endif
+
+#ifdef POLICY_EXTRA_SPIES
+///
+int CvPolicyEntry::GetExtraSpies() const
+{
+	return m_iExtraSpies;
+}
+#endif
+
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+///
+int CvPolicyEntry::GetSpyMinorPerTurnInfluence() const
+{
+	return m_iSpyMinorPerTurnInfluence;
+}
+#endif
+
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+///
+int CvPolicyEntry::GetFoeTourismModifier() const
+{
+	return m_iFoeTourismModifier;
+}
+#endif
+
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+///
+int CvPolicyEntry::GetHappyTourismModifier() const
+{
+	return m_iHappyTourismModifier;
+}
+#endif
+
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+///
+int CvPolicyEntry::GetBuildingClassTourismChanges(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingCLassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiBuildingClassTourismChanges[i];
+}
+#endif
+
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+///
+int CvPolicyEntry::GetCapitalCultureModPerDiplomat() const
+{
+	return m_iCapitalCultureModPerDiplomat;
+}
+#endif
+
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+///
+int CvPolicyEntry::GetExtraTradeRoutes() const
+{
+	return m_iExtraTradeRoutes;
+}
+#endif
+
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+///
+int CvPolicyEntry::GetHappinessPerTradeRouteToCap() const
+{
+	return m_iHappinessPerTradeRouteToCap;
+}
+#endif
+
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+///
+int CvPolicyEntry::GetHappinessPerTradeRouteToMinor() const
+{
+	return m_iHappinessPerTradeRouteToMinor;
+}
+#endif
+
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+///
+int CvPolicyEntry::GetLeagueSessionYieldBoostPerDelegate(int i) const
+{
+	CvAssertMsg(i < GC.getNumYieldInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiLeagueSessionYieldBoostPerDelegate[i];
 }
 #endif
 
@@ -2953,8 +3103,8 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_CITY_STATE_TRADE_CHANGE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCityStateTradeChange();
 				break;
-#ifdef GOLD_PER_CS_FRIENDSHIP
-			case POLICYMOD_GOLD_PER_CS_FRIENDSHIP:
+#ifdef POLICY_GOLD_PER_CS_FRIENDSHIP
+			case POLICYMOD_POLICY_GOLD_PER_CS_FRIENDSHIP:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGoldPerCSFriendsip();
 				break;
 #endif
@@ -2967,6 +3117,41 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteTourismModifier();
 				break;
+#ifdef POLICY_SPY_MINOR_PER_TURN_INFLUENCE
+			case POLICYMOD_SPY_INFLUENCE:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetSpyMinorPerTurnInfluence();
+				break;
+#endif
+#ifdef POLICY_FOE_TOURISM_MODIFIER
+			case POLICYMOD_TOURISM_MOD_FOE:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetFoeTourismModifier();
+				break;
+#endif
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER
+			case POLICYMOD_TOURISM_MOD_HAPPY:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetHappyTourismModifier();
+				break;
+#endif
+#ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
+			case POLICYMOD_CAPITAL_CULTURE_MOD_PER_DIPLOMAT:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCapitalCultureModPerDiplomat();
+				break;
+#endif
+#ifdef POLICY_EXTRA_TRADE_ROUTES
+			case POLICYMOD_EXTRA_TRADE_ROUTES:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExtraTradeRoutes();
+				break;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+			case POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_CAP:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetHappinessPerTradeRouteToCap();
+				break;
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+			case POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetHappinessPerTradeRouteToMinor();
+				break;
+#endif
 			case POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetOpenBordersTourismModifier();
 			}
@@ -4629,6 +4814,44 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		}
 	}
 }
+
+#ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
+///
+int CvPlayerPolicies::GetBuildingClassTourismChanges(BuildingClassTypes eBuildingClass)
+{
+	int rtnValue = 0;
+
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy?
+		if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismChanges(eBuildingClass);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
+
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+///
+int CvPlayerPolicies::GetLeagueSessionYieldBoostPerDelegateChanges(YieldTypes eYield)
+{
+	int rtnValue = 0;
+
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy?
+		if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetLeagueSessionYieldBoostPerDelegate(eYield);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 
 void CvPlayerPolicies::LogFlavors(FlavorTypes)
 {

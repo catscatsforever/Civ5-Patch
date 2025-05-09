@@ -1,251 +1,134 @@
 -------------------------------------------------
 -- Select Civilization
+-- modified by bc1 from 1.0.3.144 code
 -------------------------------------------------
-include( "UniqueBonuses" );
+CivilopediaControl = "/FrontEnd/MainMenu/Other/Civilopedia";-- MUST be before include( "PopulateUniques" ) to enable pedia callback
+include( "PopulateUniques" ); local InitializePopulateUniques = InitializePopulateUniques; local PopulateUniquesForSelectCivilization = PopulateUniquesForSelectCivilization;
+local pairs = pairs
+local ipairs = ipairs
+local table_insert = table.insert
+local table_sort = table.sort
 
-------------------------------------------------
--- Global Variables
-------------------------------------------------
-g_bIsScenario = false;
-g_bWasScenario = true;
-g_bRefreshCivs = false;
-  
+local g_bIsScenario = false;
+local g_bWasScenario = true;
+local g_bRefreshCivs = false;
+
 -------------------------------------------------
+-- Event processing
 -------------------------------------------------
-function OnBack()
+local function RequireRefreshCivs()
+	g_bRefreshCivs = true;
+end;
+Events.AfterModsActivate.Add( RequireRefreshCivs );
+Events.AfterModsDeactivate.Add( RequireRefreshCivs );
+
+local function OnBack()
 	UIManager:DequeuePopup( ContextPtr );
 	ContextPtr:SetHide( true );
 end
 Controls.BackButton:RegisterCallback( Mouse.eLClick, OnBack );
 
+ContextPtr:SetInputHandler(
+function( uiMsg, wParam, lParam )
+	if uiMsg == KeyEvents.KeyDown and wParam == Keys.VK_ESCAPE then
+		OnBack();
+		return true;
+	end
+end );
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
-function ShowHideHandler( bIsHide )
+----------------------------------------------------------------
+-- Set the Civ
+----------------------------------------------------------------
+local function CivilizationSelected( civID, scenarioPlayerID )
+	PreGame.SetCivilization( 0, civID );
+	if g_bIsScenario and scenarioPlayerID then
+		UI.MoveScenarioPlayerToSlot( scenarioPlayerID, 0 );
+		local playerList = UI.GetMapPlayers( PreGame.GetMapScript() );
+		local player = playerList and playerList[ scenarioPlayerID + 1 ];
+		if player then
+			PreGame.SetHandicap( 0, player.DefaultHandicap );
+		end
+	end
+	OnBack();
+end
 
-	local isWBMap = IsWBMap(PreGame.GetMapScript());
-	g_bIsScenario = (PreGame.GetLoadWBScenario() and isWBMap);
-	if(g_bWasScenario ~= g_bIsScenario) then
+-------------------------------------------------
+-- Main processing
+-------------------------------------------------
+ContextPtr:SetShowHideHandler(
+function( bIsHide )
+
+	local isWBMap = Path.UsesExtension( PreGame.GetMapScript(), ".Civ5Map" );
+	g_bIsScenario = PreGame.GetLoadWBScenario() and isWBMap;
+	if g_bWasScenario ~= g_bIsScenario then
 		g_bRefreshCivs = true;
 	end
 	g_bWasScenario = g_bIsScenario;
 
-   if( not bIsHide and (isWBMap or g_bRefreshCivs)) then
+	if not bIsHide and (isWBMap or g_bRefreshCivs) then
+
 		g_bRefreshCivs = false;
-    	Controls.Stack:DestroyAllChildren(); 
-    	InitCivSelection();
-   end
+		Controls.CivStack:DestroyAllChildren();
+		InitializePopulateUniques();
+		local civEntries = {};
 
-end
-ContextPtr:SetShowHideHandler( ShowHideHandler );
+		if g_bIsScenario then
+			local civList = UI.GetMapPlayers( PreGame.GetMapScript() );
 
-----------------------------------------------------------------        
----------------------------------------------------------------- 
-function IsWBMap(file)
-	return Path.UsesExtension(file,".Civ5Map"); 
-end
+			if civList then
 
-----------------------------------------------------------------        
--- Input processing
-----------------------------------------------------------------        
-function InputHandler( uiMsg, wParam, lParam )
-    if uiMsg == KeyEvents.KeyDown then
-        if wParam == Keys.VK_ESCAPE then
-            OnBack();
-            return true;
-        end
-    end
-end
-ContextPtr:SetInputHandler( InputHandler );
+				local scenarioCivQuery = DB.CreateQuery([[ SELECT
+						Civilizations.ID,
+						Civilizations.Type,
+						Civilizations.Description,
+						Civilizations.ShortDescription,
+						Civilizations.PortraitIndex,
+						Civilizations.IconAtlas,
+						Leaders.Type AS LeaderType,
+						Leaders.Description as LeaderDescription,
+						Leaders.PortraitIndex as LeaderPortraitIndex,
+						Leaders.IconAtlas as LeaderIconAtlas
+						FROM Civilizations, Leaders, Civilization_Leaders WHERE
+						Civilizations.ID = ? AND
+						Civilizations.Type = Civilization_Leaders.CivilizationType AND
+						Leaders.Type = Civilization_Leaders.LeaderheadType
+						LIMIT 1
+				]]);
 
-
-----------------------------------------------------------------        
--- set the Civ
-----------------------------------------------------------------        
-function CivilizationSelected( civID, scenarioPlayerID )
-    PreGame.SetCivilization( 0, civID );
-    if g_bIsScenario then
-		UI.MoveScenarioPlayerToSlot( scenarioPlayerID, 0 );
-		print("select civ");
-		local playerList = UI.GetMapPlayers(PreGame.GetMapScript());
-		if(playerList ~= nil) then
-			local player = playerList[scenarioPlayerID + 1];
-			if(player ~= nil) then
-				PreGame.SetHandicap(0, player.DefaultHandicap);
-			end
-		end
-    end
-    
-    OnBack();
-end
-
-function AddRandomCivilizationEntry()
-	------------------------------------------------------------------------------------------------
-	-- set up the random slot
-	------------------------------------------------------------------------------------------------
-	local controlTable = {};
-	ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, Controls.Stack );
-	controlTable.Button:SetVoid1( -1 );
-	controlTable.Button:RegisterCallback( Mouse.eLClick, CivilizationSelected );
-
-	controlTable.Title:LocalizeAndSetText("TXT_KEY_RANDOM_LEADER");
-	controlTable.Description:LocalizeAndSetText("TXT_KEY_RANDOM_LEADER_HELP");
-	
-	IconHookup( 22, 128, "LEADER_ATLAS", controlTable.Portrait );
-	if questionOffset ~= nil then       
-		controlTable.CivIcon:SetTexture( questionTextureSheet );
-		controlTable.CivIcon:SetTextureOffset( questionOffset );
-	end
-		
-	-- Sets Trait bonus Text
-	controlTable.BonusDescription:SetText( "" );
-
-	 -- Sets Bonus Icons
-	local maxSmallButtons = 2;
-	for buttonNum = 1, maxSmallButtons, 1 do
-		local buttonName = "B"..tostring(buttonNum);
-		controlTable[buttonName]:SetTexture( questionTextureSheet );
-		controlTable[buttonName]:SetTextureOffset( questionOffset );
-		controlTable[buttonName]:SetToolTipString( unknownString );
-		controlTable[buttonName]:SetHide(false);
-		local buttonFrameName = "BF"..tostring(buttonNum);
-		controlTable[buttonFrameName]:SetHide(false);
-	end
-end
-
-function AddCivilizationEntry(traitsQuery, populateUniqueBonuses, civ, leaderType, leaderDescription, leaderPortraitIndex, leaderIconAtlas, scenarioCivID)
-
-	local controlTable = {};
-	ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, Controls.Stack );
-    
-	controlTable.Button:SetVoid1( civ.ID );
-	controlTable.Button:SetVoid2( scenarioCivID );
-	controlTable.Button:RegisterCallback( Mouse.eLClick, CivilizationSelected );
-
-	IconHookup( leaderPortraitIndex, 128, leaderIconAtlas, controlTable.Portrait );
-	local textureOffset, textureAtlas = IconLookup( civ.PortraitIndex, 64, civ.IconAtlas );
-	if textureOffset ~= nil then       
-		controlTable.CivIcon:SetTexture( textureAtlas );
-		controlTable.CivIcon:SetTextureOffset( textureOffset );
-	end
-    
-    -- Sets Trait bonus Text
-	local shortDescription = "";
-	
-	for row in traitsQuery(leaderType) do
-		controlTable.BonusDescription:LocalizeAndSetText(row.Description);
-		shortDescription = row.ShortDescription;
-	end
-	
-	local title = Locale.ConvertTextKey("TXT_KEY_RANDOM_LEADER_CIV", leaderDescription, civ.ShortDescription);
-	title = string.format("%s (%s)", title, Locale.ConvertTextKey( shortDescription ));
-	
-	controlTable.Title:SetText(title);			
-	controlTable.Description:LocalizeAndSetText(civ.Description);
-	
-	populateUniqueBonuses( controlTable, civ.Type);
-	
-	return controlTable;
-end
-
-function InitCivSelection()
-
-	local traitsQuery = DB.CreateQuery([[SELECT Description, ShortDescription FROM Traits inner join 
-										 Leader_Traits ON Traits.Type = Leader_Traits.TraitType 
-										 WHERE Leader_Traits.LeaderType = ? LIMIT 1]]);
-	local populateUniqueBonuses = PopulateUniqueBonuses_CreateCached();
-										 
-													 
-	if(g_bIsScenario) then
-		local civList = UI.GetMapPlayers(PreGame.GetMapScript());
-		print(civList);
-		if(civList ~= nil) then
-			
-			local sql = [[	SELECT 
-							Civilizations.ID, 
-							Civilizations.Type, 
-							Civilizations.Description, 
-							Civilizations.ShortDescription, 
-							Civilizations.PortraitIndex, 
-							Civilizations.IconAtlas, 
-							Leaders.Type AS LeaderType,
-							Leaders.Description as LeaderDescription, 
-							Leaders.PortraitIndex as LeaderPortraitIndex, 
-							Leaders.IconAtlas as LeaderIconAtlas 
-							FROM Civilizations, Leaders, Civilization_Leaders WHERE
-							Civilizations.ID = ? AND
-							Civilizations.Type = Civilization_Leaders.CivilizationType AND
-							Leaders.Type = Civilization_Leaders.LeaderheadType
-							LIMIT 1
-						]];
-						
-			local scenarioCivQuery = DB.CreateQuery(sql);
-					
-			local civEntries = {};
-			
-			for i, v in pairs(civList) do
-				if(v.Playable) then
-					for row in scenarioCivQuery(v.CivType) do
-						table.insert(civEntries, {Locale.Lookup(row.ShortDescription), row, i - 1});
+				for i, civ in pairs( civList ) do
+					if civ.Playable then
+						for row in scenarioCivQuery( civ.CivType ) do
+							table_insert( civEntries, {Locale.Lookup(row.ShortDescription), row, i - 1} );
+						end
 					end
 				end
 			end
-			
-			-- Sort by leader description;
-			-- table.sort(civEntries, function(a, b) return Locale.Compare(a[1], b[1]) == -1 end);
-
-			-- Sorting Civs by Short Description
-			table.sort(civEntries, function(a,b)
-				local astr = a[1];
-				local bstr = b[1];
-				local a0, b0
-				if astr:match("The ") then
-					a0 = astr:sub(5)
-				else
-					a0 = astr
-				end
-				if bstr:match("The ") then
-					b0 = bstr:sub(5)
-				else
-					b0 = bstr
-				end
-				return Locale.Compare(a0, b0) == -1;
-			end);
-			-- Sorting Civs by Short Description END
-			
-			for i,v in ipairs(civEntries) do
-				local row = v[2];
-				local scenarioCivID = v[3];
-				AddCivilizationEntry(traitsQuery, populateUniqueBonuses, row, row.LeaderType, row.LeaderDescription, row.LeaderPortraitIndex, row.LeaderIconAtlas, scenarioCivID);
-			end	
-		end
-	else
-		AddRandomCivilizationEntry();
-					
-		local civEntries = {}; 
-			
-		local sql = [[	SELECT 
-						Civilizations.ID, 
-						Civilizations.Type, 
-						Civilizations.Description, 
-						Civilizations.ShortDescription, 
-						Civilizations.PortraitIndex, 
-						Civilizations.IconAtlas, 
+		else
+			-- Start with random civ slot
+			civEntries = {{""}};
+			-- Add playable civilizations
+			for row in DB.Query([[ SELECT
+						Civilizations.ID,
+						Civilizations.Type,
+						Civilizations.Description,
+						Civilizations.ShortDescription,
+						Civilizations.PortraitIndex,
+						Civilizations.IconAtlas,
 						Leaders.Type AS LeaderType,
-						Leaders.Description as LeaderDescription, 
-						Leaders.PortraitIndex as LeaderPortraitIndex, 
-						Leaders.IconAtlas as LeaderIconAtlas 
+						Leaders.Description as LeaderDescription,
+						Leaders.PortraitIndex as LeaderPortraitIndex,
+						Leaders.IconAtlas as LeaderIconAtlas
 						FROM Civilizations, Leaders, Civilization_Leaders WHERE
 						Civilizations.Type = Civilization_Leaders.CivilizationType AND
 						Leaders.Type = Civilization_Leaders.LeaderheadType AND
 						Civilizations.Playable = 1
-					]];
-		for row in DB.Query(sql) do
-			table.insert(civEntries, {Locale.Lookup(row.ShortDescription), row});
+			]]) do
+				table_insert( civEntries, {Locale.Lookup(row.ShortDescription), row} );
+			end
 		end
-		
-		-- Sort by leader description;
-		-- table.sort(civEntries, function(a, b) return Locale.Compare(a[1], b[1]) == -1 end);
+
+		-- Sort civs by leader description
+		-- table_sort( civEntries, function(a, b) return Locale.Compare(a[1], b[1]) == -1 end );
 
 		-- Sorting Civs by Short Description
 		table.sort(civEntries, function(a,b)
@@ -265,22 +148,18 @@ function InitCivSelection()
 			return Locale.Compare(a0, b0) == -1;
 		end);
 		-- Sorting Civs by Short Description END
-		
-		for i,v in ipairs(civEntries) do
-			local row = v[2];
-			AddCivilizationEntry(traitsQuery, populateUniqueBonuses, row, row.LeaderType, row.LeaderDescription, row.LeaderPortraitIndex, row.LeaderIconAtlas);
+
+		-- Populate civ slots
+		for i, civEntry in ipairs( civEntries ) do
+			local civControls = {};
+			ContextPtr:BuildInstanceForControl( "CivInstance", civControls, Controls.CivStack );
+			PopulateUniquesForSelectCivilization( civControls, civEntry[2] );
+			civControls.Button:SetVoid2( civEntry[3] );
+			civControls.Button:RegisterCallback( Mouse.eLClick, CivilizationSelected );
 		end
+
+		Controls.CivStack:CalculateSize();
+		Controls.CivStack:ReprocessAnchoring();
+		Controls.CivPanel:CalculateInternalSize();
 	end
-
-	Controls.Stack:CalculateSize();
-	Controls.Stack:ReprocessAnchoring();
-	Controls.ScrollPanel:CalculateInternalSize();
-end
-
-Events.AfterModsActivate.Add(function()
-	g_bRefreshCivs = true;
-end);
-
-Events.AfterModsDeactivate.Add(function()
-	g_bRefreshCivs = true;
-end);
+end );

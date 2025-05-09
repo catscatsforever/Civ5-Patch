@@ -65,6 +65,11 @@
           <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="HeroicEpicGreatWorkHL" Hidden="1"/>
           <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="HeroicEpicGreatWorkGhost" Hidden="1"/>
         </Box>
+        <Box Size="48,34" Color="0,0,0,0">
+          <Button Anchor="C,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="AmoxcalliGreatWork"/>
+          <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="AmoxcalliGreatWorkHL" Hidden="1"/>
+          <Image Anchor="C,C" Size="32,32" Texture="GreatWorks_DottedFrame_32.dds" ID="AmoxcalliGreatWorkGhost" Hidden="1"/>
+        </Box>
         <Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="52,34">
           <Button Anchor="C,C" AnchorSide="O.I" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="RoyalLibraryGreatWork"/>
           <Image Anchor="C,C" Size="34,34" Offset="0,0" Texture="GreatWorks_Book_HL_34.dds" ID="RoyalLibraryGreatWorkHL" Hidden="1"/>
@@ -473,6 +478,14 @@
               </AlphaAnim>
             </ShowOnMouseOver>
             <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="HeroicEpicImage"/>
+          </Button>
+          <Button ID="AmoxcalliButton" Anchor="L,C" Size="48,45">
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="C,C" Offset="0,0" Size="68,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid Size="68,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Image Anchor="C,C" Size="45.45" Texture="WonderAtlas360.dds" Hidden="0" ID="AmoxcalliImage"/>
           </Button>
           <Button ID="RoyalLibraryButton" Anchor="L,C" Size="48,45">
             <ShowOnMouseOver>

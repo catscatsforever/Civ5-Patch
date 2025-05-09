@@ -194,11 +194,14 @@ public:
 	int GetExtraLeagueVotes() const;
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	int getCityAttackRangeModifier() const;
 #endif
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	int GetCityExtraAttack() const;
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	int GetCityExtraHeal() const;
 #endif
 	bool IsTeamShare() const;
 	bool IsWater() const;
@@ -255,10 +258,6 @@ public:
 	int* GetGlobalYieldModifierArray() const;
 	int GetTechEnhancedYieldChange(int i) const;
 	int* GetTechEnhancedYieldChangeArray() const;
-#ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
-	int GetImprovementYieldChanges(int i) const;
-	int* GetImprovementYieldChangesArray() const;
-#endif
 	int GetSeaPlotYieldChange(int i) const;
 	int* GetSeaPlotYieldChangeArray() const;
 	int GetRiverPlotYieldChange(int i) const;
@@ -308,6 +307,68 @@ public:
 
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
 	int GetNumThemingBonuses() const {return m_iNumThemingBonuses;};
+
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	int GetFaithToScience() const;
+#endif
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+	int GetIncreaseBonusesPerEra() const;
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	int GetCityTileWorkSpeedModifier() const;
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int GetBuildingHurryCostModifier() const;
+#endif
+#ifdef BUILDING_RIVER_GOLD
+	int GetRiverGold() const;
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	int GetGrowthGold() const;
+#endif
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+	int GetBaktunGoldenAgePoints() const;
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	int GetSciencePerXPop() const;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	int GetCulturePerXAncientBuildings() const;
+#endif
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	int GetNearMountainYieldChange(int i) const;
+	int* GetNearMountainYieldChangeArray() const;
+#endif
+#ifdef BUILDING_DOUBLE_DEFENSE_NEAR_MOUNTAIN
+	bool IsDoubleDefenseNearMountain() const;
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	bool IsNoHolyCityAndNoOccupiedUnhappiness() const;
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	int GetNearbyEnemyDamage() const;
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	int GetNavalCombatModifierNearCity() const;
+#endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	int GetYieldForEachBuildingInEmpire(int i) const;
+	int* GetYieldForEachBuildingInEmpireArray() const;
+	int GetMaxYieldForEachBuildingInEmpire(int i) const;
+	int* GetMaxYieldForEachBuildingInEmpireArray() const;
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	int GetHappinessForFilledGreatWorkSlot() const;
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	int GetFoodBonusIfNoCitiesAround() const;
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	int GetLocalCityConnectionTradeRouteModifier() const;
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	bool IsNonAirUnitMaxHeal() const;
+#endif
 
 private:
 	int m_iBuildingClassType;
@@ -421,11 +482,14 @@ private:
 	int m_iExtraLeagueVotes;
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
-#ifdef CITY_RANGE_MODIFIER
+#ifdef BUILDING_CITY_RANGE_MODIFIER
 	int m_iCityAttackRangeModifier;
 #endif
-#ifdef CITY_EXTRA_ATTACK
+#ifdef BUILDING_CITY_EXTRA_ATTACK
 	int m_iCityExtraAttack;
+#endif
+#ifdef BUILDING_CITY_EXTRA_HEAL
+	int m_iCityExtraHeal;
 #endif
 
 	bool m_bTeamShare;
@@ -512,6 +576,64 @@ private:
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
 	int m_iNumThemingBonuses;
+#ifdef BUILDING_FAITH_TO_SCIENCE
+	int m_iFaithToScience;
+#endif
+#ifdef BUILDING_INCREASE_BONUSES_PER_ERA
+	int m_iIncreaseBonusesPerEra;
+#endif
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	int m_iCityTileWorkSpeedModifier;
+#endif
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int m_iBuildingHurryCostModifier;
+#endif
+#ifdef BUILDING_RIVER_GOLD
+	int m_iRiverGold;
+#endif
+#ifdef BUILDING_GROWTH_GOLD
+	int m_iGrowthGold;
+#endif
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+	int m_iBaktunGoldenAgePoints;
+#endif
+#ifdef BUILDING_SCIENCE_PER_X_POP
+	int m_iSciencePerXPop;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
+	int m_iCulturePerXAncientBuildings;
+#endif
+#ifdef BUILDING_NEAR_MOUNTAIN_YIELD_CHANGES
+	int* m_piNearMountainYieldChanges;
+#endif
+#ifdef BUILDING_DOUBLE_DEFENSE_NEAR_MOUNTAIN
+	bool m_bDoubleDefenseNearMountain;
+#endif
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	bool m_bNoHolyCityAndNoOccupiedUnhappiness;
+#endif
+#ifdef BUILDING_NEARBY_ENEMY_DAMAGE
+	int m_iNearbyEnemyDamage;
+#endif
+#ifdef BUILDING_NAVAL_COMBAT_MODIFIER_NEAR_CITY
+	int m_iNavalCombatModifierNearCity;
+#endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	int* m_piYieldForEachBuildingInEmpire;
+	int* m_piMaxYieldForEachBuildingInEmpire;
+#endif
+#ifdef BUILDING_HAPPINESS_FOR_FILLED_GREAT_WORK_SLOT
+	int m_iHappinessForFilledGreatWorkSlot;
+#endif
+#ifdef BUILDING_FOOD_BONUS_IF_NO_CITIES_AROUND
+	int m_iFoodBonusIfNoCitiesAround;
+#endif
+#ifdef BUILDING_LOCAL_CITY_CONNECTION_TRADE_ROUTE_MODIFIER
+	int m_iLocalCityConnectionTradeRouteModifier;
+#endif
+#ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
+	int m_bNonAirUnitMaxHeal;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

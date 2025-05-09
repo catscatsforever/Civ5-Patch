@@ -1041,7 +1041,11 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	}
 
 	// celtic rule: if this is a forest tile next to a city, do not improve this tile with a normal improvement
+#ifdef CELTS_UA_REWORK
+	if (m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
+#else
 	if (m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest() && eExistingImprovement == NO_IMPROVEMENT)
+#endif
 	{
 		CvCity* pNextCity = pPlot->GetAdjacentCity();
 		if (pNextCity && pNextCity->getOwner() == m_pPlayer->GetID())
@@ -1863,7 +1867,16 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 	}
 
 	int iBuildTimeNormal = pPlot->getBuildTime(eBuild, m_pPlayer->GetID());
+#ifdef BUILDING_CITY_TILE_WORK_SPEED_MOD
+	int iCityWorkRate = 0;
+	if (pPlot->getWorkingCity())
+	{
+		iCityWorkRate = pPlot->getWorkingCity()->getCityTileWorkSpeedModifier();
+	}
+	int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, m_pPlayer->GetID(), pUnit->workRate(true, iCityWorkRate), pUnit->workRate(true, iCityWorkRate));
+#else
 	int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, m_pPlayer->GetID(), pUnit->workRate(true), pUnit->workRate(true));
+#endif
 	int iBuildTime = min(iBuildTimeNormal, iBuildTurnsLeft);
 	if(iBuildTime <= 0)
 	{

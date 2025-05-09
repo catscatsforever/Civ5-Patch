@@ -1197,7 +1197,11 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 			{
 				if (iDistance == 1 && pLoopPlot->getFeatureType() == FEATURE_FOREST)
 				{
+#ifdef CELTS_UA_REWORK
+					if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
+#else
 					if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT && pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
+#endif
 					{
 						iCelticForestCount += 1;
 					}

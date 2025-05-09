@@ -1315,7 +1315,7 @@ Events.SerialEventUnitDestroyed.Add( OnUnitDestroyed );
 -- On Flag Clicked
 -------------------------------------------------
 function UnitFlagClicked( playerID, unitID )
-    Events.SerialEventUnitFlagSelected( playerID, unitID );
+    Events.SerialEventUnitFlagSelected( Game.GetActivePlayer(), unitID );
 end
 
 

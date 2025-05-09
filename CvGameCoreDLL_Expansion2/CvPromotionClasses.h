@@ -174,6 +174,10 @@ public:
 	const char* GetSound() const;
 	void SetSound(const char* szVal);
 
+#ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
+	bool IsNoUnhappinessPenalty() const;
+#endif
+
 	// Arrays
 	int GetTerrainAttackPercent(int i) const;
 	int GetTerrainDefensePercent(int i) const;
@@ -323,6 +327,9 @@ protected:
 	bool m_bPostCombatPromotionsExclusive;
 	bool m_bSapper;
 	bool m_bCanHeavyCharge;
+#ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
+	bool m_bNoUnhappinessPenalty;
+#endif
 
 	CvString m_strSound;
 

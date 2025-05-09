@@ -1775,6 +1775,18 @@ public:
 	void setIsDelayedPolicy(bool bValue);
 #endif
 
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	int GetYieldForEachBuildingInEmpire(BuildingTypes eBuilding, YieldTypes eIndex) const;
+	void ChangeYieldForEachBuildingInEmpire(BuildingTypes eBuilding, YieldTypes eIndex, int iChange);
+#endif
+
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+	int GetNumGoldPurchasedGreatPerson() const;
+	void ChangeNumGoldPurchasedGreatPerson(int iChange);
+	bool IsGoldGreatPerson(UnitClassTypes eUnitClass) const;
+	void SetGoldGreatPerson(UnitClassTypes eUnitClass, bool bValue);
+#endif
+
 	CvPlayerPolicies* GetPlayerPolicies() const;
 	CvPlayerTraits* GetPlayerTraits() const;
 	CvEconomicAI* GetEconomicAI() const;
@@ -2565,6 +2577,20 @@ protected:
 #endif
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 	bool m_bIsDelayedPolicy;
+#endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	FAutoVariable <std::vector< Firaxis::Array< int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiYieldForEachBuildingInEmpire;
+#endif
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+	int m_iNumGoldPurchasedGreatPerson;
+	bool m_bGoldWriter;
+	bool m_bGoldArtist;
+	bool m_bGoldMusician;
+	bool m_bGoldScientist;
+	bool m_bGoldEngineer;
+	bool m_bGoldMerchant;
+	bool m_bGoldGeneral;
+	bool m_bGoldAdmiral;
 #endif
 };
 

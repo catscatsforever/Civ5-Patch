@@ -640,6 +640,20 @@ CvPlayer::CvPlayer() :
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 	, m_bIsDelayedPolicy(false)
 #endif
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	, m_ppaaiYieldForEachBuildingInEmpire("CvPlayer::m_ppaaiYieldForEachBuildingInEmpire", m_syncArchive)
+#endif
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+	, m_iNumGoldPurchasedGreatPerson(0)
+	, m_bGoldWriter(false)
+	, m_bGoldArtist(false)
+	, m_bGoldMusician(false)
+	, m_bGoldScientist(false)
+	, m_bGoldEngineer(false)
+	, m_bGoldMerchant(false)
+	, m_bGoldGeneral(false)
+	, m_bGoldAdmiral(false)
+#endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
 	m_pEconomicAI = FNEW(CvEconomicAI, c_eCiv5GameplayDLL, 0);
@@ -904,6 +918,10 @@ void CvPlayer::uninit()
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	m_ppaaiTurnCSWarAllowing.clear();
 	m_ppaafTimeCSWarAllowing.clear();
+#endif
+
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	m_ppaaiYieldForEachBuildingInEmpire.clear();
 #endif
 
 	m_pPlayerPolicies->Uninit();
@@ -1432,6 +1450,17 @@ void CvPlayer::uninit()
 	m_bHasAdoptedStateReligion = false;
 	m_bAlliesGreatPersonBiasApplied = false;
 	m_lastGameTurnInitialAIProcessed = -1;
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+	m_iNumGoldPurchasedGreatPerson = 0;
+	m_bGoldWriter = false;
+	m_bGoldArtist = false;
+	m_bGoldMusician = false;
+	m_bGoldScientist = false;
+	m_bGoldEngineer = false;
+	m_bGoldMerchant = false;
+	m_bGoldGeneral = false;
+	m_bGoldAdmiral = false;
+#endif
 
 	m_eID = NO_PLAYER;
 }
@@ -1708,6 +1737,15 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		{
 			m_ppaaiBuildingClassYieldMod.setAt(i, yield);
 		}
+
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+		m_ppaaiYieldForEachBuildingInEmpire.clear();
+		m_ppaaiYieldForEachBuildingInEmpire.resize(GC.getNumBuildingInfos());
+		for (unsigned int i = 0; i < m_ppaaiYieldForEachBuildingInEmpire.size(); ++i)
+		{
+			m_ppaaiYieldForEachBuildingInEmpire.setAt(i, yield);
+		}
+#endif
 
 		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
@@ -2861,21 +2899,44 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 	// end adapted from PostKill()
 
-#ifdef BUILDING_BARN
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
 	if (getNumCities() > 0)
 	{
-		int iLoop = 0;
-		int iNumBuildings = 0;
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
 		{
-			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			YieldTypes eYield = (YieldTypes)iYield;
+			for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, -iNumBuildings);
+				eBuilding = eBuilding = (BuildingTypes)iI;
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pBuildingInfo && pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield) > 0)
+				{
+					int iLoop = 0;
+					int iNumBuildings = 0;
+					int iNumSuppYields;
+					int iNumYileds;
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					}
+					if (pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield) >= 0)
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = std::min(pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield), iNumSuppYields);
+					}
+					else
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = iNumSuppYields;
+					}
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, -iNumYileds);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -3612,21 +3673,44 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
 	}
-#ifdef BUILDING_BARN
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
 	if (getNumCities() > 0)
 	{
-		int iLoop = 0;
-		int iNumBuildings = 0;
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
 		{
-			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			YieldTypes eYield = (YieldTypes)iYield;
+			for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, iNumBuildings);
+				eBuilding = eBuilding = (BuildingTypes)iI;
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pBuildingInfo && pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield) > 0)
+				{
+					int iLoop = 0;
+					int iNumBuildings = 0;
+					int iNumSuppYields;
+					int iNumYileds;
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					}
+					if (pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield) >= 0)
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = std::min(pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield), iNumSuppYields);
+					}
+					else
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = iNumSuppYields;
+					}
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iNumYileds);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -5091,6 +5175,11 @@ void CvPlayer::doTurn()
 	if(GetPlayerTraits()->IsEndOfMayaLongCount())
 	{
 		ChangeNumMayaBoosts(1);
+#ifdef BUILDING_BAKTUN_GOLD_AGE_POINTS
+		BuildingTypes eBaktunBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_PITZ_HALL", true);
+		CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(eBaktunBuilding);
+		ChangeGoldenAgeProgressMeter(countNumBuildings(eBaktunBuilding) * pEntry->GetBaktunGoldenAgePoints());
+#endif
 	}
 
 	bool bHasActiveDiploRequest = false;
@@ -5109,7 +5198,20 @@ void CvPlayer::doTurn()
 						TeamTypes eTeam = (TeamTypes)iLoopTeam;
 						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 						{
-							GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+							for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+							{
+								TradedItemList::iterator itemIter;
+								for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+								{
+									if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
+									{
+										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
+									}
+								}
+							}
 							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
@@ -10217,7 +10319,11 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 			}
 		} else
 #endif
+#ifdef IROQUOIS_UA_REWORK
+		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())) && !(strcmp(GC.getBuildInfo(eBuild)->GetType(), "BUILD_LUMBERMILL") == 0 && GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad()))
+#else
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
+#endif
 		{
 			if((!bTestEra && !bTestVisible) || ((GetCurrentEra() + 1) < GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
 			{
@@ -13511,6 +13617,47 @@ int CvPlayer::GetHappinessFromPolicies() const
 
 #ifdef POLICY_GREAT_WORK_HAPPINESS
 	iHappiness += GetGreatWorkHappiness() * GetCulture()->GetNumGreatWorks();
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_CAP
+	const CvCity* pCapitalCity = getCapitalCity();
+	if (pCapitalCity)
+	{
+		int iCount = 0;
+		for (uint ui = 0; ui < GC.getGame().GetGameTrade()->m_aTradeConnections.size(); ui++)
+		{
+			if (GC.getGame().GetGameTrade()->IsTradeRouteIndexEmpty(ui))
+			{
+				continue;
+			}
+
+			CvCity* pDestCity = CvGameTrade::GetDestCity(GC.getGame().GetGameTrade()->m_aTradeConnections[ui]);
+			if (pDestCity == pCapitalCity)
+			{
+				iCount++;
+			}
+		}
+
+		iHappiness += (iCount * GetPlayerPolicies()->GetNumericModifier(POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_CAP));
+	}
+#endif
+#ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
+	int iCount = 0;
+	for (uint ui = 0; ui < GC.getGame().GetGameTrade()->m_aTradeConnections.size(); ui++)
+	{
+		if (GC.getGame().GetGameTrade()->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		CvCity* pOriginCity = CvGameTrade::GetOriginCity(GC.getGame().GetGameTrade()->m_aTradeConnections[ui]);
+		CvCity* pDestCity = CvGameTrade::GetDestCity(GC.getGame().GetGameTrade()->m_aTradeConnections[ui]);
+		if (pOriginCity->getOwner() == GetID() && GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
+		{
+			iCount++;
+		}
+	}
+
+	iHappiness += (iCount * GetPlayerPolicies()->GetNumericModifier(POLICYMOD_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR));
 #endif
 
 	return iHappiness;
@@ -22850,41 +22997,87 @@ CvCity* CvPlayer::addCity()
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
-#ifdef BUILDING_BARN
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
 	if (getNumCities() > 0)
 	{
-		int iLoop = 0;
-		int iNumBuildings = 0;
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
 		{
-			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			YieldTypes eYield = (YieldTypes)iYield;
+			for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, -iNumBuildings);
+				BuildingTypes eBuilding = eBuilding = (BuildingTypes)iI;
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pBuildingInfo && pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield) > 0)
+				{
+					int iLoop = 0;
+					int iNumBuildings = 0;
+					int iNumSuppYields;
+					int iNumYileds;
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					}
+					if (pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield) >= 0)
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = std::min(pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield), iNumSuppYields);
+					}
+					else
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = iNumSuppYields;
+					}
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, -iNumYileds);
+						}
+					}
+				}
 			}
 		}
 	}
 #endif
 	m_cities.RemoveAt(iID);
-#ifdef BUILDING_BARN
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
 	if (getNumCities() > 0)
 	{
-		int iLoop = 0;
-		int iNumBuildings = 0;
-		BuildingTypes eBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BARN", true);
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (int iYield = 0; iYield < GC.getNUM_YIELD_TYPES(); iYield++)
 		{
-			iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			YieldTypes eYield = (YieldTypes)iYield;
+			for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(YIELD_FOOD, iNumBuildings);
+				BuildingTypes eBuilding = eBuilding = (BuildingTypes)iI;
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pBuildingInfo && pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield) > 0)
+				{
+					int iLoop = 0;
+					int iNumBuildings = 0;
+					int iNumSuppYields;
+					int iNumYileds;
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						iNumBuildings += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					}
+					if (pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield) >= 0)
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = std::min(pBuildingInfo->GetMaxYieldForEachBuildingInEmpire(eYield), iNumSuppYields);
+					}
+					else
+					{
+						iNumSuppYields = iNumBuildings * pBuildingInfo->GetYieldForEachBuildingInEmpire(eYield);
+						iNumYileds = iNumSuppYields;
+					}
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iNumYileds);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -25033,6 +25226,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			changePlotExtraYieldFromTradeRoute(eYield, iMod);
 #endif
 	}
+#ifdef POLICY_ONLY_INTERNAL_TRADE_ROUTE_YIELD_MODIFIER
+	iMod = pPolicy->GetInternalTradeRouteYieldModifier() * iChange;
+	if (iMod > 0)
+	{
+		GC.getGame().GetGameTrade()->ClearAllTradeRoutesByType(TRADE_CONNECTION_INTERNATIONAL);
+	}
+#endif
 
 	for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
@@ -25334,7 +25534,22 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeGreatWorkTourismChanges(pPolicy->GetGreatWorkTourismChanges() * iChange);
 #endif
 #ifdef POLICY_CITY_SCIENCE_SQUARED_MOD_PER_X_POP
-	ChangeCityScienceSquaredModPerXPop(pPolicy->GetCityScienceSquaredModPerXPop()* iChange);
+	ChangeCityScienceSquaredModPerXPop(pPolicy->GetCityScienceSquaredModPerXPop() * iChange);
+#endif
+#ifdef POLICY_EXTRA_SPIES
+	if (pPolicy->GetExtraSpies() > 0)
+	{
+		CvPlayerEspionage* pEspionage = GetEspionage();
+		CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
+		if (pEspionage)
+		{
+			int iNumSpies = pPolicy->GetExtraSpies();
+			for (int i = 0; i < iNumSpies; i++)
+			{
+				pEspionage->CreateSpy();
+			}
+		}
+	}
 #endif
 
 	// Not really techs but this is what we use (for now)
@@ -27543,6 +27758,62 @@ void CvPlayer::Read(FDataStream& kStream)
 # endif
 #endif
 
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1012)
+	{
+# endif
+		kStream >> m_ppaaiYieldForEachBuildingInEmpire;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yield;
+		for (unsigned int j = 0; j < NUM_YIELD_TYPES; ++j)
+		{
+			yield[j] = 0;
+		}
+		m_ppaaiYieldForEachBuildingInEmpire.clear();
+		m_ppaaiYieldForEachBuildingInEmpire.resize(GC.getNumBuildingInfos());
+		for (unsigned int i = 0; i < m_ppaaiYieldForEachBuildingInEmpire.size(); ++i)
+		{
+			m_ppaaiYieldForEachBuildingInEmpire.setAt(i, yield);
+		}
+	}
+#endif
+#endif
+
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1012)
+	{
+# endif
+		kStream >> m_iNumGoldPurchasedGreatPerson;
+		kStream >> m_bGoldWriter;
+		kStream >> m_bGoldArtist;
+		kStream >> m_bGoldMusician;
+		kStream >> m_bGoldScientist;
+		kStream >> m_bGoldEngineer;
+		kStream >> m_bGoldMerchant;
+		kStream >> m_bGoldGeneral;
+		kStream >> m_bGoldAdmiral;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNumGoldPurchasedGreatPerson = 0;
+		m_bGoldWriter = false;
+		m_bGoldArtist = false;
+		m_bGoldMusician = false;
+		m_bGoldScientist = false;
+		m_bGoldEngineer = false;
+		m_bGoldMerchant = false;
+		m_bGoldGeneral = false;
+		m_bGoldAdmiral = false;
+	}
+# endif
+#endif
+
 	m_pPlayerPolicies->Read(kStream);
 	m_pEconomicAI->Read(kStream);
 	m_pCitySpecializationAI->Read(kStream);
@@ -28237,6 +28508,21 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	kStream << m_ppaaiTurnCSWarAllowing;
 	kStream << m_ppaafTimeCSWarAllowing;
+#endif
+
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+	kStream << m_ppaaiYieldForEachBuildingInEmpire;
+#endif
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+	kStream << m_iNumGoldPurchasedGreatPerson;
+	kStream << m_bGoldWriter;
+	kStream << m_bGoldArtist;
+	kStream << m_bGoldMusician;
+	kStream << m_bGoldScientist;
+	kStream << m_bGoldEngineer;
+	kStream << m_bGoldMerchant;
+	kStream << m_bGoldGeneral;
+	kStream << m_bGoldAdmiral;
 #endif
 
 	m_pPlayerPolicies->Write(kStream);
@@ -29759,6 +30045,109 @@ void CvPlayer::setIsDelayedPolicy(bool bValue)
 }
 #endif
 
+#ifdef BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE
+int CvPlayer::GetYieldForEachBuildingInEmpire(BuildingTypes eBuilding, YieldTypes eIndex) const
+{
+	return m_ppaaiYieldForEachBuildingInEmpire[eBuilding][eIndex];
+}
+
+void CvPlayer::ChangeYieldForEachBuildingInEmpire(BuildingTypes eBuilding, YieldTypes eIndex, int iChange)
+{
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yield = m_ppaaiYieldForEachBuildingInEmpire[eBuilding];
+		yield[int(eIndex)] += iChange;
+		m_ppaaiYieldForEachBuildingInEmpire.setAt(eBuilding, yield);
+	}
+}
+#endif
+
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+int CvPlayer::GetNumGoldPurchasedGreatPerson() const
+{
+	return m_iNumGoldPurchasedGreatPerson;
+}
+
+void CvPlayer::ChangeNumGoldPurchasedGreatPerson(int iChange)
+{
+	m_iNumGoldPurchasedGreatPerson += iChange;
+}
+
+bool CvPlayer::IsGoldGreatPerson(UnitClassTypes eUnitClass) const
+{
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+	{
+		return m_bGoldWriter;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+	{
+		return m_bGoldArtist;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+	{
+		return m_bGoldMusician;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+	{
+		return m_bGoldScientist;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+	{
+		return m_bGoldEngineer;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+	{
+		return m_bGoldMerchant;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
+	{
+		return m_bGoldGeneral;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
+	{
+		return m_bGoldAdmiral;
+	}
+
+	return false;
+}
+
+void CvPlayer::SetGoldGreatPerson(UnitClassTypes eUnitClass, bool bValue)
+{
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+	{
+		m_bGoldWriter = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+	{
+		m_bGoldArtist = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+	{
+		m_bGoldMusician = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+	{
+		m_bGoldScientist = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+	{
+		m_bGoldEngineer = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+	{
+		m_bGoldMerchant = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
+	{
+		m_bGoldGeneral = bValue;
+	}
+	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
+	{
+		m_bGoldAdmiral = bValue;
+	}
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////
@@ -30282,7 +30671,20 @@ void CvPlayer::disconnected()
 						TeamTypes eTeam = (TeamTypes)iLoopTeam;
 						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 						{
-							GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+							for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+							{
+								TradedItemList::iterator itemIter;
+								for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+								{
+									if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
+									{
+										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
+									}
+								}
+							}
 							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
@@ -30363,7 +30765,20 @@ void CvPlayer::disconnected()
 					TeamTypes eTeam = (TeamTypes)iLoopTeam;
 					if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 					{
-						GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GET_PLAYER(GetID()).getTeam(), (TeamTypes)iLoopTeam);
+						for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+						{
+							TradedItemList::iterator itemIter;
+							for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+							{
+								if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
+								{
+									PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+									PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+									GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
+								}
+							}
+						}
 						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 						GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 						GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);

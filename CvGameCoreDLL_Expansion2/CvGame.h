@@ -965,5 +965,20 @@ enum ReplayEventTypes
 
 	NUM_REPLAYEVENTS
 };
-#endif
+# endif
+# ifdef INGAME_CIV_DRAFTER
+enum DraftProgressTypes
+{
+	DRAFT_PROGRESS_INIT,  // wait for hashes
+	DRAFT_PROGRESS_BANS,  // wait for bans
+	DRAFT_PROGRESS_BUSY,  // wait for secrets
+	DRAFT_PROGRESS_OVER,  // results
+};
+enum DraftResultTypes
+{
+	DRAFT_RESULT_NONE,
+	DRAFT_RESULT_OK,
+	DRAFT_RESULT_FAIL,
+};
+# endif
 #endif

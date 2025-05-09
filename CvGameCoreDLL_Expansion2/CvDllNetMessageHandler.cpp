@@ -1649,6 +1649,72 @@ void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyB
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID, const char* szName)
 {
+#ifdef INGAME_CIV_DRAFTER
+	// -1 -- receive secret hash
+	// -2 -- parse bans
+	// -3 -- receive secret
+	// -4 -- failed ban rollback
+	// -5 -- bans synced by host
+	// -6 -- swap players
+	// -7 -- receive AllBansReceived
+	SLOG("ResponseRenameCity << ePlayer %d iCityID %d szName %s", (int)ePlayer, iCityID, szName);
+	if (iCityID == -1)
+	{
+		CvPreGame::DraftResponseSecretHash(ePlayer, szName);
+		return;
+	}
+	else if (iCityID == -2)
+	{
+		if (gDLL->IsHost())
+		{
+			CvPreGame::DraftSyncBans(ePlayer, szName);
+		}
+		return;
+	}
+	else if (iCityID == -3)
+	{
+		CvPreGame::DraftResponseSecret(ePlayer, szName);
+		return;
+	}
+	else if (iCityID == -4)
+	{
+		CvPreGame::DraftResponseBanRollback(ePlayer, szName);
+		return;
+	}
+	else if (iCityID == -5)
+	{
+		// format: "msgnum|eMsgPlayer|bans"
+		CvString s = CvString(szName);
+		std::vector<CvString> tokens;
+		std::string token;
+		size_t pos = 0;
+		while ((pos = s.find('|')) != std::string::npos) {
+			token = s.substr(0, pos);
+			tokens.push_back(token);
+			s.erase(0, pos + 1);
+		}
+		tokens.push_back(s);
+		if (tokens.size() == 3)
+		{
+			int msgnum = atoi(tokens.at(0).c_str());
+			PlayerTypes eMsgPlayer = static_cast<PlayerTypes>(atoi(tokens.at(1).c_str()));
+			CvString msgText = tokens.at(2);
+			SLOG("%d|%d|%s", msgnum, static_cast<int>(eMsgPlayer), msgText.c_str());
+			CvPreGame::DraftResponseBans(eMsgPlayer, msgText.c_str());
+		}
+		return;
+	}
+	else if (iCityID == -6)
+	{
+		CvPreGame::DraftResponseSwapPlayers(ePlayer, szName);
+		return;
+	}
+	else if (iCityID == -7)
+	{
+		CvPreGame::DraftResponseAllBansReceived(ePlayer);
+		return;
+	}
+#endif
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
 #ifdef REPLAY_EVENTS

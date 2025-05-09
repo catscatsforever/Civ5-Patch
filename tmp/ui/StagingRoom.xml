@@ -1,5 +1,9 @@
-<!-- edit: Duel Mode for EUI and vanilla UI -->
-<!-- edit: Community Remarks for EUI and vanilla UI -->
+<!-- edit:
+	- Duel Mode
+	- Community Remarks
+	- Emote Picker Menu
+	- Ingame Civ Drafter
+for EUI and vanilla UI -->
 
 <?xml version="1.0" encoding="utf-8"?>
 <Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" >
@@ -94,8 +98,9 @@
       <!-- NEW: REMAP Vote Token Checkbox -->
       <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Anchor="R,T" TextAnchorSide="Right" Font="TwCenMT20" Offset="-10,36" TextOffset="40,0" IsChecked="0" ID="RemapTokenCheck" ConsumeMouse="1" ToolTip="TXT_KEY_MP_REMAP_TOKEN" Hidden="1" />
 
-	  <!-- NEW: Community Remarks sign -->
+	  <!-- Community Remarks START -->
       <AlphaAnim Anchor="R,B" Size="80,80" Offset="-45,0" ID="CommunityRemarkSign" Texture="diplomacyvote.dds" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="1"/>
+	  <!-- Community Remarks EBD -->
 
       <!-- Swap Button -->
       <GridButton Style="SmallButton" Hidden="0" Anchor="R,T" Size="42,32" Offset="165,8" ID="SwapButton" String="[ICON_SWAP]" ToolTip="TXT_KEY_MP_SWAP_BUTTON_TT" >
@@ -189,7 +194,7 @@
       <Box Anchor="L,T" Size="320,24" Offset="614,0" Color="255.255.255.0" ID="GameOptionsSummaryTitle">
         <Label Anchor="C,C" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_OPTIONS" />
       </Box>
-      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="924.5" />
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="925.5" />
     </Box>
 
 
@@ -262,8 +267,9 @@
       <!-- NEW: REMAP Vote Token Checkbox -->
       <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Anchor="R,T" TextAnchorSide="Right" Font="TwCenMT20" Offset="57,33" TextOffset="40,0" IsChecked="0" ID="RemapTokenCheck" ConsumeMouse="1" ToolTip="TXT_KEY_MP_REMAP_TOKEN" Hidden="1" />
 	  
-	  <!-- NEW: Community Remarks sign -->
+	  <!-- Community Remarks START -->
       <AlphaAnim Anchor="R,B" Size="80,80" Offset="0,0" ID="LocalCommunityRemarkSign" Texture="diplomacyvote.dds" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5" Hidden="1"/>
+	  <!-- Community Remarks END -->
 
       <!-- Edit Button -->
       <Container Anchor="R,B" Size="50,32" Offset="34,5" >
@@ -389,7 +395,7 @@
         <!-- List of Check Boxes -->
         <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="GameOptionsStack" />
 
-            <!-- Duel Mode Check -->
+            <!-- Duel Mode START -->
             <Box Anchor="L,T" Size="480,25" Offset="30,-7" Color="255,255,255,0" >
 
               <Stack ID="DuelModeStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
@@ -398,6 +404,7 @@
                 </Box>
               </Stack>
             </Box>
+            <!-- Duel Mode END -->
 
 
             <!-- Ban Oxford University -->
@@ -548,7 +555,7 @@
     <!-- Bottom Buttons -->
     <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,70" Color="255,255,255,0" >
 
-      <Stack Anchor="L,B" Offset="14,0"   Size="128,128" StackGrowth="Right" Padding="8" >
+      <Stack Anchor="L,B" Offset="0,0"   Size="128,128" StackGrowth="Right" Padding="8" >
         <!-- Quit Button  -->
         <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="ExitButton"  >
           <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_EXIT_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
@@ -568,7 +575,13 @@
         <GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="SaveButton" Hidden="0" >
           <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_ACTION_SAVE_NORMAL" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
         </GridButton>
-
+		
+		<!-- Ingame Civ Drafter START -->
+        <GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="DraftButton" ToolTip="TXT_KEY_DRAFTS_HELP" Hidden="0" >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_DRAFTS_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+		<!-- Ingame Civ Drafter END -->
+		
         <!-- Strategic View Button  -->
         <Button ConsumeMouseOver="1" Anchor="C,T" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicViewButton" Hidden="1" ToolTip="TXT_KEY_POP_STRATEGIC_VIEW_TT" >
           <ShowOnMouseOver>
@@ -641,10 +654,9 @@
 
       <Grid Size="925,160" Anchor="L,T" Padding="0,0" Color="White.128" Style="GridGlass16" ID="ChatPanel" Hidden="0" >
         <Image Anchor="L,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="925.5" />
-
-        <Stack Anchor="L,T" Offset="0,0" Padding="0" StackGrowth="Bottom" >
+<!------------------------------------------------------------------>
           <!-- Chat ScrollPanel -->
-          <ScrollPanel Anchor="L,T" Offset="8,4" Size="897,123"  Vertical="1" AutoScrollBar="0" ID="ChatScroll" >
+          <ScrollPanel Anchor="L,T" Offset="8,4" Size="897,123"  Vertical="1" AutoScrollBar="1" ID="ChatScroll" >
 
             <!-- Scroll Controls -->
             <ScrollBar  Style="VertSlider" Length="87" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
@@ -656,10 +668,10 @@
 
           </ScrollPanel>
 
-          <Image Anchor="L,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="925.5" />
+          <Image Anchor="L,T" Offset="0,127" Texture="HorizontalTrim.dds" Size="925.5" />
 
           <!-- Chat  -->
-          <Box Anchor="L,T" Size="924,36" Offset="0.0" Color="White.0" >
+          <Box Anchor="L,T" Size="924,36" Offset="0,132" Color="White.0" >
 
             <GridButton Anchor="L,T" Size="100,27" Offset="0,0" Style="BoxButton" Disabled="1" >
               <Label Anchor="R,C" Offset="10,0" String="TXT_KEY_MULTIPLAYER_TO_ALL"  Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha"  />
@@ -668,14 +680,29 @@
                 <EditBox Size="825,23" MaxLength="255" KeepFocus="1" Anchor="L,C" Font="TwCenMT18" ID="ChatEntry" />
               </Box>
             </GridButton>
+			<!-- Emote Picker Menu START -->
+			<Button ID="EmotePickerButton" Anchor="R,C" String="[ICON_FLOWER]" Offset="5,-5" Size="22,36" >
+				<Grid ID="EmotePicker" Style="GridBlack8" AnchorSide="O.O" Anchor="L,T" Offset="0,2" Size="297,200" Hidden="1" ConsumeMouseWheel="1" ConsumeMouseOver="1" ConsumeMouse="1" ConsumeMouseButton="1" >
+					<Grid Anchor="C,C" Offset="0,0" Size="301,204" Padding="0,0" Style="Grid9Frame" />
+					<ScrollPanel Anchor="L,T" Offset="8,8" Size="293,184" Vertical="1" ID="EmotesScrollPanel" >
+						<Stack ID="EmoteStack" Anchor="L,T" StackGrowth="Right" WrapWidth="295" WrapGrowth="Down" >
+						</Stack>
+
+						<ScrollBar Offset="0,10" Style="VertSlider" AnchorSide="O.I" Anchor="R,T" Length="164" ConsumeMouse="True" />
+						<UpButton  Offset="0,-6"  Style="ScrollBarUp" AnchorSide="O.I" Anchor="R,T" />
+						<DownButton Offset="0,-6" Style="ScrollBarDown" AnchorSide="O.I" Anchor="R,B" />
+
+					</ScrollPanel>
+				</Grid>
+			</Button>
+			<!-- Emote Picker Menu END -->
 
           </Box>
-        </Stack>
       </Grid>
 
     </Box>
 
-    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="924.5" />
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="925.5" />
 
   </Grid>
 
@@ -695,51 +722,153 @@
     </GridButton>
   </Grid>
   
-  <!-- NEW: Draft window -->
-  <Grid Size="960,750" ID="DraftPopup" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailSix140" Hidden="1">
-    <!-- Side treatments -->
-    <Box Style="MenuLeftSideTreatment"/>
-    <Box Style="MenuRightSideTreatment"/>
-    <Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
-      <Image Anchor="C,C" Offset="0,-6" Size="80,80" Texture="NotificationFrameBase.dds">
-        <AlphaAnim Anchor="C,C" Offset="0,0" Size="80,80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
-      </Image>
-    </Image>
+	<!-- Emote Picker Menu END -->
+	<Instance Name="EmoteInstance">
+			<Button ID="EmoteButton" ConsumeMouseOver="1" Anchor="L,T" Size="28,28" >
+			</Button>
+	</Instance>
+	<!-- Emote Picker Menu END -->
+	<!-- Ingame Civ Drafter START -->
+	<Box ID="DraftBGBlock" Anchor="C,C" Size="Full,Full" Color="0,0,0,160" ConsumeMouse="1" Hidden="1" >
+		<Grid ID="DraftPopup" Size="960,750" Anchor="C,B" Offset="0,0" Style="Grid9DetailSix140" ConsumeMouse="0" >
+		
+			<Label ID="DraftProgressBar" Anchor="C,T" String="TXT_KEY_DRAFT_PROGRESS_DEFAULT" Offset="0,64" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			
+			<Grid ID="DraftPlayersStatus" Style="GridBlack8" Anchor="C,T" Offset="0,100" Size="904,330" ConsumeMouse="True" Hidden="0" >
+				<Grid ID="DraftPlayersStatusFrame" Anchor="C,C" Offset="0,0" Size="908,334" Padding="0,0" Style="Grid9Frame" />
+				<ScrollPanel Anchor="L,T" Offset="-4,8" Size="908,314" Vertical="1" ID="DraftPlayersStatusScrollPanel" >
+					<Stack ID="DraftPlayersStatusStack" Anchor="C,T" Padding="0" StackGrowth="Right" WrapWidth="908" WrapGrowth="Down" >
+					</Stack>
+		
+					<UpButton  Offset="7,1"  Style="ScrollBarUp" AnchorSide="I.I" Anchor="R,T" />
+					<ScrollBar ID="DraftPlayersStatusScrollBar" Offset="7,18" Style="VertSlider" AnchorSide="I.I" Anchor="R,T" Length="284" ConsumeMouse="True" />
+					<DownButton Offset="7,1" Style="ScrollBarDown" AnchorSide="I.I" Anchor="R,B" />
+		
+				</ScrollPanel>
+			</Grid>
+			
+			<Grid ID="DraftCivPicker" Style="GridBlack8" Anchor="C,T" Offset="0,100" Size="904,330" ConsumeMouse="True" Hidden="1" >
+				<Grid ID="DraftCivPickerFrame" Anchor="C,T" Offset="0,0" Size="908,334" Padding="0,0" Style="Grid9Frame" />
+				<ScrollPanel Anchor="L,T" Offset="-4,3" Size="908,314" Vertical="1" ID="DraftCivScrollPanel" >
+					<Stack ID="DraftCivStack" Anchor="C,T" Padding="0" StackGrowth="Right" WrapWidth="908" WrapGrowth="Down" >
+					</Stack>
+		
+					<UpButton  Offset="7,5"  Style="ScrollBarUp" AnchorSide="I.I" Anchor="R,T" />
+					<ScrollBar ID="DraftCivScrollBar" Offset="7,22" Style="VertSlider" AnchorSide="I.I" Anchor="R,T" Length="284" ConsumeMouse="True" />
+					<DownButton Offset="7,-24" Style="ScrollBarDown" AnchorSide="I.O" Anchor="R,B" />
+		
+				</ScrollPanel>
+			</Grid>
+			
+			<Grid ID="DraftStatusBox" Style="WindowGrid" Anchor="C,B" Offset="0,98" Size="904,180" ConsumeMouse="True" Hidden="0" >
+				<ScrollPanel Anchor="L,T" Offset="8,8" Size="900,164" Vertical="1" ID="DraftYourBansScrollPanel" >
+					<Stack ID="DraftStatusStack" Anchor="L,T" StackGrowth="Down" >
+					</Stack>
+		
+					<UpButton  Offset="19,1"  Style="ScrollBarUp" AnchorSide="I.I" Anchor="R,T" />
+					<ScrollBar Offset="19,18" Style="VertSlider" AnchorSide="I.I" Anchor="R,T" Length="107" ConsumeMouse="True" />
+					<DownButton Offset="19,145" Style="ScrollBarDown" AnchorSide="I.I" Anchor="R,T" />
+		
+				</ScrollPanel>
+			</Grid>
+			
+			<GridButton Style="BaseButton" ID="DraftConfirmBansButton" Size="200,42" Anchor="C,B" Offset="0,50" ToolTip="TXT_KEY_DRAFT_BANS_CONFIRM_HELP" Disabled="0" Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_DRAFT_BANS_CONFIRM" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow"/>
+			</GridButton>
+			<GridButton Style="BaseButton" ID="DraftCloseButton" Size="200,42" Anchor="R,B" Offset="27,50" Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow"/>
+			</GridButton>
+		</Grid>
+	</Box>
+  
+	<Instance Name="DraftCivEntry" >
+		<Container Size="120,140" ID="Root" >
+			<Button ID="DraftCivEntryButton" Size="114,127" Anchor="L,C" Disabled="0" >
+				<Image ID="LeaderFrame" Anchor="C,T" Size="128,128" Offset="0,-6" Texture="CitizenFrame128.dds" >
+					<AlphaAnim Anchor="C,T" Size="114,127" Offset="0,6" Pause="0" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="0.9">
+						<ShowOnMouseOver>
+							<Image ID="HoverAnim" Anchor="C,T" Size="128,128" Offset="0,-6" Color="255,255,50" Texture="CitizenFrame128.dds" Hidden="1">
+								<Image Anchor="C,C" Size="128,128" TextureOffset="0.0" Texture="notificationadvisorglowback.dds" Color="255,255,50" />
+							</Image>
+						</ShowOnMouseOver>
+					</AlphaAnim>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="128.128" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="1" >
+						<Image ID="LeaderFrameSelectedAnim" Anchor="C,T" Size="128,128" TextureOffset="0.0" Texture="notificationadvisorglowback.dds" Color="255,255,50" Hidden="1" />
+					</AlphaAnim>
+					<Image ID="LeaderIcon" Size="128,128" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits1024.dds" Color="200,200,200,255" />
+					<Image ID="LeaderSubIconFrame" Anchor="R,B" Offset="10,10" Size="45,45" Texture="45x45FrameButton.dds">
+						<AlphaAnim Anchor="R,B" Size="114,127" Offset="-3,-15" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="1" >
+							<ShowOnMouseOver>
+								<Image ID="SubHoverAnim" Anchor="R,B" Offset="3,15" Size="45,45" Color="255,255,50" Texture="45x45FrameButton.dds">
+									<Image Anchor="R,B" Size="80,80" Offset="-18,-20" TextureOffset="0.0" Texture="diplomacyvote.dds" Color="255,255,50" />
+								</Image>
+							</ShowOnMouseOver>
+						</AlphaAnim>
+						<AlphaAnim Anchor="R,B" Offset="-18,-20" Size="80,80" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="1" >
+							<Image ID="LeaderSubIconFrameSelectedAnim" Anchor="C,T" Size="80,80" TextureOffset="0.0" Texture="diplomacyvote.dds" Color="255,255,50" Hidden="1" />
+						</AlphaAnim>
+						<Image ID="LeaderSubIcon" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds" />
+					</Image>
+				</Image>
+			
+				<Label Anchor="C,B" ID="CivName" Offset="0,2" String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+			</Button>  
+		</Container>
+	</Instance>
 	
-    <Label Anchor="C,T" String="TXT_KEY_DRAFT_YOUR_BANS_DESC" Offset="0,74" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+	<Instance Name="DraftCivEntrySmall" >
+		<Container Size="60,60" ID="Root" >
+			<Button ID="DraftCivEntryButton" Size="60,60" Anchor="L,C" >
+				<Image ID="LeaderFrame" Anchor="C,T" Size="64,64" Offset="0,-6" Texture="iconframe64.dds" >
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="64,64" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="1" >
+						<Image ID="HoverAnim" Anchor="C,T" Size="64,64" Texture="iconframe64.dds" Color="255,255,50" Hidden="1" />
+					</AlphaAnim>
+					<Image ID="LeaderIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="leaderportraits64_exp2.dds" Color="200,200,200,255" />
+					<Image ID="LeaderSubIconFrame" Anchor="R,B" Offset="-2,0" Size="32,32" Texture="iconframe32lock.dds">
+						<AlphaAnim Anchor="R,B" Offset="0,0" Size="32,32" Cycle="Bounce" Speed="0.5" AlphaStart="0.6" AlphaEnd="1" >
+							<Image ID="HoverAnimSub" Anchor="C,T" Size="32,32" Texture="iconframe32lock.dds" Color="255,255,50" Hidden="1" />
+						</AlphaAnim>
+						<Image ID="LeaderSubIcon" Size="32,32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="civsymbolscolor256.dds" />
+					</Image>
+				</Image>
+			</Button>
+		</Container>
+	</Instance>
 	
-    <Grid ID="DraftYourBansPicker" Style="GridBlack8" Anchor="C,T" Offset="0,100" Size="904,130" ConsumeMouse="True" Hidden="0" >
-		<Grid Anchor="C,C" Offset="0,0" Size="908,134" Padding="0,0" Style="Grid9Frame" />
-		<ScrollPanel Anchor="L,T" Offset="8,8" Size="900,114" Vertical="1" ID="DraftYourBansScrollPanel" >
-			<Stack ID="DraftYourBansCivStack" Anchor="C,T" StackGrowth="Right" >
-			</Stack>
-
-			<ScrollBar Offset="0,10" Style="VertSlider" AnchorSide="O.I" Anchor="R,T" Length="94" ConsumeMouse="True" />
-			<UpButton  Offset="0,-6"  Style="ScrollBarUp" AnchorSide="O.I" Anchor="R,T" />
-			<DownButton Offset="0,-6" Style="ScrollBarDown" AnchorSide="O.I" Anchor="R,B" />
-
-		</ScrollPanel>
-	</Grid>
-    <Label Anchor="C,T" String="TXT_KEY_DRAFT_THEIR_BANS_DESC" Offset="0,274" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+	<Instance Name="DummyInstance" >
+		<Container Size="1,240" ID="Root" />
+	</Instance>
+	<Instance Name="Dummy2Instance" >
+		<Container Size="60,60" ID="Root" >
+			<Button ID="DummyButton" Size="60,60" Anchor="C,C" ConsumeMouseOver="1" />
+		</Container>
+	</Instance>
+	<Instance Name="Dummy3Instance" >
+		<Container Size="140,140" ID="Root" >
+			<Button ID="DummyButton" Size="140,140" Anchor="C,C" ConsumeMouseOver="1" />
+		</Container>
+	</Instance>
 	
-    <Grid ID="DraftTheirBansPicker" Style="GridBlack8" Anchor="C,T" Offset="0,300" Size="904,330" ConsumeMouse="True" Hidden="0" >
-		<Grid Anchor="C,C" Offset="0,0" Size="908,334" Padding="0,0" Style="Grid9Frame" />
-		<ScrollPanel Anchor="L,T" Offset="8,8" Size="900,314" Vertical="1" ID="DraftTheirBansScrollPanel" >
-			<Stack ID="DraftTheirBansCivStack" Anchor="C,T" StackGrowth="Right" WrapWidth="902" WrapGrowth="Down" >
-			</Stack>
-
-			<ScrollBar Offset="0,10" Style="VertSlider" AnchorSide="O.I" Anchor="R,T" Length="94" ConsumeMouse="True" />
-			<UpButton  Offset="0,-6"  Style="ScrollBarUp" AnchorSide="O.I" Anchor="R,T" />
-			<DownButton Offset="0,-6" Style="ScrollBarDown" AnchorSide="O.I" Anchor="R,B" />
-
-		</ScrollPanel>
-	</Grid>
-	
-    <GridButton Style="BaseButton" ID="DraftCancelButton" Size="300,42" Anchor="C,B" Offset="0,50" Hidden="0">
-      <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_ACCEPT_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
-    </GridButton>
-  </Grid>
-
+	<Instance Name="DraftPlayerStatusEntry" >
+		<Container Size="360,240" ID="Root" Hidden="1" >
+			<Grid Anchor="C,T" Offset="0,20" Size="314,200" Style="Grid9FrameTurns" ID="DraftPlayerStatusFrame" >
+				<Grid Anchor="L,T" Size="314,200" Style="Grid9FrameTurns" Color="255,255,100" ID="FocusFrame" Hidden="1" />
+				<Label Anchor="C,T" ID="PlayerName" Offset="0,10" String="--" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				<Label Anchor="C,T" ID="BansLabel" Offset="0,30" String="TXT_KEY_DRAFT_STATUS_BANS_SUBTITLE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				<Stack ID="DraftPlayerBansStack" Offset="0,50" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Stack ID="DraftPlayerBansDummy" Offset="0,50" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Label Anchor="C,T" ID="PicksLabel" Offset="0,115" String="TXT_KEY_DRAFT_STATUS_PICKS_SUBTITLE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				<Stack ID="DraftPlayerPicksStack" Offset="0,135" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Stack ID="DraftPlayerPicksDummy" Offset="0,135" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Stack ID="DraftPlayerPicksBigStack" Offset="0,42" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Stack ID="DraftPlayerPicksBigDummy" Offset="0,42" Anchor="C,T" Padding="0" StackGrowth="Right" />
+				<Box Size="314,194" Anchor="C,C" Color="0,0,0,0" ID="DraftPlayerStatusBlackFade" >
+					<Grid Anchor="C,C" Size="420,204" Offset="-20,0" Style="Grid9FrameTurns" Color="0,0,0" />
+				</Box>
+			</Grid>
+		</Container>
+	</Instance>
+	<!-- Ingame Civ Drafter END -->
   <LuaContext FileName="Assets/DLC/Shared/UI/FrontEnd/ChangeSmtpPassword" ID="ChangeSmtpPassword" Hidden="1" />
   <LuaContext FileName="Assets/UI/FrontEnd/GameSetup/SetCivNames" ID="SetCivNames" Hidden="1" />
   <LuaContext FileName="Assets/DLC/Shared/UI/InGame/Popups/ConfirmKick" ID="ConfirmKick" Hidden="1" />
