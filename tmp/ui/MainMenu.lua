@@ -37,6 +37,7 @@ function ShowPatchNotesText(lang)
 			blob[lang].stack[m2] = {a = instTitle, b = instEntry};
 			for line in string.gmatch(m2, '([^\n]*)\n?') do
     	        local instLine = {};
+    	    	if line == '' then line = ' [NEWLINE]' end
     	        ContextPtr:BuildInstanceForControl("PatchNotesLine", instLine, instEntry.LinesStack);
 				instLine.Text:SetText(line:gsub('^( +)(%- )', '%1%1[ICON_BULLET]'):gsub('(~~)([^~]*)(~~)','[COLOR_GREY]%2[ENDCOLOR]'):gsub('\\`', '`'))
 			end

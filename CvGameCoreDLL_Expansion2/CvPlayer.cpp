@@ -5192,26 +5192,77 @@ void CvPlayer::doTurn()
 #ifdef DO_CANCEL_DEALS_WITH_AI
 				if(!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 				{
+					DealList tempDeals;
+
+					if (GC.getGame().GetGameDeals()->m_CurrentDeals.size() > 0)
+					{
+						bool bSomethingChanged = false;
+
+						// Copy the deals into a temporary container
+						for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+						{
+							tempDeals.push_back(*it);
+						}
+
+						GC.getGame().GetGameDeals()->m_CurrentDeals.clear();
+						for (DealList::iterator it = tempDeals.begin(); it != tempDeals.end(); ++it)
+						{
+							// Players on this deal match?
+							if (it->m_eFromPlayer == GetID() || it->m_eToPlayer == GetID())
+							{
+								// Change final turn
+								it->m_iFinalTurn = GC.getGame().getGameTurn();
+
+								bool bIsTradeItemPeaceTreaty = false;
+								bool bNotIsTradeItemPeaceTreaty = false;
+								for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+								{
+									if (itemIter->m_eItemType == TRADE_ITEM_PEACE_TREATY)
+									{
+										bIsTradeItemPeaceTreaty = true;
+									}
+									else
+									{
+										bNotIsTradeItemPeaceTreaty = true;
+									}
+								}
+
+								if (!bIsTradeItemPeaceTreaty || bNotIsTradeItemPeaceTreaty)
+								{
+									// Cancel individual items
+									for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+									{
+										bSomethingChanged = true;
+
+										itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
+
+										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, true);
+									}
+									GC.getGame().GetGameDeals()->m_HistoricalDeals.push_back(*it);
+								}
+								else
+								{
+									GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+								}
+							}
+							else
+							{
+								GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+							}
+						}
+
+						GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+					}
+
 					GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
 					for(int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 					{
 						TeamTypes eTeam = (TeamTypes)iLoopTeam;
 						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 						{
-							for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
-							{
-								TradedItemList::iterator itemIter;
-								for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
-								{
-									if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
-									{
-										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
-										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
-
-										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
-									}
-								}
-							}
 							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
@@ -30665,26 +30716,77 @@ void CvPlayer::disconnected()
 #ifdef DO_CANCEL_DEALS_WITH_AI
 				if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 				{
+					DealList tempDeals;
+
+					if (GC.getGame().GetGameDeals()->m_CurrentDeals.size() > 0)
+					{
+						bool bSomethingChanged = false;
+
+						// Copy the deals into a temporary container
+						for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+						{
+							tempDeals.push_back(*it);
+						}
+
+						GC.getGame().GetGameDeals()->m_CurrentDeals.clear();
+						for (DealList::iterator it = tempDeals.begin(); it != tempDeals.end(); ++it)
+						{
+							// Players on this deal match?
+							if (it->m_eFromPlayer == GetID() || it->m_eToPlayer == GetID())
+							{
+								// Change final turn
+								it->m_iFinalTurn = GC.getGame().getGameTurn();
+
+								bool bIsTradeItemPeaceTreaty = false;
+								bool bNotIsTradeItemPeaceTreaty = false;
+								for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+								{
+									if (itemIter->m_eItemType == TRADE_ITEM_PEACE_TREATY)
+									{
+										bIsTradeItemPeaceTreaty = true;
+									}
+									else
+									{
+										bNotIsTradeItemPeaceTreaty = true;
+									}
+								}
+
+								if (!bIsTradeItemPeaceTreaty || bNotIsTradeItemPeaceTreaty)
+								{
+									// Cancel individual items
+									for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+									{
+										bSomethingChanged = true;
+
+										itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
+
+										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, true);
+									}
+									GC.getGame().GetGameDeals()->m_HistoricalDeals.push_back(*it);
+								}
+								else
+								{
+									GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+								}
+							}
+							else
+							{
+								GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+							}
+						}
+
+						GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+					}
+
 					GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
 					for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 					{
 						TeamTypes eTeam = (TeamTypes)iLoopTeam;
 						if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 						{
-							for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
-							{
-								TradedItemList::iterator itemIter;
-								for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
-								{
-									if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
-									{
-										PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
-										PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
-
-										GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
-									}
-								}
-							}
 							GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 							GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 							GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);
@@ -30759,26 +30861,77 @@ void CvPlayer::disconnected()
 #ifdef DO_CANCEL_DEALS_WITH_AI
 			if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			{
+				DealList tempDeals;
+
+				if (GC.getGame().GetGameDeals()->m_CurrentDeals.size() > 0)
+				{
+					bool bSomethingChanged = false;
+
+					// Copy the deals into a temporary container
+					for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
+					{
+						tempDeals.push_back(*it);
+					}
+
+					GC.getGame().GetGameDeals()->m_CurrentDeals.clear();
+					for (DealList::iterator it = tempDeals.begin(); it != tempDeals.end(); ++it)
+					{
+						// Players on this deal match?
+						if (it->m_eFromPlayer == GetID() || it->m_eToPlayer == GetID())
+						{
+							// Change final turn
+							it->m_iFinalTurn = GC.getGame().getGameTurn();
+
+							bool bIsTradeItemPeaceTreaty = false;
+							bool bNotIsTradeItemPeaceTreaty = false;
+							for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+							{
+								if (itemIter->m_eItemType == TRADE_ITEM_PEACE_TREATY)
+								{
+									bIsTradeItemPeaceTreaty = true;
+								}
+								else
+								{
+									bNotIsTradeItemPeaceTreaty = true;
+								}
+							}
+
+							if (!bIsTradeItemPeaceTreaty || bNotIsTradeItemPeaceTreaty)
+							{
+								// Cancel individual items
+								for (TradedItemList::iterator itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+								{
+									bSomethingChanged = true;
+
+									itemIter->m_iFinalTurn = GC.getGame().getGameTurn();
+
+									PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
+									PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
+
+									GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, true);
+								}
+								GC.getGame().GetGameDeals()->m_HistoricalDeals.push_back(*it);
+							}
+							else
+							{
+								GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+							}
+						}
+						else
+						{
+							GC.getGame().GetGameDeals()->m_CurrentDeals.push_back(*it);
+						}
+					}
+
+					GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+				}
+
 				GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(GetID());
 				for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
 				{
 					TeamTypes eTeam = (TeamTypes)iLoopTeam;
 					if (getTeam() != eTeam && GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 					{
-						for (DealList::iterator it = GC.getGame().GetGameDeals()->m_CurrentDeals.begin(); it != GC.getGame().GetGameDeals()->m_CurrentDeals.end(); ++it)
-						{
-							TradedItemList::iterator itemIter;
-							for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
-							{
-								if (itemIter->m_eItemType != TRADE_ITEM_PEACE_TREATY)
-								{
-									PlayerTypes eFromPlayer = itemIter->m_eFromPlayer;
-									PlayerTypes eToPlayer = it->GetOtherPlayer(eFromPlayer);
-
-									GC.getGame().GetGameDeals()->DoEndTradedItem(&*itemIter, eToPlayer, false);
-								}
-							}
-						}
 						GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTeam);
 						GET_TEAM(eTeam).CloseEmbassyAtTeam(getTeam());
 						GET_TEAM(getTeam()).CancelResearchAgreement(eTeam);

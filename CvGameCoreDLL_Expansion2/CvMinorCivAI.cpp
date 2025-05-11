@@ -3963,6 +3963,13 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		// This player must not have already denounced the most recent bully
 		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetMostRecentBullyForQuest()))
 			return false;
+
+#ifdef QUESTS_SYSTEM_OVERHAUL
+		if (GC.getGame().isNetworkMultiPlayer())
+		{
+			return false;
+		}
+#endif
 	}
 	// Spread your religion to us
 	else if(eQuest == MINOR_CIV_QUEST_SPREAD_RELIGION)
@@ -5383,12 +5390,6 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer)
 PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest() const
 {
 	PlayerTypes eBully = NO_PLAYER;
-#ifdef QUESTS_SYSTEM_OVERHAUL
-	if (GC.getGame().isNetworkMultiPlayer())
-	{
-		return eBully;
-	}
-#endif
 	int iTurn = -1;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{

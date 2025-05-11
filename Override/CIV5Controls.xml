@@ -33152,7 +33152,7 @@
 			<CtrlDown>false</CtrlDown> 
 			<CtrlDownAlt>false</CtrlDownAlt> 
 			<Sound>AS2D_IF_LEVELUP</Sound> 
-			<CannotBeChosen>false</CannotBeChosen> 
+			<CannotBeChosen>true</CannotBeChosen> 
 			<LostWithUpgrade>false</LostWithUpgrade> 
 			<NotWithUpgrade>false</NotWithUpgrade> 
 			<InstaHeal>false</InstaHeal> 
@@ -33263,7 +33263,7 @@
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
 			<PediaType>PEDIA_ATTRIBUTES</PediaType> 
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_MOUNTED_COMBAT_BONUS</PediaEntry> 
+			<PediaEntry>TXT_KEY_PROMOTION_MOUNTED_COMBAT_BONUS</PediaEntry> 
 		</Row>
 		<Row> 
 			<ID>236</ID> 

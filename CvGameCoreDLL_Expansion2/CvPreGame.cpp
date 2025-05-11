@@ -2449,7 +2449,7 @@ void setActivePlayer(PlayerTypes p)
 {
 #ifdef INGAME_CIV_DRAFTER
 	SLOG("active p %d", p);
-	if (isNetworkMultiplayerGame() || isHotSeatGame())
+	if (!gameStarted() && loadFileName().IsEmpty() && (isNetworkMultiplayerGame() || isHotSeatGame()))
 	{
 		CvString strP = CvString::format("%d", (int)p);
 		gDLL->SendRenameCity(-6, strP);
@@ -3519,6 +3519,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 	// 0011 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local player ready
 	// 0100 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local reset
 	// 0101 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - drafts local update
+	// 0110 xxxx xxxx xxxx xxxx xxxx xxxx xxxx - player disconnected
 	// intercept Pregame.SetLeaderKey here, check if leftmost bits are 0001
 	// it actually limits max PlayerType value to 2^28 (it's OK)
 	if ((((uint)p >> 28) & 15) == 1)  // 4 left-most bits reserved for mode (0 default; 1-15 moddable)
@@ -3563,6 +3564,20 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 	else if ((((uint)p >> 28) & 15) == 5)  // local update
 	{
 		DraftLocalUpdate();
+		return;
+	}
+	else if ((((uint)p >> 28) & 15) == 6)  // player disconnected during INIT stage
+	{
+		uint uiPlayerID = (((uint)p) & 268435455);  // 28-bit
+		if (uiPlayerID >= MAX_MAJOR_CIVS)
+			return;
+		if (s_draftCurrentProgress != DRAFT_PROGRESS_INIT)
+		{
+			SLOG("WARN attempt to handle player disconnect outside DRAFT_PROGRESS_INIT stage; should reset drafts instead");
+			return;
+		}
+		s_draftPlayerSecretHashes[uiPlayerID] = "";
+		SetDraftPlayerReady((PlayerTypes)uiPlayerID, false);
 		return;
 	}
 #endif

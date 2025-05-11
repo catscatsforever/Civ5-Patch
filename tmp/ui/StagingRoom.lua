@@ -1238,8 +1238,12 @@ function OnDisconnect( playerID )
 		end
 		ShowHideInviteButton();
 		-- Ingame Civ Drafter START
-		if g_DraftProgress ~= 'DRAFT_PROGRESS_INIT' and g_DraftProgress ~= 'DRAFT_PROGRESS_DEFAULT' and g_DraftProgress ~= 'DRAFT_PROGRESS_OVER' then
-			print('disconnect: reset drafts')
+		if g_DraftProgress == 'DRAFT_PROGRESS_INIT' or g_DraftProgress == 'DRAFT_PROGRESS_DEFAULT' then
+			print('disconnect: unready', playerID)
+			local product = 6 * 2 ^ 28 + playerID;  -- player disconnected (INIT stage)
+			local data = PreGame.SetLeaderKey( product, '' );
+		elseif g_DraftProgress ~= 'DRAFT_PROGRESS_OVER' then
+			print('disconnect: reset drafts', playerID)
 			local product = 4 * 2 ^ 28;  -- reset draft data (local)
 			local data = PreGame.SetLeaderKey( product, 'TXT_KEY_DRAFTS_RESET_DISC' );
 		end
@@ -1407,7 +1411,8 @@ function InputHandler( uiMsg, wParam, lParam )
 			-- Ingame Civ Drafter END
 		end
 		-- TODO: REMOVE
-		--[[if wParam == Keys.V then
+		--[[
+		if wParam == Keys.V then
     		AddPlayerBans (1,'User','4')
 		end
 		if wParam == Keys.B then
@@ -2691,7 +2696,7 @@ function ResetDrafts( message )
 	ClearBans();
 	UpdateDraftScreen();
 	Controls.DraftBGBlock:SetHide(true)
-	if message then
+	if ContextPtr:IsHidden() == false and message then
 		AddDraftStatus(Locale.Lookup(message));
 		AddDraftStatus('------------------------------[NEWLINE][NEWLINE]');
 		OnChat( 0, -1, Locale.Lookup(message) );
@@ -3138,6 +3143,7 @@ function AssignDraftedCivs( civsArr )
 					end
 				end
 				local inst = playerEntry.picksIM:GetInstance()
+				inst.civID = tonumber(v)
 				table.insert(g_DraftResultInstances.Picks[playerID], inst);
 				IconHookup(leader.PortraitIndex, 64, leader.IconAtlas, inst.LeaderIcon); 
 				IconHookup(civ.PortraitIndex, 32, civ.IconAtlas, inst.LeaderSubIcon);
@@ -3365,16 +3371,45 @@ function UpdateDraftScreen()
 			end
 		end
 
-		if g_DraftProgress == 'DRAFT_PROGRESS_OVER' and Matchmaking.GetLocalID() == i then
-			g_PlayerEntries[i].statusInstance.FocusFrame:SetHide(false)
-			g_PlayerEntries[i].statusInstance.DraftPlayerBansStack:SetHide(true)
-			g_PlayerEntries[i].statusInstance.DraftPlayerBansDummy:SetHide(true)
-			g_PlayerEntries[i].statusInstance.DraftPlayerPicksStack:SetHide(true)
-			g_PlayerEntries[i].statusInstance.DraftPlayerPicksDummy:SetHide(true)
-			g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigStack:SetHide(false)
-			g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigDummy:SetHide(false)
-			g_PlayerEntries[i].statusInstance.BansLabel:SetHide(true)
-			g_PlayerEntries[i].statusInstance.PicksLabel:SetOffsetY(30)
+		if g_DraftProgress == 'DRAFT_PROGRESS_OVER' then
+			local playerID = i - 1
+			if g_DraftResultInstances.Picks[playerID] ~= nil then
+				for ind, it in next, g_DraftResultInstances.Picks[playerID] do
+					if it.civID == PreGame.GetCivilization(playerID) then
+						print('player civ', playerID, it.civID)
+						it.LeaderFrame:SetColor( {x=94/255, y=220/255, z=31/255, w=1 } )
+						it.LeaderSubIconFrame:SetColor( {x=94/255, y=220/255, z=31/255, w=1 } )
+						g_DraftResultInstances.PicksB[playerID][ind].LeaderFrame:SetColor( {x=94/255, y=220/255, z=31/255, w=1 } )
+						g_DraftResultInstances.PicksB[playerID][ind].LeaderSubIconFrame:SetColor( {x=94/255, y=220/255, z=31/255, w=1 } )
+					else
+						it.LeaderFrame:SetColor( {x=1, y=1, z=1, w=1 } )
+						it.LeaderSubIconFrame:SetColor( {x=1, y=1, z=1, w=1 } )
+						g_DraftResultInstances.PicksB[playerID][ind].LeaderFrame:SetColor( {x=1, y=1, z=1, w=1 } )
+						g_DraftResultInstances.PicksB[playerID][ind].LeaderSubIconFrame:SetColor( {x=1, y=1, z=1, w=1 } )
+					end
+				end
+			end
+			if Matchmaking.GetLocalID() == i then
+				g_PlayerEntries[i].statusInstance.FocusFrame:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerBansStack:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerBansDummy:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksStack:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksDummy:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigStack:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigDummy:SetHide(false)
+				g_PlayerEntries[i].statusInstance.BansLabel:SetHide(true)
+				g_PlayerEntries[i].statusInstance.PicksLabel:SetOffsetY(30)
+			else
+				g_PlayerEntries[i].statusInstance.FocusFrame:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerBansStack:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerBansDummy:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksStack:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksDummy:SetHide(false)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigStack:SetHide(true)
+				g_PlayerEntries[i].statusInstance.DraftPlayerPicksBigDummy:SetHide(true)
+				g_PlayerEntries[i].statusInstance.BansLabel:SetHide(false)
+				g_PlayerEntries[i].statusInstance.PicksLabel:SetOffsetY(115)
+			end
 		else
 			g_PlayerEntries[i].statusInstance.FocusFrame:SetHide(true)
 			g_PlayerEntries[i].statusInstance.DraftPlayerBansStack:SetHide(false)
@@ -3403,6 +3438,10 @@ end
 -- 'events' from dll
 function OnGameplayAlertMessage( text )
 	print('alert', text)
+	if (PreGame.GetLoadFileName() ~= "") or PreGame.GameStarted() then
+		print('draft message during ongoing game - ignored')
+		return;
+	end
 	local control, text = string.match(text, '(.-)|(.*)')
 	if control == 'ban-success' then
 		local splayerID, bans = string.match(text, '(.*)%|(.*)');
@@ -3448,8 +3487,8 @@ function OnGameplayAlertMessage( text )
 			end
 		end
 	elseif control == 'reset' then
-		--RebuildDrafts();
 		ResetDrafts(text);
+		RebuildDrafts();
 	elseif control == 'upd' then
 		local playerID = tonumber(text) or -1;
 		if Matchmaking.GetLocalID() == playerID then
