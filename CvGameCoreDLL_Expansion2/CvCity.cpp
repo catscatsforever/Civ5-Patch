@@ -9451,7 +9451,11 @@ void CvCity::ChangeEspionageModifier(int iChange)
 bool CvCity::IsNoOccupiedUnhappiness() const
 {
 	VALIDATE_OBJECT
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	return (GetNoOccupiedUnhappinessCount() > 0 || getNoHolyCityAndNoOccupiedUnhappiness() > 0);
+#else
 	return GetNoOccupiedUnhappinessCount() > 0;
+#endif
 }
 
 //	--------------------------------------------------------------------------------

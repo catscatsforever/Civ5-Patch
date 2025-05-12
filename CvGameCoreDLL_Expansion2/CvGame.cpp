@@ -7992,7 +7992,9 @@ void CvGame::doTurn()
 
 	GetGameReligions()->DoTurn();
 	GetGameTrade()->DoTurn();
+#ifndef DO_TURN_CHANGE_ORDER
 	GetGameLeagues()->DoTurn();
+#endif
 	GetGameCulture()->DoTurn();
 #ifdef MP_PLAYERS_VOTING_SYSTEM
 	GetMPVotingSystem()->DoTurn();
@@ -8978,6 +8980,7 @@ void CvGame::updateMoves()
 #endif
 #ifdef DO_TURN_CHANGE_ORDER
 		m_kGameDeals.DoTurn();
+		GetGameLeagues()->DoTurn();
 #endif
 #ifdef FIX_PROJECTS_NOTIFICATIONS_PERCENTAGE
 		if (GC.getGame().GetGameLeagues()->GetActiveLeague())

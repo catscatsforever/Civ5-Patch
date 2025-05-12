@@ -3389,6 +3389,14 @@ std::vector<BuildingTypes> CvPlayerPolicies::GetFreeBuildingsOnConquest()
 		{
 			CvPolicyEntry *pPolicy = m_pPolicies->GetPolicyEntry(i);
 			BuildingTypes eFreeBuilding = pPolicy->GetFreeBuildingOnConquest();
+#ifdef FIX_POLICY_FREE_BUILDING_ON_CONQUEST_INCLUDES_UNIQUE_BUILDINGS
+			if (GC.getBuildingInfo(eFreeBuilding))
+			{
+				GC.getBuildingInfo(eFreeBuilding)->GetBuildingClassType();
+				BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getBuildingInfo(eFreeBuilding)->GetBuildingClassType();
+				eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(m_pPlayer->getCivilizationType())->getCivilizationBuildings(eBuildingClass);
+			}
+#endif
 			if (eFreeBuilding)
 			{
 				freeBuildings.push_back(eFreeBuilding);
