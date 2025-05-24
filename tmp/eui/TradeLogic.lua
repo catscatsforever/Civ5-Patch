@@ -1601,7 +1601,7 @@ Events.WarStateChanged.Add(
 function( iTeam1, iTeam2, isAtWar )
 	-- Active player changed war state with this AI
 	if iTeam1 == g_iUsTeam and iTeam2 == g_iThemTeam and isAtWar then
-		OnBack()
+		OnBack(0)
 	end
 end)
 
@@ -1747,9 +1747,8 @@ function()
 end)
 Events.WarStateChanged.Add(
 function( iTeam1, iTeam2, isAtWar )
-	-- Active player changed war state with this AI
 	if iTeam1 == g_iUsTeam and iTeam2 == g_iThemTeam and isAtWar then
-		if g_PVPTrade then
+		if g_PVPTrade == 1 then
 			UI.DoFinalizePlayerDeal( g_iUs, g_iThem, false )
 			ContextPtr:SetHide( true )
 			ContextPtr:CallParentShowHideHandler( false )

@@ -316,6 +316,9 @@ CvCity::CvCity() :
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 	, m_iNonAirUnitMaxHeal("CvCity::m_iNonAirUnitMaxHeal", m_syncArchive)
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	, m_iDoublePantheon("CvCity::m_iDoublePantheon", m_syncArchive)
+#endif
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
@@ -1116,6 +1119,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 	m_iNonAirUnitMaxHeal = 0;
+#endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	m_iDoublePantheon = 0;
 #endif
 
 	if(!bConstructorCall)
@@ -2706,12 +2712,18 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
 	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 
+#ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
+	if (pkBuildingInfo->IsNoHolyCityAndNoOccupiedUnhappiness() && IsPuppet())
+		return false;
+#endif
+
 	// Can't construct a building to reduce occupied unhappiness if the city isn't occupied
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied())
 		return false;
 
 #ifdef BUILDING_NO_HOLY_CITY_AND_NO_OCCUPIED_UNHAPPINESS
-	if (pkBuildingInfo->IsNoHolyCityAndNoOccupiedUnhappiness() && GetCityReligions()->IsHolyCityAnyReligion())
+	const ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+	if (pkBuildingInfo->IsNoHolyCityAndNoOccupiedUnhappiness() && GetCityReligions()->IsHolyCityForReligion(eReligion))
 		return false;
 #endif
 
@@ -3436,7 +3448,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 						if (pLoopPlot != NULL)
 						{
-							if (eResource != pLoopPlot->getResourceType() && pLoopPlot->getOwner() != NO_PLAYER)
+							if (eResource == pLoopPlot->getResourceType() && pLoopPlot->getOwner() != NO_PLAYER)
 							{
 								if (GET_PLAYER(pLoopPlot->getOwner()).isHuman() || GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
 								{
@@ -4882,11 +4894,14 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 				if (eThisPlayersUnitType == eUnit)
 				{
 					PolicyBranchTypes eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-					int iNum = GET_PLAYER(getOwner()).GetNumGoldPurchasedGreatPerson();
 
 					if ((eBranch != NO_POLICY_BRANCH_TYPE && kPlayer.GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) && !kPlayer.GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
 					{
-						iCost = GC.getRELIGION_MIN_FAITH_FIRST_GREAT_PERSON() + iNum * GC.getRELIGION_FAITH_DELTA_NEXT_GREAT_PERSON();
+						iCost = GC.getRELIGION_MIN_FAITH_FIRST_GREAT_PERSON();
+						if (eUnitClass == (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true /*bHideAssert*/))
+						{
+							iCost += GC.getRELIGION_FAITH_DELTA_NEXT_GREAT_PERSON();
+						}
 					}
 				}
 			}
@@ -5259,7 +5274,11 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	if(iModifier == -1)
 		return -1;
 
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eBuilding), true);
+#else
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eBuilding));
+#endif
 	iCost *= (100 + iModifier);
 	iCost /= 100;
 
@@ -5281,6 +5300,13 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 			{
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHurryModifier(eHurry);
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetHurryModifier(eHurry);
+			}
+#endif
 			iCost *= (100 + iReligionChange);
 			iCost /= 100;
 		}
@@ -5351,6 +5377,42 @@ int CvCity::GetPurchaseCost(ProjectTypes eProject)
 
 //	--------------------------------------------------------------------------------
 /// Cost of Purchasing something based on the amount of Production it requires to construct
+#ifdef BUILDING_HURRY_COST_MODIFIER
+int CvCity::GetPurchaseCostFromProduction(int iProduction, bool bIsBuilding)
+{
+	VALIDATE_OBJECT
+		int iPurchaseCost;
+
+	// Gold per Production
+	int iPurchaseCostBase = iProduction * /*30*/ GC.getGOLD_PURCHASE_GOLD_PER_PRODUCTION();
+	// Cost ramps up
+	iPurchaseCost = (int)pow((double)iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
+
+	// Hurry Mod (Policies, etc.)
+	HurryTypes eHurry = (HurryTypes)GC.getInfoTypeForString("HURRY_GOLD");
+
+	if (eHurry != NO_HURRY)
+	{
+		int iHurryMod = GET_PLAYER(getOwner()).getHurryModifier(eHurry);
+		if (bIsBuilding)
+		{
+			iHurryMod += getBuildingHurryCostModifier();
+		}
+
+		if (iHurryMod != 0)
+		{
+			iPurchaseCost *= (100 + iHurryMod);
+			iPurchaseCost /= 100;
+		}
+	}
+
+	// Game Speed modifier
+	iPurchaseCost *= GC.getGame().getGameSpeedInfo().getHurryPercent();
+	iPurchaseCost /= 100;
+
+	return iPurchaseCost;
+}
+#else
 int CvCity::GetPurchaseCostFromProduction(int iProduction)
 {
 	VALIDATE_OBJECT
@@ -5366,11 +5428,7 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 
 	if(eHurry != NO_HURRY)
 	{
-#ifdef BUILDING_HURRY_COST_MODIFIER
-		int iHurryMod = GET_PLAYER(getOwner()).getHurryModifier(eHurry) + getBuildingHurryCostModifier();
-#else
 		int iHurryMod = GET_PLAYER(getOwner()).getHurryModifier(eHurry);
-#endif
 
 		if(iHurryMod != 0)
 		{
@@ -5385,6 +5443,7 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 
 	return iPurchaseCost;
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::setProduction(int iNewValue)
@@ -5732,6 +5791,16 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 									iTempMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier();
 								}
 							}
+#ifdef BUILDING_DOUBLE_PANTHEON
+							BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+							if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+							{
+								if ((int)eEra < GC.GetGameBeliefs()->GetEntry(ePantheon)->GetObsoleteEra())
+								{
+									iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetWonderProductionModifier();
+								}
+							}
+#endif
 							iMultiplier += iTempMod;
 							if(toolTipSink && iTempMod)
 							{
@@ -7129,6 +7198,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 		changeNonAirUnitMaxHeal(pBuildingInfo->IsNonAirUnitMaxHeal() * iChange);
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+		changeDoublePantheon(pBuildingInfo->IsDoublePantheon() * iChange);
+#endif
 
 		// Process for our player
 		for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -7288,10 +7360,19 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(getPopulation(), (YieldTypes)iYield);
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+#ifdef BUILDING_DOUBLE_PANTHEON
+				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+#endif
 				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 				{
 					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange((YieldTypes)iYield);
 				}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				if (ePantheon != NO_BELIEF && getDoublePantheon() > 0 && getPopulation() >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
+				{
+					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetCityYieldChange((YieldTypes)iYield);
+				}
+#endif
 
 				switch(iYield)
 				{
@@ -7318,6 +7399,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					{
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldChangeTradeRoute((YieldTypes)iYield);
 					}
+#ifdef BUILDING_DOUBLE_PANTHEON
+					if (ePantheon != NO_BELIEF && getDoublePantheon() > 0 && getPopulation() >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
+					{
+						iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetYieldChangeTradeRoute((YieldTypes)iYield);
+					}
+#endif
 
 					switch(iYield)
 					{
@@ -7399,6 +7486,13 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 							if (eSecondaryPantheon != NO_BELIEF)
 							{
 								iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
+							}
+#endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+							BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+							if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+							{
+								iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield);
 							}
 #endif
 
@@ -7740,6 +7834,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				{
 					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
 				}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+				if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+				{
+					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetCityGrowthModifier();
+				}
+#endif
 				iTotalMod += iReligionGrowthMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 			}
@@ -7892,14 +7993,19 @@ int CvCity::getHurryCostModifier(HurryTypes eHurry, BuildingTypes eBuilding, boo
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo)
 	{
+#ifdef BUILDING_HURRY_COST_MODIFIER
+		return getHurryCostModifier(eHurry, pkBuildingInfo->GetHurryCostModifier(), m_pCityBuildings->GetBuildingProduction(eBuilding), bIgnoreNew, true);
+#else
 		return getHurryCostModifier(eHurry, pkBuildingInfo->GetHurryCostModifier(), m_pCityBuildings->GetBuildingProduction(eBuilding), bIgnoreNew);
+#endif
 	}
 
 	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew) const
+#ifdef BUILDING_HURRY_COST_MODIFIER
+int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew, bool bIsBuilding) const
 {
 	VALIDATE_OBJECT
 	int iModifier = 100;
@@ -7915,16 +8021,7 @@ int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProd
 	// Some places just don't care what kind of Hurry it is (leftover from Civ 4)
 	if (eHurry != NO_HURRY)
 	{
-#ifdef BUILDING_HURRY_COST_MODIFIER
-		if (eHurry != (HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"))
-		{
-			if (GET_PLAYER(getOwner()).getHurryModifier(eHurry) != 0)
-			{
-				iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
-				iModifier /= 100;
-			}
-		}
-		else
+		if (eHurry == (HurryTypes)GC.getInfoTypeForString("HURRY_GOLD") && bIsBuilding)
 		{
 			if (GET_PLAYER(getOwner()).getHurryModifier(eHurry) + getBuildingHurryCostModifier() != 0)
 			{
@@ -7932,17 +8029,45 @@ int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProd
 				iModifier /= 100;
 			}
 		}
-#else
-		if(GET_PLAYER(getOwner()).getHurryModifier(eHurry) != 0)
+		else
 		{
-			iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
-			iModifier /= 100;
+			if (GET_PLAYER(getOwner()).getHurryModifier(eHurry) != 0)
+			{
+				iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
+				iModifier /= 100;
+			}
 		}
-#endif
 	}
 
 	return iModifier;
 }
+#else
+int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew) const
+{
+	VALIDATE_OBJECT
+		int iModifier = 100;
+	iModifier *= std::max(0, iBaseModifier + 100);
+	iModifier /= 100;
+
+	if (iProduction == 0 && !bIgnoreNew)
+	{
+		iModifier *= std::max(0, (GC.getNEW_HURRY_MODIFIER() + 100));
+		iModifier /= 100;
+	}
+
+	// Some places just don't care what kind of Hurry it is (leftover from Civ 4)
+	if (eHurry != NO_HURRY)
+	{
+		if (GET_PLAYER(getOwner()).getHurryModifier(eHurry) != 0)
+		{
+			iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
+			iModifier /= 100;
+		}
+	}
+
+	return iModifier;
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -8568,6 +8693,15 @@ int CvCity::getCityAttackRangeModifier() const
 				}
 			}
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+			if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_GODDESS_STRATEGY", true))
+			{
+				if (eMajority != NO_RELIGION && getDoublePantheon() > 0)
+				{
+					iTempMod++;
+				}
+			}
+#endif
 			pBelief = NO_BELIEF;
 			for (int jJ = iI + 1; jJ < pReligion->m_Beliefs.GetNumBeliefs(); jJ++)
 			{
@@ -8800,6 +8934,13 @@ int CvCity::GetJONSCultureThreshold() const
 			{
 				iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetPlotCultureCostModifier();
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+			{
+				iReligionMod += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetPlotCultureCostModifier();
+			}
+#endif
 		}
 	}
 
@@ -9086,6 +9227,13 @@ int CvCity::GetFaithPerTurn() const
 				{
 					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange((SpecialistTypes)iSpecialist, YIELD_FAITH);
 				}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+				if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+				{
+					iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetSpecialistYieldChange((SpecialistTypes)iSpecialist, YIELD_FAITH);
+				}
+#endif
 				iFaith += GetCityCitizens()->GetSpecialistCount((SpecialistTypes)iSpecialist) * iReligionChange;
 			}
 		}
@@ -10087,11 +10235,17 @@ int CvCity::GetLocalHappiness() const
 	if(eMajority != NO_RELIGION)
 	{
 		BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+#ifdef BUILDING_DOUBLE_PANTHEON
+		BeliefTypes ePantheon = NO_BELIEF;
+#endif
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 
 		const CvReligion* pReligion = pReligions->GetReligion(eMajority, kPlayer.GetID());
 		if(pReligion)
 		{
+#ifdef BUILDING_DOUBLE_PANTHEON
+			ePantheon = pReligion->m_Beliefs.GetBelief(0);
+#endif
 			iHappinessFromReligion += pReligion->m_Beliefs.GetHappinessPerCity(getPopulation());
 			if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 			{
@@ -10141,6 +10295,29 @@ int CvCity::GetLocalHappiness() const
 				}
 			}
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+			if (ePantheon != NO_BELIEF && getDoublePantheon() > 0 && getPopulation() >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
+			{
+				iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetHappinessPerCity();
+			}
+#ifdef SACRED_WATERS_FRESH_WATER
+			if (plot()->isFreshWater())
+			{
+				if (ePantheon != NO_BELIEF)
+				{
+					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetRiverHappiness();
+				}
+			}
+#else
+			if (plot()->isRiver())
+			{
+				if (ePantheon != NO_BELIEF)
+				{
+					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetRiverHappiness();
+				}
+			}
+#endif
+#endif
 
 			// Buildings
 			for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
@@ -10185,6 +10362,18 @@ int CvCity::GetLocalHappiness() const
 						}
 #else
 						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+#endif
+#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
+						if (eSecondaryPantheon != NO_BELIEF && iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+						{
+							iHappinessFromReligion += pBeliefs->GetEntry(eSecondaryPantheon)->GetBuildingClassHappiness(eBuildingClass);
+						}
+#endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+						if (ePantheon != NO_BELIEF && iFollowers >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
+						{
+							iHappinessFromReligion += pBeliefs->GetEntry(ePantheon)->GetBuildingClassHappiness(eBuildingClass);
+						}
 #endif
 					}
 				}
@@ -10308,6 +10497,9 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 		if(pkBuildingInfo)
 		{
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+#ifdef POLICY_NUM_CITIES_FREE_CULTURE_BUILDING_ONLY_CULTURE_BUILDINGCLASS
+			if ((kBuildingClassInfo.GetID() == GC.getInfoTypeForString("BUILDINGCLASS_MONUMENT", true)) || (kBuildingClassInfo.GetID() == GC.getInfoTypeForString("BUILDINGCLASS_AMPHITHEATER", true)) || (kBuildingClassInfo.GetID() == GC.getInfoTypeForString("BUILDINGCLASS_OPERA_HOUSE", true)) || (kBuildingClassInfo.GetID() == GC.getInfoTypeForString("BUILDINGCLASS_MUSEUM", true)) || (kBuildingClassInfo.GetID() == GC.getInfoTypeForString("BUILDINGCLASS_BROADCAST_TOWER", true)))
+#endif
 			if(!isWorldWonderClass(kBuildingClassInfo) && !isNationalWonderClass(kBuildingClassInfo))
 			{
 				int iCulture = pkBuildingInfo->GetYieldChange(YIELD_CULTURE);
@@ -11415,6 +11607,13 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 			{
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eIndex);
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetSpecialistYieldChange(eSpecialist, eIndex);
+			}
+#endif
 			iYieldMultiplier += iReligionChange;
 		}
 	}
@@ -12185,6 +12384,13 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 				{
 					iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 				}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+				if (ePantheon != NO_BELIEF && getDoublePantheon() > 0)
+				{
+					iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetCityRangeStrikeModifier();
+				}
+#endif
 				if(iReligionCityStrikeMod > 0)
 				{
 					iValue *= (100 + iReligionCityStrikeMod);
@@ -14240,6 +14446,13 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			{
 				return false;
 			}
+
+#ifdef FIX_PURCHASE_ADMIRAL_IN_LAND__CITIES
+			if ((UnitClassTypes)GC.getUnitInfo(eUnitType)->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL") && !isCoastal())
+			{
+				return false;
+			}
+#endif
 
 #ifdef FAITH_FOR_THE_FIRST_SCIENTIST
 			const UnitClassTypes eUnitClass = (UnitClassTypes)GC.getUnitInfo(eUnitType)->GetUnitClassType();
@@ -16303,6 +16516,20 @@ void CvCity::read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1005)
+	{
+# endif
+		kStream >> m_iDoublePantheon;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iDoublePantheon = 0;
+	}
+# endif
+#endif
 
 	CvCityManager::OnCityCreated(this);
 }
@@ -16590,6 +16817,9 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 	kStream << m_iNonAirUnitMaxHeal;
+#endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	kStream << m_iDoublePantheon;
 #endif
 }
 
@@ -18177,5 +18407,20 @@ void CvCity::changeNonAirUnitMaxHeal(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iNonAirUnitMaxHeal += iChange;
+}
+#endif
+
+#ifdef BUILDING_DOUBLE_PANTHEON
+//	----------------------------------------------------------------------------
+int CvCity::getDoublePantheon() const
+{
+	return m_iDoublePantheon;
+}
+
+//	----------------------------------------------------------------------------
+void CvCity::changeDoublePantheon(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iDoublePantheon += iChange;
 }
 #endif

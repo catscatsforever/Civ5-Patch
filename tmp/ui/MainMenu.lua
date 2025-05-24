@@ -114,54 +114,6 @@ function ShowHidePatchNotesPopup()
 end
 Controls.PatchChangelog:RegisterCallback( Mouse.eLClick, function() ShowHidePatchNotesPopup() end )
 Controls.PatchNotesCloseButton:RegisterCallback( Mouse.eLClick, function() ShowHidePatchNotesPopup() end )
-Controls.PatchChangelog:LocalizeAndSetToolTip( 'TXT_KEY_PATCH_UPDATE_NOTES_TOOLTIP' );
-
-t1 = os.time();
-tdelta = 0;
-local clientPatchVersion = Locale.ToLower(Locale.Lookup('TXT_KEY_PATCH_VERSION'))
-local updPatchVersion = '0'
-local pvcon = Controls.PatchChangelog:GetTextControl()
-pvcon:SetAnchor('C,T')
-pvcon:ReprocessAnchoring()
-local req = Network.HttpRequest('https://raw.githubusercontent.com/catscatsforever/Civ5-Patch/refs/heads/main/PATCH_VERSION.txt');
-Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK}'));
-Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
-pvcon:ReprocessAnchoring()
-ContextPtr:SetUpdate(function()
-	local t2 = os.time();
-	if t2 - t1 > tdelta then
-		tdelta = t2-t1
-		--print('request tdelta', tdelta)
-	end
-	if req.Finished() then
-		ContextPtr:ClearUpdate();
-		--print('finished:');
-		local rec = req.PopReceivedData()
-		if rec ~= nil then
-			updPatchVersion = Locale.ToLower(rec);
-			print(string.format('client %s server %s', clientPatchVersion, updPatchVersion));
-			if clientPatchVersion ~= updPatchVersion then
-				Controls.PatchChangelog:SetText(string.format('%s - %s', Locale.Lookup('TXT_KEY_GAME_SELECTION_SCREEN'),  Locale.Lookup('TXT_KEY_PATCH_UPDATE_NOTES_UPDATE_AVAILABLE', updPatchVersion)));
-			else
-				Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_UP_TO_DATE}'));
-			end
-			Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
-			pvcon:ReprocessAnchoring()
-		else
-			print('request empty response')
-			Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK_ERROR}'));
-			Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
-			pvcon:ReprocessAnchoring()
-		end
-	elseif tdelta >= 10 then
-		ContextPtr:ClearUpdate();
-		print('request timeout')
-		Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK_ERROR}'));
-		Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
-		pvcon:ReprocessAnchoring()
-	end
-end)
-
 -- Patch Updates Checker and Changelog Button END
 
 
@@ -169,6 +121,54 @@ function ShowHideHandler( bIsHide, bIsInit )
     if( not bIsHide ) then
         Controls.Civ5Logo:SetTexture( "CivilzationV_Logo.dds" );
         
+		-- Patch Updates Checker and Changelog Button START
+		t1 = os.time();
+		Controls.PatchChangelog:LocalizeAndSetToolTip( 'TXT_KEY_PATCH_UPDATE_NOTES_TOOLTIP' );
+		tdelta = 0;
+		local clientPatchVersion = Locale.ToLower(Locale.Lookup('TXT_KEY_PATCH_VERSION'))
+		local updPatchVersion = '0'
+		local pvcon = Controls.PatchChangelog:GetTextControl()
+		pvcon:SetAnchor('C,T')
+		pvcon:ReprocessAnchoring()
+		local req = Network.HttpRequest('https://raw.githubusercontent.com/catscatsforever/Civ5-Patch/refs/heads/main/PATCH_VERSION.txt');
+		Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK}'));
+		Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
+		pvcon:ReprocessAnchoring()
+		ContextPtr:SetUpdate(function()
+			local t2 = os.time();
+			if t2 - t1 > tdelta then
+				tdelta = t2-t1
+				--print('request tdelta', tdelta)
+			end
+			if req.Finished() then
+				ContextPtr:ClearUpdate();
+				--print('finished:');
+				local rec = req.PopReceivedData()
+				if rec ~= nil then
+					updPatchVersion = Locale.ToLower(rec);
+					print(string.format('client %s server %s', clientPatchVersion, updPatchVersion));
+					if clientPatchVersion ~= updPatchVersion then
+						Controls.PatchChangelog:SetText(string.format('%s - %s', Locale.Lookup('TXT_KEY_GAME_SELECTION_SCREEN'),  Locale.Lookup('TXT_KEY_PATCH_UPDATE_NOTES_UPDATE_AVAILABLE', updPatchVersion)));
+					else
+						Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_UP_TO_DATE}'));
+					end
+					Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
+					pvcon:ReprocessAnchoring()
+				else
+					print('request empty response')
+					Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK_ERROR}'));
+					Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
+					pvcon:ReprocessAnchoring()
+				end
+			elseif tdelta >= 10 then
+				ContextPtr:ClearUpdate();
+				print('request timeout')
+				Controls.PatchChangelog:SetText(Locale.Lookup('{TXT_KEY_GAME_SELECTION_SCREEN} - {TXT_KEY_PATCH_UPDATE_NOTES_CHECK_ERROR}'));
+				Controls.PatchChangelog:SetSizeX(pvcon:GetSizeX())
+				pvcon:ReprocessAnchoring()
+			end
+		end)
+		-- Patch Updates Checker and Changelog Button END
         -- This is a catch all to ensure that mods are not activated at this point in the UI.
         -- Also, since certain maps and settings will only be available in either the modding or multiplayer
         -- screen, we want to ensure that "safe" settings are loaded that can be used for either SP, MP or Mods.

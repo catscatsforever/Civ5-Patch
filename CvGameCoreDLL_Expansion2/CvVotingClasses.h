@@ -469,6 +469,10 @@ public:
 	bool IsInSpecialSession();
 	void SetInSession(bool bInSession);
 	void SetInSession(LeagueSpecialSessionTypes eSpecialSession);
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	bool IsResolveSession();
+	void SetResolveSession(bool bResolve);
+#endif
 	int GetTurnsUntilSession() const;
 	void SetTurnsUntilSession(int iTurns);
 	void ChangeTurnsUntilSession(int iChange);
@@ -617,6 +621,9 @@ public:
 	LeagueTypes m_eID;
 	bool m_bUnitedNations;
 	bool m_bInSession;
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	bool m_bResolveSession;
+#endif
 	int m_iTurnsUntilSession;
 	int m_iNumResolutionsEverEnacted;
 	EnactProposalList m_vEnactProposals;

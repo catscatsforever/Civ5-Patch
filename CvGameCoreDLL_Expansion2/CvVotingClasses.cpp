@@ -2246,6 +2246,9 @@ CvLeague::CvLeague(void)
 	m_eID = NO_LEAGUE;
 	m_bUnitedNations = false;
 	m_bInSession = false;
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	m_bResolveSession = false;
+#endif
 	m_iTurnsUntilSession = MAX_INT;
 	m_iNumResolutionsEverEnacted = 0;
 	m_vEnactProposals.clear();
@@ -2268,6 +2271,9 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_eID = eID;
 	m_bUnitedNations = false;
 	m_bInSession = false;
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	m_bResolveSession = false;
+#endif
 	m_iTurnsUntilSession = MAX_INT;
 	m_iNumResolutionsEverEnacted = 0;
 	m_vEnactProposals.clear();
@@ -2504,6 +2510,18 @@ void CvLeague::SetInSession(bool bInSession)
 		m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	}
 }
+
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+bool CvLeague::IsResolveSession()
+{
+	return m_bResolveSession;
+}
+
+void CvLeague::SetResolveSession(bool bResolve)
+{
+	m_bResolveSession = bResolve;
+}
+#endif
 
 void CvLeague::SetInSession(LeagueSpecialSessionTypes eSpecialSession)
 {
@@ -6250,66 +6268,7 @@ void CvLeague::FinishSession()
 	}
 
 #ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
-	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
-	{
-		if (GET_PLAYER(it->ePlayer).isAlive())
-		{
-			int iNumVotes = CalculateStartingVotesForMember(it->ePlayer, /*bForceUpdateSources*/ true);
-			for (int jJ = 0; jJ < GC.getNUM_YIELD_TYPES(); jJ++)
-			{
-				YieldTypes eLoopYield = (YieldTypes)jJ;
-				if (eLoopYield == YIELD_SCIENCE)
-				{
-					int iBeakersBonus = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
-					TechTypes eCurrentTech = GET_PLAYER(it->ePlayer).GetPlayerTechs()->GetCurrentResearch();
-					if (eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(it->ePlayer).changeOverflowResearch(iNumVotes * iBeakersBonus);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(it->ePlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iNumVotes * iBeakersBonus, it->ePlayer);
-					}
-				}
-				else if (eLoopYield == YIELD_GOLD)
-				{
-					int iTradeGold = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
-					GET_PLAYER(it->ePlayer).GetTreasury()->ChangeGold(iNumVotes * iTradeGold);
-				}
-				else if (eLoopYield == YIELD_CULTURE)
-				{
-					int iCultureBonus = GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
-					if (iCultureBonus != 0)
-					{
-						GET_PLAYER(it->ePlayer).changeJONSCulture(iNumVotes * iCultureBonus);
-						// if this is the human player, have the popup come up so that he can choose a new policy
-						if (GET_PLAYER(it->ePlayer).isAlive() && GET_PLAYER(it->ePlayer).isHuman() && GET_PLAYER(it->ePlayer).getNumCities() > 0)
-						{
-							if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
-							{
-								if (GET_PLAYER(it->ePlayer).getNextPolicyCost() <= GET_PLAYER(it->ePlayer).getJONSCulture() && GET_PLAYER(it->ePlayer).GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
-								{
-									CvNotifications* pNotifications = GET_PLAYER(it->ePlayer).GetNotifications();
-									if (pNotifications)
-									{
-										CvString strBuffer;
-
-										if (GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
-											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
-										else
-											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
-
-										CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
-										pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	SetResolveSession(true);
 #endif
 
 	// Notify players of vote results
@@ -7381,6 +7340,20 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLeague& writeTo)
 	{
 		writeTo.m_bInSession = false;
 	}
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1000)
+	{
+#endif
+	loadFrom >> writeTo.m_bResolveSession;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		writeTo.m_bResolveSession = false;
+	}
+#endif
+#endif
 	loadFrom >> writeTo.m_iTurnsUntilSession;
 	loadFrom >> writeTo.m_iNumResolutionsEverEnacted;
 	
@@ -7562,11 +7535,17 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLeague& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const CvLeague& readFrom)
 {
 	uint uiVersion = 14;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_VOTING_CLASSES;
+#endif
 	
 	saveTo << uiVersion;
 	saveTo << readFrom.m_eID;
 	saveTo << readFrom.m_bUnitedNations;
 	saveTo << readFrom.m_bInSession;
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+	saveTo << readFrom.m_bResolveSession;
+#endif
 	saveTo << readFrom.m_iTurnsUntilSession;
 	saveTo << readFrom.m_iNumResolutionsEverEnacted;
 	saveTo << readFrom.m_vEnactProposals.size();

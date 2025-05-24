@@ -3550,8 +3550,8 @@ function OnGameplayAlertMessage( text )
 			Controls.DraftConfirmBansButton:SetDisabled(true);
 		end
 		Controls.DraftConfirmBansButton:LocalizeAndSetToolTip('TXT_KEY_DRAFT_BANS_CONFIRM_HELP')
-		print('send local secret', text)
-		Network.SendRenameCity(-3, text);  -- send secret
+		--print('send local secret', text)
+		--Network.SendRenameCity(-3, text);  -- send secret
 	elseif control == 'DRAFT_PROGRESS_OVER' then
 		print('--- DRAFT_PROGRESS_OVER');
 		g_DraftProgress = control;

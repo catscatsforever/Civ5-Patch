@@ -194,7 +194,11 @@ public:
 	int GetPurchaseCost(BuildingTypes eBuilding);
 	int GetFaithPurchaseCost(BuildingTypes eBuilding);
 	int GetPurchaseCost(ProjectTypes eProject);
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int GetPurchaseCostFromProduction(int iProduction, bool bIsBuilding = false);
+#else
 	int GetPurchaseCostFromProduction(int iProduction);
+#endif
 
 	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const;
 	void setProduction(int iNewValue);
@@ -903,6 +907,10 @@ public:
 	int getNonAirUnitMaxHeal() const;
 	void changeNonAirUnitMaxHeal(int iChange);
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	int getDoublePantheon() const;
+	void changeDoublePantheon(int iChange);
+#endif
 
 	int iScratch; // know the scope of your validity
 
@@ -1138,6 +1146,9 @@ protected:
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 	FAutoVariable<int, CvCity> m_iNonAirUnitMaxHeal;
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	FAutoVariable<int, CvCity> m_iDoublePantheon;
+#endif
 
 	void doGrowth();
 	void doProduction(bool bAllowNoProduction);
@@ -1153,7 +1164,11 @@ protected:
 	int getExtraProductionDifference(int iExtra, int iModifier) const;
 	int getHurryCostModifier(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
 	int getHurryCostModifier(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+#ifdef BUILDING_HURRY_COST_MODIFIER
+	int getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew, bool bIsBuilding = false) const;
+#else
 	int getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProduction, bool bIgnoreNew) const;
+#endif
 	int getHurryCost(HurryTypes eHurry, bool bExtra, UnitTypes eUnit, bool bIgnoreNew) const;
 	int getHurryCost(HurryTypes eHurry, bool bExtra, BuildingTypes eBuilding, bool bIgnoreNew) const;
 	int getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, int iModifier) const;

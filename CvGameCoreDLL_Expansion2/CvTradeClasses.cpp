@@ -129,7 +129,7 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		if (eConnectionType == TRADE_CONNECTION_FOOD)
 		{
 			bool bAllowsFoodConnection = false;
-#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
 			if (GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsAlwaysAllowedInnerTradeRoutes())
 			{
 				bAllowsFoodConnection = true;
@@ -164,7 +164,7 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		else if (eConnectionType == TRADE_CONNECTION_PRODUCTION)
 		{
 			bool bAllowsProductionConnection = false;
-#ifdef TRAIT_GET_BUILDING_CLASS_HAPPINESS
+#ifdef TRAIT_ALWAYS_ALLOWED_INNER_TRADE_ROUTES
 			if (GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsAlwaysAllowedInnerTradeRoutes())
 			{
 				bAllowsProductionConnection = true;

@@ -369,6 +369,9 @@ public:
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
 	bool IsNonAirUnitMaxHeal() const;
 #endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	bool IsDoublePantheon() const;
+#endif
 
 private:
 	int m_iBuildingClassType;
@@ -632,7 +635,10 @@ private:
 	int m_iLocalCityConnectionTradeRouteModifier;
 #endif
 #ifdef BUILDING_NON_AIR_UNIT_MAX_HEAL
-	int m_bNonAirUnitMaxHeal;
+	bool m_bNonAirUnitMaxHeal;
+#endif
+#ifdef BUILDING_DOUBLE_PANTHEON
+	bool m_bDoublePantheon;
 #endif
 };
 

@@ -236,6 +236,13 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 										{
 											iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(YIELD_FAITH);
 										}
+#ifdef BUILDING_DOUBLE_PANTHEON
+										BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+										if (ePantheon != NO_BELIEF && pCity->getDoublePantheon() > 0)
+										{
+											iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetGreatWorkYieldChange(YIELD_FAITH);
+										}
+#endif
 										iFaithPerWork += iReligionChange;
 									}
 								}

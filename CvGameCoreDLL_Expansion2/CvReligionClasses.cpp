@@ -2334,9 +2334,24 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 					{
 						// Just looking for one city providing this
 						iRtnValue = iMultiplier;
+#ifndef BUILDING_DOUBLE_PANTHEON
 						break;
+#endif
 					}	
 				}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				BeliefTypes ePantheon = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetBelief(0);
+				if (ePantheon != NO_BELIEF && pLoopCity->getDoublePantheon() > 0)
+				{
+					iMultiplier = GC.GetGameBeliefs()->GetEntry(ePantheon)->GetFaithFromKills();
+					if (iMultiplier > 0 && iDistance <= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMaxDistance())
+					{
+						// Just looking for one city providing this
+						iRtnValue += iMultiplier;
+						break;
+					}
+				}
+#endif
 			}
 		}
 	}

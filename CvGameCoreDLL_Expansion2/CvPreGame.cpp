@@ -3097,6 +3097,8 @@ void DraftResponseBans(PlayerTypes p, const char* szBans)
 	if (bReady)
 	{
 		// extra step required due to network jitter
+		s_draftCurrentProgress = DRAFT_PROGRESS_BUSY;
+		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), "DRAFT_PROGRESS_BUSY|");
 		gDLL->SendRenameCity(-7, "");
 	}
 }
@@ -3121,9 +3123,8 @@ void DraftResponseAllBansReceived(PlayerTypes p)
 	}
 	if (bReady)
 	{
-		s_draftCurrentProgress = DRAFT_PROGRESS_BUSY;
-		// send secret via UI
-		DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_BUSY|%s", s_draftLocalSecret.c_str()).c_str());
+		SLOG("send local secret")
+		gDLL->SendRenameCity(-3, s_draftLocalSecret);
 	}
 };
 

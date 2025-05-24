@@ -78,6 +78,7 @@ copy /y "%patchfolder%\tmp\ui\GameSetupScreen.lua" "%patchfolder%\UI\GameSetupSc
 copy /y "%patchfolder%\tmp\ui\LoadScreen.xml" "%patchfolder%\UI\LoadScreen.xml" > nul
 copy /y "%patchfolder%\tmp\ui\LoadScreen.lua" "%patchfolder%\UI\LoadScreen.lua" > nul
 copy /y "%patchfolder%\tmp\ui\FrontEnd.lua" "%patchfolder%\UI\FrontEnd.lua" > nul
+copy /y "%patchfolder%\tmp\ui\ActionInfoPanel.lua" "%patchfolder%\UI\ActionInfoPanel.lua" > nul
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"

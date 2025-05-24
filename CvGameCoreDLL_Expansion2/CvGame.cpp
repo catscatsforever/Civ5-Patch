@@ -7992,9 +7992,7 @@ void CvGame::doTurn()
 
 	GetGameReligions()->DoTurn();
 	GetGameTrade()->DoTurn();
-#ifndef DO_TURN_CHANGE_ORDER
 	GetGameLeagues()->DoTurn();
-#endif
 	GetGameCulture()->DoTurn();
 #ifdef MP_PLAYERS_VOTING_SYSTEM
 	GetMPVotingSystem()->DoTurn();
@@ -8980,7 +8978,72 @@ void CvGame::updateMoves()
 #endif
 #ifdef DO_TURN_CHANGE_ORDER
 		m_kGameDeals.DoTurn();
-		GetGameLeagues()->DoTurn();
+#endif
+#ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
+		if (GC.getGame().GetGameLeagues()->GetActiveLeague() && GC.getGame().GetGameLeagues()->GetActiveLeague()->IsResolveSession())
+		{
+			GC.getGame().GetGameLeagues()->GetActiveLeague()->SetResolveSession(false);
+			for (uint i = 0; i < GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers.size(); i++)
+			{
+				if (GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).isAlive())
+				{
+					int iNumVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer, /*bForceUpdateSources*/ true);
+					for (int jJ = 0; jJ < GC.getNUM_YIELD_TYPES(); jJ++)
+					{
+						YieldTypes eLoopYield = (YieldTypes)jJ;
+						if (eLoopYield == YIELD_SCIENCE)
+						{
+							int iBeakersBonus = GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+							TechTypes eCurrentTech = GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetPlayerTechs()->GetCurrentResearch();
+							if (eCurrentTech == NO_TECH)
+							{
+								GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).changeOverflowResearch(iNumVotes * iBeakersBonus);
+							}
+							else
+							{
+								GET_TEAM(GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iNumVotes * iBeakersBonus, GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer);
+							}
+						}
+						else if (eLoopYield == YIELD_GOLD)
+						{
+							int iTradeGold = GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+							GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetTreasury()->ChangeGold(iNumVotes * iTradeGold);
+						}
+						else if (eLoopYield == YIELD_CULTURE)
+						{
+							int iCultureBonus = GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetPlayerPolicies()->GetLeagueSessionYieldBoostPerDelegateChanges(eLoopYield);
+							if (iCultureBonus != 0)
+							{
+								GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).changeJONSCulture(iNumVotes * iCultureBonus);
+								// if this is the human player, have the popup come up so that he can choose a new policy
+								if (GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).isAlive() && GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).isHuman() && GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).getNumCities() > 0)
+								{
+									if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
+									{
+										if (GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).getNextPolicyCost() <= GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).getJONSCulture() && GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+										{
+											CvNotifications* pNotifications = GET_PLAYER(GC.getGame().GetGameLeagues()->GetActiveLeague()->m_vMembers[i].ePlayer).GetNotifications();
+											if (pNotifications)
+											{
+												CvString strBuffer;
+
+												if (GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
+													strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY_DISMISS");
+												else
+													strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_CULTURE_FOR_POLICY");
+
+												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_CULTURE_FOR_POLICY");
+												pNotifications->Add(NOTIFICATION_POLICY, strBuffer, strSummary, -1, -1, -1);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 #endif
 #ifdef FIX_PROJECTS_NOTIFICATIONS_PERCENTAGE
 		if (GC.getGame().GetGameLeagues()->GetActiveLeague())

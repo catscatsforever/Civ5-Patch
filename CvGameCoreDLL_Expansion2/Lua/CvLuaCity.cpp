@@ -2571,6 +2571,13 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
 				}
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && pkCity->getDoublePantheon() > 0)
+			{
+				iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+			}
+#endif
 		}
 	}
 	lua_pushinteger(L, iYieldFromBuilding);
@@ -4116,6 +4123,13 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 			{
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && pkCity->getDoublePantheon() > 0)
+			{
+				iReligionChange += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
+			}
+#endif
 			iYieldMultiplier += iReligionChange;
 		}
 	}
@@ -4151,6 +4165,13 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 			{
 				iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && pkCity->getDoublePantheon() > 0)
+			{
+				iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetCityRangeStrikeModifier();
+			}
+#endif
 		}
 	}
 
