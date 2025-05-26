@@ -10370,7 +10370,7 @@ int CvCity::GetLocalHappiness() const
 						}
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
-						if (ePantheon != NO_BELIEF && iFollowers >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
+						if (ePantheon != NO_BELIEF && getDoublePantheon() > 0 && iFollowers >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
 						{
 							iHappinessFromReligion += pBeliefs->GetEntry(ePantheon)->GetBuildingClassHappiness(eBuildingClass);
 						}

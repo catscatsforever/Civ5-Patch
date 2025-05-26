@@ -319,6 +319,10 @@ void CvGame::init(HandicapTypes eHandicap)
 	}
 
 	setStartTurn(getGameTurn());
+#ifdef REPLAY_EVENTS
+	setTotalTimeElapsed( -static_cast<uint>(m_timeSinceGameTurnStart.Peek() * 1000) );
+	SLOG("INIT timer offset: %d", getTotalTimeElapsed());
+#endif
 
 	iEstimateEndTurn = 0;
 
@@ -1046,6 +1050,9 @@ void CvGame::uninit()
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	m_fTimeElapsed = 0.0f;
+#endif
+#ifdef REPLAY_EVENTS
+	m_uiTotalTimeElapsed = 0;
 #endif
 
 	m_bScoreDirty = false;
@@ -2120,6 +2127,10 @@ void CvGame::updateTestEndTurn()
 						activePlayer.GetPlayerAchievements().EndTurn();
 						gDLL->sendTurnComplete();
 						CvAchievementUnlocker::EndTurn();
+#ifdef REPLAY_EVENTS
+						//SLOG("---m_endTurnTimer commit +%f", m_endTurnTimer.Peek());
+						ChangeTotalTimeElapsed(static_cast<uint>(m_endTurnTimer.Peek() * 1000));
+#endif
 						m_endTurnTimer.Start();
 					}
 				}
@@ -2208,6 +2219,10 @@ void CvGame::updateTestEndTurn()
 								if(isGameMultiPlayer())
 								{
 									GC.GetEngineUserInterface()->setCanEndTurn(true);
+#ifdef REPLAY_EVENTS
+									//SLOG("---m_endTurnTimer commit +%f", m_endTurnTimer.Peek());
+									ChangeTotalTimeElapsed(static_cast<uint>(m_endTurnTimer.Peek() * 1000));
+#endif
 									m_endTurnTimer.Start();
 								}
 							}
@@ -5278,6 +5293,31 @@ void CvGame::setTimeElapsed(float fNewValue)
 }
 
 
+#endif
+#ifdef REPLAY_EVENTS
+//	--------------------------------------------------------------------------------
+//  Time from the beginning of turn 0 to the end of the last turn in ms
+uint CvGame::getTotalTimeElapsed()
+{
+	return m_uiTotalTimeElapsed;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setTotalTimeElapsed(uint uiNewValue)
+{
+	m_uiTotalTimeElapsed = uiNewValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::ChangeTotalTimeElapsed(uint uiChange)
+{
+	if (uiChange != 0)
+	{
+		setTotalTimeElapsed(getTotalTimeElapsed() + uiChange);
+	}
+}
 #endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 //	--------------------------------------------------------------------------------
@@ -10387,6 +10427,20 @@ void CvGame::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef REPLAY_EVENTS
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1002)
+	{
+# endif
+		kStream >> m_uiTotalTimeElapsed;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_uiTotalTimeElapsed = 0;
+	}
+# endif
+#endif
 
 	kStream >> m_bScoreDirty;
 	kStream >> m_bCircumnavigated;
@@ -10693,6 +10747,9 @@ void CvGame::Write(FDataStream& kStream) const
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	kStream << m_fTimeElapsed;
 	kStream << m_bIsPaused;
+#endif
+#ifdef REPLAY_EVENTS
+	kStream << m_uiTotalTimeElapsed;
 #endif
 
 	kStream << m_bScoreDirty;
@@ -11401,6 +11458,10 @@ void CvGame::endTurnTimerSemaphoreDecrement()
 	if(m_endTurnTimerSemaphore <= 0)
 	{
 		m_endTurnTimerSemaphore = 0;
+#ifdef REPLAY_EVENTS
+		//SLOG("---m_endTurnTimer commit +%f", m_endTurnTimer.Peek());
+		ChangeTotalTimeElapsed(static_cast<uint>(m_endTurnTimer.Peek() * 1000));
+#endif
 		m_endTurnTimer.Start();
 	}
 }
@@ -11409,6 +11470,10 @@ void CvGame::endTurnTimerSemaphoreDecrement()
 void CvGame::endTurnTimerReset()
 {
 	m_endTurnTimerSemaphore = 0;
+#ifdef REPLAY_EVENTS
+	//SLOG("---m_endTurnTimer commit +%f", m_endTurnTimer.Peek());
+	ChangeTotalTimeElapsed(static_cast<uint>(m_endTurnTimer.Peek() * 1000));
+#endif
 	m_endTurnTimer.Start();
 }
 

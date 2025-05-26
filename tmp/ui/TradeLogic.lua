@@ -985,16 +985,6 @@ function OnPropose( iType )
 	end
 end
 Controls.ProposeButton:RegisterCallback( Mouse.eLClick, OnPropose );
-Events.WarStateChanged.Add(
-function( iTeam1, iTeam2, isAtWar )
-	if iTeam1 == g_iUsTeam and iTeam2 == g_iThemTeam and isAtWar then
-		if UI.HasMadeProposal( g_iUs ) == g_iThem then
-			UI.DoFinalizePlayerDeal( g_iUs, g_iThem, false )
-			ContextPtr:SetHide( true )
-			ContextPtr:CallParentShowHideHandler( false )
-		end
-	end
-end)
 
 
 ----------------------------------------------------------------

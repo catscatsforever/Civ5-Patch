@@ -16,6 +16,9 @@
 #include "CvInfosSerializationHelper.h"
 
 #include <unordered_map>
+#ifdef INGAME_CIV_DRAFTER
+# include <Wincrypt.h>
+#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -3289,19 +3292,42 @@ void DraftLocalReady()
 	}
 
 	// generate random secret -- as invulnerable as possible
-	int buf = -1;
-	HMODULE advapi = GetModuleHandle("advapi32.dll");
-	if (advapi != NULL)
+	bool bGood = false;
+	HCRYPTPROV hCryptProv;
+	BYTE pbData[512];
+	if (CryptAcquireContext(&hCryptProv, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
 	{
-		BOOLEAN(APIENTRY * RtlGenRandom)(void*, ULONG) =
-			(BOOLEAN(APIENTRY*)(void*, ULONG))GetProcAddress(advapi, "SystemFunction036");
-		if (RtlGenRandom != NULL)
+		if (CryptGenRandom(hCryptProv, 512, pbData))
 		{
-			RtlGenRandom(&buf, 32UL);
+			s_draftLocalSecret = hash(CvString(reinterpret_cast<char const*>(pbData)));
+			SLOG("Random sequence generated. %s", s_draftLocalSecret.c_str());
+			bGood = true;
+		}
+		else
+		{
+			SLOG("Error during CryptGenRandom.");
+		}
+		if (!CryptReleaseContext(hCryptProv, 0))
+		{
+			SLOG("CryptReleaseContext ERROR")
 		}
 	}
-	SLOG("gen secret %d", buf);
-	s_draftLocalSecret = CvString::format("%d", buf); // TODO bad secret quality (32 bit)
+	if (!bGood)  // fallbacks to basic rand if WinCrypt fails
+	{
+		int buf = -1;
+		HMODULE advapi = GetModuleHandle("advapi32.dll");
+		if (advapi != NULL)
+		{
+			BOOLEAN(APIENTRY * RtlGenRandom)(void*, ULONG) =
+				(BOOLEAN(APIENTRY*)(void*, ULONG))GetProcAddress(advapi, "SystemFunction036");
+			if (RtlGenRandom != NULL)
+			{
+				RtlGenRandom(&buf, 32UL);
+			}
+		}
+		SLOG("gen secret %d", buf);
+		s_draftLocalSecret = hash(CvString::format("%d", buf));
+	}
 	s_draftLocalSecretHash = hash(s_draftLocalSecret);
 
 	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("DRAFT_PROGRESS_INIT|%s", s_draftLocalSecretHash.c_str()).c_str());

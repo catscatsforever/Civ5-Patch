@@ -9757,9 +9757,6 @@ int CvLuaPlayer::lGetPlayerBuildingClassYieldChange(lua_State* L)
 int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 {
 	const BuildingClassTypes eOtherBuildingClass = (BuildingClassTypes)luaL_checkint(L, 2);
-#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
-#endif
 
 	CvPlayer* pkPlayer = GetInstance(L);
 	if(pkPlayer)
@@ -9796,41 +9793,6 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 				if(pkPlayer->GetPlayerTraits()->HasTrait(eTrait))
 				{
 					iChange += pkTraitInfo->GetBuildingClassHappiness(eOtherBuildingClass);
-				}
-			}
-		}
-#endif
-#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
-		if (pkCity)
-		{
-			// Follower beliefs
-			int iHappinessFromReligion = 0;
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-
-			ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
-			if (eMajority != NO_RELIGION)
-			{
-				BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
-
-				const CvReligion* pReligion = pReligions->GetReligion(eMajority, pkPlayer->GetID());
-#ifdef BUILDING_DOUBLE_PANTHEON
-				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
-#endif
-				if (pReligion)
-				{
-					BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF && iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-					{
-						iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassHappiness(eOtherBuildingClass);
-					}
-#ifdef BUILDING_DOUBLE_PANTHEON
-					BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
-					if (ePantheon != NO_BELIEF && iFollowers >= GC.GetGameBeliefs()->GetEntry(ePantheon)->GetMinPopulation())
-					{
-						iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetBuildingClassHappiness(eOtherBuildingClass);
-					}
-#endif
 				}
 			}
 		}

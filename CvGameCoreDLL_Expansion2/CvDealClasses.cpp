@@ -2807,6 +2807,58 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 	}
 }
 
+#ifdef FIX_DO_CANCEL_DEALSE_ON_WAR_DECLARATION
+void CvGameDeals::DoCanselProposedDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+{
+	if (GetProposedDeal(eFromPlayer, eToPlayer))
+	{
+		FinalizeDeal(eFromPlayer, eToPlayer, false);
+	}
+	if (GetProposedDeal(eToPlayer, eFromPlayer))
+	{
+		FinalizeDeal(eToPlayer, eFromPlayer, false);
+	}
+}
+
+void CvGameDeals::DoCanselProposedDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
+{
+	PlayerTypes eFromPlayer, eToPlayer;
+	int iPlayerLoop1, iPlayerLoop2;
+
+	// Loop through first set of players
+	for (iPlayerLoop1 = 0; iPlayerLoop1 < MAX_MAJOR_CIVS; iPlayerLoop1++)
+	{
+		eFromPlayer = (PlayerTypes)iPlayerLoop1;
+
+		if (!GET_PLAYER(eFromPlayer).isEverAlive())
+		{
+			continue;
+		}
+		if (GET_PLAYER(eFromPlayer).getTeam() != eTeam1)
+		{
+			continue;
+		}
+
+		// Loop through second set of players
+		for (iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			eToPlayer = (PlayerTypes)iPlayerLoop2;
+
+			if (!GET_PLAYER(eToPlayer).isEverAlive())
+			{
+				continue;
+			}
+			if (GET_PLAYER(eToPlayer).getTeam() != eTeam2)
+			{
+				continue;
+			}
+
+			DoCanselProposedDealsBetweenPlayers(eFromPlayer, eToPlayer);
+		}
+	}
+}
+#endif
+
 void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 {//Cancel all proposed deals involving eCancelPlayer.
 	PlayerTypes eLoopPlayer;

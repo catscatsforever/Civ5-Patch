@@ -2377,7 +2377,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	ReligionTypes eFoundedReligion = pOldCity->getFoundedReligion();
 #endif
 #ifdef NEW_VENICE_UA
-	
 	bool bIsMinorCivBuyout = (pOldCity->GetPlayer()->isMinorCiv() && bGift && (IsAbleToAnnexCityStates() || GetPlayerTraits()->IsNoAnnexing() || GetPlayerTraits()->HasTrait((TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/)))); // Austria and Venice UA
 #else
 	bool bIsMinorCivBuyout = (pOldCity->GetPlayer()->isMinorCiv() && bGift && (IsAbleToAnnexCityStates() || GetPlayerTraits()->IsNoAnnexing())); // Austria and Venice UA
@@ -3618,19 +3617,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				// Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
 				pNewCity->SetIgnoreCityForHappiness(true);
-#ifdef NEW_VENICE_UA
-				if ((GetPlayerTraits()->IsNoAnnexing() || GetPlayerTraits()->HasTrait((TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/))) && bIsMinorCivBuyout)
-#else
 				if (GetPlayerTraits()->IsNoAnnexing() && bIsMinorCivBuyout)
-#endif
 				{
 					pNewCity->DoCreatePuppet();
 				}
-#ifdef NEW_VENICE_UA
-				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || GetPlayerTraits()->HasTrait((TraitTypes)GC.getInfoTypeForString("NEW_TRAIT_SUPER_CITY_STATE", true /*bHideAssert*/)) || bIsMinorCivBuyout)
-#else
 				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
-#endif
 				{
 					if(GC.getGame().getActivePlayer() == GetID())
 					{

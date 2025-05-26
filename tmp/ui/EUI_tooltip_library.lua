@@ -630,7 +630,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			-- player extra happiness
 			happinessChange = happinessChange + activePlayer:GetExtraBuildingHappinessFromPolicies( buildingID )
 			if gk_mode then
-				happinessChange = happinessChange + activePlayer:GetPlayerBuildingClassHappiness( buildingClassID, city )
+				happinessChange = happinessChange + activePlayer:GetPlayerBuildingClassHappiness( buildingClassID )
 			end
 		else
 			-- get the active perk types

@@ -243,6 +243,11 @@ public:
 	float getTimeElapsed();
 	void setTimeElapsed(float fNewValue);
 #endif
+#ifdef REPLAY_EVENTS
+	uint getTotalTimeElapsed();
+	void setTotalTimeElapsed(uint uiNewValue);
+	void ChangeTotalTimeElapsed(uint uiChange);
+#endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool isMPOrderedMoveOnTurnLoading() const;
 	void setMPOrderedMoveOnTurnLoading(bool bNewValue);
@@ -673,6 +678,9 @@ protected:
 #ifdef TURN_TIMER_PAUSE_BUTTON
 	float m_fTimeElapsed;
 #endif
+#ifdef REPLAY_EVENTS
+	uint m_uiTotalTimeElapsed;  // time from the beginning of turn 0 to the end of the last turn in ms
+#endif
 #ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
 	bool m_bMPOrderedMoveOnTurnLoading;
 	bool m_bReceivedFirstMission;
@@ -850,7 +858,7 @@ protected:
 
 };
 
-#ifdef REPLAY_EVENTS
+# ifdef REPLAY_EVENTS
 // add new event types to the end of the enum, before NUM_REPLAYEVENTS
 // each event listed here should have its own corresponding xml entry in ReplayEvents table
 enum ReplayEventTypes

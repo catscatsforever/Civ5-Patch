@@ -971,6 +971,8 @@
 #define FIX_POLICY_FREE_BUILDING_ON_CONQUEST_INCLUDES_UNIQUE_BUILDINGS
 ///
 #define FIX_PURCHASE_ADMIRAL_IN_LAND__CITIES
+///
+#define FIX_DO_CANCEL_DEALSE_ON_WAR_DECLARATION
 /*BUGS FIXES END*/
 
 
@@ -1153,7 +1155,8 @@
 # define BUMP_SAVE_VERSION_ESPIONAGE 1000
 // 1000: v7.0   (initial)
 // 1001: v7.3b  (adds replay events)
-# define BUMP_SAVE_VERSION_GAME 1001
+// 1002: v11.1a (adds m_uiTotalTimeElapsed)
+# define BUMP_SAVE_VERSION_GAME 1002
 // 1000: v7.0   (initial)
 // 1001: v7.3   (adds Workers Bully Turn)
 // 1002: v10.2  (adds ENHANCED_GRAPHS)
@@ -1350,7 +1353,7 @@
 #define SHOW_ACTUAL_POPULATION
 /// Adds UI Drafts screen for staging room -- each player bans X civs and then picks from random set of Y civs
 #define INGAME_CIV_DRAFTER
-#define EMERGENCY_LOGGING
+// #define EMERGENCY_LOGGING
 /*OTHER CHANGES END*/
 
 

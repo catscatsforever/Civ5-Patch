@@ -270,6 +270,10 @@ public:
 	void DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2);
 	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
+#ifdef FIX_DO_CANCEL_DEALSE_ON_WAR_DECLARATION
+	void DoCanselProposedDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	void DoCanselProposedDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2);
+#endif
 	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled);
 

@@ -267,7 +267,7 @@ CvReplayEvent::CvReplayEvent(int eType, std::vector<int> vNumArgs, CvString strA
 	, m_ePlayer(NO_PLAYER)
 {
 	m_iTurn = GC.getGame().getGameTurn();
-	m_iTimestamp = static_cast<int>(GC.getGame().getTimeElapsed() * 1000);
+	m_iTimestamp = GC.getGame().getTotalTimeElapsed() + static_cast<uint>(GC.getGame().m_endTurnTimer.Peek() * 1000);
 }
 CvReplayEvent::CvReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vNumArgs, CvString strArg)
 	: m_eEventType(eType)
@@ -276,7 +276,7 @@ CvReplayEvent::CvReplayEvent(int eType, PlayerTypes ePlayer, std::vector<int> vN
 	, m_ePlayer(ePlayer)
 {
 	m_iTurn = GC.getGame().getGameTurn();
-	m_iTimestamp = static_cast<int>(GC.getGame().getTimeElapsed() * 1000);
+	m_iTimestamp = GC.getGame().getTotalTimeElapsed() + static_cast<uint>(GC.getGame().m_endTurnTimer.Peek() * 1000);
 }
 CvReplayEvent::~CvReplayEvent()
 {

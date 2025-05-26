@@ -242,7 +242,7 @@ local wonderHeadingOpen = true;
 local greatWorkHeadingOpen = true;
 local specialistBuildingHeadingOpen = true;
 local buildingHeadingOpen = true;
-local productionQueueOpen = false;
+local productionQueueOpen = true;
 
 function OnSlackersSelected()
 	if Players[Game.GetActivePlayer()]:IsTurnActive() then

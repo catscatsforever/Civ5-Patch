@@ -1165,6 +1165,9 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Cancel Trade Deals, RAs, diplomats
 	if(!isBarbarian())
 	{
+#ifdef FIX_DO_CANCEL_DEALSE_ON_WAR_DECLARATION
+		GC.getGame().GetGameDeals()->DoCanselProposedDealsBetweenTeams(GetID(), eTeam);
+#endif
 		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
 		CloseEmbassyAtTeam(eTeam);
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
