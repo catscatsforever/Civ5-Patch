@@ -463,7 +463,9 @@ Events.WarStateChanged.Add(
 function( iTeam1, iTeam2, isAtWar )
 	-- Active player changed war state with this AI
 	if iTeam1 == g_iUsTeam and iTeam2 == g_iThemTeam and isAtWar then
-		OnBack(CANCEL_TYPE)
+		if not ContextPtr:IsHidden() then
+			ContextPtr:SetHide( true )
+		end
 	end
 end)
 

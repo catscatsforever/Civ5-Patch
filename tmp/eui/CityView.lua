@@ -133,7 +133,7 @@ local g_activePlayerID = Game.GetActivePlayer()
 local g_activePlayer = Players[ g_activePlayerID ]
 local g_finishedItems = {}
 
-local g_workerHeadingOpen = OptionsManager.IsNoCitizenWarning()
+local g_workerHeadingOpen = true
 
 local g_rightTipControls = {}
 local g_leftTipControls = {}
@@ -2111,7 +2111,7 @@ end
 local function UpdateOptionsAndCityView()
 	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
 	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
-	g_FocusSelectIM.Collapse( not OptionsManager.IsNoCitizenWarning() )
+	g_FocusSelectIM.Collapse( not g_workerHeadingOpen )
 	Controls.BuyPlotCheckBox:SetCheck( g_BuyPlotMode )
 	return UpdateCityView()
 end

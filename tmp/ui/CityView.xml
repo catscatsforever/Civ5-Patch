@@ -181,7 +181,7 @@
     <!-- Queue Button -->
 
     <Image Anchor="L,B"  Offset="40,76" TextureOffset="30.0" Texture="bar500x2.dds" Size="440.1" Color="White.128" Hidden="0"/>
-    <CheckBox Style="SquareCheck" Anchor="R,B" Offset="44,40" TextAnchor="L,C" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_QUEUE_O" IsChecked="0" ToolTip="TXT_KEY_CITYVIEW_QUEUE_O_TT" ID="HideQueueButton"/>
+    <CheckBox Style="SquareCheck" Anchor="R,B" Offset="44,40" TextAnchor="L,C" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_QUEUE_O" IsChecked="1" ToolTip="TXT_KEY_CITYVIEW_QUEUE_O_TT" ID="HideQueueButton"/>
   </Grid>
   <Image Anchor="R,B" Offset="0,28" Texture="assets\UI\Art\WorldView\citytrimright.dds" Size="141.78" Hidden="0"/>
   <!-- BUILDINGS -->

@@ -1597,11 +1597,14 @@ function OnBack( flag )
 end
 local OnBack = OnBack
 Controls.CancelButton:RegisterCallback( Mouse.eLClick, OnBack )
+----------------------------------------------------------------
 Events.WarStateChanged.Add(
 function( iTeam1, iTeam2, isAtWar )
 	-- Active player changed war state with this AI
 	if iTeam1 == g_iUsTeam and iTeam2 == g_iThemTeam and isAtWar then
-		OnBack(0)
+		if not ContextPtr:IsHidden() then
+			ContextPtr:SetHide( true )
+		end
 	end
 end)
 

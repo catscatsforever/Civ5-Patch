@@ -10029,7 +10029,15 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 						{
 							for(pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
 							{
+#ifdef BUILDING_GROWTH_GOLD
+								if (iChange > 0)
+								{
+									pLoopCity->changePopulation(iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange());
+									GetTreasury()->ChangeGold(pLoopCity->getGrowthGold() * iChange);
+								}
+#else
 								pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange())));
+#endif
 							}
 						}
 					}
@@ -25943,7 +25951,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			if (iChange > 0)
 			{
-				pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * pPolicy->GetGlobalPopChange())));
+				pLoopCity->changePopulation(iChange * pPolicy->GetGlobalPopChange());
 			}
 		}
 	}
