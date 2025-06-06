@@ -1334,6 +1334,13 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 	}
 #endif
 
+#ifdef DO_EXTRACT_AI_SPIES
+	if (!m_pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+	{
+		return false;
+	}
+#endif
+
 #ifdef NEW_LEAGUE_RESOLUTIONS
 	if (GET_PLAYER(pCity->getOwner()).isMinorCiv() && GC.getGame().GetGameLeagues()->IsNoSpiesInCS(m_pPlayer->GetID()))
 	{

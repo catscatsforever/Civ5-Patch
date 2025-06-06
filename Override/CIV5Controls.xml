@@ -11508,6 +11508,7 @@
 			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_1</PromotionPrereqOr2> 
 			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr3> 
 			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr4> 
+			<PromotionPrereqOr5>PROMOTION_AIR_TARGETING_1</PromotionPrereqOr5> 
 			<PediaType>PEDIA_AIR</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_AIR_RANGE</PediaEntry> 
 		</Row>
@@ -12174,6 +12175,7 @@
 			<HeavyCharge>false</HeavyCharge> 
 			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr1> 
 			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr2> 
+			<PromotionPrereqOr3>PROMOTION_AIR_TARGETING_1</PromotionPrereqOr3> 
 			<PediaType>PEDIA_AIR</PediaType> 
 			<PediaEntry>TXT_KEY_PROMOTION_EVASION</PediaEntry> 
 		</Row>

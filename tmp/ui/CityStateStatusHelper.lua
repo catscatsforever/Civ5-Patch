@@ -596,59 +596,59 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 			local iTurnsRemaining = pMinor:GetQuestTurnsRemaining(iMajor, eType, Game.GetGameTurn()); -- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
 			
 			if (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL" );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_ROUTE"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL" );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CAMP"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[iQuestData1].Description );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[iQuestData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[iQuestData1].Description );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[iQuestData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONSTRUCT_WONDER"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[iQuestData1].Description );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[iQuestData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_GREAT_PERSON"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[iQuestData1]:GetNameKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[iQuestData1]:GetNameKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CITY_STATE"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_PLAYER"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL" );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_NATURAL_WONDER"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_GIVE_GOLD"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_PLEDGE_TO_PROTECT"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE) then
 				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE);
 				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE);
 				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE)) then
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] );
 				else
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] );
 				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH) then
 				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH);
 				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH);
 				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH)) then
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] );
 				else
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] );
 				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS) then
 				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS);
 				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS);
 				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS)) then
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] );
 				else
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] );
 				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_INVEST"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_BULLY_CITY_STATE"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_DENOUNCE_MAJOR"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(iQuestData1) );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(iQuestData1), GameDefines["MINOR_QUEST_FRIENDSHIP_SPREAD_RELIGION"] );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
-				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL");
+				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] );
 			end
 			
 			if (iTurnsRemaining >= 0) then

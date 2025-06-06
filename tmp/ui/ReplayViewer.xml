@@ -17,7 +17,7 @@
 	</Instance>
 
 	<Instance Name="GraphLineInstance">
-		<Line ID="LineSegment" Anchor="L,T" Color="255,255,200,255" Start="1,1" End="100,100" Width="1" />
+		<Line ID="LineSegment" Anchor="L,T" Color="255,255,200,255" Start="1,1" End="100,100" Width="1.3" />
 	</Instance>
 
 	<Instance Name="GraphLegendInstance" >
@@ -55,7 +55,28 @@
 
 		</Box>
 	</Instance>
-
+	
+	<ToolTipType Name="GraphToolTip" >
+		<Container ID="Root" AnchorSide="O,O" >
+			<Grid Offset="-20,5" Size="60,12" Padding="8,8" Style="GridBlack8" Color="White,240" Anchor="R,B" ID="ToolTipGrid" NoClip="1" >
+				<Stack ID="Lines" Padding="10" >
+					<Label Offset="10,10" Anchor="L,C" ID="Turn" WrapWidth="300" />
+					<Label Offset="0,0" Anchor="L,C" String=" " />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name1" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name2" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name3" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name4" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name5" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name6" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name7" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name8" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name9" WrapWidth="300" />
+					<Label Offset="-5,0" Anchor="R,C" ID="Name10" WrapWidth="300" />
+				</Stack>
+			</Grid>
+		</Container>
+	</ToolTipType>
+	
 	<Grid ID="FrontEndReplayViewer" Size="960,628" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140">
 		<!--Screen Title-->
 		<Label Style="MenuTitleCaption" String="TXT_KEY_REPLAY_TITLE" />
@@ -103,7 +124,7 @@
 			</ScrollPanel>
 
 			<Box ID="GraphDisplay" Offset="160,20" Color="0,0,0,0" Size="720,360">
-				<Box ID="GraphCanvas" Anchor="L,T" Offset="0,0" Color="0,0,0,200" Size="720,360" />
+				<Box ID="GraphCanvas" Anchor="L,T" Offset="0,0" Color="0,0,0,200" Size="720,360" ToolTipType="GraphToolTip" />
 
 				<Line Color="255,255,200,255" Start="0,360" End="720,360" Width="1" />
 				<Line Color="255,255,200,255" Start="720,0" End="720,360" Width="1" />

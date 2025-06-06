@@ -350,6 +350,16 @@ public:
 	{
 		m_bHasPaidAdoptionBonus = bNewValue;
 	};
+#ifdef NEW_PAPAL_PRIMACY
+	bool HasPaidAdoptionInfluenceBonus() const
+	{
+		return m_bHasPaidAdoptionInfluenceBonus;
+	};
+	void SetPaidAdoptionInfluenceBonus(bool bNewValue)
+	{
+		m_bHasPaidAdoptionInfluenceBonus = bNewValue;
+	};
+#endif
 	int GetReligiousPressureModifier() const
 	{
 		return m_iReligiousPressureModifier;
@@ -409,6 +419,9 @@ private:
 
 	CvCity* m_pCity;
 	bool m_bHasPaidAdoptionBonus;
+#ifdef NEW_PAPAL_PRIMACY
+	bool m_bHasPaidAdoptionInfluenceBonus;
+#endif
 	int m_iReligiousPressureModifier;
 };
 

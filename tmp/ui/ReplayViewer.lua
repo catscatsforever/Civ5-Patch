@@ -3,6 +3,7 @@
 --     extended replay messages
 --     alternative graph colors
 --     Replay Events
+--     Graph Tooltip
 -- for EUI & vanilla UI
 -------------------------------------------------------------------
 include("InstanceManager");
@@ -178,6 +179,10 @@ g_LineSegmentInstanceManager = InstanceManager:new("GraphLineInstance","LineSegm
 -- NEW: Replay Events
 g_ReplayEventInstanceManager = InstanceManager:new("ReplayEventInstance", "Base", Controls.ReplayEventStack);
 
+-- Graph Tooltip START
+g_GraphShown = {}
+-- Graph Tooltip END
+
 g_ReplayInfo = {};
 g_ReplayEventCategories = {};
 g_plotCityNameChanges = {};
@@ -249,7 +254,7 @@ Panels = {
 			for i,message in ipairs(g_ReplayInfo.Messages) do
 				if(message.Text ~= nil and #message.Text > 0) then
 					local messageInstance = g_ReplayMessageInstanceManager:GetInstance();
-				
+					if message.Timestamp == nil then message.Timestamp = 0 end
 					messageInstance.MessageText2:SetHide(true);
 				
 					-- NEW: format chat messages
@@ -409,6 +414,19 @@ Panels = {
 				verticalMouseGuide:SetHide(bHide);
 			end
 			
+			-- Graph Tooltip START
+			tipControls = {};
+			TTManager:GetTypeControlTable( "GraphToolTip", tipControls );
+			local st, ft = Panels[2].PadHorizontalValues(g_ReplayInfo.InitialTurn, g_ReplayInfo.FinalTurn)
+			local sc = {}
+			for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
+				local civ = GameInfo.Civilizations[player.Civilization];
+				if (civ.Type ~= "CIVILIZATION_MINOR") then
+					local col = Panels[2].PlayerGraphColors[i]
+					sc[#sc + 1] = {Id = i, Name = Locale.Lookup(civ.ShortDescription), Color = string.format('[COLOR:%d:%d:%d:%d]', math.floor(col.Red * 255), math.floor(col.Green * 255), math.floor(col.Blue * 255), math.floor(col.Alpha * 255) )}
+				end
+			end
+			-- Graph Tooltip END
 			return function()
 				if(not graphsPanel:IsHidden()) then
 					local x,y = GetMousePos();
@@ -420,9 +438,30 @@ Panels = {
 					   yRelative > 0 and yRelative < graphDisplayHeight) then
 						DrawCursor(xRelative, yRelative);
 						ToggleHideLines(false);
+						-- Graph Tooltip START
+						local ct = math.floor(xRelative / graphDisplayWidth * (ft - st + 1))
+						local vals = {}
+						for k,v in next,sc do
+							local val = g_ReplayInfo.PlayerInfo[v.Id].Scores[ct][Panels[2].CurrentGraphDataSetIndex]
+							if g_GraphShown[v.Id] and val ~= nil then
+								vals[#vals+1] = {Name = v.Name, Val = val, Color = v.Color}
+							end
+						end
+						local out = {}
+						table.sort(vals, function(a,b) return a.Val > b.Val end)  -- show top 10
+						tipControls.Turn:LocalizeAndSetText('TXT_KEY_TP_TURN_COUNTER', ct)
+						for i = 1, 10 do
+							if vals[i] then
+								tipControls['Name'..tostring(i)]:SetText( string.format("%s#[ENDCOLOR]%s: %d", vals[i].Color, vals[i].Name, vals[i].Val) );
+							else
+								tipControls['Name'..tostring(i)]:SetText()
+							end
+						end
+						-- Graph Tooltip END
 					else
 						ToggleHideLines(true);
 					end
+					tipControls.ToolTipGrid:DoAutoSize()
 				else
 					ToggleHideLines(true);
 				end
@@ -726,6 +765,9 @@ Panels = {
 					-- Default city states to be unchecked.
 					local checked = civ.Type ~= "CIVILIZATION_MINOR";
 					graphLegendInstance.ShowHide:SetCheck(checked);
+					-- Graph Tooltip START
+					g_GraphShown[i] = checked
+					-- Graph Tooltip END
 					
 					graphLegendInstance.ShowHide:RegisterCheckHandler( function(bCheck)
 						local segments = panel.SegmentsByPlayer[i];
@@ -734,6 +776,9 @@ Panels = {
 								v.LineSegment:SetHide(not bCheck);
 							end
 						end
+						-- Graph Tooltip START
+						g_GraphShown[i] = bCheck
+						-- Graph Tooltip END
 					end);
 					
 					panel.GraphLegendsByPlayer[i] = graphLegendInstance;
@@ -1115,7 +1160,15 @@ function SetCurrentGraphDataSet(dataSetIndex)
 
 	local ds = GameInfo.ReplayDataSets[dataSetIndex];
 	local graphDataSetPulldownButton = Controls.GraphDataSetPulldown:GetButton();
+	graphDataSetPulldownButton:GetTextControl():SetTruncateWidth(-1)
 	graphDataSetPulldownButton:LocalizeAndSetText(ds.Description);
+	-- NEW: text overflow tooltip
+	if graphDataSetPulldownButton:GetTextControl():GetSizeX() > 470 then
+		Controls.GraphDataSetPulldown:LocalizeAndSetToolTip(ds.Description)
+		graphDataSetPulldownButton:GetTextControl():SetTruncateWidth(470)
+	else
+		Controls.GraphDataSetPulldown:LocalizeAndSetToolTip()
+	end
 	
 	local graphPanel = Panels[2];
 	graphPanel.CurrentGraphDataSetIndex = dataSetIndex;
@@ -1313,8 +1366,9 @@ function Refresh()
 	for i,v in ipairs(Panels) do
 		v:Refresh();
 	end
-	
-	SetCurrentPanel(1);
+	-- NEW: show graphs panel by default
+	--SetCurrentPanel(1);
+	SetCurrentPanel(2);
 
 	-- Get First Dataset Type
 	local firstDataSet;
@@ -1421,6 +1475,11 @@ function RefreshGraphDataSets()
 		local controlTable = {};
 		graphDataSetPulldown:BuildEntry( "InstanceOne", controlTable );
 		controlTable.Button:LocalizeAndSetText(v[1]);
+		-- NEW: text overflow tooltip
+		if controlTable.Button:GetTextControl():GetSizeX() > 470 then
+			controlTable.Button:LocalizeAndSetToolTip(v[1])
+		end
+		controlTable.Button:GetTextControl():SetTruncateWidth(470)
 
 		controlTable.Button:RegisterCallback(Mouse.eLClick, function()
 			SetCurrentGraphDataSet(v[2]);

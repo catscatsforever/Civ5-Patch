@@ -3177,13 +3177,14 @@ void DraftResponseSecret(PlayerTypes p, const char* szSecret)
 			if (szSecret != "")
 			{
 				int iSecret;
-				if (sscanf(szSecret.c_str(), "%d", &iSecret) == 1)
+				if (sscanf(szSecret.c_str(), "%08x", &iSecret) == 1)
 				{
 					sum += iSecret;
-					SLOG("sum %d", sum);
+					SLOG("interim sum %d", sum);
 				}
 			}
 		}
+		SLOG("SUM: %d", sum);
 
 		std::vector<int> civList;
 		int bans1, bans2;

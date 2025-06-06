@@ -3239,7 +3239,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 			pUnitNode = plot()->nextUnitNode(pUnitNode);
 
-			if (pLoopUnit->IsRecon() && !pLoopUnit->isOutOfRebases())
+			if (pLoopUnit->IsRecon() && pLoopUnit->getTransportUnit() == this && !pLoopUnit->isOutOfRebases())
 			{
 				pLoopUnit->setReconPlot(&targetPlot);
 			}
@@ -9050,6 +9050,16 @@ bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 	if(isDelayedDeath())
 		return false;
 
+#ifdef AI_CANT_DO_CULTURE_BOMB
+	if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+	{
+		if (!GET_PLAYER(getOwner()).isHuman())
+		{
+			return false;
+		}
+	}
+#endif
+
 	// Things we test for if we're going to perform this action RIGHT NOW
 	if(!bTestVisible)
 	{
@@ -10722,6 +10732,11 @@ bool CvUnit::IsBarbarianUnitThreateningMinor(PlayerTypes eMinor)
 	// Must be a barb unit
 	if(!isBarbarian())
 		return false;
+
+#ifdef FIX_BARBARIAN_NULL_PLOT_POINTER
+	if (!plot())
+		return false;
+#endif
 
 	// Plot owned by this minor?
 	if(plot()->getOwner() == eMinor)

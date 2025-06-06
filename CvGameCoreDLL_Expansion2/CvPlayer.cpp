@@ -5267,6 +5267,15 @@ void CvPlayer::doTurn()
 					}
 				}
 #endif
+#ifdef DO_EXTRACT_AI_SPIES
+				if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+				{
+					for (uint uiSpy = 0; uiSpy < GetEspionage()->m_aSpyList.size(); uiSpy++)
+					{
+						GetEspionage()->ExtractSpyFromCity(uiSpy);
+					}
+				}
+#endif
 #ifdef CHANGE_CITY_ORIGINAL_OWNER
 				if (GC.getGame().isNetworkMultiPlayer())
 				{
@@ -10033,7 +10042,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 								if (iChange > 0)
 								{
 									pLoopCity->changePopulation(iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange());
-									GetTreasury()->ChangeGold(pLoopCity->getGrowthGold() * iChange);
 								}
 #else
 								pLoopCity->setPopulation(std::max(1, (pLoopCity->getPopulation() + iChange * GC.getBuildingInfo(eBuilding)->GetGlobalPopulationChange())));
@@ -30805,6 +30813,15 @@ void CvPlayer::disconnected()
 					}
 				}
 #endif
+#ifdef DO_EXTRACT_AI_SPIES
+				if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+				{
+					for (uint uiSpy = 0; uiSpy < GetEspionage()->m_aSpyList.size(); uiSpy++)
+					{
+						GetEspionage()->ExtractSpyFromCity(uiSpy);
+					}
+				}
+#endif
 #ifdef CHANGE_CITY_ORIGINAL_OWNER
 				if (GC.getGame().isNetworkMultiPlayer())
 				{
@@ -30947,6 +30964,15 @@ void CvPlayer::disconnected()
 						// Bump Units out of places they shouldn't be
 						GC.getMap().verifyUnitValidPlot();
 					}
+				}
+			}
+#endif
+#ifdef DO_EXTRACT_AI_SPIES
+			if (!isHuman() && GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			{
+				for (uint uiSpy = 0; uiSpy < GetEspionage()->m_aSpyList.size(); uiSpy++)
+				{
+					GetEspionage()->ExtractSpyFromCity(uiSpy);
 				}
 			}
 #endif

@@ -9488,6 +9488,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 #endif
 
 					setFeatureType(NO_FEATURE);
+#ifdef FIX_SIGHT_UPDATE_AFTER_REMOVING_FEATURE
+					GC.getMap().updateDeferredFog();
+#endif
 				}
 			}
 

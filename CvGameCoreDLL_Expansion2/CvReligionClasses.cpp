@@ -3052,6 +3052,9 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace) const
 /// Constructor
 CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
+#ifdef NEW_PAPAL_PRIMACY
+	m_bHasPaidAdoptionInfluenceBonus(false),
+#endif
 	m_iReligiousPressureModifier(0)
 {
 	m_ReligionStatus.clear();
@@ -3068,6 +3071,9 @@ void CvCityReligions::Init(CvCity* pCity)
 {
 	m_pCity = pCity;
 	m_bHasPaidAdoptionBonus = false;
+#ifdef NEW_PAPAL_PRIMACY
+	m_bHasPaidAdoptionInfluenceBonus = false;
+#endif
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
 }
@@ -3084,6 +3090,9 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 	m_ReligionStatus.clear();
 
 	SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
+#ifdef NEW_PAPAL_PRIMACY
+	SetPaidAdoptionInfluenceBonus(pOldCity->HasPaidAdoptionInfluenceBonus());
+#endif
 	SetReligiousPressureModifier(pOldCity->GetReligiousPressureModifier());
 
 	ReligionInCityList::iterator religionIt;
@@ -4449,19 +4458,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		// Pay adoption bonuses (if any)
 		if(!m_bHasPaidAdoptionBonus)
 		{
-#ifdef NEW_PAPAL_PRIMACY
-			int iInfluenceBoost = pNewReligion->m_Beliefs.GetCityStateMinimumInfluence();
-
-			if (iInfluenceBoost > 0)
-			{
-				if (GET_PLAYER(m_pCity->getOwner()).isAlive() && GET_PLAYER(m_pCity->getOwner()).isMinorCiv() && GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).isHasMet(GET_PLAYER(m_pCity->getOwner()).getTeam()))
-				{
-					GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(pNewReligion->m_eFounder, iInfluenceBoost);
-					SetPaidAdoptionBonus(true);
-				}
-			}
-#endif
-
 			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
 			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldBonus /= 100;
@@ -4479,6 +4475,22 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 			}
 		}
+
+#ifdef NEW_PAPAL_PRIMACY
+		if (!m_bHasPaidAdoptionInfluenceBonus)
+		{
+			int iInfluenceBoost = pNewReligion->m_Beliefs.GetCityStateMinimumInfluence();
+
+			if (iInfluenceBoost > 0)
+			{
+				if (GET_PLAYER(m_pCity->getOwner()).isAlive() && GET_PLAYER(m_pCity->getOwner()).isMinorCiv() && GET_TEAM(GET_PLAYER(pNewReligion->m_eFounder).getTeam()).isHasMet(GET_PLAYER(m_pCity->getOwner()).getTeam()))
+				{
+					GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(pNewReligion->m_eFounder, iInfluenceBoost);
+					SetPaidAdoptionInfluenceBonus(true);
+				}
+			}
+		}
+#endif
 
 		// Notification if the player's city was converted to a religion they didn't found
 		PlayerTypes eOwnerPlayer = m_pCity->getOwner();
@@ -4754,6 +4766,18 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 	{
 		writeTo.SetPaidAdoptionBonus(false);
 	}
+#ifdef NEW_PAPAL_PRIMACY
+	if (uiVersion >= 1000)
+	{
+		bool bTemp;
+		loadFrom >> bTemp;
+		writeTo.SetPaidAdoptionInfluenceBonus(bTemp);
+	}
+	else
+	{
+		writeTo.SetPaidAdoptionInfluenceBonus(false);
+	}
+#endif
 
 	if (uiVersion >= 3)
 	{
@@ -4784,10 +4808,16 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 {
 	uint uiVersion = 3;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_CITY_RELIGIONS;
+#endif
 
 	saveTo << uiVersion;
 
 	saveTo << readFrom.HasPaidAdoptionBonus();
+#ifdef NEW_PAPAL_PRIMACY
+	saveTo << readFrom.HasPaidAdoptionInfluenceBonus();
+#endif
 
 	saveTo << readFrom.GetReligiousPressureModifier();
 

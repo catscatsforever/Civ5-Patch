@@ -733,12 +733,12 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 			end
             local bIsHealing = false
             if not unit:IsEmbarked() then
-	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-	                if unit:IsAlwaysHeal() then
-	                    bIsHealing = true
-	                end
-	            else
-                    if unit:IsHurt() then
+                if unit:IsHurt() then
+		            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+		                if unit:IsAlwaysHeal() then
+		                    bIsHealing = true
+		                end
+		            else
                         if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                             if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
                                 bIsHealing = false
@@ -955,12 +955,12 @@ function( playerID, unitID, damage )--, previousDamage )
 		if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
             local bIsHealing = false
             if not unit:IsEmbarked() then
-	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-	                if unit:IsAlwaysHeal() then
-	                    bIsHealing = true
-	                end
-	            else
-                    if unit:IsHurt() then
+                if unit:IsHurt() then
+		            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+		                if unit:IsAlwaysHeal() then
+		                    bIsHealing = true
+		                end
+		            else
                         if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                             if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
                                 bIsHealing = false
@@ -1002,12 +1002,12 @@ function ()
                         end
 			            local bIsHealing = false
 			            if not unit:IsEmbarked() then
-				            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-				                if unit:IsAlwaysHeal() then
-				                    bIsHealing = true
-				                end
-				            else
-                                if unit:IsHurt() then
+                            if unit:IsHurt() then
+					            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+					                if unit:IsAlwaysHeal() then
+					                    bIsHealing = true
+					                end
+					            else
                                     if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                                         if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
                                             bIsHealing = false
@@ -1114,12 +1114,12 @@ function( playerID, unitID, isDimmed )
 			end
             local bIsHealing = false
             if not unit:IsEmbarked() then
-	            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-	                if unit:IsAlwaysHeal() then
-	                    bIsHealing = true
-	                end
-	            else
-                    if unit:IsHurt() then
+                if unit:IsHurt() then
+		            if unit:HasMoved() or ((not unit:isOutOfInterceptions()) and unit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+		                if unit:IsAlwaysHeal() then
+		                    bIsHealing = true
+		                end
+		            else
                         if (unit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                             if (not unit:GetPlot():IsFriendlyTerritory(unit:GetOwner()) and not unit:IsHealOutsideFriendly()) then
                                 bIsHealing = false

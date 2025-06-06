@@ -647,12 +647,36 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local tips = table( BuildingColor( Locale_ToUpper( building.Description ) ) )
 
 	-- Other tags
+	items = {}
+	for row in GameInfo.Policy_BuildingClassFoodKept( thisBuildingClassType ) do
+		if row.PolicyType and (row.FoodKept or 0)~=0 then
+			items[row.PolicyType] = row.FoodKept
+		end
+	end
+	local policyFoodKept = 0
+	for policyType, iFoodKept in pairs(items) do
+		local policy = GameInfo.Policies[ policyType ]
+		if activePlayer and activePlayer:HasPolicy( policy.ID ) and iFoodKept > 0 then
+			print(policyType)
+			policyFoodKept = policyFoodKept + iFoodKept
+		end
+	end
 	for k,v in pairs(building) do
-		if v and v ~=0 and v~=-1 then
-			tipKey = "TXT_KEY_EUI_BUILDING_" .. k:upper()
-			tip = L( tipKey, v )
-			if tip ~= tipKey then
-				tips:insert( tip )
+		if k == "FoodKept" then
+			if v and (v + policyFoodKept)~=0 and (v + policyFoodKept)~=-1 then
+				tipKey = "TXT_KEY_EUI_BUILDING_" .. k:upper()
+				tip = L( tipKey, v + policyFoodKept )
+				if tip ~= tipKey then
+					tips:insert( tip )
+				end
+			end
+		else
+			if v and v ~=0 and v~=-1 then
+				tipKey = "TXT_KEY_EUI_BUILDING_" .. k:upper()
+				tip = L( tipKey, v )
+				if tip ~= tipKey then
+					tips:insert( tip )
+				end
 			end
 		end
 	end

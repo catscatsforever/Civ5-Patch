@@ -624,6 +624,10 @@ bool CvMinorCivQuest::IsExpired()
 	// City-state wanted us to clear a camp
 	if(m_eType == MINOR_CIV_QUEST_KILL_CAMP)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		int iX = GetPrimaryData();
 		int iY = GetSecondaryData();
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
@@ -654,6 +658,10 @@ bool CvMinorCivQuest::IsExpired()
 	// CONSTRUCT A WONDER
 	else if(m_eType == MINOR_CIV_QUEST_CONSTRUCT_WONDER)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		BuildingTypes eWonder = (BuildingTypes) GetPrimaryData();
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eWonder);
 		CvAssertMsg(pkBuildingInfo, "Building info not expected to be FALSE! Please send Anton your save file and version.");
@@ -687,6 +695,10 @@ bool CvMinorCivQuest::IsExpired()
 	// KILL ANOTHER CITY STATE
 	else if(m_eType == MINOR_CIV_QUEST_KILL_CITY_STATE)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		PlayerTypes eTargetCityState = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetCityState = &GET_PLAYER(eTargetCityState);
 
@@ -707,6 +719,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Find a Player
 	else if(m_eType == MINOR_CIV_QUEST_FIND_PLAYER)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		PlayerTypes eTargetPlayer = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetPlayer = &GET_PLAYER(eTargetPlayer);
 
@@ -778,6 +794,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Bully target City-State
 	else if(m_eType == MINOR_CIV_QUEST_BULLY_CITY_STATE)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		PlayerTypes eTargetCityState = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetCityState = &GET_PLAYER(eTargetCityState);
 
@@ -792,6 +812,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Denounce target Major
 	else if(m_eType == MINOR_CIV_QUEST_DENOUNCE_MAJOR)
 	{
+#ifdef ALL_QUESTS_GET_END_TURN
+		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
+			return true;
+#endif
 		PlayerTypes eTargetPlayer = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetPlayer = &GET_PLAYER(eTargetPlayer);
 

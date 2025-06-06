@@ -596,61 +596,61 @@ end
 
 local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 	if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL" )
+		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_ROUTE"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP then
-		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL" )
+		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CAMP"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[questData1].Description )
+		return L( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[questData1].Description )
+		return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONSTRUCT_WONDER"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON then
-		return L( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[questData1].Description )
+		return L( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_GREAT_PERSON"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
+		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CITY_STATE"] )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_PLAYER"] )
 	elseif civ5_mode and questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL" )
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_NATURAL_WONDER"] )
 	elseif gk_mode then
 		if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD then
-			return L( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_GIVE_GOLD"] )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT then
-			return L( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_PLEDGE_TO_PROTECT"] )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST then
-			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" )
+			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_INVEST"] )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE then
-			return L( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_BULLY_CITY_STATE"] )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_DENOUNCE_MAJOR"] )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION then
-			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game_GetReligionName(questData1) )
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game_GetReligionName(questData1), GameDefines["MINOR_QUEST_FRIENDSHIP_SPREAD_RELIGION"] )
 		elseif bnw_mode then
 			if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE then
-				return L("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL")
+				return L("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] )
 			end
 		end
 	end

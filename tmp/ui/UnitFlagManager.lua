@@ -201,10 +201,10 @@ local g_UnitFlagClass =
             o.m_Instance.HealthBarButton:RegisterCallback( Mouse.eMouseExit, UnitFlagExit );
 		end            		
 		
-		    local pPlot = pUnit:GetPlot();
-		    if( pPlot:IsCity() ) then
-			    o.m_CityFlag = UpdateCityCargo( pPlot );
-		    end
+		local pPlot = pUnit:GetPlot();
+		if( pPlot:IsCity() ) then
+			o.m_CityFlag = UpdateCityCargo( pPlot );
+		end
 
         if( active_team == team ) then
             o.m_Instance.NormalButton:SetDisabled( false );
@@ -221,12 +221,12 @@ local g_UnitFlagClass =
                 end
                 local bIsHealing = false
                 if not pUnit:IsEmbarked() then
-                    if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-                        if pUnit:IsAlwaysHeal() then
-                            bIsHealing = true
-                        end
-                    else
-                        if pUnit:IsHurt() then
+                    if pUnit:IsHurt() then
+                        if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                            if pUnit:IsAlwaysHeal() then
+                                bIsHealing = true
+                            end
+                        else
                             if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                                 if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
                                     bIsHealing = false
@@ -444,12 +444,12 @@ local g_UnitFlagClass =
             if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
                 local bIsHealing = false
                 if not pUnit:IsEmbarked() then
-                    if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-                        if pUnit:IsAlwaysHeal() then
-                            bIsHealing = true
-                        end
-                    else
-                        if pUnit:IsHurt() then
+                    if pUnit:IsHurt() then
+                        if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                            if pUnit:IsAlwaysHeal() then
+                                bIsHealing = true
+                            end
+                        else
                             if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                                 if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
                                     bIsHealing = false
@@ -1402,12 +1402,12 @@ function OnOptionsChanged()
                         end
                         local bIsHealing = false
                         if not pUnit:IsEmbarked() then
-                            if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-                                if pUnit:IsAlwaysHeal() then
-                                    bIsHealing = true
-                                end
-                            else
-                                if pUnit:IsHurt() then
+                            if pUnit:IsHurt() then
+                                if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                                    if pUnit:IsAlwaysHeal() then
+                                        bIsHealing = true
+                                    end
+                                else
                                     if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                                         if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
                                             bIsHealing = false
@@ -1509,6 +1509,7 @@ function OnHexFogEvent( hexPos, fogState, bWholeMap )
 				-- The flag doesn't seem to store its plot, so we have to search using the instance to plot map.
 				local pCityFlagPlot = g_CityFlagPlots[ pCityFlag ];
 				if (pCityFlagPlot == plot ) then
+					UpdateCityCargo( pCityFlagPlot );
 					pCityFlag.Anchor:SetHide( bInvisible );
 					break;
 				end				
@@ -1593,12 +1594,12 @@ function OnDimEvent( playerID, unitID, bDim )
                     end
                     local bIsHealing = false
                     if not pUnit:IsEmbarked() then
-                        if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-                            if pUnit:IsAlwaysHeal() then
-                                bIsHealing = true
-                            end
-                        else
-                            if pUnit:IsHurt() then
+                        if pUnit:IsHurt() then
+                            if pUnit:HasMoved() or ((not pUnit:isOutOfInterceptions()) and pUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
+                                if pUnit:IsAlwaysHeal() then
+                                    bIsHealing = true
+                                end
+                            else
                                 if (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
                                     if (not pUnit:GetPlot():IsFriendlyTerritory(pUnit:GetOwner()) and not pUnit:IsHealOutsideFriendly()) then
                                         bIsHealing = false
