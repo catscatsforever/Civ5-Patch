@@ -7837,7 +7837,11 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		eRoute = getRouteType();
 	}
 
+#ifdef FIX_CALCAULATE_NATURE_YIELD_RESEARCHED_RESOURCE_YIELD_DISPLAY
+	iYield = calculateNatureYield(eYield, GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+#else
 	iYield = calculateNatureYield(eYield, ((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
+#endif
 
 #ifdef POLICY_PLOT_EXTRA_YIELD_FROM_TRADE_ROUTES
 	if (getOwner() != NO_PLAYER)
@@ -7994,7 +7998,15 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		{
 			if(pWorkingCity != NULL)
 			{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+				if (!bDisplay || pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				{
+					iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
+				}
+				
+#else
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
+#endif
 			}
 		}
 
@@ -8003,12 +8015,20 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		{
 			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
 			{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+				if (!bDisplay || pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				{
+					iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
+				}
+
+#else
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
+#endif
 			}
 #ifdef GREECE_UA_REWORK
 			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 			{
-				if (pWorkingCity != NULL && pWorkingCity->getOwner() == ePlayer && isMountain() && !IsNaturalWonder())
+				if (getOwner() == ePlayer && isMountain() && !IsNaturalWonder())
 				{
 					if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 					{
@@ -8031,7 +8051,15 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				if (pWorkingCity != NULL)
 				{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+					if (!bDisplay || pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					{
+						iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+					}
+
+#else
 					iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+#endif
 				}
 			}
 		}
@@ -8048,7 +8076,15 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				{
 					// Extra yield from resources
 					if(pWorkingCity != NULL)
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+						if (!bDisplay || pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+						{
+							iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
+						}
+
+#else
 						iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
+#endif
 
 					// Extra yield from Trait
 					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -10678,7 +10714,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	}
 
 	// Nature yield
+#ifdef FIX_CALCAULATE_NATURE_YIELD_RESEARCHED_RESOURCE_YIELD_DISPLAY
+	iYield = calculateNatureYield(eYield, GET_PLAYER(ePlayer).getTeam(), bIgnoreFeature);
+#else
 	iYield = calculateNatureYield(eYield, getTeam(), bIgnoreFeature);
+#endif
 
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
 
@@ -10873,7 +10913,15 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		if(getFeatureType() != NO_FEATURE)
 		{
 			if(pWorkingCity != NULL)
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+				if (pWorkingCity->isRevealed(eTeam, false))
+				{
+					iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
+				}
+
+#else
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
+#endif
 		}
 
 
@@ -10882,8 +10930,32 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		{
 			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
 			{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+				if (pWorkingCity->isRevealed(eTeam, false))
+				{
+					iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
+				}
+
+#else
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
+#endif
 			}
+#ifdef GREECE_UA_REWORK
+			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+			{
+				if (getOwner() == ePlayer && isMountain() && !IsNaturalWonder())
+				{
+					if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
+					{
+						iYield += 1;
+					}
+					else if (eYield == YIELD_FAITH)
+					{
+						iYield += 2;
+					}
+				}
+			}
+#endif
 		}
 
 #ifdef BUILDING_IMPROVEMENT_YIELD_CHANGE
@@ -10894,7 +10966,15 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			{
 				if (pWorkingCity != NULL)
 				{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+					if (pWorkingCity->isRevealed(eTeam, false))
+					{
+						iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+					}
+
+#else
 					iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+#endif
 				}
 			}
 		}
@@ -10910,7 +10990,15 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 					// Extra yield from resources
 					if(pWorkingCity != NULL)
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+						if (pWorkingCity->isRevealed(eTeam, false))
+						{
+							iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
+						}
+
+#else
 						iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
+#endif
 
 					// Extra yield from Resources with Trait
 					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)

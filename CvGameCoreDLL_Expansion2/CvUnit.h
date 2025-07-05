@@ -715,7 +715,11 @@ public:
 
 	int getExperience() const;
 	void setExperience(int iNewValue, int iMax = -1);
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bHalfGeneralExp = false);
+#else
 	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+#endif
 
 	int getLevel() const;
 	void setLevel(int iNewValue);

@@ -1009,7 +1009,7 @@ void CvGameTrade::ClearAllCityStateTradeRoutes (void)
 
 #ifdef POLICY_ONLY_INTERNAL_TRADE_ROUTE_YIELD_MODIFIER
 //	--------------------------------------------------------------------------------
-void CvGameTrade::ClearAllTradeRoutesByType(TradeConnectionType eConnectionType)
+void CvGameTrade::ClearAllTradeRoutesToPlayerByType(PlayerTypes ePlayer, TradeConnectionType eConnectionType)
 {
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
@@ -1018,8 +1018,11 @@ void CvGameTrade::ClearAllTradeRoutesByType(TradeConnectionType eConnectionType)
 			continue;
 		}
 
+		bool bMatchesOrigin = (m_aTradeConnections[ui].m_eOriginOwner == ePlayer);
+		bool bMatchesDest = (m_aTradeConnections[ui].m_eDestOwner == ePlayer);
+
 		TradeConnectionType eType = m_aTradeConnections[ui].m_eConnectionType;
-		if (eType == eConnectionType)
+		if (bMatchesOrigin && bMatchesDest && eType == eConnectionType)
 		{
 			// if the destination was wiped, the origin gets a trade unit back
 			if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())

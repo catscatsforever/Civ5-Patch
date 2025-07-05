@@ -94,7 +94,7 @@ public:
 	void ClearAllCivTradeRoutes (PlayerTypes ePlayer); // called from world congress code
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
 #ifdef POLICY_ONLY_INTERNAL_TRADE_ROUTE_YIELD_MODIFIER
-	void ClearAllTradeRoutesByType (TradeConnectionType eConnectionType);
+	void ClearAllTradeRoutesToPlayerByType(PlayerTypes ePlayer, TradeConnectionType eConnectionType);
 #endif
 	void CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2);
 

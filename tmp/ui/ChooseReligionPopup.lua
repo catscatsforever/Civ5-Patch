@@ -2,6 +2,9 @@
 -------------------------------------------------
 -- Choose Pantheon Popup
 -------------------------------------------------
+-- edit:
+--     tournament mode
+-- for vanilla UI
 
 include( "IconSupport" );
 include( "InstanceManager" );
@@ -665,7 +668,12 @@ function SelectReligion(religionID, name, iconAtlas, portraitIndex)
 		else
 			local label = Locale.Lookup("TXT_KEY_CHOOSE_RELIGION_NAME_LABEL", name);
 			Controls.LabelReligionName:SetText(label);
-			Controls.LabelReligionName:RegisterCallback(Mouse.eLClick, ChangeReligionName);
+			-- NEW: disable religion rename for tournament
+			if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
+				Controls.LabelReligionName:RegisterCallback(Mouse.eLClick, IgnoreLeftClick);
+			else
+				Controls.LabelReligionName:RegisterCallback(Mouse.eLClick, ChangeReligionName);
+			end
 			Controls.FoundReligion:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_OK_BUTTON");
 			Controls.FoundReligionHeading:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_TITLE");			
 		end

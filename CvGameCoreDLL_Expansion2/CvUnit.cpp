@@ -16533,9 +16533,121 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 			}
 		}
 	}
+
 }
 
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal, bool bHalfGeneralExp)
+{
+	VALIDATE_OBJECT
+	// Barbs don't get XP or Promotions
+	if(isBarbarian() && iChange > 0)
+	{
+		return;
+	}
 
+	int iUnitExperience = iChange;
+	PromotionTypes eNewPromotion = NO_PROMOTION;
+
+	if(bFromCombat)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+		// Promotion that changes after combat?
+		for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		{
+			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+			if(pkPromotionInfo)
+			{
+				if (pkPromotionInfo->HasPostCombatPromotions() && m_Promotions.HasPromotion(eLoopPromotion))
+				{
+					eNewPromotion = m_Promotions.ChangePromotionAfterCombat(eLoopPromotion);
+					setHasPromotion(eLoopPromotion, false);
+
+					if (eNewPromotion != NO_PROMOTION)
+					{
+						setHasPromotion(eNewPromotion, true);
+
+						CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
+						Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
+						float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
+					}
+				}
+			}
+		}
+
+		// Player Great General/Admiral mod
+		int iCombatExperienceMod;
+		if (getDomainType() == DOMAIN_SEA)
+		{
+			iCombatExperienceMod = 100 + kPlayer.getGreatAdmiralRateModifier();
+		}
+		else
+		{
+			iCombatExperienceMod = 100 + kPlayer.getGreatGeneralRateModifier();
+		}
+
+		// Unit XP mod
+		iUnitExperience += (iChange * kPlayer.getExpModifier()) / 100;
+
+		// Great General & Unit XP mod in borders
+		if (bInBorders && getDomainType() == DOMAIN_LAND)
+		{
+			// In-borders GG mod
+			iCombatExperienceMod += kPlayer.getDomesticGreatGeneralRateModifier() + kPlayer.getExpInBorderModifier();
+			iUnitExperience += (iChange * kPlayer.getExpInBorderModifier()) / 100;
+		}
+
+		if(bUpdateGlobal)
+		{
+			// Add Unit GG mod
+			if (getDomainType() == DOMAIN_LAND) 
+			{
+				iCombatExperienceMod += getGreatGeneralModifier();
+			}
+
+			iCombatExperienceMod /= (bHalfGeneralExp ? 2 : 1);
+
+			if(iMax == -1)
+			{
+				if(getDomainType() == DOMAIN_SEA)
+				{
+					kPlayer.changeNavalCombatExperience((iChange * iCombatExperienceMod) / 100);
+				}
+				else
+				{
+					kPlayer.changeCombatExperience((iChange * iCombatExperienceMod) / 100);
+				}
+			}
+			else
+			{
+				int iModdedChange = min(iMax - m_iExperience, iChange);
+				if(iModdedChange > 0)
+				{
+					if(getDomainType() == DOMAIN_SEA)
+					{
+						kPlayer.changeNavalCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
+					}
+					else
+					{
+						kPlayer.changeCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
+					}
+				}
+			}
+		}
+
+		if(getExperiencePercent() != 0)
+		{
+			iUnitExperience *= std::max(0, 100 + getExperiencePercent());
+			iUnitExperience /= 100;
+		}
+	}
+
+	setExperience((getExperience() + iUnitExperience), iMax);
+}
+#else
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
 {
@@ -16645,6 +16757,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 	setExperience((getExperience() + iUnitExperience), iMax);
 }
+#endif
 
 
 //	--------------------------------------------------------------------------------

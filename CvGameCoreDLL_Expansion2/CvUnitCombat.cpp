@@ -319,6 +319,41 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		iAttackerDamageDelta = pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner(), -1.f);		// Signal that we don't want the popup text.  It will be added later when the unit is at its final location
 
 		// Update experience for both sides.
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+		bool bHalfGeneralExp;
+
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+		{
+			bHalfGeneralExp = !pkAttacker->isHuman();
+		}
+		else
+		{
+			bHalfGeneralExp = false;
+		}
+		pkDefender->changeExperience(
+			kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
+			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
+			true,
+			kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
+			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+			bHalfGeneralExp);
+
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+		{
+			bHalfGeneralExp = !pkDefender->isHuman();
+		}
+		else
+		{
+			bHalfGeneralExp = false;
+		}
+		pkAttacker->changeExperience(
+			kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+			true,
+			kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+			bHalfGeneralExp);
+#else
 		pkDefender->changeExperience(
 		    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
@@ -332,6 +367,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+#endif
 
 		// Anyone eat it?
 		bAttackerDead = (pkAttacker->getDamage() >= GC.getMAX_HIT_POINTS());
@@ -831,12 +867,32 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
 					// Update experience
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+					bool bHalfGeneralExp;
+
+					if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+					{
+						bHalfGeneralExp = !pkAttacker->isHuman();
+					}
+					else
+					{
+						bHalfGeneralExp = false;
+					}
+					pkDefender->changeExperience(
+						kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
+						true,
+						kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+						bHalfGeneralExp);
+#else
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+#endif
 				}
 
 				pkDefender->setCombatUnit(NULL);
@@ -886,12 +942,55 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		// Unit gains XP for executing a Range Strike
 		if(iDamage > 0) // && iDefenderStrength > 0)
 		{
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+			bool bHalfGeneralExp;
+
+			if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			{
+				if (!pkTargetPlot->isCity())
+				{
+					CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
+					if (pkDefender)
+					{
+						bHalfGeneralExp = !pkDefender->isHuman();
+					}
+					else
+					{
+						bHalfGeneralExp = false;
+					}
+				}
+				else
+				{
+					CvCity* pCity = pkTargetPlot->getPlotCity();
+					if (pCity)
+					{
+						bHalfGeneralExp = !pCity->isHuman();
+					}
+					else
+					{
+						bHalfGeneralExp = false;
+					}
+				}
+			}
+			else
+			{
+				bHalfGeneralExp = false;
+			}
+			pkAttacker->changeExperience(
+				kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+				true,
+				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+				bHalfGeneralExp);
+#else
 			pkAttacker->changeExperience(
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+#endif
 		}
 
 		pkAttacker->testPromotionReady();
@@ -975,12 +1074,32 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 					pkDefender->changeDamage(iDamage, pkAttacker->getOwner());
 
 					// Update experience
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+					bool bHalfGeneralExp;
+
+					if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+					{
+						bHalfGeneralExp = !pkAttacker->isHuman();
+					}
+					else
+					{
+						bHalfGeneralExp = false;
+					}
+					pkDefender->changeExperience(
+						kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
+						true,
+						kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+						bHalfGeneralExp);
+#else
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+#endif
 				}
 
 				pkDefender->setCombatUnit(NULL);
@@ -1038,11 +1157,30 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		GET_PLAYER(pkAttacker->getOwner()).ChangeCitiesDamageDealt(iAttackerDamageInflicted);
 #endif
 
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+		bool bHalfGeneralExp;
+
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+		{
+			bHalfGeneralExp = !pkDefender->isHuman();
+		}
+		else
+		{
+			bHalfGeneralExp = false;
+		}
+		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+			true,
+			false,
+			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+			bHalfGeneralExp);
+#else
 		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 		                             true,
 		                             false,
 		                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+#endif
 	}
 
 	bool bCityConquered = false;
@@ -1424,12 +1562,32 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		}
 #endif
 		pInterceptor->setCombatUnit(NULL);
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+		bool bHalfGeneralExp;
+
+		if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+		{
+			bHalfGeneralExp = !pkAttacker->isHuman();
+		}
+		else
+		{
+			bHalfGeneralExp = false;
+		}
+		pInterceptor->changeExperience(
+			kCombatInfo.getExperience(BATTLE_UNIT_INTERCEPTOR),
+			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_INTERCEPTOR),
+			true,
+			kCombatInfo.getInBorders(BATTLE_UNIT_INTERCEPTOR),
+			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_INTERCEPTOR),
+			bHalfGeneralExp);
+#else
 		pInterceptor->changeExperience(
 			kCombatInfo.getExperience(BATTLE_UNIT_INTERCEPTOR),
 			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_INTERCEPTOR),
 			true,
 			kCombatInfo.getInBorders(BATTLE_UNIT_INTERCEPTOR),
 			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_INTERCEPTOR));
+#endif
 	}
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
@@ -1461,12 +1619,32 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 
 					// Update experience
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+					bool bHalfGeneralExp;
+
+					if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+					{
+						bHalfGeneralExp = !pkAttacker->isHuman();
+					}
+					else
+					{
+						bHalfGeneralExp = false;
+					}
+					pkDefender->changeExperience(
+						kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
+						true,
+						kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
+						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+						bHalfGeneralExp);
+#else
 					pkDefender->changeExperience(
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+#endif
 
 					// Attacker died
 					if(pkAttacker->IsDead())
@@ -1646,11 +1824,53 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			// Experience
 			if(iAttackerDamageInflicted > 0)
 			{
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+				bool bHalfGeneralExp;
+
+				if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+				{
+					if (!pkTargetPlot->isCity())
+					{
+						CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
+						if (pkDefender)
+						{
+							bHalfGeneralExp = !pkDefender->isHuman();
+						}
+						else
+						{
+							bHalfGeneralExp = false;
+						}
+					}
+					else
+					{
+						CvCity* pCity = pkTargetPlot->getPlotCity();
+						if (pCity)
+						{
+							bHalfGeneralExp = !pCity->isHuman();
+						}
+						else
+						{
+							bHalfGeneralExp = false;
+						}
+					}
+				}
+				else
+				{
+					bHalfGeneralExp = false;
+				}
+				pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+					true,
+					kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+					bHalfGeneralExp);
+#else
 				pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 				                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				                             true,
 				                             kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 				                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+#endif
 
 				// Promotion time?
 				pkAttacker->testPromotionReady();
@@ -1823,6 +2043,41 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 
 			// Update experience for both sides.
+#ifdef HALF_EXP_FROM_FIGHT_AGAINST_AI
+			bool bHalfGeneralExp;
+
+			if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			{
+				bHalfGeneralExp = !pkAttacker->isHuman();
+			}
+			else
+			{
+				bHalfGeneralExp = false;
+			}
+			pkDefender->changeExperience(
+				kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
+				true,
+				kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+				bHalfGeneralExp);
+
+			if (GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
+			{
+				bHalfGeneralExp = !pkDefender->isHuman();
+			}
+			else
+			{
+				bHalfGeneralExp = false;
+			}
+			pkAttacker->changeExperience(
+				kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+				true,
+				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+				bHalfGeneralExp);
+#else
 			pkDefender->changeExperience(
 			    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
@@ -1836,6 +2091,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+#endif
 
 			// Anyone eat it?
 			bAttackerDead = (pkAttacker->getDamage() >= GC.getMAX_HIT_POINTS());

@@ -12334,6 +12334,20 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 			SetProposalStatus(iProposalID, STATUS_ACTIVE);
 		else if (yesVotes == maxVoters)
 			SetProposalStatus(iProposalID, STATUS_PASSED);
+		else if (noVotes == 1)  // special case: if there is only one nay voter, make them winner
+		{
+			// find no voter
+			Proposal pProposal = *GetProposalByID(iProposalID);
+			PlayerTypes eVoter = NO_PLAYER;
+			for (uint i = 0; i < MAX_MAJOR_CIVS; i++)
+			{
+				if (pProposal.vIsEligible.at(i) && pProposal.vHasVoted.at(i) && !pProposal.vVotes.at(i))
+					eVoter = static_cast<PlayerTypes>(i);
+			}
+			// set winner
+			SetProposalSubject(iProposalID, eVoter);
+			SetProposalStatus(iProposalID, STATUS_PASSED);
+		}
 		else if (noVotes > 0)
 			SetProposalStatus(iProposalID, STATUS_FAILED);
 		else

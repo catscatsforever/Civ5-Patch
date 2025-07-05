@@ -5473,6 +5473,12 @@ void CvGame::DoUpdateDiploVictory()
 						fCityStatesToCount += 0.5f;
 					}
 				}
+#ifdef LESS_VOTES_FOR_VICTORY_FOR_BOUGHT_OUT_MINORS
+				else
+				{
+					fCityStatesToCount += 0.5f;
+				}
+#endif
 			}
 			// Major civ
 			else

@@ -9730,7 +9730,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>33</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 
@@ -9861,7 +9861,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>33</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 
@@ -9993,7 +9993,7 @@
 			<RangedAttackModifier>0</RangedAttackModifier> 
 			<InterceptionCombatModifier>0</InterceptionCombatModifier> 
 			<InterceptionDefenseDamageModifier>0</InterceptionDefenseDamageModifier> 
-			<AirSweepCombatModifier>25</AirSweepCombatModifier> 
+			<AirSweepCombatModifier>34</AirSweepCombatModifier> 
 			<ExtraAttacks>0</ExtraAttacks> 
 			<ExtraNavalMovement>0</ExtraNavalMovement> 
 			<VisibilityChange>0</VisibilityChange> 

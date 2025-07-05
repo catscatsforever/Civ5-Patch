@@ -8,7 +8,6 @@ include( "SupportFunctions"  );
 include( "InstanceManager" );
 
 local g_pLocalTeam = Teams[ Players[ Game.GetActivePlayer() ]:GetTeam() ];
-local g_bRebuildMPList = false;
 local g_SortTable = {};
 local g_PlayerEntries = {};
 local g_TeamEntries = {};
@@ -28,26 +27,26 @@ local function onProposalResult( Id, expires, OwnerId, SubjectId, iType, Status)
 	--print('--- proposal Result received --- Id:', Id)
 	--print('--- expires ' .. expires .. ' Type: ' .. iType .. ' Owner: ' .. OwnerId .. ' SubjectId: ' .. SubjectId .. ' RESULT: ' .. Status)
 	local pActivePlayer = Players[Game.GetActivePlayer()];
-	local sMessage =''
-	local sSummary = ''
 	iType = iType + 1001
 	if (pActivePlayer ~= nil) then
 		if Id == g_MPVotingSystemLastId then
 			OnClose();
 		end
 		if (Status == 1) then
-			if iType == 1001 then
+			if iType == 1001 then  -- IRR
 				-- defeat screen comes with NetworkKickedPopup
 				if Matchmaking.IsHost() then
 					Matchmaking.KickPlayer(SubjectId)
 				end
-			elseif iType == 1002 then
-				--Events.EndGameShow(EndGameTypes.Diplomatic, Players[SubjectId]:GetTeam())
-				Game.SetWinner(Players[SubjectId]:GetTeam(), GameInfoTypes.VICTORY_DIPLOMATIC); 
-			elseif iType == 1003 then
-				--Events.EndGameShow(-1, Players[Game.GetActivePlayer()]:GetTeam())  -- scrap screen
-				Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
-			elseif iType == 1004 then
+			elseif iType == 1002 then  -- CC
+				Game.SetWinner(Players[SubjectId]:GetTeam(), GameInfoTypes.VICTORY_DIPLOMATIC);
+			elseif iType == 1003 then  -- SCRAP
+				if SubjectId > -1 and SubjectId < GameDefines.MAX_MAJOR_CIVS then  -- special case: from scrap to cc
+					Game.SetWinner(Players[SubjectId]:GetTeam(), GameInfoTypes.VICTORY_DIPLOMATIC);
+				else
+					Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
+				end
+			elseif iType == 1004 then  -- REMAP
 				Game.SetWinner(Players[Game.GetActivePlayer()]:GetTeam(), GameInfoTypes.VICTORY_SCRAP);
 				if ContextPtr:IsHidden() == true then
 					Events.SerialEventGameMessagePopup{ 

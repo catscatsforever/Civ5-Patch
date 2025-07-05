@@ -25294,7 +25294,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	iMod = pPolicy->GetInternalTradeRouteYieldModifier() * iChange;
 	if (iMod > 0)
 	{
-		GC.getGame().GetGameTrade()->ClearAllTradeRoutesByType(TRADE_CONNECTION_INTERNATIONAL);
+		GC.getGame().GetGameTrade()->ClearAllTradeRoutesToPlayerByType(GetID(), TRADE_CONNECTION_INTERNATIONAL);
 	}
 #endif
 

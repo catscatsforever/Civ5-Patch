@@ -768,6 +768,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
 					return false;
 			}
+#ifdef PEACE_BLOCKED_WITH_MINORS
+			else if (pOtherPlayer->GetMinorCivAI()->IsPeaceBlockedWithMinor(ePlayer))
+			{
+				return false;
+			}
+#endif
 		}
 		// Major civ
 		else

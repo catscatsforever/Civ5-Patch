@@ -1255,7 +1255,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		local code = orderID / 64
 		for item in GameInfo.Buildings() do
 			local buildingClass = GameInfo.BuildingClasses[item.BuildingClass]
-			local isWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxPlayerInstances == 1 or buildingClass.MaxTeamInstances > 0)
+			local isWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxPlayerInstances == 1 or buildingClass.MaxTeamInstances > 0) and not (buildingClass.ID == 125 or buildingClass.ID == 126 or buildingClass.ID == 127)
 			if not queueItems[ code + item.ID ] then
 				AddSelectionItem( city, item,
 						isWonder and wonderSelectList or buildingSelectList,

@@ -1876,6 +1876,9 @@ void CvCity::updateYield()
 		if(pLoopPlot != NULL)
 		{
 			pLoopPlot->updateYield();
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+			pLoopPlot->updateSymbols();
+#endif
 		}
 	}
 }
@@ -9020,6 +9023,9 @@ int CvCity::getJONSCulturePerTurn() const
 	if(IsPuppet())
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
+#ifdef NO_SCIENCE_AND_CULTURE_FROM_PUPPETS
+		iModifier = 0;
+#endif
 	}
 
 	iCulture *= iModifier;
@@ -11148,6 +11154,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 		case YIELD_SCIENCE:
 			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER();
+#ifdef NO_SCIENCE_AND_CULTURE_FROM_PUPPETS
+			iTempMod = -(iModifier + 100);
+#endif
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -11860,6 +11869,9 @@ bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
 	if(isRevealed(eIndex, false) != bNewValue)
 	{
 		m_abRevealed.setAt(eIndex, bNewValue);
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+		updateYield();
+#endif
 
 		return true;
 	}
@@ -18353,7 +18365,7 @@ void CvCity::changeHappinessForFilledGreatWorkSlot(int iChange)
 //	----------------------------------------------------------------------------
 int CvCity::getFoodBonusIfNoCitiesAround() const
 {
-	int iRange = 5;
+	int iRange = 4;
 	for (int iDX = -(iRange); iDX <= iRange; iDX++)
 	{
 		for (int iDY = -(iRange); iDY <= iRange; iDY++)

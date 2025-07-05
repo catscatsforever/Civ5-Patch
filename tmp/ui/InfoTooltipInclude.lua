@@ -686,8 +686,8 @@ function GetCultureTooltip(pCity)
 		end
 		
 		-- Culture Wonders modifier
-		-- if (pCity:GetNumWorldWonders() > 0) then
-		if (pCity:GetNumGreatWorks() > 0) then
+		if (pCity:GetNumWorldWonders() > 0) then
+		-- if (pCity:GetNumGreatWorks() > 0) then
 			iAmount = Players[pCity:GetOwner()]:GetCultureWonderMultiplier();
 			
 			if (iAmount ~= 0) then
@@ -704,7 +704,11 @@ function GetCultureTooltip(pCity)
 		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
-			iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
+			-- iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
+			iAmount = -(100 + Players[pCity:GetOwner()]:GetCultureCityModifier() + pCity:GetCultureRateModifier() + pCity:GetCapitalCultureModPerDiplomat() + 10 * Teams[Players[pCity:GetOwner()]:GetTeam()]:GetTeamTechs():GetTechCount(80))
+			if (pCity:GetNumWorldWonders() > 0) then
+				iAmount = iAmount - Players[pCity:GetOwner()]:GetCultureWonderMultiplier()
+			end
 			
 			if (iAmount ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";

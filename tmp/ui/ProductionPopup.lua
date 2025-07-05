@@ -536,6 +536,9 @@ function UpdateWindow( city )
 				if thisBuildingClass.MaxGlobalInstances > 0 or thisBuildingClass.MaxPlayerInstances == 1 or thisBuildingClass.MaxTeamInstances > 0 then
 					col = 3;
 				end
+				if thisBuildingClass.ID == 125 or thisBuildingClass.ID == 126 or thisBuildingClass.ID == 127 then
+					col = 2;
+				end
 				
 				if (bGeneratingProduction) then
 					strTurnsLeft = Locale.ConvertTextKey( "TXT_KEY_STR_TURNS", city:GetBuildingProductionTurnsLeft( buildingID ));

@@ -23,7 +23,10 @@ bool isTeamWonderClass(const CvBuildingClassInfo& kBuildingClass)
 bool isNationalWonderClass(const CvBuildingClassInfo& kBuildingClass)
 {
 #ifdef FIX_IS_NATIONAL_WONDER_CLASS
-	return kBuildingClass.getMaxPlayerInstances() == 1;
+	if (kBuildingClass.GetID() == 125 || kBuildingClass.GetID() == 126 || kBuildingClass.GetID() == 127)
+		return false;
+	else
+		return kBuildingClass.getMaxPlayerInstances() == 1;
 #else
 	return kBuildingClass.getMaxPlayerInstances() != -1;
 #endif

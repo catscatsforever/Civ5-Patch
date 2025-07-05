@@ -5357,8 +5357,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								if(pLoopPlot->getResourceType(m_eID) != NO_RESOURCE)
 								{
 									// Create resource link
+#ifdef FIX_RESOURCE_LINKED_CITY_ON_SET_HAS_TECH
+									if (pLoopPlot->getTeam() == GetID())
+										pLoopPlot->DoFindCityToLinkResourceTo();
+#else
 									if(pLoopPlot->isOwned())
 										pLoopPlot->DoFindCityToLinkResourceTo();
+#endif
 
 									// Only update for active team
 									if(bIsActiveTeam)
