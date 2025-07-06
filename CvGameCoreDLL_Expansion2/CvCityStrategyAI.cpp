@@ -897,7 +897,11 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			{
 				const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 
+#ifdef FIX_IS_NATIONAL_WONDER_CLASS
+				if (isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo) || kBuildingClassInfo.GetID() == 125 || kBuildingClassInfo.GetID() == 126 || kBuildingClassInfo.GetID() == 127)
+#else
 				if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+#endif
 				{
 					iTempWeight = 0;
 				}
