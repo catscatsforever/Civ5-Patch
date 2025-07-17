@@ -3125,6 +3125,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	iPlunderGoldValue *= 100 + iDomainModifier;
 	iPlunderGoldValue /= 100;
 	m_pPlayer->GetTreasury()->ChangeGold(iPlunderGoldValue);
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	m_pPlayer->ChangeNumGoldFromPlunder(iPlunderGoldValue);
+#endif
 
 	// do the floating popup
 	if (GC.getGame().getActivePlayer() == m_pPlayer->GetID())

@@ -8187,7 +8187,7 @@
 			<GoldenAgeValueFromKills>0</GoldenAgeValueFromKills> 
 			<Sapper>false</Sapper> 
 			<HeavyCharge>false</HeavyCharge> 
-			<TechPrereq>TECH_DYNAMITE</TechPrereq> 
+			<TechPrereq>TECH_RAILROAD</TechPrereq> 
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1> 
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2> 
 			<PediaType>PEDIA_MELEE</PediaType> 

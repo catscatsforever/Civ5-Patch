@@ -436,7 +436,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
+#ifdef FIX_NOT_REVEALED_WORKING_CITY_TILE_YIELD_DISPLAY
+			if(pPlot->isRevealed(((TeamTypes)iI)))
+#else
 			if(pPlot->isVisible(((TeamTypes)iI)))
+#endif
 			{
 				setRevealed(((TeamTypes)iI), true);
 			}
@@ -9023,9 +9027,6 @@ int CvCity::getJONSCulturePerTurn() const
 	if(IsPuppet())
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
-#ifdef NO_SCIENCE_AND_CULTURE_FROM_PUPPETS
-		iModifier = 0;
-#endif
 	}
 
 	iCulture *= iModifier;
@@ -11154,9 +11155,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 		case YIELD_SCIENCE:
 			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER();
-#ifdef NO_SCIENCE_AND_CULTURE_FROM_PUPPETS
-			iTempMod = -(iModifier + 100);
-#endif
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -12956,6 +12954,9 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 	thisPlayer.GetTreasury()->LogExpenditure("", iCost, 1);
 	thisPlayer.GetTreasury()->ChangeGold(-iCost);
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	thisPlayer.ChangeNumGoldSpentOnTilesBuys(iCost);
+#endif
 	thisPlayer.ChangeNumPlotsBought(1);
 
 	// See if there's anyone else nearby that could get upset by this action
@@ -14768,7 +14769,27 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameUnit->GetText(), iGoldCost, 2);
 			}
 #ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
-			kPlayer.ChangeNumGoldSpentOnUnitBuys(iGoldCost);
+#ifdef POLICY_ALLOWS_GP_BUYS_FOR_GOLD
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+			if (!(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL") ||
+				eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL")))
+			{
+				kPlayer.ChangeNumGoldSpentOnUnitBuys(iGoldCost);
+			}
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+			else
+			{
+				kPlayer.ChangeNumGoldSpentOnGPBuys(iGoldCost);
+			}
+#endif
+#endif
 #endif
 		// Building
 		}else if(eBuildingType != NO_BUILDING){
@@ -14971,6 +14992,13 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #endif
 
 			kPlayer.ChangeFaith(-iFaithCost);
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+			if (pkUnitInfo->GetCombat() > 0)
+			{
+				kPlayer.ChangeNumFaithSpentOnMilitaryUnits(iFaithCost);
+			}
+#endif
 
 			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
 			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))

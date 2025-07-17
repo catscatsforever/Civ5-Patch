@@ -292,6 +292,27 @@ CvPlayer::CvPlayer() :
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 	, m_iNumGoldSpentOnUgrades(0)
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+	, m_iGoldFromKills(0)
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+	, m_iCultureFromKills(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+	, m_iNumGoldSpentOnGPBuys(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	, m_iNumGoldSpentOnTilesBuys(0)
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+	, m_iNumGoldFromPillage(0)
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	, m_iNumGoldFromPlunder(0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+	, m_iNumFaithSpentOnMilitaryUnits(0)
+#endif
 	, m_iExtraLeagueVotes(0)
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
 	, m_iMaxExtraVotesFromMinors(0)
@@ -1156,6 +1177,27 @@ void CvPlayer::uninit()
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 	m_iNumGoldSpentOnUgrades = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+	m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+	m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+	m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+	m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+	m_iNumFaithSpentOnMilitaryUnits = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
@@ -11144,6 +11186,76 @@ void CvPlayer::ChangeNumGoldSpentOnUgrades(int iChange)
 	m_iNumGoldSpentOnUgrades = (m_iNumGoldSpentOnUgrades + iChange);
 }
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+int CvPlayer::GetGoldFromKills() const
+{
+	return m_iGoldFromKills;
+}
+void CvPlayer::ChangeGoldFromKills(int iChange)
+{
+	m_iGoldFromKills = (m_iGoldFromKills + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+int CvPlayer::GetCultureFromKills() const
+{
+	return m_iCultureFromKills;
+}
+void CvPlayer::ChangeCultureFromKills(int iChange)
+{
+	m_iCultureFromKills = (m_iCultureFromKills + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+int CvPlayer::GetNumGoldSpentOnGPBuys() const
+{
+	return m_iNumGoldSpentOnGPBuys;
+}
+void CvPlayer::ChangeNumGoldSpentOnGPBuys(int iChange)
+{
+	m_iNumGoldSpentOnGPBuys = (m_iNumGoldSpentOnGPBuys + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+int CvPlayer::GetNumGoldSpentOnTilesBuys() const
+{
+	return m_iNumGoldSpentOnTilesBuys;
+}
+void CvPlayer::ChangeNumGoldSpentOnTilesBuys(int iChange)
+{
+	m_iNumGoldSpentOnTilesBuys = (m_iNumGoldSpentOnTilesBuys + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+int CvPlayer::GetNumGoldFromPillage() const
+{
+	return m_iNumGoldFromPillage;
+}
+void CvPlayer::ChangeNumGoldFromPillage(int iChange)
+{
+	m_iNumGoldFromPillage = (m_iNumGoldFromPillage + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+int CvPlayer::GetNumGoldFromPlunder() const
+{
+	return m_iNumGoldFromPlunder;
+}
+void CvPlayer::ChangeNumGoldFromPlunder(int iChange)
+{
+	m_iNumGoldFromPlunder = (m_iNumGoldFromPlunder + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+int CvPlayer::GetNumFaithSpentOnMilitaryUnits() const
+{
+	return m_iNumFaithSpentOnMilitaryUnits;
+}
+void CvPlayer::ChangeNumFaithSpentOnMilitaryUnits(int iChange)
+{
+	m_iNumFaithSpentOnMilitaryUnits = (m_iNumFaithSpentOnMilitaryUnits + iChange);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How much Units are eating Production?
@@ -12392,6 +12504,9 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 				{
 				case YIELD_GOLD:
 					GetTreasury()->ChangeGold(iValue);
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+					ChangeGoldFromKills(iValue);
+#endif
 					break;
 				case YIELD_CULTURE:
 #ifdef HONOR_CULTURE_CAP
@@ -12401,6 +12516,9 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 						iValue /= 100;
 					}
 					changeJONSCulture(iValue);
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+					ChangeCultureFromKills(iValue);
+#endif
 #else
 					changeJONSCulture(iValue);
 #endif
@@ -26305,7 +26423,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iEspionageModifier;
 	kStream >> m_iSpyStartingRank;
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
-	if (uiVersion >= 1007)
+	if (uiVersion >= 1013)
 	{
 #ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
 		kStream >> m_iNumStolenScience;
@@ -26439,8 +26557,185 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		kStream >> m_iNumGoldSpentOnUgrades;
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		kStream >> m_iGoldFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		kStream >> m_iCultureFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		kStream >> m_iNumGoldSpentOnGPBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		kStream >> m_iNumGoldSpentOnTilesBuys;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		kStream >> m_iNumGoldFromPillage;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		kStream >> m_iNumGoldFromPlunder;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		kStream >> m_iNumFaithSpentOnMilitaryUnits;
+#endif
 # endif
 #ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else if (uiVersion >= 1007)
+	{
+#ifdef EG_REPLAYDATASET_NUMSTOLENSCIENCE
+		kStream >> m_iNumStolenScience;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTRAINEDUNITS
+		kStream >> m_iNumTrainedUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMKILLEDUNITS
+		kStream >> m_iNumKilledUnits;
+#endif
+#ifdef EG_REPLAYDATASET_NUMLOSTUNITS
+		kStream >> m_iNumLostUnits;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOUNITS
+		kStream >> m_iUnitsDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYUNITS
+		kStream >> m_iUnitsDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGEDEALTTOCITIES
+		kStream >> m_iCitiesDamageDealt;
+#endif
+#ifdef EG_REPLAYDATASET_DAMAGETAKENBYCITIES
+		kStream >> m_iCitiesDamageTaken;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFSCIENTISTS
+		kStream >> m_iNumScientistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFENGINEERS
+		kStream >> m_iNumEngineersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMERCHANTS
+		kStream >> m_iNumMerchantsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFWRITERS
+		kStream >> m_iNumWritersTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFARTISTS
+		kStream >> m_iNumArtistsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFMUSICIANS
+		kStream >> m_iNumMusiciansTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFGENERALS
+		kStream >> m_iNumGeneralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFADMIRALS
+		kStream >> m_iNumAdmiralsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALNUMOFPROPHETS
+		kStream >> m_iNumProphetsTotal;
+#endif
+#ifdef EG_REPLAYDATASET_LOSTHAMMERSFROMLOSTWONDERS
+		kStream >> m_iProductionGoldFromWonders;
+#endif
+#ifdef EG_REPLAYDATASET_TOTALCHOPS
+		kStream >> m_iNumChops;
+#endif
+#ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
+		kStream >> m_iNumTimesOpenedDemographics;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNSCIENTISTS
+		kStream >> m_bMayaBoostScientist;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNENGINEERS
+		kStream >> m_bMayaBoostEngineers;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMERCHANTS
+		kStream >> m_bMayaBoostMerchants;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNWRITERS
+		kStream >> m_bMayaBoostWriters;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNARTISTS
+		kStream >> m_bMayaBoostArtists;
+#endif
+#ifdef EG_REPLAYDATASET_NUMOFBORNMUSICIANS
+		kStream >> m_bMayaBoostMusicians;
+#endif
+#ifdef EG_REPLAYDATASET_SCIENTISTSTOTALSCIENCEBOOST
+		kStream >> m_iScientistsTotalScienceBoost;
+#endif
+#ifdef EG_REPLAYDATASET_ENGINEERSTOTALHURRYBOOST
+		kStream >> m_iEngineersTotalHurryBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MERCHANTSTOTALTRADEBOOST
+		kStream >> m_iMerchantsTotalTradeBoost;
+#endif
+#ifdef EG_REPLAYDATASET_WRITERSTOTALCULTUREBOOST
+		kStream >> m_iWritersTotalCultureBoost;
+#endif
+#ifdef EG_REPLAYDATASET_MUSICIANSTOTALTOURISMBOOST
+		kStream >> m_iMusiciansTotalTourismBoost;
+#endif
+#ifdef EG_REPLAYDATASET_POPULATIONLOSTFROMNUKES
+		kStream >> m_iNumPopulationLostFromNukes;
+#endif
+#ifdef EG_REPLAYDATASET_CSQUESTSCOMPLETED
+		kStream >> m_iNumCSQuestsCompleted;
+#endif
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+		kStream >> m_iNumAlliedCS;
+#endif
+#ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
+		kStream >> m_iTimesEnteredCityScreen;
+#endif
+#ifdef EG_REPLAYDATASET_DIEDSPIES
+		kStream >> m_iNumDiedSpies;
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDSPIES
+		kStream >> m_iNumKilledSpies;
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMCS
+		kStream >> m_iFoodFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+		kStream >> m_iProductionFromMinorsTimes100;
+#endif
+#ifdef EG_REPLAYDATASET_UNITSFROMCS
+		kStream >> m_iNumUnitsFromMinors;
+#endif
+#ifdef EG_REPLAYDATASET_NUMCREATEDWORLDWONDERS
+		kStream >> m_iNumCreatedWorldWonders;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONBUILDINGBUYS
+		kStream >> m_iNumGoldSpentOnBuildingBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUNITBUYS
+		kStream >> m_iNumGoldSpentOnUnitBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
+		kStream >> m_iNumGoldSpentOnUgrades;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		m_iNumFaithSpentOnMilitaryUnits = 0;
+#endif
 	}
 	else if (uiVersion >= 1003)
 	{
@@ -26575,6 +26870,27 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		m_iNumGoldSpentOnUgrades = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		m_iNumFaithSpentOnMilitaryUnits = 0;
 #endif
 	}
 	else if (uiVersion == 1002)
@@ -26711,6 +27027,27 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		m_iNumGoldSpentOnUgrades = 0;
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		m_iNumFaithSpentOnMilitaryUnits = 0;
+#endif
 	}
 	else if (uiVersion == 1001)
 	{
@@ -26846,6 +27183,27 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		m_iNumGoldSpentOnUgrades = 0;
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		m_iNumFaithSpentOnMilitaryUnits = 0;
+#endif
 	}
 	else
 	{
@@ -26980,6 +27338,27 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		m_iNumGoldSpentOnUgrades = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		m_iGoldFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		m_iCultureFromKills = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		m_iNumGoldSpentOnGPBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		m_iNumGoldSpentOnTilesBuys = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		m_iNumGoldFromPillage = 0;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		m_iNumGoldFromPlunder = 0;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		m_iNumFaithSpentOnMilitaryUnits = 0;
 #endif
 	}
 #endif
@@ -28217,6 +28596,27 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 	kStream << m_iNumGoldSpentOnUgrades;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+	kStream << m_iGoldFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+	kStream << m_iCultureFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+	kStream << m_iNumGoldSpentOnGPBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	kStream << m_iNumGoldSpentOnTilesBuys;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+	kStream << m_iNumGoldFromPillage;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	kStream << m_iNumGoldFromPlunder;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+	kStream << m_iNumFaithSpentOnMilitaryUnits;
 #endif
 	kStream << m_iExtraLeagueVotes;
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
@@ -31712,12 +32112,15 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PERCENTSPECIALISTCITIZENS"), iGameTurn, iPercentSpecialistCitizens);
 #endif
 
-#ifdef  EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
+#if defined EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN || defined EG_REPLAYDATASET_EFFECTIVECULTUREPERTURN
+		int iMod;
+#endif
+#ifdef EG_REPLAYDATASET_EFFECTIVESCIENCEPERTURN
 		int iEffectiveSciencePerTurn = GetScience();
 #ifdef NO_PUPPET_TECH_COST_MOD
-		int iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities());
+		iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities());
 #else
-		int iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities(/*bIncludePuppets*/ true));
+		iMod = GetPlayerTechs()->GetNumCitiesResearchCostModifier(GetMaxEffectiveCities(/*bIncludePuppets*/ true));
 #endif
 		iEffectiveSciencePerTurn *= (100 + GetPlayerTechs()->GetNumCitiesResearchCostModifier(1));
 		iEffectiveSciencePerTurn /= (100 + iMod);
@@ -31756,7 +32159,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_UNITSFROMCS"), iGameTurn, GetNumUnitsFromMinors());
 #endif
 
-#if defined EG_REPLAYDATASET_TOURISMPERTURN || defined EG_REPLAYDATASET_NUMWORLDWONDERS
+#if defined EG_REPLAYDATASET_TOURISMPERTURN || defined EG_REPLAYDATASET_NUMWORLDWONDERS || defined EG_REPLAYDATASET_FOODFROMTRADEROUTES_TIMES100 || defined EG_REPLAYDATASET_PRODUCTIONFROMTRADEROUTES_TIMES100
 		int iLoopCity;
 #endif
 #ifdef EG_REPLAYDATASET_TOURISMPERTURN
@@ -31838,6 +32241,69 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONUPGRADES"), iGameTurn, GetNumGoldSpentOnUgrades());
+#endif
+
+		/// Fourth Bunch of Enhanced Graphs
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMKILLS"), iGameTurn, GetGoldFromKills());
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREFROMKILLS"), iGameTurn, GetCultureFromKills());
+#endif
+#ifdef EG_REPLAYDATASET_EFFECTIVECULTUREPERTURN
+		int iEffectiveCulturePerTurn = GetTotalJONSCulturePerTurn();
+		iMod = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();
+		int iPolicyModDiscount = GetNumCitiesPolicyCostDiscount();
+		if(iPolicyModDiscount != 0)
+		{
+			iMod = iMod * (100 + iPolicyModDiscount);
+			iMod /= 100;
+		}
+
+		int iNumCities = GetMaxEffectiveCities();
+
+		iMod = (100 + (iNumCities - 1) * iMod);
+		iMod /= 100;
+
+		iMod *= (100 + getPolicyCostModifier());
+		iMod /= 100;
+		iEffectiveCulturePerTurn *= 100;
+		iEffectiveCulturePerTurn /= (100 + iMod);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVECULTUREPERTURN"), iGameTurn, iEffectiveCulturePerTurn);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS"), iGameTurn, GetNumGoldSpentOnGPBuys());
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMGOLDONTILESBUYS"), iGameTurn, GetNumGoldSpentOnTilesBuys());
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMPILLAGING"), iGameTurn, GetNumGoldFromPillage());
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GOLDFROMPLUNDERING"), iGameTurn, GetNumGoldFromPlunder());
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMFAITHONMILITARYUNITS"), iGameTurn, GetNumFaithSpentOnMilitaryUnits());
+#endif
+#ifdef EG_REPLAYDATASET_FOODFROMTRADEROUTES_TIMES100
+		int iNumFoodFromTradeRoutesTimes100 = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+		{
+			iNumFoodFromTradeRoutesTimes100 += GetTrade()->GetTradeValuesAtCityTimes100(pLoopCity, YIELD_FOOD);
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FOODFROMTRADEROUTES_TIMES100"), iGameTurn, iNumFoodFromTradeRoutesTimes100);
+#endif
+#ifdef EG_REPLAYDATASET_PRODUCTIONFROMTRADEROUTES_TIMES100
+		int iNumProductionFromTradeRoutesTimes100 = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+		{
+			iNumProductionFromTradeRoutesTimes100 += GetTrade()->GetTradeValuesAtCityTimes100(pLoopCity, YIELD_PRODUCTION);
+		}
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONFROMTRADEROUTES_TIMES100"), iGameTurn, iNumProductionFromTradeRoutesTimes100);
+#endif
+#ifdef EG_REPLAYDATASET_ANARCHYTURNS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_ANARCHYTURNS"), iGameTurn, GetAnarchyNumTurns());
 #endif
 
 /*#ifdef ENHANCED_GRAPHS

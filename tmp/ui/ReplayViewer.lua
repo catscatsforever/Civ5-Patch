@@ -4,6 +4,7 @@
 --     alternative graph colors
 --     Replay Events
 --     Graph Tooltip
+--     Fractional Values
 -- for EUI & vanilla UI
 -------------------------------------------------------------------
 include("InstanceManager");
@@ -417,7 +418,7 @@ Panels = {
 			-- Graph Tooltip START
 			tipControls = {};
 			TTManager:GetTypeControlTable( "GraphToolTip", tipControls );
-			local st, ft = Panels[2].PadHorizontalValues(g_ReplayInfo.InitialTurn, g_ReplayInfo.FinalTurn)
+			local st, ft = Panels[2].PadHorizontalValues(g_ReplayInfo.InitialTurn, g_ReplayInfo.FinalTurn + 1)
 			local sc = {}
 			for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
 				local civ = GameInfo.Civilizations[player.Civilization];
@@ -439,7 +440,7 @@ Panels = {
 						DrawCursor(xRelative, yRelative);
 						ToggleHideLines(false);
 						-- Graph Tooltip START
-						local ct = math.floor(xRelative / graphDisplayWidth * (ft - st + 1))
+						local ct = math.max(g_ReplayInfo.InitialTurn, st + math.floor(xRelative / graphDisplayWidth * (ft - st)))
 						local vals = {}
 						for k,v in next,sc do
 							local val = g_ReplayInfo.PlayerInfo[v.Id].Scores[ct][Panels[2].CurrentGraphDataSetIndex]
@@ -452,7 +453,7 @@ Panels = {
 						tipControls.Turn:LocalizeAndSetText('TXT_KEY_TP_TURN_COUNTER', ct)
 						for i = 1, 10 do
 							if vals[i] then
-								tipControls['Name'..tostring(i)]:SetText( string.format("%s#[ENDCOLOR]%s: %d", vals[i].Color, vals[i].Name, vals[i].Val) );
+								tipControls['Name'..tostring(i)]:SetText( string.format("%s#[ENDCOLOR]%s: %s", vals[i].Color, vals[i].Name, tostring(vals[i].Val)) );
 							else
 								tipControls['Name'..tostring(i)]:SetText()
 							end
@@ -611,7 +612,7 @@ Panels = {
 				
 				RefreshVerticalScales(minScore, maxScore);
 				
-				local minTurn, maxTurn = panel.PadHorizontalValues(initialTurn, finalTurn);
+				local minTurn, maxTurn = panel.PadHorizontalValues(initialTurn, finalTurn + 1);
 				
 				for i,v in ipairs(playerInfos) do
 					local graphLegend = panel.GraphLegendsByPlayer[i];
@@ -647,14 +648,14 @@ Panels = {
 			
 			function RefreshHorizontalScales()
 				
-				local minTurn, maxTurn = panel.PadHorizontalValues(initialTurn, finalTurn);
+				local minTurn, maxTurn = panel.PadHorizontalValues(initialTurn, finalTurn + 1);
 				
 				local turnIncrements = (maxTurn - minTurn) / (#g_GraphHorizontalMarkers - 1);
 								
 				for i,v in ipairs(g_GraphHorizontalMarkers) do
 					if(i == #g_GraphHorizontalMarkers) then
 						--v:SetText(GetShortDateString(finalTurn, calendarType, gameSpeedType, startYear));
-						v:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", finalTurn));
+						v:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", finalTurn + 1));
 					else
 						local turnIncrement = math.floor((i - 1) * turnIncrements) + minTurn;
 						if(turnIncrement < initialTurn) then
@@ -1584,6 +1585,11 @@ function GenerateReplayInfoFromCurrentGame()
 					end
 					
 					local turnData = scores[turn];
+					-- Fractional Values START
+					if ds:sub(-9):lower() == '_times100' then
+						value = value / 100
+					end
+					-- Fractional Values END
 					turnData[ds] = value;
 				end
 			end
@@ -1596,7 +1602,7 @@ function GenerateReplayInfoFromCurrentGame()
 			playerInfosIndex = playerInfosIndex + 1;
 		end	
 	end
-	
+
 	g_ReplayInfo.PlayerInfo = playerInfos;
 	g_ReplayInfo.ActivePlayer = playerMap[Game.GetActivePlayer()];
 	

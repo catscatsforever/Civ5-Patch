@@ -455,6 +455,34 @@ public:
 	int GetNumGoldSpentOnUgrades() const;
 	void ChangeNumGoldSpentOnUgrades(int iChange);
 #endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+	int GetGoldFromKills() const;
+	void ChangeGoldFromKills(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+	int GetCultureFromKills() const;
+	void ChangeCultureFromKills(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+	int GetNumGoldSpentOnGPBuys() const;
+	void ChangeNumGoldSpentOnGPBuys(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	int GetNumGoldSpentOnTilesBuys() const;
+	void ChangeNumGoldSpentOnTilesBuys(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+	int GetNumGoldFromPillage() const;
+	void ChangeNumGoldFromPillage(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	int GetNumGoldFromPlunder() const;
+	void ChangeNumGoldFromPlunder(int iChange);
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+	int GetNumFaithSpentOnMilitaryUnits() const;
+	void ChangeNumFaithSpentOnMilitaryUnits(int iChange);
+#endif
 
 	int GetNumUnitsOutOfSupply() const;
 
@@ -2099,6 +2127,27 @@ protected:
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONUPGRADES
 	int m_iNumGoldSpentOnUgrades;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDEFROMKILLS
+	int m_iGoldFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_CULTUREFROMKILLS
+	int m_iCultureFromKills;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
+	int m_iNumGoldSpentOnGPBuys;
+#endif
+#ifdef EG_REPLAYDATASET_NUMGOLDONTILESBUYS
+	int m_iNumGoldSpentOnTilesBuys;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPILLAGING
+	int m_iNumGoldFromPillage;
+#endif
+#ifdef EG_REPLAYDATASET_GOLDFROMPLUNDERING
+	int m_iNumGoldFromPlunder;
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+	int m_iNumFaithSpentOnMilitaryUnits;
 #endif
 	int m_iExtraLeagueVotes;
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
