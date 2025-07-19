@@ -32263,12 +32263,12 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		int iNumCities = GetMaxEffectiveCities();
 
 		iMod = (100 + (iNumCities - 1) * iMod);
-		iMod /= 100;
 
 		iMod *= (100 + getPolicyCostModifier());
 		iMod /= 100;
+
 		iEffectiveCulturePerTurn *= 100;
-		iEffectiveCulturePerTurn /= (100 + iMod);
+		iEffectiveCulturePerTurn /= (iMod);
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVECULTUREPERTURN"), iGameTurn, iEffectiveCulturePerTurn);
 #endif
 #ifdef EG_REPLAYDATASET_NUMGOLDONGREATPEOPLEBUYS
