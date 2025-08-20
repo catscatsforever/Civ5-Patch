@@ -15378,8 +15378,20 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
+#if defined UPD_RECON_PLOT_IF_CARGO_MOVE && defined MADE_REBASE
+			if (canChangeVisibility())
+			{
+				int iReconCount = pNewPlot->getReconCount();
+
+				pNewPlot->changeReconCount(-iReconCount);
+				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+				pNewPlot->changeReconCount(iReconCount);
+			}
+#else
 			if (canChangeVisibility())
 				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
+
+#endif
 
 			pNewPlot->addUnit(this, bUpdate);
 

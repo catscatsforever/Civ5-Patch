@@ -421,7 +421,7 @@ CvString hash(CvString m) {
 		CvString::format(t, "%08x", H[i]);
 		s += t;
 	}
-	SLOG("msg: %s hash: %s", m.c_str(), s.c_str());
+	//SLOG("msg: %s hash: %s", m.c_str(), s.c_str());
 	return s;
 }
 #endif
@@ -2185,6 +2185,7 @@ void resetGame()
 	ResetMapOptions();
 	ResetGameOptions();
 #ifdef INGAME_CIV_DRAFTER
+	SLOG("===DRAFT RESET===")
 	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
 	{
 		s_draftPlayerSecrets[i] = "";
@@ -2742,28 +2743,7 @@ void setGameTurn(int turn)
 void setGameType(GameTypes g, GameStartTypes eStartType)
 {
 #ifdef INGAME_CIV_DRAFTER
-	SLOG("--- setGameType");
-	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
-	{
-		s_draftPlayerSecrets[i] = "";
-	}
-	for (uint i = 0; i < s_draftPlayerSecretHashes.size(); i++)
-	{
-		s_draftPlayerSecretHashes[i] = "";
-	}
-	for (uint i = 0; i < s_draftAllBansReceived.size(); i++)
-	{
-		s_draftAllBansReceived[i] = false;
-	}
-	s_draftPlayerBans.clear();
-	s_draftCurrentProgress = DRAFT_PROGRESS_INIT;
-	s_draftResult = DRAFT_RESULT_NONE;
-	s_draftShuffledCivs = "";
-	s_draftPlayersReady = 0;
-	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS1", 0);
-	CvPreGame::SetGameOption("GAMEOPTION_DRAFTS_BANNED_CIVS2", 0);
-	s_draftBansMsgQueue.clear();
-	s_draftCurrBansMsgNumber = 0;
+	SLOG("--- setGameType %d %d", (int)g, (int)eStartType);
 #endif
 	s_gameType = g;
 	s_gameStartType = eStartType;
@@ -3342,7 +3322,7 @@ void DraftLocalReady()
 
 void DraftLocalReset(const char* szReason)
 {
-	SLOG("--- DRAFT RESET ---");
+	SLOG("--- DRAFT LOCAL RESET ---");
 	for (uint i = 0; i < s_draftPlayerSecrets.size(); i++)
 	{
 		s_draftPlayerSecrets[i] = "";

@@ -970,6 +970,8 @@ enum ReplayEventTypes
 	REPLAYEVENT_MPProposalResult,
 	REPLAYEVENT_PlotNewCityName,  // Special event to track city name changes
 	REPLAYEVENT_EnterCityScreen,
+	REPLAYEVENT_DraftPlayerBans,
+	REPLAYEVENT_DraftPlayerPicks,
 
 	NUM_REPLAYEVENTS
 };

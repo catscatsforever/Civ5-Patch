@@ -1452,6 +1452,85 @@ void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 //	--------------------------------------------------------------------------------
 void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 {
+#ifdef REPLAY_EVENTS
+# ifdef INGAME_CIV_DRAFTER
+	// Bans
+	std::vector<CvString> vBans = CvPreGame::getDraftPlayerBans();
+	std::vector<CvString> vBans2(MAX_MAJOR_CIVS);
+	size_t pos = 0;
+	uint id;
+	for (uint i = 0; i < vBans.size(); i++)
+	{
+		if ((pos = vBans[i].find(':')) != std::string::npos)
+		{
+			if (sscanf(vBans[i].substr(0, pos).c_str(), "%d", &id) == 1)
+			{
+				if (id >= 0 && id < MAX_MAJOR_CIVS)
+				{
+					if (pos + 1 < vBans[i].size())
+					{
+						vBans2[id] += vBans[i].substr(pos + 1);
+						if (!vBans2[id].IsEmpty())
+						{
+							vBans2[id].replace(vBans2[id].size() - 1, 1, ",");  // replace ";" with ","
+						}
+					}
+				}
+			}
+		}
+	}
+	for (uint i = 0; i < vBans2.size(); i++)
+	{
+		if (vBans2.at(i).size() > 0)
+		{
+			SLOG("player %d bans %s", i, vBans2.at(i).c_str());
+			PlayerTypes playerID = static_cast<PlayerTypes>(i);
+			std::vector<int> vArgs;
+			CvString strArg = vBans2.at(i);
+			GC.getGame().addReplayEvent(REPLAYEVENT_DraftPlayerBans, playerID, vArgs, strArg);
+		}
+	}
+	// Picks
+	CvString strPicks = CvPreGame::getDraftShuffledCivs();
+	CvString token;
+	int totalPlayers = 0;
+	std::vector<int> playerSlotsTbl;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		if (CvPreGame::slotStatus(static_cast<PlayerTypes>(i)) == SS_TAKEN && CvPreGame::slotClaim(static_cast<PlayerTypes>(i)) == SLOTCLAIM_ASSIGNED)
+		{
+			playerSlotsTbl.push_back(i);
+			totalPlayers++;
+		}
+	}
+	std::vector<CvString> vPicks(MAX_MAJOR_CIVS);
+	std::vector< std::vector<int> > playerToCivsTbl(MAX_MAJOR_CIVS);
+	int iSlot = 0;
+	uint numPicks = 3;
+	while ((pos = strPicks.find(',')) != std::string::npos) {
+		token = strPicks.substr(0, pos);
+		strPicks.erase(0, pos + 1);
+		if (sscanf(token.c_str(), "%d", &id) == 1)
+		{
+			if (playerToCivsTbl.at(iSlot).size() < numPicks)
+				playerToCivsTbl.at(iSlot).push_back(id);
+			iSlot = (iSlot + 1) % totalPlayers;
+		}
+	}
+	for (int i = 0; i < totalPlayers; i++)
+	{
+		CvString str;
+		for (std::vector<int>::iterator it = playerToCivsTbl[i].begin(); it != playerToCivsTbl[i].end(); ++it)
+			str.Format("%s%d,", str.c_str(), *it);
+		SLOG("player %d picks %s", playerSlotsTbl[i], str.c_str());
+		PlayerTypes playerID = static_cast<PlayerTypes>(playerSlotsTbl[i]);
+		std::vector<int> vArgs;
+		CvString strArg = str;
+		GC.getGame().addReplayEvent(REPLAYEVENT_DraftPlayerPicks, playerID, vArgs, strArg);
+	}
+	
+# endif
+#endif
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
@@ -10028,7 +10107,16 @@ void CvGame::exportReplayDatasets()
 								sqlite3_bind_int(stmt, 3, uiTurn);
 								sqlite3_bind_int(stmt, 4, ID);
 								sqlite3_bind_int(stmt, 5, iLoopPlayer);
-								sqlite3_bind_int(stmt, 6, iValue);
+								if (strDataSetName.substr(strDataSetName.length() - 9).compare("_TIMES100") == 0)
+								{
+									double dValue = static_cast<double>(iValue) / 100.0;
+									sqlite3_bind_double(stmt, 6, dValue);
+								}
+								else
+								{
+									sqlite3_bind_int(stmt, 6, iValue);
+								}
+
 								rc = sqlite3_step(stmt);
 								if (rc != SQLITE_DONE) {
 									SLOG("execution step failed or has another row ready: %s", sqlite3_errmsg(db));
@@ -10164,6 +10252,15 @@ void CvGame::generateReplayKeys()
 							CREATE TABLE main.BuildingClassTypes (TypeID INTEGER NOT NULL, BuildingClassType TEXT);\
 							INSERT INTO main.BuildingClassTypes VALUES (0,'Common'),(1,'National Wonder'),(2,'World Wonder'),(3,'Religious');", NULL, 0, &err);
 		SLOG("BuildingClassTypes %s", err);
+		// CityNames
+		sqlite3_exec(db, "DROP TABLE IF EXISTS main.CityNames;\
+							CREATE TABLE main.CityNames AS\
+							SELECT CityName, IFNULL(Text, CityName) AS Text FROM db2.Civilization_CityNames\
+							LEFT JOIN db3.Language_en_US ON db3.Language_en_US.Tag = db2.Civilization_CityNames.CityName\
+							UNION ALL\
+							SELECT CityName, IFNULL(Text, CityName) AS Text FROM db2.MinorCivilization_CityNames\
+							LEFT JOIN db3.Language_en_US ON db3.Language_en_US.Tag = db2.MinorCivilization_CityNames.CityName;", NULL, 0, &err);
+		SLOG("CityNames %s", err);
 		// CivKeys
 		sqlite3_exec(db, "DROP TABLE IF EXISTS main.CivKeys;\
 							CREATE TABLE main.CivKeys AS\
