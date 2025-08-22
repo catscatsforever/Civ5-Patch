@@ -1963,8 +1963,19 @@ void CvPlot::updateSight(bool bIncrement)
 
 		if(pLoopUnit)
 		{
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+			if (pLoopUnit->canChangeVisibility())
+			{
+				int iReconCount = getReconCount();
+
+				changeReconCount(-iReconCount);
+				changeAdjacentSight(pLoopUnit->getTeam(), pLoopUnit->visibilityRange(), bIncrement, pLoopUnit->getSeeInvisibleType(), pLoopUnit->getFacingDirection(true));
+				changeReconCount(iReconCount);
+			}
+#else
 			if (pLoopUnit->canChangeVisibility())
 				changeAdjacentSight(pLoopUnit->getTeam(), pLoopUnit->visibilityRange(), bIncrement, pLoopUnit->getSeeInvisibleType(), pLoopUnit->getFacingDirection(true));
+#endif
 		}
 	}
 

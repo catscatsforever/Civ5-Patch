@@ -4850,13 +4850,35 @@ bool CvUnit::CanEverEmbark() const
 void CvUnit::embark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+	if (canChangeVisibility())
+	{
+		int iReconCount = pPlot->getReconCount();
+
+		pPlot->changeReconCount(-iReconCount);
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+		pPlot->changeReconCount(iReconCount);
+	}
+#else
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	setEmbarked(true);
 
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+	if (canChangeVisibility())
+	{
+		int iReconCount = pPlot->getReconCount();
+
+		pPlot->changeReconCount(-iReconCount);
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+		pPlot->changeReconCount(iReconCount);
+	}
+#else
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
@@ -4871,13 +4893,35 @@ void CvUnit::embark(CvPlot* pPlot)
 void CvUnit::disembark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+	if (canChangeVisibility())
+	{
+		int iReconCount = pPlot->getReconCount();
+
+		pPlot->changeReconCount(-iReconCount);
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+		pPlot->changeReconCount(iReconCount);
+	}
+#else
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	setEmbarked(false);
 
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+	if (canChangeVisibility())
+	{
+		int iReconCount = pPlot->getReconCount();
+
+		pPlot->changeReconCount(-iReconCount);
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+		pPlot->changeReconCount(iReconCount);
+	}
+#else
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), false);
@@ -15317,8 +15361,20 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+			if (canChangeVisibility())
+			{
+				int iReconCount = pOldPlot->getReconCount();
+
+				pOldPlot->changeReconCount(-iReconCount);
+				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+				pOldPlot->changeReconCount(iReconCount);
+			}
+#else
 			if (canChangeVisibility())
 				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
+
 
 			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 
@@ -15378,7 +15434,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 		{
-#if defined UPD_RECON_PLOT_IF_CARGO_MOVE && defined MADE_REBASE
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
 			if (canChangeVisibility())
 			{
 				int iReconCount = pNewPlot->getReconCount();
@@ -17262,11 +17318,33 @@ void CvUnit::changeExtraVisibilityRange(int iChange)
 	if(iChange != 0)
 	{
 		CvPlot* pkPlot = plot();
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (canChangeVisibility())
+		{
+			int iReconCount = pkPlot->getReconCount();
+
+			pkPlot->changeReconCount(-iReconCount);
+			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+			pkPlot->changeReconCount(iReconCount);
+		}
+#else
 		if (canChangeVisibility())
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 		m_iExtraVisibilityRange = (m_iExtraVisibilityRange + iChange);
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (canChangeVisibility())
+		{
+			int iReconCount = pkPlot->getReconCount();
+
+			pkPlot->changeReconCount(-iReconCount);
+			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+			pkPlot->changeReconCount(iReconCount);
+		}
+#else
 		if (canChangeVisibility())
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 	}
 }
 
@@ -18694,15 +18772,37 @@ void CvUnit::setFacingDirection(DirectionTypes facingDirection)
 	if(facingDirection != m_eFacingDirection)
 	{
 		//remove old fog
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (canChangeVisibility())
+		{
+			int iReconCount = plot()->getReconCount();
+
+			plot()->changeReconCount(-iReconCount);
+			plot()->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+			plot()->changeReconCount(iReconCount);
+		}
+#else
 		if (canChangeVisibility())
 			plot()->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 		//change direction
 		m_eFacingDirection = facingDirection;
 
 		//clear new fog
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (canChangeVisibility())
+		{
+			int iReconCount = plot()->getReconCount();
+
+			plot()->changeReconCount(-iReconCount);
+			plot()->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+			plot()->changeReconCount(iReconCount);
+		}
+#else
 		if (canChangeVisibility())
 			plot()->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 		DLLUI->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
@@ -19168,15 +19268,37 @@ void CvUnit::setSeeInvisibleType(InvisibleTypes InvisibleType)
 	if(m_eSeeInvisibleType != InvisibleType)
 	{
 		CvPlot* pPlot = GC.getMap().plotCheckInvalid(getX(), getY());
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (pPlot && canChangeVisibility())
+		{
+			int iReconCount = pPlot->getReconCount();
+
+			pPlot->changeReconCount(-iReconCount);
+			pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+			pPlot->changeReconCount(iReconCount);
+		}
+#else
 		if(pPlot && canChangeVisibility())
 		{
 			pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
 		}
+#endif
 		m_eSeeInvisibleType = InvisibleType;
+#ifdef FIX_CHANGEADJACENTSIGHT_RECON_INTERRACTION
+		if (pPlot && canChangeVisibility())
+		{
+			int iReconCount = pPlot->getReconCount();
+
+			pPlot->changeReconCount(-iReconCount);
+			pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+			pPlot->changeReconCount(iReconCount);
+		}
+#else
 		if(pPlot && canChangeVisibility())
 		{
 			pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
 		}
+#endif
 	}
 }
 
