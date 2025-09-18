@@ -20463,7 +20463,11 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 				CvPlot* pEndTurnPlot = GC.getIgnoreUnitsPathFinder().GetPathEndTurnPlot();
 				if(pEndTurnPlot == &swapPlot)
 				{
+#ifdef FIX_SWAP_OVER_PLOT_UNIT_LIMIT
+					if (swapPlot.getNumFriendlyUnitsOfType(this) == GC.getPLOT_UNIT_LIMIT() && plot()->getNumFriendlyUnitsOfType(this) == GC.getPLOT_UNIT_LIMIT())
+#else
 					if(swapPlot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+#endif
 					{
 						const IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;

@@ -446,7 +446,13 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			if i == sequence then
 				table_insert( tips, summary )
 				if toolTip ~= summary then
-					table_insert( tips, ( toolTip:gsub("%[NEWLINE%].*","") ) )
+					-- fix missing description for UI_RELIGION_NOTIFICATION_SHOW_BELIEFS
+					if type == NotificationTypes.NOTIFICATION_RELIGION_ENHANCED or type == NotificationTypes.NOTIFICATION_REFORMATION_BELIEF_ADDED then
+						table_insert( tips, toolTip )
+					else
+						table_insert( tips, ( toolTip:gsub("%[NEWLINE%].*","") ) )
+					end
+					-- fix end
 				end
 			else
 				table_insert( tips, "[COLOR_LIGHT_GREY]"..summary.."[ENDCOLOR]" )

@@ -1,6 +1,10 @@
 ------------------------------------------------- 
 -- CityBannerManager
 -------------------------------------------------
+-- edit:
+--     update city status for approaching units
+-- for vanilla UI
+-------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "InfoTooltipInclude" );
@@ -1001,6 +1005,11 @@ function OnHexFogEvent( hexPos, fowType, bWholeMap )
 								end
 								instance.SubControls.Anchor:SetHide( false );
 							end
+							-- update city status for approaching units START
+							local iActivePlayer = Game.GetActivePlayer();
+							local iActiveTeam = Players[iActivePlayer]:GetTeam();
+							RefreshCityBanner(instance, iActiveTeam, iActivePlayer);
+							-- update city status for approaching units END
 						end
 					end
 				end

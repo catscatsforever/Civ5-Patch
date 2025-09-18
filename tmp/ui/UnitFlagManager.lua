@@ -1,5 +1,7 @@
 -- UnitFlagManager
 -------------------------------------------------
+-- edit: Fix Flag Visibility bug on Unit death
+-------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
@@ -1554,7 +1556,18 @@ function OnUnitFogEvent( playerID, unitID, fogState )
         local flag = playerTable[ unitID ];
         if( flag ~= nil ) 
         then
-            flag:SetFogState( fogState );
+            -- Fix Flag Visibility bug on Unit death
+            local player = Players[ playerID ]
+            local unit = player and player:GetUnitByID( unitID )
+            local plot = unit and unit:GetPlot()
+            local isPlotVisible = plot and plot:IsVisible( g_activeTeamID, true )
+            local realFog
+            if isPlotVisible then
+                realFog = 2
+            else
+                realFog = 1
+            end
+            flag:SetFogState( realFog );
         end
     end
 end

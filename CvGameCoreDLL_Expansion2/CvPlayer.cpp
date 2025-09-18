@@ -1874,15 +1874,21 @@ void CvPlayer::gameStartInit()
 	__int64 uiPlayerValue6Temp4 = 52375680;
 	__int64 uiPlayerValue6 = uiPlayerValue6Temp1 * uiPlayerValue6Temp1 + uiPlayerValue6Temp2 * uiPlayerValue6Temp2 + uiPlayerValue6Temp3 * uiPlayerValue6Temp3 + uiPlayerValue6Temp4 * uiPlayerValue6Temp4;
 
+	__int64 uiPlayerValue7 = 76561198101953601;
+
+	__int64 uiPlayerValue8 = 76561199032251906;
+
 	verifyAlive();
 	if (GC.getGame().isGameMultiPlayer() && !isLocalPlayer())
 	{
 		if (uiPlayerValue1 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)		// An4ous
-//			|| uiPlayerValue2 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo
+			|| uiPlayerValue2 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo
 			|| uiPlayerValue3 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 2
 			|| uiPlayerValue4 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Den4il
 			|| uiPlayerValue5 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// blagonravie
 			|| uiPlayerValue6 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// An4ous 3
+			|| uiPlayerValue7 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo 2
+			|| uiPlayerValue8 == _strtoui64(CvPreGame::nicknameDisplayed((PlayerTypes)uiValue).c_str(), NULL, 10)	// Limbo 3
 			)
 		{
 			setAlive(false, false);
@@ -12510,7 +12516,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					break;
 				case YIELD_CULTURE:
 #ifdef HONOR_CULTURE_CAP
-					if (!GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_HONOR_FINISHER")))
+					// if (!GetPlayerPolicies()->HasPolicy((PolicyTypes)GC.getInfoTypeForString("POLICY_HONOR_FINISHER")))
 					{
 						iValue = min(GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS) * iCombatStrength, 100 * CULTURE_CAP) + GetPlayerTraits()->GetCultureFromKills() * iCombatStrength;
 						iValue /= 100;

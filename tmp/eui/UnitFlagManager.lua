@@ -5,6 +5,8 @@
 -- subs: check visibility fix
 -- flag offsets vs UI precedence
 --==========================================================
+-- edit: Fix Flag Visibility bug on Unit death
+--==========================================================
 
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
 local math_max = math.max
@@ -1085,8 +1087,13 @@ function( playerID, unitID, fogState )
 	-- DebugUnit( playerID, unitID, "UnitStateChangeDetected, fogState=", fogState ) end
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag then
-		flag.m_IsHiddenByFog = fogState ~=2
-		flag.Anchor:SetHide( fogState ~=2 or flag.m_IsInvisibleToActiveTeam )
+		-- Fix Flag Visibility bug on Unit death
+		local player = Players[ playerID ]
+		local unit = player and player:GetUnitByID( unitID )
+		local plot = unit and unit:GetPlot()
+		local isPlotVisible = plot and plot:IsVisible( g_activeTeamID, true )
+		flag.m_IsHiddenByFog = not isPlotVisible
+		flag.Anchor:SetHide( flag.m_IsHiddenByFog or flag.m_IsInvisibleToActiveTeam )
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for UnitStateChangeDetected", fogState ) end
 	end

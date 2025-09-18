@@ -12334,7 +12334,7 @@ void CvMPVotingSystem::DoUpdateProposalStatus(int iProposalID)
 			SetProposalStatus(iProposalID, STATUS_ACTIVE);
 		else if (yesVotes == maxVoters)
 			SetProposalStatus(iProposalID, STATUS_PASSED);
-		else if (eType == PROPOSAL_SCRAP && noVotes == 1)  // scrap special case: if there is only one nay voter, make them winner
+		else if (eType == PROPOSAL_SCRAP && noVotes == 1 && GC.getGame().isOption("GAMEOPTION_ALTERNATE_SCRAP"))  // scrap special case: if there is only one nay voter, make them winner
 		{
 			// find no voter
 			Proposal pProposal = *GetProposalByID(iProposalID);

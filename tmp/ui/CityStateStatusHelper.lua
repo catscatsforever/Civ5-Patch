@@ -5,6 +5,10 @@
 -- Consolidation of code associated with displaying
 -- the friendship status of a player with a city-state
 ------------------------------------------------------
+-- edit:
+--     CS tribute indicator for allies
+-- for vanilla UI
+-------------------------------------------------
 
 include( "IconSupport" );
 
@@ -141,7 +145,11 @@ end
 
 function UpdateCityStateStatusIconBG(iMajor, iMinor, iconBGCtrl)
 	local info = GetCityStateStatusRow(iMajor, iMinor);
-	
+	-- CS tribute indicator for allies START
+	if Players[iMinor]:CanMajorBullyGold(iMajor) then
+		info = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_AFRAID
+	end
+	-- CS tribute indicator for allies END
 	if (info.StatusIcon ~= nil) then
 		iconBGCtrl:SetTexture(info.StatusIcon);
 	end

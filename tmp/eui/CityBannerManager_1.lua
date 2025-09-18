@@ -3,6 +3,10 @@
 -- modified by bc1 from 1.0.3.144 brave new world code
 -- code is common using gk_mode and bnw_mode switches
 -------------------------------------------------
+-- edit:
+--     CS tribute indicator for allies
+-- for EUI
+-------------------------------------------------
 include( "EUI_tooltips" )
 
 Events.SequenceGameInitComplete.Add(function()
@@ -1083,6 +1087,11 @@ local function RefreshCityBannersNow()
 					color = g_colorWhite
 
 					local info = GetCityStateStatusRow( g_activePlayerID, cityOwnerID )
+					-- CS tribute indicator for allies START
+					if cityOwner:CanMajorBullyGold(g_activePlayerID) then
+						info = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_AFRAID
+					end
+					-- CS tribute indicator for allies END
 					instance.StatusIconBG:SetTexture( info and info.StatusIcon or "Blank.dds" )
 					instance.StatusIconBG:SetTextureOffsetVal( 0, 0 )
 					instance.StatusIcon:SetTexture( (GameInfo.MinorCivTraits[ (GameInfo.MinorCivilizations[ cityOwner:GetMinorCivType() ] or {}).MinorCivTrait or -1 ] or {}).TraitIcon or "Blank.dds" )
