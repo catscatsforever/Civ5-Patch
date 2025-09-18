@@ -1560,7 +1560,7 @@ function OnUnitFogEvent( playerID, unitID, fogState )
             local player = Players[ playerID ]
             local unit = player and player:GetUnitByID( unitID )
             local plot = unit and unit:GetPlot()
-            local isPlotVisible = plot and plot:IsVisible( g_activeTeamID, true )
+            local isPlotVisible = plot and plot:IsVisible( Game.GetActiveTeam() )
             local realFog
             if isPlotVisible then
                 realFog = 2
