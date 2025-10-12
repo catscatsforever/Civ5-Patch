@@ -505,6 +505,9 @@ protected:
 #ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
 	static int lGetCapitalCultureModPerDiplomat(lua_State* L);
 #endif
+#ifdef POLICY_SPY_DETECTION
+	static int lIsEnemySpyDetected(lua_State* L);
+#endif
 };
 
 #endif //CVLUACITY_H

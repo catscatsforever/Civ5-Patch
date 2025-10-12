@@ -102,6 +102,7 @@
 			<!-- Lower Icons -->
 			<Stack ID="IconsStack" Anchor="C,T" Offset="0,25" StackGrowth="Left" Padding="0">
 				<TextButton ID="CitySpy" String="[ICON_SPY]" Hidden="1"/>
+				<TextButton ID="CitySpyDetected" String="[ICON_ENEMY_SPY_DETECTED]" Hidden="1"/>
 				<TextButton ID="CityDiplomat" String="[ICON_DIPLOMAT]" Hidden="1"/>
 				<TextButton ID="CityIsPuppet" String="[ICON_PUPPET]"/>
 				<TextButton ID="CityFocus"/>
@@ -196,6 +197,7 @@
 			<!-- Lower Icons -->
 			<Stack ID="IconsStack" Anchor="C,T" Offset="0,22" StackGrowth="Left" Padding="0">
 				<TextButton ID="CitySpy" String="[ICON_SPY]" Hidden="1"/>
+				<TextButton ID="CitySpyDetected" String="[ICON_ENEMY_SPY_DETECTED]" Hidden="1"/>
 				<TextButton ID="CityDiplomat" String="[ICON_DIPLOMAT]" Hidden="1"/>
 				<TextButton ID="CityQuests"/>
 				<Label ID="CityHasCoal" String="[ICON_RES_COAL]" Hidden="1"/>

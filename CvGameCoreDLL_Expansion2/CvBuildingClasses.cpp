@@ -265,6 +265,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #ifdef BUILDING_DOUBLE_PANTHEON
 	m_bDoublePantheon(false),
 #endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	m_bNoOutcomingInternationlCaravanPillage(false),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -836,6 +839,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 	m_bDoublePantheon = kResults.GetBool("DoublePantheon");
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	m_bNoOutcomingInternationlCaravanPillage = kResults.GetBool("NoOutcomingInternationlCaravanPillage");
 #endif
 
 	return true;
@@ -2411,6 +2417,13 @@ bool CvBuildingEntry::IsDoublePantheon() const
 }
 #endif
 
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+bool CvBuildingEntry::IsNoOutcomingInternationlCaravanPillage() const
+{
+	return m_bNoOutcomingInternationlCaravanPillage;
+}
+#endif
+
 //=====================================
 // CvBuildingXMLEntries
 //=====================================
@@ -3221,9 +3234,26 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 
 		if (iOldNumBuilding > 0 && iNewValue > 0)
 		{
+#ifdef FIX_FREE_BUILIDNG_STUCKING
+			if (IsBuildingSellable(*GC.getBuildingInfo(eIndex)))
+			{
+				DoSellBuilding(eIndex);
+				m_pCity->processBuilding(eIndex, iNewValue, true);
+			}
+			else
+			{
+				if (GC.getBuildingInfo(eIndex)->GetGoldMaintenance() != 0)
+				{
+					
+					GET_PLAYER(m_pCity->getOwner()).GetTreasury()->ChangeBaseBuildingGoldMaintenance(-GC.getBuildingInfo(eIndex)->GetGoldMaintenance() * iOldNumBuilding);
+				}
+			}
+			m_paiNumFreeBuilding[eIndex] = iNewValue;
+#else
 			DoSellBuilding(eIndex);
 			m_paiNumFreeBuilding[eIndex] = iNewValue;
-			m_pCity->processBuilding(eIndex, iNewValue, true);			
+			m_pCity->processBuilding(eIndex, iNewValue, true);
+#endif
 		}
 		
 		else

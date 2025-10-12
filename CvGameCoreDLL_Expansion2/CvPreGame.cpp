@@ -3047,7 +3047,7 @@ void DraftResponseBans(PlayerTypes p, const char* szBans)
 		SLOG("WARN bans not unique 1old %d new %d 2old %d new %d", old1, civs1, old2, civs2);
 		if (gDLL->IsHost())
 		{
-			CvString s2 = CvString::format("%d:%s;", uiPlayerID, szBans);
+			CvString s2 = CvString::format("%d:%d:%s;", static_cast<int>(activePlayer()), uiPlayerID, szBans);
 			gDLL->SendRenameCity(-4, s2);
 		}
 		return;
@@ -3222,17 +3222,7 @@ void DraftResponseBanRollback(PlayerTypes p, const char* szBans)
 		return;
 	}
 
-	CvString s = CvString(szBans);
-	for (uint i = 0; i < s_draftPlayerBans.size(); i++)
-	{
-		if (s_draftPlayerBans[i] == s)
-		{
-			s_draftPlayerBans.erase(s_draftPlayerBans.begin() + i);
-			DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ban-failure|%s", szBans).c_str());
-			return;
-		}
-	}
-	SLOG("WARN could not find bans for rollback: %s", szBans);
+	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ban-failure|%s", szBans).c_str());
 };
 
 void DraftResponseSwapPlayers(PlayerTypes p, const char* szSwapWith)

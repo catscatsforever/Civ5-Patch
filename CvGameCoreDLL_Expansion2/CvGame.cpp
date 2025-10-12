@@ -4928,6 +4928,12 @@ int CvGame::getMaxTurnLen()
 			return getPitbossTurnTime();
 		}
 	}
+#ifdef BLITZ_MODE
+	else if (isOption("GAMEOPTION_BLITZ_MODE"))
+	{
+		return 30 + 15 * (int)GC.getGame().getCurrentEra();
+	}
+#endif
 	else
 	{
 		int iMaxUnits = 0;

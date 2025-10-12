@@ -2193,89 +2193,100 @@ function BuildHotkeyManagerControls()
             ContextPtr:BuildInstanceForControl("CategoryStackInstance", catStackInstance, Controls.HotkeysStack);
             g_StackStacks[cat] = catStackInstance;
             g_StackChildren[cat] = {};
-    
+
             local i = 0;
             local scanRange = 0;
             local data = GameInfo[it];
-    
+            local tblEntries = {}
+
             while (scanRange < 15) do
                 if data[i] == nil then
                     scanRange = scanRange + 1;
                 else
                     scanRange = 0;
-                    local HK = GetHotkey(cat, i);
-
-                    instance = {};
-                    ContextPtr:BuildInstanceForControl("KeyEntry", instance, catStackInstance.CategoryStack2);
-
-                    instance.HotkeyDescriptionLabel:LocalizeAndSetText(data[i].Description or data[i].Type or '??');
-                    instance.HotkeyDescriptionLabel:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
-                    instance.HotkeyDescriptionIcon:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
-                    instance.HotkeyDescriptionIcon32:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
-                    -- illustrate actions
-                    if it == 'Controls' then
-                        -- skip
-                        instance.HotkeyDescriptionIcon:SetHide(true);
-                    elseif it == 'UnitPromotions' or it == 'Specialists' then
-                        -- PortraitIndex/IconAtlas
-                        if data[i].PortraitIndex ~= -1 then
-                            if data[i].IconAtlas == 'ABILITY_ATLAS' then  -- no size 45 icons here :(
-                                IconHookup( data[i].PortraitIndex, 32, data[i].IconAtlas, instance.HotkeyDescriptionIcon32 );
-                                instance.HotkeyDescriptionIcon:SetHide(true);
-                                instance.HotkeyDescriptionIcon32:SetHide(false);
-                            else
-                                IconHookup( data[i].PortraitIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
-                            end
-                        else
-                            instance.HotkeyDescriptionIcon:SetHide(true);
-                        end
-                    else
-                        -- IconIndex/IconAtlas
-                        if data[i].Type == 'MISSION_FOUND' then  -- special care for city found mission
-                            instance.HotkeyDescriptionIcon:SetTextureAndResize("Assets/UI/Art/Icons/BuildCity36.dds");
-                            instance.HotkeyDescriptionIcon:SetOffsetVal(instance.HotkeyDescriptionIcon:GetOffsetX() + 5, instance.HotkeyDescriptionIcon:GetOffsetY());
-                        elseif data[i].IconIndex ~= -1 then
-                            IconHookup( data[i].IconIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
-                        else
-                            instance.HotkeyDescriptionIcon:SetHide(true);
-                        end
-                    end
-
-                    instance.HotkeyEditButton:SetVoid1(cat);
-                    instance.HotkeyEditButton:SetVoid2(i);
-                    instance.HotkeyEditButton:RegisterCallback(Mouse.eLClick, OnHotkeyEditMode);
-
-                    instance.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[HK.HotKey] and g_KeyMap[HK.HotKey][3] or '--', HK.CtrlDown, HK.AltDown, HK.ShiftDown));
-
-                    instance.HotkeyEditCancelButton:SetVoid1(cat);
-                    instance.HotkeyEditCancelButton:SetVoid2(i);
-                    instance.HotkeyEditCancelButton:RegisterCallback(Mouse.eLClick, OnCancelEditClick);
-
-                    instance.HotkeyEditConfirmButton:SetVoid1(cat);
-                    instance.HotkeyEditConfirmButton:SetVoid2(i);
-                    instance.HotkeyEditConfirmButton:RegisterCallback(Mouse.eLClick, OnConfirmEditClick);
-
-                    instance.HotkeyEditResetButton:SetVoid1(cat);
-                    instance.HotkeyEditResetButton:SetVoid2(i);
-                    instance.HotkeyEditResetButton:RegisterCallback(Mouse.eLClick, OnResetHotkeyClick);
-
-                    g_StackChildren[cat][i] = instance;
-
-                    -- exclude invisible (internal) actions
-                    -- exclude embedded promotions
-                    -- it seems all promotions from 'ABILITY_ATLAS' are embedded as well.
-                    if (g_bShowInvalidActions == 0) and ((it ~= 'Builds' and it ~= 'Controls' and it ~= 'UnitPromotions' and data[i].Visible == false) or (it == 'UnitPromotions' and (data[i].CannotBeChosen or (data[i].IconAtlas == 'ABILITY_ATLAS')))) then
-                        instance.Root:SetHide(true);
-                    end
+                    tblEntries[#tblEntries+1] = {oldi = i, text = data[i].Description or data[i].Type or '??'}
                 end
                 i = i + 1;
             end;
+
+            table.sort(tblEntries, function(a,b)
+                return Locale.ConvertTextKey(a.text) < Locale.ConvertTextKey(b.text)
+            end)
+
+            for j = 1, #tblEntries do
+                i = tblEntries[j].oldi
+                local HK = GetHotkey(cat, i);
+
+                instance = {};
+                ContextPtr:BuildInstanceForControl("KeyEntry", instance, catStackInstance.CategoryStack2);
+
+                instance.HotkeyDescriptionLabel:LocalizeAndSetText(data[i].Description or data[i].Type or '??');
+                instance.HotkeyDescriptionLabel:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                instance.HotkeyDescriptionIcon:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                instance.HotkeyDescriptionIcon32:LocalizeAndSetToolTip(data[i].Help or it == 'Builds' and data[i].Recommendation or '');
+                -- illustrate actions
+                if it == 'Controls' then
+                    -- skip
+                    instance.HotkeyDescriptionIcon:SetHide(true);
+                elseif it == 'UnitPromotions' or it == 'Specialists' then
+                    -- PortraitIndex/IconAtlas
+                    if data[i].PortraitIndex ~= -1 then
+                        if data[i].IconAtlas == 'ABILITY_ATLAS' then  -- no size 45 icons here :(
+                            IconHookup( data[i].PortraitIndex, 32, data[i].IconAtlas, instance.HotkeyDescriptionIcon32 );
+                            instance.HotkeyDescriptionIcon:SetHide(true);
+                            instance.HotkeyDescriptionIcon32:SetHide(false);
+                        else
+                            IconHookup( data[i].PortraitIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
+                        end
+                    else
+                        instance.HotkeyDescriptionIcon:SetHide(true);
+                    end
+                else
+                    -- IconIndex/IconAtlas
+                    if data[i].Type == 'MISSION_FOUND' then  -- special care for city found mission
+                        instance.HotkeyDescriptionIcon:SetTextureAndResize("Assets/UI/Art/Icons/BuildCity36.dds");
+                        instance.HotkeyDescriptionIcon:SetOffsetVal(instance.HotkeyDescriptionIcon:GetOffsetX() + 5, instance.HotkeyDescriptionIcon:GetOffsetY());
+                    elseif data[i].IconIndex ~= -1 then
+                        IconHookup( data[i].IconIndex, 45, data[i].IconAtlas, instance.HotkeyDescriptionIcon );
+                    else
+                        instance.HotkeyDescriptionIcon:SetHide(true);
+                    end
+                end
+
+                instance.HotkeyEditButton:SetVoid1(cat);
+                instance.HotkeyEditButton:SetVoid2(i);
+                instance.HotkeyEditButton:RegisterCallback(Mouse.eLClick, OnHotkeyEditMode);
+
+                instance.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[HK.HotKey] and g_KeyMap[HK.HotKey][3] or '--', HK.CtrlDown, HK.AltDown, HK.ShiftDown));
+
+                instance.HotkeyEditCancelButton:SetVoid1(cat);
+                instance.HotkeyEditCancelButton:SetVoid2(i);
+                instance.HotkeyEditCancelButton:RegisterCallback(Mouse.eLClick, OnCancelEditClick);
+
+                instance.HotkeyEditConfirmButton:SetVoid1(cat);
+                instance.HotkeyEditConfirmButton:SetVoid2(i);
+                instance.HotkeyEditConfirmButton:RegisterCallback(Mouse.eLClick, OnConfirmEditClick);
+
+                instance.HotkeyEditResetButton:SetVoid1(cat);
+                instance.HotkeyEditResetButton:SetVoid2(i);
+                instance.HotkeyEditResetButton:RegisterCallback(Mouse.eLClick, OnResetHotkeyClick);
+
+                g_StackChildren[cat][i] = instance;
+
+                -- exclude invisible (internal) actions
+                -- exclude embedded promotions
+                -- it seems all promotions from 'ABILITY_ATLAS' are embedded as well.
+                if (g_bShowInvalidActions == 0) and ((it ~= 'Builds' and it ~= 'Controls' and it ~= 'UnitPromotions' and data[i].Visible == false) or (it == 'UnitPromotions' and (data[i].CannotBeChosen or (data[i].IconAtlas == 'ABILITY_ATLAS')))) then
+                    instance.Root:SetHide(true);
+                end
+            end
+
             catStackInstance.CategoryStack2:CalculateSize();
             catStackInstance.CategoryStack2:ReprocessAnchoring();
             catStackInstance.Root:SetSizeY(catStackInstance.CategoryStack2:GetSizeY());
         end
     end
-    ContextPtr:BuildInstanceForControl("ScrollFinisher", instance, Controls.HotkeysStack);
+    ContextPtr:BuildInstanceForControl("ScrollFinisher", {}, Controls.HotkeysStack);
 
     Controls.HotkeysStack:CalculateSize();
     Controls.HotkeysStack:ReprocessAnchoring();
@@ -2328,6 +2339,78 @@ function InputHandler( uiMsg, wParam, lParam )
     return true;
 end
 ContextPtr:SetInputHandler( InputHandler );
+
+-------------------------------------------------------------------------------
+-- Hotkey Search
+-------------------------------------------------------------------------------
+local escape_matches = {
+    ["^"] = "%^";
+    ["$"] = "%$";
+    ["("] = "%(";
+    [")"] = "%)";
+    ["%"] = "%%";
+    ["."] = "%.";
+    ["["] = "%[";
+    ["]"] = "%]";
+    ["*"] = "%*";
+    ["+"] = "%+";
+    ["-"] = "%-";
+    ["?"] = "%?";
+    ["\0"] = "%z";
+}
+function OnHotkeysSearch( str )
+    -- ctrl+backspace START
+    if string.find(str, '') then
+        local s1, s2 = string.match(str, '(.-)(.*)')
+        local r = 0
+        s1, r = s1:gsub('[^%p%s]+[%p%s]*$', function(m) return ''..m end)
+        if r > 0 then
+            s1 = s1:match('(.-)')
+            Controls.HotkeysSearchEdit:SetText(s1)
+        else
+            s1 = Locale.Substring(s1, 1, Locale.Length(s1) - 1)
+            Controls.HotkeysSearchEdit:SetText(s1)
+        end
+        UI.PostKeyMessage(Keys.VK_END)
+        ContextPtr:SetUpdate(function() ContextPtr:ClearUpdate(); Controls.HotkeysSearchEdit:SetText(string.format('%s%s', Controls.HotkeysSearchEdit:GetText(), s2)) end)
+        str = string.format('%s%s', s1, s2)
+    end
+    -- ctrl+backspace END
+    if str and #str > 0 then
+        Controls.HotkeysSearchPlaceholder:SetHide(true);
+    else
+        Controls.HotkeysSearchPlaceholder:SetHide(false);
+    end
+    for cat, it in ipairs(Categories) do
+        if g_StackChildren[cat] ~= nil then
+            local data = GameInfo[it]
+            local bShowCat = false
+            for i, entry in next, g_StackChildren[cat] do
+                local bSkip = false
+                if (g_bShowInvalidActions == 0) and ((it ~= 'Builds' and it ~= 'Controls' and it ~= 'UnitPromotions' and data[i].Visible == false) or (it == 'UnitPromotions' and (data[i].CannotBeChosen or (data[i].IconAtlas == 'ABILITY_ATLAS')))) then
+                    bSkip = true
+                end
+                if bSkip then
+                    entry.Root:SetHide(true)
+                else
+                    local res = string.find(Locale.ToLower(entry.HotkeyDescriptionLabel:GetText():gsub('%b[]','')), Locale.ToLower(str:gsub('.', escape_matches)))
+                    entry.Root:SetHide( not res )
+                    if res then
+                        bShowCat = true
+                    end
+                end
+            end
+            g_StackStacks[cat].Root:SetHide(not bShowCat)
+            g_StackStacks[cat].CategoryStack2:CalculateSize();
+            g_StackStacks[cat].CategoryStack2:ReprocessAnchoring();
+            g_StackStacks[cat].Root:SetSizeY(g_StackStacks[cat].CategoryStack2:GetSizeY());
+        end
+    end
+    Controls.HotkeysStack:CalculateSize();
+    Controls.HotkeysStack:ReprocessAnchoring();
+    Controls.ScrollPanel:CalculateInternalSize();
+end
+Controls.HotkeysSearchEdit:RegisterCallback( OnHotkeysSearch );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

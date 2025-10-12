@@ -1815,6 +1815,11 @@ public:
 	void SetGoldGreatPerson(UnitClassTypes eUnitClass, bool bValue);
 #endif
 
+#ifdef POLICY_SPY_DETECTION
+	bool IsSpyDetection() const;
+	void ChangeSpyDetection(int iChange);
+#endif
+
 	CvPlayerPolicies* GetPlayerPolicies() const;
 	CvPlayerTraits* GetPlayerTraits() const;
 	CvEconomicAI* GetEconomicAI() const;
@@ -2640,6 +2645,9 @@ protected:
 	bool m_bGoldMerchant;
 	bool m_bGoldGeneral;
 	bool m_bGoldAdmiral;
+#endif
+#ifdef POLICY_SPY_DETECTION
+	int m_iSpyDetection;
 #endif
 };
 

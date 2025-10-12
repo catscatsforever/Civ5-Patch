@@ -180,7 +180,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piCapitalYieldPerPopChange(NULL),
 	m_piCapitalYieldModifier(NULL),
 	m_piGreatWorkYieldChange(NULL),
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+	m_ppiSpecialistExtraYield(NULL),
+#else
 	m_piSpecialistExtraYield(NULL),
+#endif
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 	m_piGoldenAgeYieldModifier(NULL),
 #endif
@@ -280,6 +284,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 #ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
 	m_paiLeagueSessionYieldBoostPerDelegate(NULL),
 #endif
+#ifdef POLICY_SPY_DETECTION
+	m_bSpyDetection(false),
+#endif
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
@@ -297,7 +304,11 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piCapitalYieldPerPopChange);
 	SAFE_DELETE_ARRAY(m_piCapitalYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistExtraYield);
+#else
 	SAFE_DELETE_ARRAY(m_piSpecialistExtraYield);
+#endif
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldModifier);
 #endif
@@ -575,6 +586,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
 	m_iHappinessPerTradeRouteToMinor = kResults.GetInt("HappinessPerTradeRouteToMinor");
 #endif
+#ifdef POLICY_SPY_DETECTION
+	m_bSpyDetection = kResults.GetBool("SpyDetection");
+#endif
 
 	//Arrays
 	const char* szPolicyType = GetType();
@@ -585,7 +599,32 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCapitalYieldPerPopChange, "Policy_CapitalYieldPerPopChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldModifier, "Policy_CapitalYieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+	//SpecialistExtraYields
+	{
+		kUtility.Initialize2DArray(m_ppiSpecialistExtraYield, "Specialists", "Yields"); 
+
+		std::string strKey("Policy_SpecialistExtraYields");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Policy_SpecialistExtraYields inner join Specialists on Specialists.Type = Policy_SpecialistExtraYields.SpecialistType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while (pResults->Step())
+		{
+			const int iSpecialistID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_ppiSpecialistExtraYield[iSpecialistID][iYieldID] = iYield;
+		}
+	}
+#else
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
+#endif
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 	kUtility.SetYields(m_piGoldenAgeYieldModifier, "Policy_GoldenAgeYieldModifiers", "PolicyType", szPolicyType);
 #endif
@@ -1808,6 +1847,17 @@ int* CvPolicyEntry::GetGreatWorkYieldChangeArray() const
 	return m_piGreatWorkYieldChange;
 }
 
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+/// Extra specialist yield by yield type
+int CvPolicyEntry::GetSpecialistExtraYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiSpecialistExtraYield[i][j];
+}
+#else
 /// Extra specialist yield by yield type
 int CvPolicyEntry::GetSpecialistExtraYield(int i) const
 {
@@ -1821,6 +1871,7 @@ int* CvPolicyEntry::GetSpecialistExtraYieldArray() const
 {
 	return m_piSpecialistExtraYield;
 }
+#endif
 
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 ///
@@ -2236,6 +2287,14 @@ int CvPolicyEntry::GetLeagueSessionYieldBoostPerDelegate(int i) const
 	CvAssertMsg(i < GC.getNumYieldInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiLeagueSessionYieldBoostPerDelegate[i];
+}
+#endif
+
+#ifdef POLICY_SPY_DETECTION
+///
+bool CvPolicyEntry::IsSpyDetection() const
+{
+	return m_bSpyDetection;
 }
 #endif
 

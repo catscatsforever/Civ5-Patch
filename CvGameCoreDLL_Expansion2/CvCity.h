@@ -911,6 +911,10 @@ public:
 	int getDoublePantheon() const;
 	void changeDoublePantheon(int iChange);
 #endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	int getNoOutcomingInternationlCaravanPillage() const;
+	void changeNoOutcomingInternationlCaravanPillage(int iChange);
+#endif
 
 	int iScratch; // know the scope of your validity
 
@@ -1148,6 +1152,9 @@ protected:
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 	FAutoVariable<int, CvCity> m_iDoublePantheon;
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	FAutoVariable<int, CvCity> m_iNoOutcomingInternationlCaravanPillage;
 #endif
 
 	void doGrowth();

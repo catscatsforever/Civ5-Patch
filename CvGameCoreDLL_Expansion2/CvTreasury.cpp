@@ -488,13 +488,13 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 	}
 
 #ifdef SACRED_WATERS_FRESH_WATER
-	/*CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int iGoldPerRiverOrCoastalCity = 0;
 	int iLoop = 0;
 	CvCity* pLoopCity;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (pLoopCity->plot()->isFreshWater() || pLoopCity->plot()->isCoastalLand())
+		if (pLoopCity->plot()->isFreshWater()/* || pLoopCity->plot()->isCoastalLand()*/)
 		{
 			for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 			{
@@ -510,7 +510,7 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 		}
 	}
 
-	iGoldFromReligion += iGoldPerRiverOrCoastalCity;*/
+	iGoldFromReligion += iGoldPerRiverOrCoastalCity;
 #endif
 
 	return iGoldFromReligion;

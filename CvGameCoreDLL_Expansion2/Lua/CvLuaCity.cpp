@@ -495,6 +495,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #ifdef POLICY_CAPITAL_CULTURE_MOD_PER_DIPLOMAT
 	Method(GetCapitalCultureModPerDiplomat);
 #endif
+#ifdef POLICY_SPY_DETECTION
+	Method(IsEnemySpyDetected);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaCity::HandleMissingInstance(lua_State* L)
@@ -4214,6 +4217,28 @@ int CvLuaCity::lGetCapitalCultureModPerDiplomat(lua_State* L)
 	}
 
 	lua_pushinteger(L, iModifier);
+
+	return 1;
+}
+#endif
+#ifdef POLICY_SPY_DETECTION
+//------------------------------------------------------------------------------
+//bool IsEnemySpyDetected() const;
+int CvLuaCity::lIsEnemySpyDetected(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	bool bSpyDetected = false;
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
+		if (eLoopPlayer != pkCity->getOwner() && GET_PLAYER(pkCity->getOwner()).IsSpyDetection() && GET_PLAYER(eLoopPlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pkCity) && GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pkCity))
+		{
+			bSpyDetected = true;
+			break;
+		}
+	}
+
+	lua_pushboolean(L, bSpyDetected);
 
 	return 1;
 }

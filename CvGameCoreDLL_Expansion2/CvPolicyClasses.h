@@ -204,8 +204,12 @@ public:
 	int* GetCapitalYieldModifierArray() const;
 	int GetGreatWorkYieldChange(int i) const;
 	int* GetGreatWorkYieldChangeArray() const;
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+	int GetSpecialistExtraYield(int i, int j) const;
+#else
 	int GetSpecialistExtraYield(int i) const;
 	int* GetSpecialistExtraYieldArray() const;
+#endif
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 	int GetGoldenAgeYieldModifier(int i) const;
 	int* GetGoldenAgeYieldModifierArray() const;
@@ -315,6 +319,9 @@ public:
 #endif
 #ifdef POLICY_LEAGUE_SESSION_YIELD_BOOST_PER_DELEGATE
 	int GetLeagueSessionYieldBoostPerDelegate(int i) const;
+#endif
+#ifdef POLICY_SPY_DETECTION
+	bool IsSpyDetection() const;
 #endif
 
 private:
@@ -542,6 +549,9 @@ private:
 #ifdef POLICY_HAPPINESS_PER_TRADE_ROUTE_TO_MINOR
 	int m_iHappinessPerTradeRouteToMinor;
 #endif
+#ifdef POLICY_SPY_DETECTION
+	bool m_bSpyDetection;
+#endif
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -555,7 +565,11 @@ private:
 	int* m_piCapitalYieldPerPopChange;
 	int* m_piCapitalYieldModifier;
 	int* m_piGreatWorkYieldChange;
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+	int** m_ppiSpecialistExtraYield;
+#else
 	int* m_piSpecialistExtraYield;
+#endif
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 	int* m_piGoldenAgeYieldModifier;
 #endif

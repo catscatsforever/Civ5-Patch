@@ -327,16 +327,28 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 		
 		if(bHasSpy) then
-			controls.SpyIcon:SetHide(false);
 			if (isActivePlayerCity) then
-				controls.SpyIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SPY_YOUR_CITY_TT", strSpyRank, strSpyName, city:GetName(), strSpyRank, strSpyName);
+				if city:IsEnemySpyDetected() then
+					controls.SpyIcon:SetHide( true )
+					controls.SpyDetectedIcon:SetHide( false )
+					controls.SpyDetectedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SPY_YOUR_CITY_TT", strSpyRank, strSpyName, city:GetName(), strSpyRank, strSpyName);
+				else
+					controls.SpyIcon:SetHide( false )
+					controls.SpyDetectedIcon:SetHide( true )
+					controls.SpyIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SPY_YOUR_CITY_TT", strSpyRank, strSpyName, city:GetName(), strSpyRank, strSpyName);
+				end
 			elseif (player:IsMinorCiv()) then
+				controls.SpyIcon:SetHide( false )
+				controls.SpyDetectedIcon:SetHide( true )
 				controls.SpyIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SPY_CITY_STATE_TT", strSpyRank, strSpyName, city:GetName(), strSpyRank, strSpyName);			
 			else
+				controls.SpyIcon:SetHide( false )
+				controls.SpyDetectedIcon:SetHide( true )
 				controls.SpyIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SPY_OTHER_CIV_TT", strSpyRank, strSpyName, city:GetName(), strSpyRank, strSpyName, strSpyRank, strSpyName);
 			end
 		else
 			controls.SpyIcon:SetHide(true);
+			controls.SpyDetectedIcon:SetHide(true);
 		end
 
 		if(bHasDiplomat) then

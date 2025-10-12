@@ -1643,6 +1643,13 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	}
 #endif
 
+#ifdef BLITZ_MODE
+	if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE") && GetOriginalOwner() != NO_PLAYER && GET_PLAYER(GetOriginalOwner()).isMinorCiv())
+	{
+		return false;
+	}
+#endif
+
 	return kCaptureDef.eCaptureUnitType != NO_UNIT && kCaptureDef.eCapturingPlayer != NO_PLAYER;
 }
 
@@ -3105,7 +3112,11 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 
 	// Don't use rand when calculating projected combat results
 	int iRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iRoll = /*400*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
 		iRoll *= iDamageRatio;
@@ -4433,7 +4444,10 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
 
 #ifdef CAN_SET_INTERCEPT_HALF_TIMER
 	CvGame& kGame = GC.getGame();
-	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && kGame.getElapsedGameTurns() > 0 && 
+	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && kGame.getElapsedGameTurns() > 0 &&
+#ifdef BLITZ_MODE
+		!kGame.isOption("GAMEOPTION_BLITZ_MODE") &&
+#endif
 #ifdef AUI_GAME_RELATIVE_TURN_TIMERS
 		(kGame.getPitbossTurnTime() == 0 || kGame.isOption("GAMEOPTION_RELATIVE_TURN_TIMER")))
 #else
@@ -6608,19 +6622,29 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 
-#ifdef POLICY_NO_CARGO_PILLAGE
+#if defined POLICY_NO_CARGO_PILLAGE || defined NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 			int iTradeConnectionIndex = pTrade->GetIndexFromID(aiTradeUnitsAtPlot[0]);
-			PlayerTypes ePlayer = pTrade->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 
 			if (iTradeConnectionIndex < 0)
 			{
 				return false;
 			}
-
 			TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[iTradeConnectionIndex]);
+#endif
+
+#ifdef POLICY_NO_CARGO_PILLAGE
+			PlayerTypes ePlayer = pTrade->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			DomainTypes eDomain = pTradeConnection->m_eDomain;
 			if (eDomain == DOMAIN_SEA && GET_PLAYER(ePlayer).IsNoCargoPillage())
+			{
+				return false;
+			}
+#endif
+
+#ifdef POLICY_NO_CARGO_PILLAGE
+			CvCity* pOriginCity = pTrade->GetOriginCity(*pTradeConnection);
+			if (pOriginCity->getNoOutcomingInternationlCaravanPillage() > 0)
 			{
 				return false;
 			}
@@ -13217,7 +13241,11 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	iAttackerDamage /= GC.getMAX_HIT_POINTS();
 
 	int iAttackerRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
 		iAttackerRoll *= iAttackerDamageRatio;
@@ -13324,7 +13352,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	iAttackerDamage /= GC.getMAX_HIT_POINTS();
 
 	int iAttackerRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
 		iAttackerRoll *= iAttackerDamageRatio;
@@ -13403,7 +13435,11 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GC.getMAX_HIT_POINTS();
 
 	int iDefenderRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
@@ -13603,7 +13639,11 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GC.getMAX_HIT_POINTS();
 
 	int iInterceptorRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
 		iInterceptorRoll *= iInterceptorDamageRatio;

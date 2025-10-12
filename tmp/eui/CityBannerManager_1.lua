@@ -800,6 +800,7 @@ local function InitBannerCallbacks( instance )
 	instance.CityBannerButton:RegisterCallback( Mouse.eMouseExit, OnBannerMouseExit )
 	instance.CityDiplomat:RegisterCallback( Mouse.eLClick, EspionagePopup )
 	instance.CitySpy:RegisterCallback( Mouse.eLClick, EspionagePopup )
+	instance.CitySpyDetected:RegisterCallback( Mouse.eLClick, EspionagePopup )
 	for controlID in pairs( g_cityToolTips ) do
 		local control = instance[ controlID ]
 		if control then
@@ -1157,21 +1158,35 @@ local function RefreshCityBannersNow()
 				if spy then
 					if spy.IsDiplomat then
 						instance.CitySpy:SetHide( true )
+						instance.CitySpyDetected:SetHide( true )
 						instance.CityDiplomat:SetHide( false )
 						instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_DIPLOMAT_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name )
 					else
-						instance.CitySpy:SetHide( false )
 						instance.CityDiplomat:SetHide( true )
 						if isActivePlayerCity then
+							if city:IsEnemySpyDetected() then
+								instance.CitySpy:SetHide( true )
+								instance.CitySpyDetected:SetHide( false )
+								instance.CitySpyDetected:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_YOUR_CITY_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name )
+							else
+								instance.CitySpy:SetHide( false )
+								instance.CitySpyDetected:SetHide( true )
+								instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_YOUR_CITY_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name )
+							end
 							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_YOUR_CITY_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name )
 						elseif cityOwner:IsMinorCiv() then
+							instance.CitySpy:SetHide( false )
+							instance.CitySpyDetected:SetHide( true )
 							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_CITY_STATE_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name)
 						else
+							instance.CitySpy:SetHide( false )
+							instance.CitySpyDetected:SetHide( true )
 							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name)
 						end
 					end
 				else
 					instance.CitySpy:SetHide( true )
+					instance.CitySpyDetected:SetHide( true )
 					instance.CityDiplomat:SetHide( true )
 				end
 

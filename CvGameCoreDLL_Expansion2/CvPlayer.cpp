@@ -675,6 +675,9 @@ CvPlayer::CvPlayer() :
 	, m_bGoldGeneral(false)
 	, m_bGoldAdmiral(false)
 #endif
+#ifdef POLICY_SPY_DETECTION
+	, m_iSpyDetection(0)
+#endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
 	m_pEconomicAI = FNEW(CvEconomicAI, c_eCiv5GameplayDLL, 0);
@@ -713,6 +716,10 @@ CvPlayer::CvPlayer() :
 
 	m_aiGreatWorkYieldChange.clear();
 	m_aiSiphonLuxuryCount.clear();
+#ifdef FIX_DATASETS_REINITIALIZATION
+	m_ReplayDataSets.clear();
+	m_ReplayDataSetValues.clear();
+#endif
 
 	reset(NO_PLAYER, true);
 }
@@ -1503,6 +1510,9 @@ void CvPlayer::uninit()
 	m_bGoldGeneral = false;
 	m_bGoldAdmiral = false;
 #endif
+#ifdef POLICY_SPY_DETECTION
+	m_iSpyDetection = 0;
+#endif
 
 	m_eID = NO_PLAYER;
 }
@@ -1793,6 +1803,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_aUnitExtraCosts.clear();
 	}
 
+#ifdef FIX_DATASETS_REINITIALIZATION
+	m_ReplayDataSets.clear();
+	m_ReplayDataSetValues.clear();
+#endif
 	m_cities.RemoveAll();
 
 	m_units.RemoveAll();
@@ -7538,6 +7552,15 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #else
 			pBestCity->changePopulation(kGoodyInfo.getPopulation());
 #endif
+#ifdef UPDATE_CITY_BANNER_ON_POP_RUIN
+			if ((pBestCity->getOwner() == GC.getGame().getActivePlayer()) && pBestCity->isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+			}
+
+			auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(pBestCity);
+			DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
+#endif
 		}
 	}
 
@@ -8443,6 +8466,26 @@ void CvPlayer::found(int iX, int iY)
 			if (pNewUnit)
 			{
 				pNewUnit->jumpToNearestValidPlot();
+			}
+		}
+	}
+#endif
+#ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
+	if (pCity->isCapital())
+	{
+		UnitClassTypes eCapitalUnitClass = (UnitClassTypes)GET_PLAYER(GetID()).GetPlayerTraits()->GetFreeUnitOnCapitalFoundation();
+		CvUnitClassInfo* pkCapitalUnitClassInfo = GC.getUnitClassInfo(eCapitalUnitClass);
+		if (pkCapitalUnitClassInfo)
+		{
+			CvUnit* pNewUnit = NULL;
+			pNewUnit = initUnit((UnitTypes)pkCapitalUnitClassInfo->getDefaultUnitIndex(), iX, iY);
+
+			CvAssert(pNewUnit);
+			
+			if (pNewUnit)
+			{
+				pNewUnit->jumpToNearestValidPlot();
+				pNewUnit->finishMoves();
 			}
 		}
 	}
@@ -10193,11 +10236,22 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
+#ifdef FIX_FREE_BUILIDNG_STUCKING
+	if (bFirst && iChange > 0)
+	{
+		if (pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
+		{
+			BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pBuildingInfo->GetFreeBuildingClass());
+			changeFreeBuildingCount(eFreeBuilding, iChange);
+		}
+	}
+#else
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
 	{
 		BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pBuildingInfo->GetFreeBuildingClass());
 		changeFreeBuildingCount(eFreeBuilding, iChange);
 	}
+#endif
 
 	// Unit upgrade cost mod
 	ChangeUnitUpgradeCostMod(pBuildingInfo->GetUnitUpgradeCostMod() * iChange);
@@ -25398,9 +25452,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if(iMod != 0)
 			ChangeGreatWorkYieldChange(eYield, iMod);
 
+#ifdef POLICY_SPECIALIST_EXTRA_YIELDS_BY_SPECIALIST_TYPE
+		for (iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
+		{
+			SpecialistTypes eSpecialist = (SpecialistTypes)iJ;
+			iMod = pPolicy->GetSpecialistExtraYield(iJ, iI) * iChange;
+			if (iMod != 0)
+				changeSpecialistExtraYield(eSpecialist, eYield, iMod);
+		}
+#else
 		iMod = pPolicy->GetSpecialistExtraYield(iI) * iChange;
 		if(iMod != 0)
 			changeSpecialistExtraYield(eYield, iMod);
+#endif
 
 #ifdef POLICY_GOLDEN_AGE_YIELD_MOD
 		iMod = pPolicy->GetGoldenAgeYieldModifier(iI) * iChange;
@@ -25738,6 +25802,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+#endif
+#ifdef POLICY_SPY_DETECTION
+	ChangeSpyDetection(pPolicy->IsSpyDetection() * iChange);
 #endif
 
 	// Not really techs but this is what we use (for now)
@@ -28262,6 +28329,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef POLICY_SPY_DETECTION
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1014)
+	{
+# endif
+	kStream >> m_iSpyDetection;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iSpyDetection = 0;
+	}
+# endif
+#endif
 
 	m_pPlayerPolicies->Read(kStream);
 	m_pEconomicAI->Read(kStream);
@@ -28993,6 +29074,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_bGoldMerchant;
 	kStream << m_bGoldGeneral;
 	kStream << m_bGoldAdmiral;
+#endif
+#ifdef POLICY_SPY_DETECTION
+	kStream << m_iSpyDetection;
 #endif
 
 	m_pPlayerPolicies->Write(kStream);
@@ -30506,7 +30590,18 @@ void CvPlayer::setTimeCSWarAllowingMinor(PlayerTypes ePlayer, PlayerTypes eMinor
 #ifdef PENALTY_FOR_DELAYING_POLICIES
 bool CvPlayer::IsDelayedPolicy() const
 {
+#ifdef BLITZ_MODE
+	if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+	{
+		return false;
+	}
+	else
+	{
+		return m_bIsDelayedPolicy;
+	}
+#else
 	return m_bIsDelayedPolicy;
+#endif
 }
 
 void CvPlayer::setIsDelayedPolicy(bool bValue)
@@ -30615,6 +30710,18 @@ void CvPlayer::SetGoldGreatPerson(UnitClassTypes eUnitClass, bool bValue)
 	{
 		m_bGoldAdmiral = bValue;
 	}
+}
+#endif
+
+#ifdef POLICY_SPY_DETECTION
+bool CvPlayer::IsSpyDetection() const
+{
+	return m_iSpyDetection > 0;
+}
+
+void CvPlayer::ChangeSpyDetection(int iChange)
+{
+	m_iSpyDetection += iChange;
 }
 #endif
 

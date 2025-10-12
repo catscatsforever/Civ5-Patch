@@ -1874,7 +1874,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
 				iAdjustedTechDifference += iInfluenceBoost;
 
+#ifdef TRADE_ROUTES_SCIENCE_MOD
+				return iAdjustedTechDifference * 100 * TRADE_ROUTES_SCIENCE_MOD;
+#else
 				return iAdjustedTechDifference * 100;
+#endif
 			}
 		}
 	}
@@ -1890,7 +1894,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
-			return  iAdjustedTechDifference * 100;
+#ifdef TRADE_ROUTES_SCIENCE_MOD
+			return iAdjustedTechDifference * 100 * TRADE_ROUTES_SCIENCE_MOD;
+#else
+			return iAdjustedTechDifference * 100;
+#endif
 		}
 		else
 		{
@@ -2314,6 +2322,14 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 		{
 			switch (eYield)
 			{
+#ifdef TRAIT_INTERNATIONAL_TRADE_ROUTE_YIELD_CHANGES
+			case YIELD_FOOD:
+			case YIELD_PRODUCTION:
+				{
+					iValue = m_pPlayer->GetPlayerTraits()->GetInternationalTradeRoteYieldChangesTimes100(eYield);
+				}
+				break;
+#endif
 			case YIELD_GOLD:
 				{
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);

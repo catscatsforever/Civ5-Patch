@@ -319,6 +319,9 @@ CvCity::CvCity() :
 #ifdef BUILDING_DOUBLE_PANTHEON
 	, m_iDoublePantheon("CvCity::m_iDoublePantheon", m_syncArchive)
 #endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	, m_iNoOutcomingInternationlCaravanPillage("CvCity::m_iDoublePantheon", m_syncArchive)
+#endif
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
@@ -1126,6 +1129,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 	m_iDoublePantheon = 0;
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	m_iNoOutcomingInternationlCaravanPillage = 0;
 #endif
 
 	if(!bConstructorCall)
@@ -7207,6 +7213,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 		changeDoublePantheon(pBuildingInfo->IsDoublePantheon() * iChange);
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+		changeNoOutcomingInternationlCaravanPillage(pBuildingInfo->IsNoOutcomingInternationlCaravanPillage() * iChange);
 #endif
 
 		// Process for our player
@@ -16570,6 +16579,20 @@ void CvCity::read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1006)
+	{
+# endif
+		kStream >> m_iNoOutcomingInternationlCaravanPillage;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iNoOutcomingInternationlCaravanPillage = 0;
+	}
+# endif
+#endif
 
 	CvCityManager::OnCityCreated(this);
 }
@@ -16860,6 +16883,9 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 	kStream << m_iDoublePantheon;
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	kStream << m_iNoOutcomingInternationlCaravanPillage;
 #endif
 }
 
@@ -17414,7 +17440,11 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
 
 	int iAttackerRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
 	}
@@ -17469,7 +17499,11 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GetMaxHitPoints();
 
 	int iDefenderRoll = 0;
+#ifdef BLITZ_MODE
+	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+#else
 	if(bIncludeRand)
+#endif
 	{
 		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
@@ -18462,5 +18496,20 @@ void CvCity::changeDoublePantheon(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iDoublePantheon += iChange;
+}
+#endif
+
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+//	----------------------------------------------------------------------------
+int CvCity::getNoOutcomingInternationlCaravanPillage() const
+{
+	return m_iNoOutcomingInternationlCaravanPillage;
+}
+
+//	----------------------------------------------------------------------------
+void CvCity::changeNoOutcomingInternationlCaravanPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iNoOutcomingInternationlCaravanPillage += iChange;
 }
 #endif

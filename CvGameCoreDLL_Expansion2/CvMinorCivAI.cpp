@@ -6070,15 +6070,28 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 					float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
 #endif
 					float fTimeElapsed = kGame.getTimeElapsed();
-					if (fGameTurnEnd - fTimeElapsed > CS_ALLYING_WAR_RESCTRICTION_TIMER)
+					float fCSAllyingWarRestrictionTimer;
+#ifdef BLITZ_MODE
+					if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+					{
+						fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER / 4;
+					}
+					else
+					{
+						fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+					}
+#else
+					fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+#endif
+					if (fGameTurnEnd - fTimeElapsed > fCSAllyingWarRestrictionTimer)
 					{
 						GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn());
-						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fTimeElapsed + CS_ALLYING_WAR_RESCTRICTION_TIMER);
+						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fTimeElapsed + fCSAllyingWarRestrictionTimer);
 					}
 					else
 					{
 						GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn() + 1);
-						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), CS_ALLYING_WAR_RESCTRICTION_TIMER - (fGameTurnEnd - fTimeElapsed));
+						GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fCSAllyingWarRestrictionTimer - (fGameTurnEnd - fTimeElapsed));
 					}
 				}
 			}

@@ -191,6 +191,14 @@ public:
 	int GetGoldForLuxuryExport() const;
 #endif
 
+#ifdef TRAIT_INTERNATIONAL_TRADE_ROUTE_YIELD_CHANGES
+	int GetInternationalTradeRoteYieldChangesTimes100(int i) const;
+#endif
+
+#ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
+	int GetFreeUnitOnCapitalFoundation() const;
+#endif
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -326,6 +334,12 @@ protected:
 #endif
 #ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
 	int m_iGoldForLuxuryExport;
+#endif
+#ifdef TRAIT_INTERNATIONAL_TRADE_ROUTE_YIELD_CHANGES
+	int* m_paiInternationalTradeRoteYieldChangesTimes100;
+#endif
+#ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
+	int m_iFreeUnitOnCapitalFoundation;
 #endif
 
 private:
@@ -834,6 +848,18 @@ public:
 		return m_iGoldForLuxuryExport;
 	};
 #endif
+#ifdef TRAIT_INTERNATIONAL_TRADE_ROUTE_YIELD_CHANGES
+	int GetInternationalTradeRoteYieldChangesTimes100(YieldTypes eYield) const
+	{
+		return m_iInternationalTradeRoteYieldChangesTimes100[(int)eYield];
+	};
+#endif
+#ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
+	int GetFreeUnitOnCapitalFoundation() const
+	{
+		return m_iFreeUnitOnCapitalFoundation;
+	};
+#endif
 
 	// Serialization
 	void Read(FDataStream& kStream);
@@ -983,6 +1009,12 @@ private:
 #endif
 #ifdef TRAIT_GOLD_FOR_LUXURY_EXPORT
 	int m_iGoldForLuxuryExport;
+#endif
+#ifdef TRAIT_INTERNATIONAL_TRADE_ROUTE_YIELD_CHANGES
+	int m_iInternationalTradeRoteYieldChangesTimes100[NUM_YIELD_TYPES];
+#endif
+#ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
+	int m_iFreeUnitOnCapitalFoundation;
 #endif
 };
 

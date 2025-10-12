@@ -2833,6 +2833,23 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 		if(pReligion)
 		{
 			int iProphetCostMod = pReligion->m_Beliefs.GetProphetCostModifier();
+#ifdef UNITY_OF_PROPHETS_EXTRA_PROPHETS
+			BeliefTypes pBelief = NO_BELIEF;
+			for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+			{
+				const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+				CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+				if (pEntry && pEntry->IsReformationBelief())
+				{
+					pBelief = eBelief;
+					break;
+				}
+			}
+			if (pBelief == (BeliefTypes)GC.getInfoTypeForString("BELIEF_UNITY_OF_PROPHETS", true))
+			{
+				iCost = std::min(iCost, GC.getGame().GetGameReligions()->GetFaithGreatProphetNumber(UNITY_OF_PROPHETS_EXTRA_PROPHETS));
+			}
+#endif
 
 			if(iProphetCostMod != 0)
 			{

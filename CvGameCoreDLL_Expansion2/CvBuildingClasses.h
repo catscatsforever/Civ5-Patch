@@ -372,6 +372,9 @@ public:
 #ifdef BUILDING_DOUBLE_PANTHEON
 	bool IsDoublePantheon() const;
 #endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	bool IsNoOutcomingInternationlCaravanPillage() const;
+#endif
 
 private:
 	int m_iBuildingClassType;
@@ -639,6 +642,9 @@ private:
 #endif
 #ifdef BUILDING_DOUBLE_PANTHEON
 	bool m_bDoublePantheon;
+#endif
+#ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+	bool m_bNoOutcomingInternationlCaravanPillage;
 #endif
 };
 
