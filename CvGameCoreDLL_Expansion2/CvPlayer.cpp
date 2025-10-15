@@ -8485,7 +8485,7 @@ void CvPlayer::found(int iX, int iY)
 			if (pNewUnit)
 			{
 				pNewUnit->jumpToNearestValidPlot();
-				pNewUnit->finishMoves();
+				// pNewUnit->finishMoves();
 			}
 		}
 	}

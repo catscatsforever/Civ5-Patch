@@ -179,7 +179,7 @@
     </Stack>
     <!-- Queue Button -->
     <!--<Box Anchor="L,B" Color="27.53.64.255" Offset="20,74" Size="362,1"/>-->
-    <CheckBox Style="SquareCheck" Anchor="R,B" Offset="44,40" TextAnchor="L,C" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_QUEUE_O" IsChecked="0" ToolTip="TXT_KEY_CITYVIEW_QUEUE_O_TT" ID="HideQueueButton"/>
+    <CheckBox Style="SquareCheck" Anchor="R,B" Offset="44,40" TextAnchor="L,C" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_QUEUE_O" IsChecked="1" ToolTip="TXT_KEY_CITYVIEW_QUEUE_O_TT" ID="HideQueueButton"/>
   </Grid>
   <!-- BUILDINGS -->
   <Instance Name="BuildingInstance">

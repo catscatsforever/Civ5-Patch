@@ -4931,7 +4931,19 @@ int CvGame::getMaxTurnLen()
 #ifdef BLITZ_MODE
 	else if (isOption("GAMEOPTION_BLITZ_MODE"))
 	{
-		return 30 + 15 * (int)GC.getGame().getCurrentEra();
+		EraTypes eHighestEra = (EraTypes)GC.getInfoTypeForString("ERA_ANCIENT", true /*bHideAssert*/);
+		for (int iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			if (GET_TEAM((TeamTypes)iI).isAlive())
+			{
+				if (GET_TEAM((TeamTypes)iI).GetCurrentEra() > eHighestEra)
+				{
+					eHighestEra = GET_TEAM((TeamTypes)iI).GetCurrentEra();
+				}
+			}
+		}
+
+		return 45 + 15 * (int)eHighestEra;
 	}
 #endif
 	else

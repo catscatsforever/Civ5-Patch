@@ -541,7 +541,7 @@
 ///
 #define PROPHET_CAN_FOUND_EXTRA_RELIGION
 ///
-#define UNITY_OF_PROPHETS_EXTRA_PROPHETS 6
+#define UNITY_OF_PROPHETS_EXTRA_PROPHETS 9
 ///
 #define REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
 ///
@@ -1172,7 +1172,7 @@
 ///
 #define REVEAL_MAP_GAME_OVER
 ///
-#define TRADE_ROUTES_SCIENCE_MOD 3
+// #define TRADE_ROUTES_SCIENCE_MOD 3
 // Maintain backwards compatibility with older versions
 // Starting from v7.0
 #define SAVE_BACKWARDS_COMPATIBILITY
