@@ -20,6 +20,7 @@ copy /y "%patchfolder%\tmp\ui\CCVotePopup.xml" "%patchfolder%\UI\CCVotePopup.xml
 copy /y "%patchfolder%\tmp\ui\EndGameMenu.lua" "%patchfolder%\UI\EndGameMenu.lua" > nul
 copy /y "%patchfolder%\tmp\ui\ProposalChartPopup.lua" "%patchfolder%\UI\ProposalChartPopup.lua" > nul
 copy /y "%patchfolder%\tmp\ui\ProposalChartPopup.xml" "%patchfolder%\UI\ProposalChartPopup.xml" > nul
+copy /y "%patchfolder%\tmp\ui\AdvancedSetup.xml" "%patchfolder%\UI\AdvancedSetup.xml" > nul
 copy /y "%patchfolder%\tmp\ui\AdvancedSetup.lua" "%patchfolder%\UI\AdvancedSetup.lua" > nul
 copy /y "%patchfolder%\tmp\ui\StagingRoom.lua" "%patchfolder%\UI\StagingRoom.lua" > nul
 copy /y "%patchfolder%\tmp\ui\StagingRoom.xml" "%patchfolder%\UI\StagingRoom.xml" > nul
@@ -136,8 +137,12 @@ REM -------------------------------------------------
 set text="-- modified by bc1 from Civ V 1.0.3.276 code"
 FIND %text% "UI_bc1\UnitPanel\UnitPanel.lua" > nul 2>&1 && (
   copy /y "%patchfolder%\tmp\eui\UnitPanel.lua" "%patchfolder%\UI\UnitPanel.lua" > nul
+  copy /y "%patchfolder%\tmp\eui\UnitPanel.xml" "%patchfolder%\UI\UnitPanel.xml" > nul
+  copy /y "%patchfolder%\tmp\eui\UnitPanel_small.xml" "%patchfolder%\UI\UnitPanel_small.xml" > nul
 ) || (
   copy /y "%patchfolder%\tmp\ui\UnitPanel.lua" "%patchfolder%\UI\UnitPanel.lua" > nul
+  copy /y "%patchfolder%\tmp\ui\UnitPanel.xml" "%patchfolder%\UI\UnitPanel.xml" > nul
+  copy /y "%patchfolder%\tmp\ui\UnitPanel_small.xml" "%patchfolder%\UI\UnitPanel_small.xml" > nul
 )
 REM -------------------------------------------------
 set text="-- modified by bc1 from 1.0.3.144 brave new world code"

@@ -67,7 +67,7 @@ for EUI and vanilla UI -->
           </Box>
           <!-- Civ Dropdown -->
           <Box Anchor="L,T" Size="260,27" Offset="0,0" Color="255.255.255.0" >
-            <PullDown Anchor="L,C" Font="TwCenMT18" FontStyle="Shadow" Style="GenericPullDown" ScrollThreshold="90" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="CivPulldown" Offset="0,0" />
+            <PullDown Anchor="L,C" Font="TwCenMT18" FontStyle="Shadow" Style="GenericPullDown" ScrollThreshold="240" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="CivPulldown" Offset="0,0" />
             <Label Anchor="C,C" ID="CivLabel" Font="TwCenMT20" TruncateWidth="250" ColorSet="Beige_Black_Alpha"  Offset="0,0" />
           </Box>
         </Stack>

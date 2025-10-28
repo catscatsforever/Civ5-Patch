@@ -793,6 +793,10 @@ public:
 	OrderData* headOrderQueueNode();
 	const OrderData* tailOrderQueueNode() const;
 	bool CleanUpQueue(void);  // remove items in the queue that are no longer valid
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+	bool IsOrderRepeat(int iNum);
+	void SetOrderRepeat(int iNum, bool bValue);
+#endif
 
 	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true);
 	bool CreateBuilding(BuildingTypes eBuildType);

@@ -508,6 +508,9 @@ protected:
 #ifdef POLICY_SPY_DETECTION
 	static int lIsEnemySpyDetected(lua_State* L);
 #endif
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+	static int lIsOrderRepeat(lua_State* L);
+#endif
 };
 
 #endif //CVLUACITY_H

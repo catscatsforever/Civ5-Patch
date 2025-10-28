@@ -6,6 +6,7 @@
 --     WLTKD REWORK
 --     NEW FACTORIES
 --     enhanced grahps
+--     Set Production Repeat
 -- for vanilla UI
 -------------------------------------------------
 include( "IconSupport" );
@@ -942,6 +943,17 @@ function OnCityViewUpdate()
 			
 			-- show the queue buttons
 			Controls.b1number:SetHide( false );
+			-- Set Production Repeat START
+			local ordType = pCity:GetOrderFromQueue( 0 )
+			local isReallyRepeat = (ordType == OrderTypes.ORDER_TRAIN and pCity:IsOrderRepeat(0))
+								or (ordType == OrderTypes.ORDER_MAINTAIN and true) or false
+			Controls.b1number:GetTextControl():SetText(isReallyRepeat and '[ICON_TURNS_REMAINING]' or '1.');
+			Controls.b1number:RegisterCallback(Mouse.eLClick, function()
+				local product = 0 * 2^25 + (pCity:IsOrderRepeat(0) and 0 or 1) * 2^24 + pCity:GetID() % 2^28
+				--print(product, queuedItemNumber, isReallyRepeat and 0 or 1, city:GetID())
+				Network.SendGiftUnit(product, -12);
+			end)
+			-- Set Production Repeat END
 			Controls.b1remove:SetHide( false );
 			if qLength > 1 then
 				Controls.b1down:SetHide( false );
@@ -960,12 +972,20 @@ function OnCityViewUpdate()
 				local buttonUp = "b"..tostring(i).."up";
 				if isMaint then
 					anyMaint = true;
-					Controls[buttonUp]:SetHide( true );
-					buttonDown = "b"..tostring(i-1).."down";
-					Controls[buttonDown]:SetHide( true );
-				else
-					Controls[buttonUp]:SetHide( false );
-				end				
+				end
+				Controls[buttonUp]:SetHide( false );
+				-- Set Production Repeat START
+				local ordType = pCity:GetOrderFromQueue( i-1 )
+				local isReallyRepeat = (ordType == OrderTypes.ORDER_TRAIN and pCity:IsOrderRepeat(i-1))
+									or (ordType == OrderTypes.ORDER_MAINTAIN and true) or false
+				local buttonNumber = "b"..tostring(i).."number"
+				Controls[buttonNumber]:GetTextControl():SetText(isReallyRepeat and '[ICON_TURNS_REMAINING]' or (tostring(i)..'.'))
+				Controls[buttonNumber]:RegisterCallback(Mouse.eLClick, function()
+					local product = (i-1) * 2^25 + (pCity:IsOrderRepeat(i-1) and 0 or 1) * 2^24 + pCity:GetID() % 2^28
+					--print(product, queuedItemNumber, isReallyRepeat and 0 or 1, city:GetID())
+					Network.SendGiftUnit(product, -12);
+				end)
+				-- Set Production Repeat END
 			end
 		else
 			if qLength == 0 then
@@ -978,7 +998,7 @@ function OnCityViewUpdate()
 			panelSize.y = 280;
 		end
 		Controls.ProdQueueBackground:SetSize(panelSize);
-		if productionQueueOpen and (qLength >= 6 or anyMaint == true) then
+		if productionQueueOpen and (qLength >= 6) then
 			Controls.ProductionButton:SetDisabled( true );
 		else
 			Controls.ProductionButton:SetDisabled( false );
@@ -2784,3 +2804,10 @@ if PreGame.GetGameOption("GAMEOPTION_TOURNAMENT_MODE") > 0 then
 else
 	Controls.EditButton:SetDisabled(false);
 end
+
+ContextPtr:SetShowHideHandler(function(bIsHide)
+	if not bIsHide then
+		OnCityViewUpdate()
+		Controls.ProdQueueBackground:ReprocessAnchoring()
+	end
+end)

@@ -12,6 +12,7 @@
 --     WLTKD REWORK
 --     NEW FACTORIES
 --     enhanced grahps
+--     Set Production Repeat
 -- for EUI
 ------------------------------------------------------
 include( "EUI_tooltips" )
@@ -293,7 +294,10 @@ local function ClearCityUIInfo()
 	g_ProdQueueIM.ResetInstances()
 	g_ProdQueueIM.Commit()
 	Controls.PQremove:SetHide( true )
-	Controls.PQrank:SetText()
+	-- Set Production Repeat START
+	--Controls.PQrank:SetText()
+	Controls.PQrank:GetTextControl():SetText()
+	-- Set Production Repeat END
 	Controls.PQname:SetText()
 	Controls.PQturns:SetText()
 	return Controls.ProductionPortraitButton:SetHide(true)
@@ -1192,6 +1196,17 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		instance.PQremove:SetHide( isQueueEmpty or g_isViewingMode )
 		instance.PQremove:SetVoid1( queuedItemNumber )
 		instance.PQremove:RegisterCallback( Mouse.eLClick, RemoveQueueItem )
+		-- Set Production Repeat START
+		instance.PQrank:RegisterCallback(Mouse.eLClick, function()
+
+		local city = GetSelectedModifiableCity()
+		if city then
+			local product = (queuedItemNumber % 2^7) * 2^25 + (isReallyRepeat and 0 or 1) * 2^24 + city:GetID() % 2^28
+			--print(product, queuedItemNumber, isReallyRepeat and 0 or 1, city:GetID())
+			Network.SendGiftUnit(product, -12);
+		end
+	end)
+		-- Set Production Repeat END
 
 		local itemInfo, turnsRemaining, portraitOffset, portraitAtlas
 
@@ -1228,9 +1243,15 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		instance.PQportrait:SetHide( not itemInfo )
 		if isReallyRepeat then
 			isMaintain = true
-			instance.PQrank:SetText( "[ICON_TURNS_REMAINING]" )
+			-- Set Production Repeat START
+			--instance.PQrank:SetText( "[ICON_TURNS_REMAINING]" )
+			instance.PQrank:GetTextControl():SetText( "[ICON_TURNS_REMAINING]" )
+			-- Set Production Repeat END
 		else
-			instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+			-- Set Production Repeat START
+			--instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+			instance.PQrank:GetTextControl():SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+			-- Set Production Repeat END
 		end
 	end
 

@@ -1,9 +1,19 @@
 --------------------------------------------------
 -- Unit Panel Screen 
 --------------------------------------------------
--- edit: NEW: Ingame Hotkey Manager for vanilla UI
+-- edit: Ingame Hotkey Manager for vanilla UI
 --------------------------------------------------
-g_needsUpdate = true;
+-- Ingame Hotkey Manager START
+g_actionInstances = {};
+HotkeyManagerData = Modding.OpenUserData( "IngameHotkeyManager", 1);
+g_iActionStyle = HotkeyManagerData.GetValue('iActionStyle') or 1;
+g_ActionStylePrefixes = {
+	[1] = function(s) return '' end,
+	[2] = function(s) return string.format('[COLOR:255:255:200:255]%s', s) end,
+	[3] = function(s) return string.format('[COLOR:255:245:10:255]%s', s) end,
+	[4] = function(s) return string.format('[COLOR:0:255:0:255]%s', s) end,
+}
+-- Ingame Hotkey Manager END
 
 include( "IconSupport" );
 include( "InstanceManager" );
@@ -143,7 +153,9 @@ end
 -- Refresh unit actions
 --------------------------------------------------------------------------------
 function UpdateUnitActions( unit )
-
+	-- Ingame Hotkey Manager START
+	g_actionInstances = {}
+	-- Ingame Hotkey Manager END
     g_PrimaryIM:ResetInstances();
     g_SecondaryIM:ResetInstances();
     g_BuildIM:ResetInstances();
@@ -242,6 +254,18 @@ function UpdateUnitActions( unit )
             if( action.Type == "MISSION_FOUND" ) then
                 instance = g_BuildCityControlMap;
                 Controls.BuildCityButton:SetHide( false );
+				-- Ingame Hotkey Manager START
+				if action.HotKey and action.HotKey ~= "" then
+					Controls.BuildCityHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+				else
+					Controls.BuildCityHotkey:SetText()
+				end
+				if Controls.BuildCityHotkey:GetSizeX() > 44 then
+					Controls.BuildCityHotkey:SetOffsetX(-7)
+				else
+					Controls.BuildCityHotkey:SetOffsetX(-2)
+				end
+				-- Ingame Hotkey Manager END
                 buildCityButtonActive = true;
                 
             elseif( action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION ) then
@@ -250,6 +274,19 @@ function UpdateUnitActions( unit )
                 instance.UnitActionButton:SetAnchor( "L,B" );
 				instance.UnitActionButton:SetOffsetVal( (numBuildActions % numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetX + extraXOffset, math.floor(numBuildActions / numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetY );				
                 numBuildActions = numBuildActions + 1;
+				-- Ingame Hotkey Manager START
+				if action.HotKey and action.HotKey ~= "" then
+					instance.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+				else
+					instance.UnitHotkey:SetText()
+				end
+				if instance.UnitHotkey:GetSizeX() > 44 then
+					instance.UnitHotkey:SetOffsetX(-7)
+				else
+					instance.UnitHotkey:SetOffsetX(-2)
+				end
+				g_actionInstances[#g_actionInstances+1] = instance
+				-- Ingame Hotkey Manager END
                 
             elseif( (action.SubType == ActionSubTypes.ACTIONSUBTYPE_BUILD or action.Type == "INTERFACEMODE_ROUTE_TO") and hasPromotion == false) then
             
@@ -275,14 +312,53 @@ function UpdateUnitActions( unit )
 					
 					Controls.RecommendedActionLabel:SetText( foo .. "[NEWLINE]" .. convertedKey );
 				end
+				-- Ingame Hotkey Manager START
+				if action.HotKey and action.HotKey ~= "" then
+					instance.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+				else
+					instance.UnitHotkey:SetText()
+				end
+				if instance.UnitHotkey:GetSizeX() > 44 then
+					instance.UnitHotkey:SetOffsetX(-7)
+				else
+					instance.UnitHotkey:SetOffsetX(-2)
+				end
+				g_actionInstances[#g_actionInstances+1] = instance
+				-- Ingame Hotkey Manager END
                
             elseif( action.OrderPriority > 100 ) then
                 instance = g_PrimaryIM:GetInstance();
                 numPrimaryActions = numPrimaryActions + 1;
+				-- Ingame Hotkey Manager START
+				if action.HotKey and action.HotKey ~= "" then
+					instance.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+				else
+					instance.UnitHotkey:SetText()
+				end
+				if instance.UnitHotkey:GetSizeX() > 44 then
+					instance.UnitHotkey:SetOffsetX(-7)
+				else
+					instance.UnitHotkey:SetOffsetX(-2)
+				end
+				g_actionInstances[#g_actionInstances+1] = instance
+				-- Ingame Hotkey Manager END
                 
             else
                 instance = g_SecondaryIM:GetInstance();
                 numSecondaryActions = numSecondaryActions + 1;
+				-- Ingame Hotkey Manager START
+				if action.HotKey and action.HotKey ~= "" then
+					instance.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+				else
+					instance.UnitHotkey:SetText()
+				end
+				if instance.UnitHotkey:GetSizeX() > 44 then
+					instance.UnitHotkey:SetOffsetX(-7)
+				else
+					instance.UnitHotkey:SetOffsetX(-2)
+				end
+				g_actionInstances[#g_actionInstances+1] = instance
+				-- Ingame Hotkey Manager END
             end
             
 			-- test w/o visible flag (ie can train right now)
@@ -934,12 +1010,6 @@ function TipHandler( control )
 	local unit = UI.GetHeadSelectedUnit();
 	if not unit then
 		return
-	end
-
-	-- NEW: update GameInfoActions now?
-	if g_needsUpdate == true then
-		Game.UpdateActions();
-		g_needsUpdate = false;
 	end
 
 	local iAction = control:GetVoid1();
@@ -1742,9 +1812,17 @@ function OnActivePlayerChanged(iActivePlayer, iPrevActivePlayer)
 end
 Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 
+-- Ingame Hotkey Manager START
 -- NEW update GameInfoActions for this context explicitly
--- check g_needsUpdate before any call to GameInfoActions[].HotKey property
-LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end)
+local function updateActions()
+	Game.UpdateActions()
+	g_iActionStyle = math.max(math.min(tonumber(HotkeyManagerData.GetValue('iActionStyle')) or 1, 4), 1)
+	g_isUpdateRequired = false
+	OnInfoPaneDirty()
+end
+Game.UpdateActions()
+Events.GameOptionsChanged.Add( updateActions )
+-- Ingame Hotkey Manager END
 
 function OnEnemyPanelHide( bIsEnemyPanelHide )
     if( g_bWorkerActionPanelOpen ) then

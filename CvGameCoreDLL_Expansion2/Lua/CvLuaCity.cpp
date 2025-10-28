@@ -498,6 +498,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #ifdef POLICY_SPY_DETECTION
 	Method(IsEnemySpyDetected);
 #endif
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+	Method(IsOrderRepeat);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaCity::HandleMissingInstance(lua_State* L)
@@ -4231,7 +4234,7 @@ int CvLuaCity::lIsEnemySpyDetected(lua_State* L)
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
-		if (eLoopPlayer != pkCity->getOwner() && GET_PLAYER(pkCity->getOwner()).IsSpyDetection() && GET_PLAYER(eLoopPlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pkCity) && GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pkCity))
+		if (eLoopPlayer != pkCity->getOwner() && GET_PLAYER(pkCity->getOwner()).IsSpyDetection() && GET_PLAYER(eLoopPlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pkCity) && pkCity->GetCityEspionage()->HasCounterSpy())
 		{
 			bSpyDetected = true;
 			break;
@@ -4239,6 +4242,20 @@ int CvLuaCity::lIsEnemySpyDetected(lua_State* L)
 	}
 
 	lua_pushboolean(L, bSpyDetected);
+
+	return 1;
+}
+#endif
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+//------------------------------------------------------------------------------
+//bool IsOrderRepeat(int iNum);
+int CvLuaCity::lIsOrderRepeat(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iNum = lua_tointeger(L, 2);
+
+	bool bRepeat = pkCity->IsOrderRepeat(iNum);
+	lua_pushboolean(L, bRepeat);
 
 	return 1;
 }

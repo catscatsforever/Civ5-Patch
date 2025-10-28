@@ -1648,6 +1648,7 @@ g_CurrentEditable = {};
 g_ListenInput = false;
 g_InputSeqStr = {'', '', '', ''};
 g_bShowInvalidActions = HotkeyManagerData.GetValue('bShowInvalidActions') or 0;
+g_iActionStyle = HotkeyManagerData.GetValue('iActionStyle') or 1;
 
 local Categories = {[0] = 'InterfaceModes', 'Commands', 'Builds', 'UnitPromotions', 'Specialists', 'Controls', 'Automates', 'Missions', };
 
@@ -1929,7 +1930,7 @@ function SendUpdateHotkey( Cat, Id, HotKey, CtrlDown, AltDown, ShiftDown, HotKey
         local product = (2 ^ 28) + (Cat * 2 ^ 24) + (Id * 2 ^ 8) + 0 + ((CtrlDown and 1 or 0) * 2 ^ 6) + ((AltDown and 1 or 0) * 2 ^ 5) + ((ShiftDown and 1 or 0) * 2 ^ 4) + HotKeyPriority;
         -- reason? so we can use Pregame object method which is defined both ingame and in the main menu (unlike 'Game' methods)
         PreGame.SetLeaderKey(product, HotKey);
-        LuaEvents.UpdateHotkey();
+        Events.GameOptionsChanged.Call()
     end
 end
 
@@ -2020,7 +2021,7 @@ function OnResetAllHotkeysClick()
     end
     -- delete userdata entry and fallback to original hotkey
     local actions = {};
-    for row in HotkeyManagerData.Query("SELECT Name, ActionSubType, ActionIndex FROM SimpleValues WHERE Name != 'bShowInvalidActions'") do
+    for row in HotkeyManagerData.Query("SELECT Name, ActionSubType, ActionIndex FROM SimpleValues WHERE Name LIKE 'action\\_%' ESCAPE '\\'") do
         actions[row.Name] = {row.ActionSubType, row.ActionIndex};
     end
     for name, action in next, actions do
@@ -2169,14 +2170,18 @@ end
 -------------------------------------------------
 -- on script load, send all user's previously saved hotkeys 
 function InitHotkeys()
-    for row in HotkeyManagerData.Query("SELECT * FROM SimpleValues WHERE Name != 'bShowInvalidActions'") do
+    for row in HotkeyManagerData.Query("SELECT * FROM SimpleValues WHERE Name LIKE 'action\\_%' ESCAPE '\\'") do
         SendUpdateHotkey(row.ActionSubType, row.ActionIndex, row.HotKey, row.CtrlDown, row.AltDown, row.ShiftDown, row.HotKeyPriority);
     end
 end
 
 -------------------------------------------------
 -------------------------------------------------
-function BuildHotkeyManagerControls()
+
+ttbox = {}
+ttvoid1, ttvoid2 = -1, -1
+TTManager:GetTypeControlTable( "Simple", ttbox )
+local function BuildHotkeyManagerControls()
     for cat, it in ipairs(Categories) do
         -- 'Automates' category is removed, change it here if needed. 
         if it ~= 'Specialists' and it ~= 'Automates' then
@@ -2255,6 +2260,38 @@ function BuildHotkeyManagerControls()
 
                 instance.HotkeyEditButton:SetVoid1(cat);
                 instance.HotkeyEditButton:SetVoid2(i);
+                -- show possible hotkey collisions
+                instance.HotkeyEditButton:SetToolTipCallback(function(con)
+                    local res = {}
+                    local _cat = con:GetVoid1()
+                    local _i = con:GetVoid2()
+                    ttvoid1, ttvoid2 = _cat, _i
+                    if g_StackChildren[_cat][_i].HotkeyEditFrontLabel:GetText() == '--' then
+                        ttbox.Root:SetHide(true)
+                        return
+                    end
+                    local str = g_StackChildren[_cat][_i].HotkeyEditFrontLabel:GetText()
+                    for __cat, c1 in next, g_StackChildren do
+                        for __i, c2 in next, g_StackChildren[__cat] do
+                            local str2 = c2.HotkeyEditFrontLabel:GetText()
+                            if c2.HotkeyEditButton ~= con and Locale.Compare(str, str2) == 0 then
+                                if not (g_bShowInvalidActions == 0 and ((Categories[__cat] ~= 'Builds' and Categories[__cat] ~= 'Controls' and Categories[__cat] ~= 'UnitPromotions' and GameInfo[Categories[__cat]][__i].Visible == false) or (Categories[__cat] == 'UnitPromotions' and (GameInfo[Categories[__cat]][__i].CannotBeChosen or (GameInfo[Categories[__cat]][__i].IconAtlas == 'ABILITY_ATLAS'))))) then
+                                    res[#res+1] = string.format('[ICON_BULLET]%s', c2.HotkeyDescriptionLabel:GetText() or '--')
+                                end
+                            end
+                        end
+                    end
+                    if #res > 0 then
+                        table.sort(res, function(a,b)
+                            return Locale.Compare(a, b) < 0
+                        end)
+                        ttbox.Text:LocalizeAndSetText(string.format('{TXT_KEY_OPSCREEN_HOTKEY_CONFLICT}[NEWLINE]%s', table.concat(res, '[NEWLINE]')))
+                        ttbox.Root:SetHide(false)
+                        ttbox.Root:DoAutoSize()
+                    else
+                        ttbox.Root:SetHide(true)
+                    end
+                end);
                 instance.HotkeyEditButton:RegisterCallback(Mouse.eLClick, OnHotkeyEditMode);
 
                 instance.HotkeyEditFrontLabel:SetText(KeySequenceToString(g_KeyMap[HK.HotKey] and g_KeyMap[HK.HotKey][3] or '--', HK.CtrlDown, HK.AltDown, HK.ShiftDown));
@@ -2329,6 +2366,35 @@ function InputHandler( uiMsg, wParam, lParam )
             end
 
             g_CurrentEditable.HotkeyEditFrontLabel:SetText(g_InputSeqStr[1] .. g_InputSeqStr[2] .. g_InputSeqStr[3] .. (g_InputSeqStr[4] ~= '...' and g_KeyMap[g_InputSeqStr[4]] and g_KeyMap[g_InputSeqStr[4]][3] or '...'));
+            -- show possible hotkey collisions (update tt)
+            local res = {}
+            local _cat = ttvoid1
+            local _i = ttvoid2
+            if g_StackChildren[_cat][_i].HotkeyEditFrontLabel:GetText() == '--' then
+                ttbox.Root:SetHide(true)
+                return
+            end
+            local str = g_StackChildren[_cat][_i].HotkeyEditFrontLabel:GetText()
+            for __cat, c1 in next, g_StackChildren do
+                for __i, c2 in next, g_StackChildren[__cat] do
+                    local str2 = c2.HotkeyEditFrontLabel:GetText()
+                    if c2.HotkeyEditButton ~= g_StackChildren[_cat][_i].HotkeyEditButton and Locale.Compare(str, str2) == 0 then
+                        if not (g_bShowInvalidActions == 0 and ((Categories[__cat] ~= 'Builds' and Categories[__cat] ~= 'Controls' and Categories[__cat] ~= 'UnitPromotions' and GameInfo[Categories[__cat]][__i].Visible == false) or (Categories[__cat] == 'UnitPromotions' and (GameInfo[Categories[__cat]][__i].CannotBeChosen or (GameInfo[Categories[__cat]][__i].IconAtlas == 'ABILITY_ATLAS'))))) then
+                            res[#res+1] = string.format('[ICON_BULLET]%s', c2.HotkeyDescriptionLabel:GetText() or '--')
+                        end
+                    end
+                end
+            end
+            if #res > 0 then
+                table.sort(res, function(a,b)
+                    return Locale.Compare(a, b) < 0
+                end)
+                ttbox.Text:LocalizeAndSetText(string.format('{TXT_KEY_OPSCREEN_HOTKEY_CONFLICT}[NEWLINE]%s', table.concat(res, '[NEWLINE]')))
+                ttbox.Root:SetHide(false)
+                ttbox.Root:DoAutoSize()
+            else
+                ttbox.Root:SetHide(true)
+            end
         end
     elseif uiMsg == KeyEvents.KeyDown then
         if wParam == Keys.VK_ESCAPE then
@@ -2411,6 +2477,37 @@ function OnHotkeysSearch( str )
     Controls.ScrollPanel:CalculateInternalSize();
 end
 Controls.HotkeysSearchEdit:RegisterCallback( OnHotkeysSearch );
+
+-------------------------------------------------------------------------------
+-- Hotkey Style
+-------------------------------------------------------------------------------
+
+function ChangeHighlight( style )
+    if style == 1 then
+        Controls.ActionStyleHL:SetOffsetX( 150 - 2 )
+    elseif style == 2 then
+        Controls.ActionStyleHL:SetOffsetX( 100 - 2 )
+    elseif style == 3 then
+        Controls.ActionStyleHL:SetOffsetX( 50 - 2 )
+    elseif style == 4 then
+        Controls.ActionStyleHL:SetOffsetX( 0 - 2 )
+    end
+end
+ChangeHighlight(g_iActionStyle)
+
+function OnHotkeyStyle( void1 )
+    void1 = tonumber(void1) or 1
+    if void1 ~= g_iActionStyle then
+        g_iActionStyle = math.max(math.min(void1, 4), 1)
+        HotkeyManagerData.SetValue('iActionStyle', g_iActionStyle)
+        ChangeHighlight(g_iActionStyle)
+        Events.GameOptionsChanged.Call()
+    end
+end
+Controls.ActionStyle1:RegisterCallback( Mouse.eLClick, OnHotkeyStyle );
+Controls.ActionStyle2:RegisterCallback( Mouse.eLClick, OnHotkeyStyle );
+Controls.ActionStyle3:RegisterCallback( Mouse.eLClick, OnHotkeyStyle );
+Controls.ActionStyle4:RegisterCallback( Mouse.eLClick, OnHotkeyStyle );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

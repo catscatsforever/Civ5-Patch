@@ -17,7 +17,7 @@ g_KeyMap = { 27, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 189, 65, 66, 67, 68, 69
 	99, 96, 110, 122, 123, -1, -1, -1, -1, -1, 163, 174, 175, -1, 111, -1, 165, 19, 36, 38, 33, 37, 39, 35, 40,	34, 45, 46 };
 -- NEW update GameInfoActions for this context explicitly
 -- check g_needsUpdate before any call to GameInfoActions[].HotKey property
-LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end);
+Events.GameOptionsChanged.Add(function() g_needsUpdate = true; end);
 -- NEW: search for hex grid control index
 local ToggleGrid;
 for actionID, action in next, GameInfoActions do
@@ -119,7 +119,7 @@ function( wParam, lParam )
 			pPlot:SetRevealed(team, bIsDebug);
 		end       
 		return true;
-    elseif ( wParam == g_KeyMap[GameInfoActions[ToggleGrid].HotKeyVal] ) then
+    elseif ( wParam == g_KeyMap[GameInfoActions[ToggleGrid].HotKeyVal] and UIManager:GetControl() == GameInfoActions[ToggleGrid].CtrlDown and UIManager:GetAlt() == GameInfoActions[ToggleGrid].AltDown and UIManager:GetShift() == GameInfoActions[ToggleGrid].ShiftDown ) then
 		UI.ToggleGridVisibleMode();
 		return true;
     end

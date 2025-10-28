@@ -4931,19 +4931,25 @@ int CvGame::getMaxTurnLen()
 #ifdef BLITZ_MODE
 	else if (isOption("GAMEOPTION_BLITZ_MODE"))
 	{
+		int iTurnTimer;
+		int iBaseTimer = 30;
+		int iEraTimer = 0;
 		EraTypes eHighestEra = (EraTypes)GC.getInfoTypeForString("ERA_ANCIENT", true /*bHideAssert*/);
-		for (int iI = 0; iI < MAX_TEAMS; iI++)
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
-			if (GET_TEAM((TeamTypes)iI).isAlive())
+			TeamTypes eTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
+			if (GET_TEAM(eTeam).isAlive() && GET_TEAM(eTeam).isHuman())
 			{
-				if (GET_TEAM((TeamTypes)iI).GetCurrentEra() > eHighestEra)
+				if (GET_TEAM(eTeam).GetCurrentEra() > eHighestEra)
 				{
-					eHighestEra = GET_TEAM((TeamTypes)iI).GetCurrentEra();
+					eHighestEra = GET_TEAM(eTeam).GetCurrentEra();
 				}
 			}
 		}
+		iEraTimer = 15 * (int)eHighestEra + ((int)eHighestEra > 1 ? 15 : 0);
+		iTurnTimer = iBaseTimer + iEraTimer;
 
-		return 45 + 15 * (int)eHighestEra;
+		return iTurnTimer;
 	}
 #endif
 	else

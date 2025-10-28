@@ -843,6 +843,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 	m_bNoOutcomingInternationlCaravanPillage = kResults.GetBool("NoOutcomingInternationlCaravanPillage");
 #endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	m_bPlayerBorderTransitionObstacle = kResults.GetBool("BorderTransitionObstacle");
+#endif
 
 	return true;
 }
@@ -2421,6 +2424,13 @@ bool CvBuildingEntry::IsDoublePantheon() const
 bool CvBuildingEntry::IsNoOutcomingInternationlCaravanPillage() const
 {
 	return m_bNoOutcomingInternationlCaravanPillage;
+}
+#endif
+
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+bool CvBuildingEntry::IsPlayerBorderTransitionObstacle() const
+{
+	return m_bPlayerBorderTransitionObstacle;
 }
 #endif
 

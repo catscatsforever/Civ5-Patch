@@ -1025,11 +1025,19 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes eMinor, int iUnitID)
 {
 #ifdef MP_PLAYERS_VOTING_SYSTEM
+	// MODDING. reserved iUnitID values:
+	// -1 -- reset timer
 	// -2 -- irr
 	// -3 -- cc
 	// -4 -- scrap
 	// -5 -- vote yes
 	// -6 -- vote no
+	// -7 -- pause timer
+	// -8 -- increment num times opened demographics
+	// -9 -- increment num times opened city screen
+	// -10 -- timer autopaus on
+	// -11 -- timer autopaus off
+	// -12 -- set city order repeat
 	CvGame& game = GC.getGame();
 	CvMPVotingSystem* pkMPVotingSystem = game.GetMPVotingSystem();
 #ifdef REPLAY_EVENTS
@@ -1258,7 +1266,27 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	}
 	else
 #endif
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN)
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+	// -12 -- set city order repeat
+	if (iUnitID == -12) {
+		int iNum = static_cast<int>((static_cast<uint>(eMinor) >> 25) & 127);  // 7-bit
+		bool bValue = static_cast<int>((static_cast<uint>(eMinor) >> 24) & 1) == 1;  // 1-bit
+		int iCityID = static_cast<int>((static_cast<uint>(eMinor)) & 16777215);  // 24-bit
+		//SLOG("ePlayer %d eMinor %d iNum %d bValue %d iCityID %d", (int)ePlayer, (int)eMinor, iNum, bValue ? 1 : 0, iCityID);
+		CvCity* pCity = GET_PLAYER(ePlayer).getCity(static_cast<int>(iCityID));
+		if (pCity)
+		{
+			pCity->SetOrderRepeat(iNum, bValue);
+			if ((pCity->getOwner() == GC.getGame().getActivePlayer()) && pCity->isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+			}
+		}
+		GET_PLAYER(ePlayer).ChangeNumTimesOpenedDemographics(1);
+	}
+	else
+#endif
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN) || defined(LUA_CITY_METHOD_SET_REPEAT_ORDER)
 	{
 #endif
 		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
@@ -1273,7 +1301,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
 
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN)
+#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN) || defined(LUA_CITY_METHOD_SET_REPEAT_ORDER)
 	}
 #endif
 }
@@ -1319,6 +1347,9 @@ void CvDllNetMessageHandler::ResponseMinorCivBullyGold(PlayerTypes ePlayer, Play
 	vArgs.push_back(eMinor);
 	vArgs.push_back(iGold);
 	GC.getGame().addReplayEvent(REPLAYEVENT_MinorCivBullyGold, ePlayer, vArgs);
+#endif
+#ifdef NET_FIX_EXPLOITABLE_MINOR_BULLY_GOLD
+	iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(ePlayer);
 #endif
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyGold(ePlayer, iGold);
 }

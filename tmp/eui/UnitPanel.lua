@@ -3,9 +3,19 @@
 -- modified by bc1 from Civ V 1.0.3.276 code
 -- code is common using gk_mode and bnw_mode switches
 ------------------------------------------------------
--- edit: NEW: Ingame Hotkey Manager for EUI
+-- edit: Ingame Hotkey Manager for EUI
 ------------------------------------------------------
-g_needsUpdate = true;
+-- Ingame Hotkey Manager START
+g_actionInstances = {};
+HotkeyManagerData = Modding.OpenUserData( "IngameHotkeyManager", 1);
+g_iActionStyle = HotkeyManagerData.GetValue('iActionStyle') or 1;
+g_ActionStylePrefixes = {
+	[1] = function(s) return '' end,
+	[2] = function(s) return string.format('[COLOR:255:255:200:255]%s', s) end,
+	[3] = function(s) return string.format('[COLOR:255:245:10:255]%s', s) end,
+	[4] = function(s) return string.format('[COLOR:0:255:0:255]%s', s) end,
+}
+-- Ingame Hotkey Manager END
 
 include( "EUI_tooltips" )
 Events.SequenceGameInitComplete.Add(function()
@@ -955,7 +965,9 @@ end
 -- Refresh unit actions
 --------------------------------------------------------------------------------
 local function UpdateUnitActions( unit )
-
+	-- Ingame Hotkey Manager START
+	g_actionInstances = {}
+	-- Ingame Hotkey Manager END
 	g_ActionIM:ResetInstances()
 	g_BuildIM:ResetInstances()
 	Controls.WorkerActionPanel:SetHide(true)
@@ -1006,6 +1018,18 @@ local function UpdateUnitActions( unit )
 		if action.Type == "MISSION_FOUND" then
 			button = Controls.BuildCityButton
 			hideCityButton = false
+			-- Ingame Hotkey Manager START
+			if action.HotKey and action.HotKey ~= "" then
+				Controls.BuildCityHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+			else
+				Controls.BuildCityHotkey:SetText()
+			end
+			if Controls.BuildCityHotkey:GetSizeX() > 44 then
+				Controls.BuildCityHotkey:SetOffsetX(-7)
+			else
+				Controls.BuildCityHotkey:SetOffsetX(-2)
+			end
+			-- Ingame Hotkey Manager END
 
 		else
 			local instance
@@ -1040,6 +1064,19 @@ local function UpdateUnitActions( unit )
 			instance.WorkerProgressBar:SetHide( not buildProgress )
 			instance.UnitActionText:SetText( buildTurnsLeft )
 			button = instance.UnitActionButton
+			-- Ingame Hotkey Manager START
+			if action.HotKey and action.HotKey ~= "" then
+				instance.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](action.HotKey) )
+			else
+				instance.UnitHotkey:SetText()
+			end
+			if instance.UnitHotkey:GetSizeX() > 44 then
+				instance.UnitHotkey:SetOffsetX(-7)
+			else
+				instance.UnitHotkey:SetOffsetX(-2)
+			end
+			g_actionInstances[#g_actionInstances+1] = instance
+			-- Ingame Hotkey Manager END
 		end
 
 		-- test w/o visible flag (ie can train right now)
@@ -1439,12 +1476,6 @@ function ActionToolTipHandler( control )
 	if not unit then
 		tipControlTable.UnitActionMouseover:SetHide( true )
 		return
-	end
-
-	-- NEW: update GameInfoActions now?
-	if g_needsUpdate == true then
-		Game.UpdateActions();
-		g_needsUpdate = false;
 	end
 
 	local actionID = control:GetVoid1()
@@ -1906,6 +1937,16 @@ local function UpdateDisplayNow()
 --	if IsGameCoreBusy() then
 --		return
 --	end
+	-- Ingame Hotkey Manager START
+	for i,v in ipairs(g_actionInstances) do
+		v.UnitHotkey:SetText( g_ActionStylePrefixes[g_iActionStyle](GameInfoActions[v.UnitActionButton:GetVoid1()].HotKey) )
+		if v.UnitHotkey:GetSizeX() > 44 then
+			v.UnitHotkey:SetOffsetX(-7)
+		else
+			v.UnitHotkey:SetOffsetX(-2)
+		end
+	end
+	-- Ingame Hotkey Manager END
 
 	g_isUpdateRequired = false
 	ContextPtr:ClearUpdate()
@@ -2324,9 +2365,17 @@ Events.EndCombatSim.Add( function(
 end)
 --]]
 
+-- Ingame Hotkey Manager START
 -- NEW update GameInfoActions for this context explicitly
--- check g_needsUpdate before any call to GameInfoActions[].HotKey property
-LuaEvents.UpdateHotkey.Add(function() g_needsUpdate = true; end)
+local function updateActions()
+	Game.UpdateActions()
+	g_iActionStyle = math.max(math.min(tonumber(HotkeyManagerData.GetValue('iActionStyle')) or 1, 4), 1)
+	g_isUpdateRequired = false
+	UpdateDisplay()
+end
+Game.UpdateActions()
+Events.GameOptionsChanged.Add( updateActions )
+-- Ingame Hotkey Manager END
 
 -- Process request to hide enemy panel
 LuaEvents.EnemyPanelHide.Add(

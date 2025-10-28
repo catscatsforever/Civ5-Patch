@@ -1459,6 +1459,10 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 		int iRate = CalcPerTurn(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		int iGoal = CalcRequired(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		pCityEspionage->SetActivity(m_pPlayer->GetID(), 0, iRate, iGoal);
+#ifdef CITY_BANNER_MISSING_UPDATES_FIX
+		auto_ptr<ICvCity1> pICity = GC.WrapCityPointer(pCity);
+		DLLUI->SetSpecificCityInfoDirty(pICity.get(), CITY_UPDATE_TYPE_BANNER);
+#endif
 	}
 
 	if(GC.getLogging())
@@ -1557,6 +1561,10 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;
 	pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
+#ifdef CITY_BANNER_MISSING_UPDATES_FIX
+	auto_ptr<ICvCity1> pICity = GC.WrapCityPointer(pCity);
+	DLLUI->SetSpecificCityInfoDirty(pICity.get(), CITY_UPDATE_TYPE_BANNER);
+#endif
 
 	return true;
 }

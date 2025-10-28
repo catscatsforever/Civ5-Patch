@@ -1636,7 +1636,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	if(pkCaptureDef)
 		*pkCaptureDef = kCaptureDef;
 
-#ifdef DUEL_CANT_CAPTURE_CS_WORKER
+/*#ifdef DUEL_CANT_CAPTURE_CS_WORKER
 	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF") && GetOriginalOwner() != NO_PLAYER && GET_PLAYER(GetOriginalOwner()).isMinorCiv())
 	{
 		return false;
@@ -1645,6 +1645,13 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 #ifdef BLITZ_MODE
 	if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE") && GetOriginalOwner() != NO_PLAYER && GET_PLAYER(GetOriginalOwner()).isMinorCiv())
+	{
+		return false;
+	}
+#endif*/
+
+#ifdef NO_MINORS_WORKERS_CAPTURE
+	if (GetOriginalOwner() != NO_PLAYER && GET_PLAYER(GetOriginalOwner()).isMinorCiv())
 	{
 		return false;
 	}
@@ -5331,6 +5338,13 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && GET_PLAYER(pPlot->getOwner()).isBorderTransitionObstacle() && getDomainType() == DOMAIN_LAND)
+	{
+		return false;
+	}
+#endif
+
 	// JON - This should change when one-unit-per-plot city stuff is handled better
 	// Unit Healing in cities
 
@@ -7442,6 +7456,12 @@ bool CvUnit::pillage()
 
 #ifdef NO_PILLAGE_HEAL_ON_NEUTRAL_LAND
 	if (pPlot->getOwner() == NO_PLAYER)
+	{
+		bSuccessfulNonRoadPillage = false;
+	}
+#endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderTransitionObstacle())
 	{
 		bSuccessfulNonRoadPillage = false;
 	}

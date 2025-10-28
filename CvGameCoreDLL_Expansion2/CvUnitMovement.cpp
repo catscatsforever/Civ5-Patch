@@ -271,6 +271,29 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		}
 	}
 
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	if (!pToPlot->isWater() && !pFromPlot->isWater())
+	{
+		if (!GET_PLAYER(pUnit->getOwner()).isBorderTransitionObstacle())
+		{
+			if ((pToPlot->getOwner() == NO_PLAYER || pToPlot->getOwner() != NO_PLAYER && !GET_PLAYER(pToPlot->getOwner()).isBorderTransitionObstacle()) && pFromPlot->getOwner() != NO_PLAYER && GET_PLAYER(pFromPlot->getOwner()).isBorderTransitionObstacle())
+			{
+				if (pUnit->getTeam() != pFromPlot->getTeam() && !GET_TEAM(pFromPlot->getTeam()).IsAllowsOpenBordersToTeam(pUnit->getTeam()))
+				{
+					return true;
+				}
+			}
+			if ((pFromPlot->getOwner() == NO_PLAYER || pFromPlot->getOwner() != NO_PLAYER && !GET_PLAYER(pFromPlot->getOwner()).isBorderTransitionObstacle()) && pToPlot->getOwner() != NO_PLAYER && GET_PLAYER(pToPlot->getOwner()).isBorderTransitionObstacle())
+			{
+				if (pUnit->getTeam() != pToPlot->getTeam() && !GET_TEAM(pToPlot->getTeam()).IsAllowsOpenBordersToTeam(pUnit->getTeam()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+#endif
+
 	return false;
 }
 

@@ -1,4 +1,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<!-- edit:
+	- Set Production Repeat
+for EUI -->
 <Context Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha">
 	<Container ID="Scrap" Hidden="true"/>
 	<Container ID="PlotButtonContainer" Size="Full,Full" />
@@ -101,12 +104,22 @@
 			</ScrollPanel>
 			<!-- #1 entry in the queue and gets special treatment -->
 			<GridButton ID="PQbox" Anchor="L,B" Size="270,38" Style="ListItem" ToolTipType="EUI_CityViewLeftTooltip" >
+				<!-- Set Production Repeat START -->
+				<!--
 				<Stack Anchor="L,C" Offset="40,-1" Padding="8" StackGrowth="Right" >
 					<Label ID="PQrank" Anchor="L,C" String="1." Font="TwCenMT24"/>
+				-->
+				<Stack Anchor="L,C" Offset="60,-1" Padding="8" StackGrowth="Right" >
+				<!-- Set Production Repeat END -->
 					<Label ID="ProductionFinished" Anchor="L,C" Font="TwCenMT24" String="TXT_KEY_RESEARCH_FINISHED" />
 					<Label ID="PQname" Anchor="L,C" Font="TwCenMT24" Color0="Production.255" Color1="0.0.0.128" Color2="255.255.200.255"/>
 					<Label ID="PQturns" Anchor="L,C" Offset="0,2" Font="TwCenMT16"/>
 				</Stack>
+				<!-- Set Production Repeat START -->
+				<Button ID="PQrank" Anchor="L,C" Offset="36,-1" Size="24,32" ToolTip="TXT_KEY_SET_PRODUCTION_REPEAT" >
+					<Label Anchor="C,C" Font="TwCenMT24" />
+				</Button>
+				<!-- Set Production Repeat END -->
 				<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
 				<Image Anchor="L,B" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 			</GridButton>
@@ -144,8 +157,14 @@
 			</ScrollPanel>
 		</Stack>
 		<!-- Queue Slider Control -->
+		<!-- Set Production Repeat START -->
+		<!--
 		<Slider ID="QueueSlider" ConsumeMouseWheel="0" Anchor="L,B" Offset="56,43" Vertical="1" Texture="Blank.dds" Length="200" Size="230,1" >
 			<Shuttle Vertical="1" Texture="Blank.dds" Size="230,38" />
+		-->
+		<Slider ID="QueueSlider" ConsumeMouseWheel="0" Anchor="L,B" Offset="83,43" Vertical="1" Texture="Blank.dds" Length="200" Size="203,1" >
+			<Shuttle Vertical="1" Texture="Blank.dds" Size="203,38" />
+		<!-- Set Production Repeat END -->
 		</Slider>
 	</Grid>
 
@@ -363,8 +382,13 @@
 
 	<Instance Name="ProductionInstance">
 		<GridButton ID="PQbox" Anchor="L,T" Style="ListItem" Size="270,38" ToolTipType="EUI_CityViewLeftTooltip" >
+			<!-- Set Production Repeat START -->
+			<!--
 			<Stack Anchor="L,C" Offset="40,-1" Padding="4" StackGrowth="Right" >
 				<Label ID="PQrank" Anchor="L,C" Font="TwCenMT24" />
+			-->
+			<Stack Anchor="L,C" Offset="60,-1" Padding="4" StackGrowth="Right" >
+			<!-- Set Production Repeat END -->
 				<Image ID="PQportrait" Anchor="L,C" Texture="UnitPortraitsAncientMedieval360.dds" Size="45.45"/>
 				<Stack Anchor="L,C" Padding="6" StackGrowth="Bottom" >
 					<Label ID="PQname" Font="TwCenMT16"/>
@@ -372,6 +396,11 @@
 				</Stack>
 			</Stack>
 			<Box ID="PQdisabled" Anchor="L,T" Size="270,38" Color="27.0.64.128" />
+			<!-- Set Production Repeat START -->
+			<Button ID="PQrank" Anchor="L,C" Offset="36,-1" Size="24,32" ToolTip="TXT_KEY_SET_PRODUCTION_REPEAT" >
+				<Label Anchor="C,C" Font="TwCenMT24" />
+			</Button>
+			<!-- Set Production Repeat END -->
 			<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
 			<Image Anchor="L,B" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 		</GridButton>

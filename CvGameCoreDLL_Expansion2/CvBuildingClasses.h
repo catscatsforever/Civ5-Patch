@@ -375,6 +375,9 @@ public:
 #ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 	bool IsNoOutcomingInternationlCaravanPillage() const;
 #endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	bool IsPlayerBorderTransitionObstacle() const;
+#endif
 
 private:
 	int m_iBuildingClassType;
@@ -645,6 +648,9 @@ private:
 #endif
 #ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 	bool m_bNoOutcomingInternationlCaravanPillage;
+#endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	bool m_bPlayerBorderTransitionObstacle;
 #endif
 };
 

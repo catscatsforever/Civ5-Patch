@@ -13511,7 +13511,11 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	if(bFinish && pOrderNode->bSave)
 	{
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, false);
+#else
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
+#endif
 	}
 
 	eTrainUnit = NO_UNIT;
@@ -14019,6 +14023,35 @@ bool CvCity::CleanUpQueue(void)
 
 	return bOK;
 }
+#ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
+
+//	--------------------------------------------------------------------------------
+bool CvCity::IsOrderRepeat(int iNum)
+{
+	OrderData* pOrderNode;
+	pOrderNode = m_orderQueue.nodeNum(iNum);
+	if (pOrderNode != NULL)
+	{
+		return pOrderNode->bSave;
+	}
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetOrderRepeat(int iNum, bool bValue)
+{
+	OrderData* pOrderNode;
+	pOrderNode = m_orderQueue.nodeNum(iNum);
+	if (pOrderNode != NULL)
+	{
+		pOrderNode->bSave = bValue;
+		if (isCitySelected())
+		{
+			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation)
@@ -17293,6 +17326,10 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 	}
 #endif
 	setMadeAttack(true);
+#ifdef CITY_BANNER_MISSING_UPDATES_FIX
+	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
+#endif
 
 	// No City
 	if(!pPlot->isCity())

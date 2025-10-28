@@ -1819,6 +1819,11 @@ public:
 	bool IsSpyDetection() const;
 	void ChangeSpyDetection(int iChange);
 #endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	int getBorderTransitionObstacleCount() const;
+	bool isBorderTransitionObstacle() const;
+	void changeBorderTransitionObstacleCount(int iChange);
+#endif
 
 	CvPlayerPolicies* GetPlayerPolicies() const;
 	CvPlayerTraits* GetPlayerTraits() const;
@@ -2648,6 +2653,9 @@ protected:
 #endif
 #ifdef POLICY_SPY_DETECTION
 	int m_iSpyDetection;
+#endif
+#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
+	int m_iBorderTransitionObstacleCount;
 #endif
 };
 

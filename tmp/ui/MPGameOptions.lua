@@ -283,6 +283,7 @@ function UpdateGameOptionsDisplay(bUpdateOnly)
 	Controls.MapTypePullDown:SetDisabled( not bCanEdit );
 	Controls.LoadScenarioBox:SetHide( true );
 	Controls.MapSizePullDown:GetButton():SetDisabled( not bCanEdit );
+	Controls.TurnTimerEdit:SetDisabled( not bCanEdit );
 	
 	RefreshMapTypeDisplay();
 					
@@ -1649,6 +1650,8 @@ function SetTurnTimerOption()
 	-- This mimics the MaxTurns option's functionality.
 	if(turnTime > 0) then
 		Controls.TurnTimerEdit:SetText( turnTime );
+	else
+		Controls.TurnTimerEdit:SetText('');
 	end
 end
 

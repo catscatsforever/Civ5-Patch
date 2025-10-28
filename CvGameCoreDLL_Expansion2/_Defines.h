@@ -777,7 +777,7 @@
 ///
 #define NEW_BULLY_METRICS
 ///
-#define CS_CANT_BUILD_EARLY_WORKERS
+// #define CS_CANT_BUILD_EARLY_WORKERS
 #ifdef CS_CANT_BUILD_EARLY_WORKERS
 #define CS_EARLY_WORKERS_TURN 20
 #endif
@@ -789,6 +789,8 @@
 #define BUMP_UNITS_OUT_MINOR_LAND
 ///
 #define QUESTS_SYSTEM_OVERHAUL
+///
+#define NO_MINORS_WORKERS_CAPTURE
 /*CITY-STATES CHANGES END*/
 
 
@@ -851,8 +853,10 @@
 #define CHANGE_CITY_ORIGINAL_OWNER
 ///
 #define UPDATE_UNIT_PROMOTIONS_ON_ACQUIRED_PLOT
-/// Fixes the city banner not updating after receiving food ruin
-#define UPDATE_CITY_BANNER_ON_POP_RUIN
+/// Fixes the city banner not updating after receiving food ruin, range strike, moving spy
+#define CITY_BANNER_MISSING_UPDATES_FIX
+/// provides a method to change the bSave value (endless repeat) for a city order; after construction repeated orders stay at the beginning of the production queue
+#define LUA_CITY_METHOD_SET_REPEAT_ORDER
 /*CITIES CHANGES END*/
 
 
@@ -918,6 +922,8 @@
 #define BUILDING_DOUBLE_PANTHEON
 ///
 #define NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
+///
+#define BUILDING_BORDER_TRANSITION_OBSTACLE
 /*BUILDINGS CHANGES END*/
 
 
@@ -1013,6 +1019,8 @@
 #define FIX_DATASETS_REINITIALIZATION
 ///
 #define FIX_FREE_BUILIDNG_STUCKING
+/// CS gold tribute amount being sent by the client
+#define NET_FIX_EXPLOITABLE_MINOR_BULLY_GOLD
 /*BUGS FIXES END*/
 
 
@@ -1223,7 +1231,8 @@
 // 1012: v11.0  (adds BUILDING_YIELD_FOR_EACH_BUILDING_IN_EMPIRE, POLICY_ALLOWS_GP_BUYS_FOR_GOLD)
 // 1013: v11.2  (adds fourth bunch of ENHANCED_GRAPHS)
 // 1014: v11.4  (adds POLICY_EXTRA_VOTES)
-# define BUMP_SAVE_VERSION_PLAYER 1014
+// 1015: v11.4b  (adds BUILDING_BORDER_TRANSITION_OBSTACLE)
+# define BUMP_SAVE_VERSION_PLAYER 1015
 // 1000: v7.0   (initial)
 # define BUMP_SAVE_VERSION_POLICIES 1000
 // 1000: v7.0   (initial)
@@ -1472,7 +1481,7 @@
 ///
 #define DUEL_DISABLE_MOVE_AFTER_PURCHASE
 ///
-#define DUEL_CANT_CAPTURE_CS_WORKER
+// #define DUEL_CANT_CAPTURE_CS_WORKER
 ///
 #define DUEL_TOGGLEABLE_LESS_ALREADY_KNOWN_TECH_COST
 ///

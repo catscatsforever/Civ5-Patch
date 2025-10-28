@@ -391,17 +391,47 @@
 			<UpButton   Offset="0,0"  Anchor="R,T" AnchorSide="O,I" Style="ScrollBarUp" />
 			<DownButton Offset="0,1"  Anchor="R,B" AnchorSide="O,I" Style="ScrollBarDown" />
 		</ScrollPanel>
-		<Box Anchor="L,B" Offset="75,105" Size="174,30" Color="255,255,200,255" >
-			<Box Anchor="C,C"  Size="172,28" Color="0,0,0,255" >
-				<EditBox ID="HotkeysSearchEdit" FocusStop="1" CallOnChar="1" EditMode="1" Size="170,24" Anchor="C,C" Font="TwCenMT20" NumberInput="0" MaxLength="64">
-					<Label ID="HotkeysSearchPlaceholder" Anchor="L,C" String="TXT_KEY_SEARCH" Font="TwCenMT20" Color="150,150,120,255" FontStyle="Base" />
-				</EditBox>
-			</Box>
-		</Box>
-		<CheckBox ID="ShowInvalidHotkeysCheckbox" WrapWidth="200" Offset="220,60" Anchor="L,B" String="TXT_KEY_OPSCREEN_SHOW_ALL_ACTIONS" Font="TwCenMT18" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_ACTIONS_TT" ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" />
-		<GridButton ID="ResetAllHotkeysButton" Offset="50,15" Anchor="L,B" Size="200,32" Style="SmallButton">
-			<Label Anchor="C,C" String="TXT_KEY_OPSCREEN_RESET_ALL_HOTKEYS" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
-		</GridButton>
+		<Container Size="200,465" Anchor="L,T" Offset="50,80"  Hidden="0">
+			<Stack Anchor="L,B" Padding="20" StackGrowth="Top">
+				<GridButton ID="ResetAllHotkeysButton" Offset="0,0" Anchor="R,B" Size="200,32" Style="SmallButton">
+					<Label Anchor="C,C" String="TXT_KEY_OPSCREEN_RESET_ALL_HOTKEYS" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				</GridButton>
+				<CheckBox ID="ShowInvalidHotkeysCheckbox" WrapWidth="200" Offset="0,0" Anchor="R,B" String="TXT_KEY_OPSCREEN_SHOW_ALL_ACTIONS" Font="TwCenMT18" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_ACTIONS_TT" ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" />
+				<Stack Anchor="L,B" Padding="15" StackGrowth="Down">
+					<Label WrapWidth="200" Offset="0,0" Anchor="R,B" String="TXT_KEY_OPSCREEN_HOTKEY_STYLE" Font="TwCenMT18" />
+					<Grid Size="200,36" Color="White,0" Style="Grid9FrameButtons" >
+						<GridButton ID="ActionStyleHL" Offset="48,-2" Anchor="R,T" Size="40,40" Color="0,255,0,255" Style="SmallButton2"/>
+						<GridButton Void1="1" ID="ActionStyle1" Offset="150,0" Anchor="R,T" Size="36,36" Style="SmallButton2">
+							<Image ID="UnitActionIcon" Anchor="C,C" Size="45,45" Texture="UnitActions360.dds" TextureOffset="45,45"/>
+							<Label ID="UnitActionText" Anchor="C,C" Font="TwCenMT18" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+							<Label ID="UnitHotkey" Anchor="R,T" Offset="-2,-4" Font="TwCenMT14" FontStyle="Stroke" Color0="0,0,0,255" Color1="Black,0" TruncateWidth="44" String="[COLOR:0:0:0:0]X" />
+						</GridButton>
+						<GridButton Void1="2" ID="ActionStyle2" Offset="100,0" Anchor="R,T" Size="36,36" Style="SmallButton2">
+							<Image ID="UnitActionIcon" Anchor="C,C" Size="45,45" Texture="UnitActions360.dds" TextureOffset="45,45"/>
+							<Label ID="UnitActionText" Anchor="C,C" Font="TwCenMT18" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+							<Label ID="UnitHotkey" Anchor="R,T" Offset="-2,-4" Font="TwCenMT14" FontStyle="Stroke" Color0="0,0,0,255" Color1="Black,155" TruncateWidth="44" String="[COLOR:255:255:200:255]X" />
+						</GridButton>
+						<GridButton Void1="3" ID="ActionStyle3" Offset="50,0" Anchor="R,T" Size="36,36" Style="SmallButton2">
+							<Image ID="UnitActionIcon" Anchor="C,C" Size="45,45" Texture="UnitActions360.dds" TextureOffset="45,45"/>
+							<Label ID="UnitActionText" Anchor="C,C" Font="TwCenMT18" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+							<Label ID="UnitHotkey" Anchor="R,T" Offset="-2,-4" Font="TwCenMT14" FontStyle="Stroke" Color0="0,0,0,255" Color1="Black,155" TruncateWidth="44" String="[COLOR:255:245:10:255]X" />
+						</GridButton>
+						<GridButton Void1="4" ID="ActionStyle4" Offset="0,0" Anchor="R,T" Size="36,36" Style="SmallButton2">
+							<Image ID="UnitActionIcon" Anchor="C,C" Size="45,45" Texture="UnitActions360.dds" TextureOffset="45,45"/>
+							<Label ID="UnitActionText" Anchor="C,C" Font="TwCenMT18" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+							<Label ID="UnitHotkey" Anchor="R,T" Offset="-4,-4" Font="TwCenMT14" FontStyle="Stroke" Color0="0,0,0,255" Color1="Black,155" TruncateWidth="44" String="[COLOR:0:255:0:255]X" />
+						</GridButton>
+					</Grid>
+				</Stack>
+				<Box Anchor="R,B" Offset="0,0" Size="184,30" Color="255,255,200,255" >
+					<Box Anchor="C,C"  Size="182,28" Color="0,0,0,255" ID="slop" >
+						<EditBox ID="HotkeysSearchEdit" FocusStop="1" CallOnChar="1" EditMode="1" Size="180,24" Anchor="C,C" Font="TwCenMT20" NumberInput="0" MaxLength="64">
+							<Label ID="HotkeysSearchPlaceholder" Anchor="L,C" String="TXT_KEY_SEARCH" Font="TwCenMT20" Color="150,150,120,255" FontStyle="Base" />
+						</EditBox>
+					</Box>
+				</Box>
+			</Stack>
+		</Container>
 	</Container>
 	
     <!-- Cancel Button  -->
@@ -491,7 +521,7 @@
 
 	<!-- NEW: Instances for hotkeys screen -->
 	<Instance Name="KeyEntry" >
-        <Container ID="Root" Anchor="L,T" Size="200,34" Offset="-30,0" ConsumeMouse="1" Hidden="0">
+        <Container ID="Root" Anchor="L,T" Size="200,34" Offset="-5,0" ConsumeMouse="1" Hidden="0">
 			<Box Anchor="L,C" Size="200,34" ID="HotkeyEditButtonsBox" Color="0,0,0,0" Hidden="1">
                 <Button Offset="210,-36" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditCancelButton">
 					<HideOnMouseOver>
@@ -541,12 +571,12 @@
 					<EditBox ID="HotkeyEdit" EditMode="1" Size="150,18" Anchor="C,C" Font="TwCenMT16" NumberInput="0" Disabled="1" MaxLength="64" />
 				</Box>
 			</Box>
-			<Button ID="HotkeyEditButton" Anchor="L,C" Size="154,24" ConsumeMouse="1">
+			<Button ID="HotkeyEditButton" Anchor="L,C" Size="154,24" ToolTipType="Simple" ConsumeMouse="1">
 				<Label ID="HotkeyEditFrontLabel" Size="150,18" Anchor="C,C" Font="TwCenMT16" />
 			</Button>
 			<Image ID="HotkeyDescriptionIcon" Offset="153,0" Anchor="L,C" Size="45,45" />
 			<Image ID="HotkeyDescriptionIcon32" Offset="160,0" Anchor="L,C" Size="32,32" Hidden="1" />
-			<Label ID="HotkeyDescriptionLabel" Offset="197,0" Anchor="L,C" Font="TwCenMT20" />
+			<Label ID="HotkeyDescriptionLabel" Offset="197,0" Anchor="L,C" Font="TwCenMT20" TruncateWidth="350" />
         </Container>
     </Instance>
 	<Instance Name="CategorySeparator" >
@@ -574,5 +604,9 @@
 			<Box Anchor="C,T" Size="200,55" Color="0,0,0,0" />
 		</Container>
 	</Instance>
-
+	<ToolTipType Name="Simple" >
+		<Grid ID="Root" Anchor="L,T" Offset="30,5" Size="555,12" Padding="8,8" Style="GridBlack8" Color="White,240">
+			<Label ID="Text" Anchor="C,C" Font="TwCenMT16" String="Brief description" WrapWidth="555" />
+		</Grid>
+	</ToolTipType>
 </Context>
