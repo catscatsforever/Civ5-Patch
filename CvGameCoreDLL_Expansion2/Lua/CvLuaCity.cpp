@@ -849,6 +849,25 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		}
 	}
 
+#ifdef DOMAIN_AIR_PURCHASE_RESTRICTION
+	if (GC.getUnitInfo(eUnit)->GetDomainType() == DOMAIN_AIR)
+	{
+		if (pkCity->GetNumPurchasedAirUnitsThisTurn() >= DOMAIN_AIR_PURCHASE_RESTRICTION)
+		{
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_CANNOT_PURCHASE_AIR_UNIT");
+
+			const char* const localized = localizedText.toUTF8();
+			if (localized)
+			{
+				if (!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+#endif
+
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eUnit) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
 	{

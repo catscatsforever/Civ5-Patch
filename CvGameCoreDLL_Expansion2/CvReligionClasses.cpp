@@ -4578,6 +4578,46 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
 				}
 			}
+
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+			int iExtraTerritory = pNewReligion->m_Beliefs.GetExtraCityTerritoryPerFirstCityConversation();
+
+			// Expansion
+			if (iExtraTerritory > 0)
+			{
+				int iDistance;
+				int iBestCityDistance = -1;
+				CvCity* pBestCity = NULL;
+
+				CvCity* pLoopCity;
+				int iLoop;
+				// Find the closest City to us to add a Pop point to
+				for (pLoopCity = GET_PLAYER(pNewReligion->m_eFounder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pNewReligion->m_eFounder).nextCity(&iLoop))
+				{
+					iDistance = plotDistance(m_pCity->plot()->getX(), m_pCity->plot()->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+					if ((iBestCityDistance == -1 || iDistance < iBestCityDistance) && pLoopCity->GetCityReligions()->GetReligiousMajority() == eMajority)
+					{
+						iBestCityDistance = iDistance;
+						pBestCity = pLoopCity;
+					}
+				}
+
+				if (pBestCity != NULL)
+				{
+					for (int iI = 0; iI < iExtraTerritory; iI++)
+					{
+						CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot();
+
+						// maybe the player owns ALL of the plots or there are none avaialable?
+						if (pPlotToAcquire)
+						{
+							pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+						}
+					}
+				}
+			}
+#endif
 		}
 
 #ifdef NEW_PAPAL_PRIMACY

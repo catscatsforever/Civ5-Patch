@@ -920,6 +920,11 @@ public:
 	void changeNoOutcomingInternationlCaravanPillage(int iChange);
 #endif
 
+#ifdef DOMAIN_AIR_PURCHASE_RESTRICTION
+	int GetNumPurchasedAirUnitsThisTurn() const;
+	void ChangeNumPurchasedAirUnitsThisTurn(int iChange);
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1159,6 +1164,9 @@ protected:
 #endif
 #ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 	FAutoVariable<int, CvCity> m_iNoOutcomingInternationlCaravanPillage;
+#endif
+#ifdef DOMAIN_AIR_PURCHASE_RESTRICTION
+	int m_iNumPurchasedAirUnitsThisTurn;
 #endif
 
 	void doGrowth();

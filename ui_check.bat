@@ -154,11 +154,16 @@ FIND %text% "UI_bc1\CityStatePopup\CityStateDiploPopup.lua" > nul 2>&1 && (
   copy /y "%patchfolder%\tmp\ui\CityStateDiploPopup.xml" "%patchfolder%\UI\CityStateDiploPopup.xml" > nul
 )
 REM -------------------------------------------------
-set text="-- coded by bc1 from 1.0.3.276 brave new world code"
-FIND %text% "UI_bc1\CityView\CityView.lua" > nul 2>&1 && (
+set text1="-- coded by bc1 from 1.0.3.276 brave new world code"
+set text2="SerialEventHexHighlight( hexPos , true, nil, "
+FIND %text1% "UI_bc1\CityView\CityView.lua" > nul 2>&1 && (
   copy /y "%patchfolder%\tmp\eui\CityView.lua" "%patchfolder%\UI\CityView.lua" > nul
 ) || (
-  copy /y "%patchfolder%\tmp\ui\CityView.lua" "%patchfolder%\UI\CityView.lua" > nul
+  FIND %text2% "UI_bc1\CityView\CityView.lua" > nul 2>&1 && (
+    copy /y "%patchfolder%\tmp\ui\CityView_2.lua" "%patchfolder%\UI\CityView.lua" > nul
+  ) || (
+    copy /y "%patchfolder%\tmp\ui\CityView_1.lua" "%patchfolder%\UI\CityView.lua" > nul
+  )
 )
 REM -------------------------------------------------
 set text="-- coded by bc1 from Civ V 1.0.3.276 code"

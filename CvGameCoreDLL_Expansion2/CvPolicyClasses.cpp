@@ -4242,6 +4242,15 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 	{
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
+#ifdef FREE_POLICY_EVERY_SECOND_BRANCH_FINISHED
+		if (bValue)
+		{
+			if (GetNumPolicyBranchesFinished() % 2 == 0)
+			{
+				m_pPlayer->ChangeNumFreePolicies(1);
+			}
+		}
+#endif
 
 		bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 

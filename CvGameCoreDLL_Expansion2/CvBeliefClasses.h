@@ -134,6 +134,9 @@ public:
 	int GetMaxYieldModifierPerFollower(int i) const;
 	bool IsFaithUnitPurchaseEra(int i) const;
 	bool IsBuildingClassEnabled(int i) const;
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+	int GetExtraCityTerritoryPerFirstCityConversation() const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -196,6 +199,9 @@ protected:
 	int m_iFaithBuildingTourism;
 #ifdef GP_RATE_MODIFIER_FROM_BELIEF
 	int m_iGreatPeopleRateModifier;
+#endif
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+	int m_iExtraCityTerritoryPerFirstCityConversation;
 #endif
 
 
@@ -498,6 +504,9 @@ public:
 	bool IsFaithPurchaseAllGreatPeople() const;
 #ifdef DUEL_ALLOW_SAMETURN_BELIEFS
 	int* m_paiBeliefAdoptionTurn;
+#endif
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+	int GetExtraCityTerritoryPerFirstCityConversation() const;
 #endif
 
 	// Serialization

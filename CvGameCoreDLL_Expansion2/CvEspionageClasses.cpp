@@ -4503,7 +4503,18 @@ void CvCityEspionage::SetSpyResult(PlayerTypes eSpyOwner, int iResult)
 /// HasCounterSpy - if this city is occupied
 bool CvCityEspionage::HasCounterSpy()
 {
+#ifdef FIX_HAS_COUNTER_SPY
+	if (m_aiSpyAssignment[m_pCity->getOwner()] != -1)
+	{
+		return GET_PLAYER(m_pCity->getOwner()).GetEspionage()->m_aSpyList[m_aiSpyAssignment[m_pCity->getOwner()]].m_eSpyState == SPY_STATE_COUNTER_INTEL;
+	}
+	else
+	{
+		return false;
+	}
+#else
 	return m_aiSpyAssignment[m_pCity->getOwner()] != -1;
+#endif
 }
 
 // serialization read

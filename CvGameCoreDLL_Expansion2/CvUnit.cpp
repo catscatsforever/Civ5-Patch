@@ -3205,10 +3205,12 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	CvAssertMsg(pOldPlot, "pOldPlot needs to have a value");
 
 	bool bShouldDeductCost = true;
-#ifdef NQ_FIX_MOVES_THAT_CONSUME_ALL_MOVEMENT
-	int iMoveCost = targetPlot.movementCost(this, plot(), getMoves());
-#else
 	int iMoveCost = targetPlot.movementCost(this, plot());
+#ifdef NQ_FIX_MOVES_THAT_CONSUME_ALL_MOVEMENT
+	if (GC.getGame().getGameTurn() > 0)
+	{
+		iMoveCost = targetPlot.movementCost(this, plot(), getMoves());
+	}
 #endif
 
 	// we need to get our dis/embarking on
@@ -3240,7 +3242,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	}
 
 #ifdef NQ_FIX_MOVES_THAT_CONSUME_ALL_MOVEMENT
-	if (iMoveCost > getMoves())
+	if (iMoveCost > getMoves() && GC.getGame().getGameTurn() > 0)
 	{
 		iMoveCost = getMoves();
 	}

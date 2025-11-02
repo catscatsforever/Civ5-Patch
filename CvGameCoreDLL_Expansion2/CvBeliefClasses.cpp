@@ -120,6 +120,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldModifierNaturalWonder(NULL),
 	m_piMaxYieldModifierPerFollower(NULL),
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+	m_iExtraCityTerritoryPerFirstCityConversation(0),
+#endif
 	m_pbBuildingClassEnabled(NULL)
 {
 }
@@ -695,6 +698,13 @@ bool CvBeliefEntry::IsBuildingClassEnabled(int i) const
 	return m_pbBuildingClassEnabled ? m_pbBuildingClassEnabled[i] : false;
 }
 
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+int CvBeliefEntry::GetExtraCityTerritoryPerFirstCityConversation() const
+{
+	return m_iExtraCityTerritoryPerFirstCityConversation;
+}
+#endif
+
 /// Load XML data
 bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -944,6 +954,10 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppaiSpecialistYieldChange[SpecialistID][YieldID] = yield;
 		}
 	}
+#endif
+
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+	m_iExtraCityTerritoryPerFirstCityConversation = kResults.GetInt("ExtraCityTerritoryPerFirstCityConversation");
 #endif
 
 	return true;
@@ -1954,6 +1968,24 @@ bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople() const
 
 	return false;
 }
+
+#ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
+int CvReligionBeliefs::GetExtraCityTerritoryPerFirstCityConversation() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if (HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetExtraCityTerritoryPerFirstCityConversation();
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 
 /// Serialization read
 void CvReligionBeliefs::Read(FDataStream& kStream)
