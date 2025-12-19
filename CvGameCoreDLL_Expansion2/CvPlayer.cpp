@@ -5999,6 +5999,9 @@ void CvPlayer::DoUnitReset()
 		}
 
 		// Finally (now that healing is done), restore movement points
+#ifdef DO_TURN_CHANGE_ORDER
+		if (!(pLoopUnit->isTrade() && pLoopUnit->IsAutomated()))
+#endif
 		pLoopUnit->setMoves(pLoopUnit->maxMoves());
 		if(pLoopUnit->IsGreatGeneral())
 		{
@@ -19844,6 +19847,17 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 #ifndef DO_TURN_CHANGE_ORDER
 			DoUnitReset();
+#endif
+#ifdef DO_TURN_CHANGE_ORDER
+			CvUnit* pLoopUnit;
+			int iLoop;
+			for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			{
+				if (pLoopUnit->isTrade() && pLoopUnit->IsAutomated())
+				{
+					pLoopUnit->setMoves(pLoopUnit->maxMoves());
+				}
+			}
 #endif
 
 			if(!isHuman())
