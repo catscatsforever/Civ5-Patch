@@ -31,14 +31,14 @@ function UpdateData()
 				strScienceText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_SCIENCE_OFF");
 			else
 			
-				local sciencePerTurn = pPlayer:GetScience();
+				local sciencePerTurn = pPlayer:GetScienceTimes100();
 			
 				-- No Science
 				if (sciencePerTurn <= 0) then
 					strScienceText = string.format("[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_NO_SCIENCE") .. "[/COLOR]");
 				-- We have science
 				else
-					strScienceText = string.format("+%i", sciencePerTurn);
+					strScienceText = string.format("+%g", sciencePerTurn / 100);
 
 					local iGoldPerTurn = pPlayer:CalculateGoldRate();
 					
@@ -146,9 +146,9 @@ function UpdateData()
 			else
 			
 				if (pPlayer:GetNextPolicyCost() > 0) then
-					strCultureStr = string.format("%i/%i (+%i)", pPlayer:GetJONSCulture(), pPlayer:GetNextPolicyCost(), pPlayer:GetTotalJONSCulturePerTurn());
+					strCultureStr = string.format("%g/%i (+%g)", pPlayer:GetJONSCultureTimes100() / 100, pPlayer:GetNextPolicyCost(), pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
 				else
-					strCultureStr = string.format("%i (+%i)", pPlayer:GetJONSCulture(), pPlayer:GetTotalJONSCulturePerTurn());
+					strCultureStr = string.format("%g (+%g)", pPlayer:GetJONSCultureTimes100() / 100, pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
 				end
 			
 				strCultureStr = "[ICON_CULTURE][COLOR:255:0:255:255]" .. strCultureStr .. "[/COLOR]";
@@ -399,18 +399,21 @@ function ScienceTipHandler( control )
 		end
 	
 		-- Science
-		if (not OptionsManager.IsNoBasicHelp()) then
+		--[[if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE", iSciencePerTurn);
 		
 			if (pPlayer:GetNumCities() > 0) then
 				strText = strText .. "[NEWLINE][NEWLINE]";
 			end
-		end
+		end]]
 	
 		local bFirstEntry = true;
+
+		local iBase = 0;
 	
 		-- Science LOSS from Budget Deficits
 		local iScienceFromBudgetDeficit = pPlayer:GetScienceFromBudgetDeficitTimes100();
+		iBase = iBase + iScienceFromBudgetDeficit;
 		if (iScienceFromBudgetDeficit ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -426,6 +429,7 @@ function ScienceTipHandler( control )
 	
 		-- Science from Cities
 		local iScienceFromCities = pPlayer:GetScienceFromCitiesTimes100(true);
+		iBase = iBase + iScienceFromCities;
 		if (iScienceFromCities ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -440,6 +444,7 @@ function ScienceTipHandler( control )
 	
 		-- Science from Trade Routes
 		local iScienceFromTrade = pPlayer:GetScienceFromCitiesTimes100(false) - iScienceFromCities;
+		iBase = iBase + iScienceFromTrade;
 		if (iScienceFromTrade ~= 0) then
 			if (bFirstEntry) then
 				bFirstEntry = false;
@@ -452,6 +457,7 @@ function ScienceTipHandler( control )
 
 		-- Science from Religion
 		local iGetSciencePerTurnFromReligion = pPlayer:GetSciencePerTurnFromReligionTimes100();
+		iBase = iBase + iGetSciencePerTurnFromReligion;
 		if (iGetSciencePerTurnFromReligion ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -467,6 +473,7 @@ function ScienceTipHandler( control )
 		-- Science from Other Players
 		local iScienceFromOtherPlayers = pPlayer:GetScienceFromOtherPlayersTimes100();
 		local iSciencePerTurnFromMinorCivs = pPlayer:GetSciencePerTurnFromMinorCivsTimes100();
+		iBase = iBase + iScienceFromOtherPlayers + iSciencePerTurnFromMinorCivs;
 		if (iScienceFromOtherPlayers + iSciencePerTurnFromMinorCivs ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -481,6 +488,7 @@ function ScienceTipHandler( control )
 	
 		-- Science from Happiness
 		local iScienceFromHappiness = pPlayer:GetScienceFromHappinessTimes100();
+		iBase = iBase + iScienceFromHappiness;
 		if (iScienceFromHappiness ~= 0) then
 			
 			-- Add separator for non-initial entries
@@ -495,6 +503,7 @@ function ScienceTipHandler( control )
 	
 		-- Science from Research Agreements
 		local iScienceFromRAs = pPlayer:GetScienceFromResearchAgreementsTimes100();
+		iBase = iBase + iScienceFromRAs;
 		if (iScienceFromRAs ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -509,6 +518,7 @@ function ScienceTipHandler( control )
 
 		-- Scince from influenced civs
 		local iScienceFromICs = pPlayer:GetSciencePerTurnFromInfluencedCivsTimes100();
+		iBase = iBase + iScienceFromICs;
 		if (iScienceFromICs ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -520,6 +530,24 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", iScienceFromICs / 100);
 		end
+
+		local strModText = "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", iBase / 100, "[ICON_RESEARCH]");
+		strModText = strModText .. "[NEWLINE]----------------";
+		local iMod = 0;
+
+		-- Num Capitals Science mod
+		local iNumCapitalsScienceMod = 5 * math.max(pPlayer:GetNumCapitalsControlled() - 1, 0);
+		iMod = iMod + iNumCapitalsScienceMod;
+		if (iNumCapitalsScienceMod ~= 0) then
+			strModText = strModText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_NUM_CAPITALS_SCIENCE_MOD", iNumCapitalsScienceMod);
+		end
+
+		if iMod ~= 0 then
+			strText = strText .. strModText;
+		end
+
+		local iTotal = pPlayer:GetScienceTimes100() / 100;
+		strText = strText .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_TOTAL", iTotal, "[ICON_RESEARCH]");
 		
 		-- Let people know that building more cities makes techs harder to get
 		-- if (not OptionsManager.IsNoBasicHelp()) then
@@ -678,8 +706,9 @@ function HappinessTipHandler( control )
 		local iMinorCivHappiness = pPlayer:GetHappinessFromMinorCivs();
 		local iLeagueHappiness = pPlayer:GetHappinessFromLeagues();
 		local iFutureTechHappiness = 5 * pTeam:GetTeamTechs():GetTechCount(80);
+		local iNumCapitalsHappiness = 5 * math.max(pPlayer:GetNumCapitalsControlled() - 1, 0);
 	
-		local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iCityHappiness - iBuildingHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iFutureTechHappiness;
+		local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iCityHappiness - iBuildingHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iFutureTechHappiness - iNumCapitalsHappiness;
 	
 		if (pPlayer:IsEmpireVeryUnhappy()) then
 		
@@ -696,7 +725,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[/COLOR]";
 		end
 	
-		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iFutureTechHappiness;
+		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iFutureTechHappiness + iNumCapitalsHappiness;
 	
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
@@ -776,6 +805,10 @@ function HappinessTipHandler( control )
 		if (iFutureTechHappiness ~= 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_FUTURE_TECH", iFutureTechHappiness);
+		end
+		if (iNumCapitalsHappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NUM_CAPITALS", iNumCapitalsHappiness);
 		end
 		strText = strText .. "[NEWLINE]";
 		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", iHandicapHappiness);
@@ -915,14 +948,14 @@ function CultureTipHandler( control )
 		local pPlayer = Players[iPlayerID];
     
 	    local iTurns;
-		local iCultureNeeded = pPlayer:GetNextPolicyCost() - pPlayer:GetJONSCulture();
+		local iCultureNeeded = pPlayer:GetNextPolicyCost() - pPlayer:GetJONSCultureTimes100() / 100;
 	    if (iCultureNeeded <= 0) then
 			iTurns = 0;
 		else
-			if (pPlayer:GetTotalJONSCulturePerTurn() == 0) then
+			if (pPlayer:GetTotalJONSCulturePerTurnTimes100() == 0) then
 				iTurns = "?";
 			else
-				iTurns = iCultureNeeded / pPlayer:GetTotalJONSCulturePerTurn();
+				iTurns = iCultureNeeded / (pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
 				iTurns = math.ceil(iTurns);
 			end
 	    end
@@ -935,7 +968,7 @@ function CultureTipHandler( control )
 	
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_ACCUMULATED", pPlayer:GetJONSCulture());
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_ACCUMULATED", pPlayer:GetJONSCultureTimes100() / 100);
 			strText = strText .. "[NEWLINE]";
 		
 			if (pPlayer:GetNextPolicyCost() > 0) then
@@ -951,9 +984,11 @@ function CultureTipHandler( control )
 		end
 
 		local bFirstEntry = true;
+		local iBase = 0
 		
 		-- Culture for Free
 		local iCultureForFree = pPlayer:GetJONSCulturePerTurnForFree();
+		iBase = iBase + iCultureForFree
 		if (iCultureForFree ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -967,7 +1002,8 @@ function CultureTipHandler( control )
 		end
 	
 		-- Culture from Cities
-		local iCultureFromCities = pPlayer:GetJONSCulturePerTurnFromCities();
+		local iCultureFromCities = pPlayer:GetJONSCulturePerTurnFromCitiesTimes100() / 100;
+		iBase = iBase + iCultureFromCities
 		if (iCultureFromCities ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -982,6 +1018,7 @@ function CultureTipHandler( control )
 	
 		-- Culture from Excess Happiness
 		local iCultureFromHappiness = pPlayer:GetJONSCulturePerTurnFromExcessHappiness();
+		iBase = iBase + iCultureFromHappiness
 		if (iCultureFromHappiness ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -996,6 +1033,7 @@ function CultureTipHandler( control )
 	
 		-- Culture from Traits
 		local iCultureFromTraits = pPlayer:GetJONSCulturePerTurnFromTraits();
+		iBase = iBase + iCultureFromTraits
 		if (iCultureFromTraits ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1009,7 +1047,8 @@ function CultureTipHandler( control )
 		end
 	
 		-- Culture from Minor Civs
-		local iCultureFromMinors = pPlayer:GetCulturePerTurnFromMinorCivs();
+		local iCultureFromMinors = pPlayer:GetCulturePerTurnFromMinorCivsTimes100() / 100;
+		iBase = iBase + iCultureFromMinors
 		if (iCultureFromMinors ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1023,7 +1062,8 @@ function CultureTipHandler( control )
 		end
 
 		-- Culture from Religion
-		local iCultureFromReligion = pPlayer:GetCulturePerTurnFromReligion();
+		local iCultureFromReligion = pPlayer:GetCulturePerTurnFromReligionTimes100() / 100;
+		iBase = iBase + iCultureFromReligion
 		if (iCultureFromReligion ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1037,7 +1077,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from a bonus turns (League Project)
-		local iCultureFromBonusTurns = pPlayer:GetCulturePerTurnFromBonusTurns();
+		--[[local iCultureFromBonusTurns = pPlayer:GetCulturePerTurnFromBonusTurns();
 		if (iCultureFromBonusTurns ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1049,10 +1089,10 @@ function CultureTipHandler( control )
 			local iBonusTurns = pPlayer:GetCultureBonusTurns();
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", iCultureFromBonusTurns, iBonusTurns);
-		end
+		end]]
 		
 		-- Culture from Golden Age
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
+		--[[local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1063,7 +1103,49 @@ function CultureTipHandler( control )
 
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge);
+		end]]
+
+		local strModText = "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", iBase, "[ICON_CULTURE]");
+		strModText = strModText .. "[NEWLINE]----------------";
+		local iMod = 0;
+
+		-- Culture from Golden Age
+		local iGoldenAgeMod = 0
+		if pPlayer:IsGoldenAge() then
+			if pPlayer:GetGoldenAgeGreatArtistRateModifier() > 0 then
+				iGoldenAgeMod = 10 + GameDefines["GOLDEN_AGE_CULTURE_MODIFIER"]
+			else
+				iGoldenAgeMod = GameDefines["GOLDEN_AGE_CULTURE_MODIFIER"]
+			end
 		end
+		iMod = iMod + iGoldenAgeMod;
+		if (iGoldenAgeMod ~= 0) then
+			strModText = strModText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iGoldenAgeMod);
+		end
+
+		-- Culture from a bonus turns (League Project)
+		local iBonusTurnsMod = 0
+		if pPlayer:GetCultureBonusTurns() > 0 then
+			iBonusTurnsMod = GameDefines["TEMPORARY_CULTURE_BOOST_MOD"]
+		end
+		iMod = iMod + iBonusTurnsMod;
+		if (iBonusTurnsMod ~= 0) then
+			strModText = strModText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", iGoldenAgeMod, pPlayer:GetCultureBonusTurns());
+		end
+
+		-- Num Capitals Culture mod
+		local iNumCapitalsCultureMod = 5 * math.max(pPlayer:GetNumCapitalsControlled() - 1, 0);
+		iMod = iMod + iNumCapitalsCultureMod;
+		if (iNumCapitalsCultureMod ~= 0) then
+			strModText = strModText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_NUM_CAPITALS_CULTURE_MOD", iNumCapitalsCultureMod);
+		end
+
+		if iMod ~= 0 then
+			strText = strText .. strModText;
+		end
+
+		local iTotal = pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100;
+		strText = strText .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_TOTAL", iTotal, "[ICON_CULTURE]");
 
 		-- Let people know that building more cities makes policies harder to get
 		-- if (not OptionsManager.IsNoBasicHelp()) then

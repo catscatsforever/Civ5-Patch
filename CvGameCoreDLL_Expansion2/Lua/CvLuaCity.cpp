@@ -252,6 +252,15 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCultureRateModifier);
 	Method(ChangeCultureRateModifier);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	Method(GetJONSCultureStoredTimes100);
+	Method(SetJONSCultureStoredTimes100);
+	Method(ChangeJONSCultureStoredTimes100);
+	Method(GetJONSCultureThresholdTimes100);
+
+	Method(GetJONSCulturePerTurnTimes100);
+#endif
+
 	Method(GetNumGreatWorks);
 	Method(GetNumGreatWorkSlots);
 	Method(GetBaseTourism);
@@ -291,6 +300,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(AdoptReligionFully);
 	Method(GetReligionBuildingClassHappiness);
 	Method(GetReligionBuildingClassYieldChange);
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	Method(GetReligionBuildingClassYieldModifier);
+#endif
 	Method(GetLeagueBuildingClassYieldChange);
 	Method(GetNumTradeRoutesAddingPressure);
 
@@ -363,6 +375,12 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetTeam);
 	Method(GetPreviousOwner);
 	Method(GetOriginalOwner);
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	Method(GetMinorMajorityOwner);
+#endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+	Method(GetCapitalOriginalOwner);
+#endif
 	Method(GetSeaPlotYield);
 	Method(GetRiverPlotYield);
 	Method(GetLakePlotYield);
@@ -500,6 +518,15 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #endif
 #ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
 	Method(IsOrderRepeat);
+#endif
+#ifdef LUA_CITY_METHOD_GET_TRADE_VALUES_AT_CITY_TIMES_100
+	Method(GetTradeValuesAtCityTimes100);
+#endif
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+	Method(GetYieldFromMinorsTimes100);
+#endif
+#ifdef COUP_SYSTEM_REWORK
+	Method(GetMinorCityEspionageCoupAmount);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1410,7 +1437,11 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Yield Rate Modifier
 	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
 
+#ifdef PRODUCTION_FROM_TRADE_ROUTES_SHIFT_TO_BASE
+	if (eYield != YIELD_FOOD && eYield != YIELD_PRODUCTION)
+#else
 	if (eYield != YIELD_FOOD)
+#endif
 	{
 		// Trade Yield Modifier
 		pkCity->GetTradeYieldModifier(eYield, &toolTip);
@@ -2216,6 +2247,39 @@ int CvLuaCity::lChangeCultureRateModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCultureRateModifier);
 }
+#ifdef PLAYER_CULTURE_TIMES_100
+//------------------------------------------------------------------------------
+//int GetJONSCultureStoredTimes100() const;
+int CvLuaCity::lGetJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetJONSCultureStoredTimes100);
+}
+//------------------------------------------------------------------------------
+//void SetJONSCultureStoredTimes100(int iValue);
+int CvLuaCity::lSetJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::SetJONSCultureStoredTimes100);
+}
+//------------------------------------------------------------------------------
+//void ChangeJONSCultureStoredTimes100(int iChange);
+int CvLuaCity::lChangeJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::ChangeJONSCultureStoredTimes100);
+}
+//------------------------------------------------------------------------------
+//int GetJONSCultureThresholdTimes100() const;
+int CvLuaCity::lGetJONSCultureThresholdTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetJONSCultureThresholdTimes100);
+}
+
+//------------------------------------------------------------------------------
+//int getJONSCulturePerTurnTimes100() const;
+int CvLuaCity::lGetJONSCulturePerTurnTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getJONSCulturePerTurnTimes100);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetNumGreatWorks();
 int CvLuaCity::lGetNumGreatWorks(lua_State* L)
@@ -2622,6 +2686,72 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 	lua_pushinteger(L, iYieldFromBuilding);
 	return 1;
 }
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+//------------------------------------------------------------------------------
+//int GetReligionBuildingClassYieldModifier(eBuildingClass, eYieldType) const;
+int CvLuaCity::lGetReligionBuildingClassYieldModifier(lua_State* L)
+{
+	int iYieldFromBuilding = 0;
+
+	CvCity* pkCity = GetInstance(L);
+	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
+	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
+
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+		if (pReligion)
+		{
+			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
+#ifdef REFORMATION_BELIEFS_ONLY_FOR_FOUNDERS
+			CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+			for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+			{
+				if (pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+				{
+					if (iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+					{
+						if (pBeliefs->GetEntry(i)->IsReformationBelief())
+						{
+							if (pReligion->m_eFounder == pkCity->getOwner())
+							{
+								iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldMod(eBuildingClass, eYieldType);
+							}
+						}
+						else
+						{
+							iYieldFromBuilding += pBeliefs->GetEntry(i)->GetBuildingClassYieldMod(eBuildingClass, eYieldType);
+						}
+					}
+				}
+			}
+#else
+			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldMod(eBuildingClass, eYieldType, iFollowers);
+#endif
+			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iFollowers = pkCity->GetCityReligions()->GetNumFollowers(pkCity->GetCityReligions()->GetSecondaryReligion());
+				if (iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinFollowers())
+				{
+					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldMod(eBuildingClass, eYieldType);
+				}
+			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+			BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+			if (ePantheon != NO_BELIEF && pkCity->getDoublePantheon() > 0)
+			{
+				iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetBuildingClassYieldMod(eBuildingClass, eYieldType);
+			}
+#endif
+		}
+	}
+	lua_pushinteger(L, iYieldFromBuilding);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetLeagueBuildingClassYieldChange(eBuildingClass, eYieldType) const;
 int CvLuaCity::lGetLeagueBuildingClassYieldChange(lua_State* L)
@@ -3047,6 +3177,36 @@ int CvLuaCity::lGetOriginalOwner(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::getOriginalOwner);
 }
+#ifdef CITY_MINOR_MAJORITY_OWNER
+//------------------------------------------------------------------------------
+//PlayerTypes getMinorMajorityOwner();
+int CvLuaCity::lGetMinorMajorityOwner(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getMinorMajorityOwner);
+}
+#endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+//------------------------------------------------------------------------------
+//PlayerTypes getCapitalOriginalOwner();
+int CvLuaCity::lGetCapitalOriginalOwner(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if (pkCity->getX() == kPlayer.GetOriginalCapitalX() && pkCity->getY() == kPlayer.GetOriginalCapitalY())
+		{
+			const PlayerTypes eResult = ePlayer;
+			lua_pushinteger(L, eResult);
+			return 1;
+		}
+	}
+
+	lua_pushinteger(L, NO_PLAYER);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getSeaPlotYield(YieldTypes eIndex);
 int CvLuaCity::lGetSeaPlotYield(lua_State* L)
@@ -4275,6 +4435,72 @@ int CvLuaCity::lIsOrderRepeat(lua_State* L)
 
 	bool bRepeat = pkCity->IsOrderRepeat(iNum);
 	lua_pushboolean(L, bRepeat);
+
+	return 1;
+}
+#endif
+#ifdef LUA_CITY_METHOD_GET_TRADE_VALUES_AT_CITY_TIMES_100
+//------------------------------------------------------------------------------
+//bool GetTradeValuesAtCityTimes100(YieldTypes eYield);
+int CvLuaCity::lGetTradeValuesAtCityTimes100(lua_State* L)
+{
+	const CvCity* pkCity = GetInstance(L);
+	YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+
+	int iReturnValue = GET_PLAYER(pkCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(pkCity, eYield);
+	lua_pushinteger(L, iReturnValue);
+
+	return 1;
+}
+#endif
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+//------------------------------------------------------------------------------
+//bool GetYieldFromMinorsTimes100(YieldTypes eYield);
+int CvLuaCity::lGetYieldFromMinorsTimes100(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+
+	int iReturnValue = 0;
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+		if (pkCity->isCapital())
+		{
+			iReturnValue = GET_PLAYER(pkCity->getOwner()).GetCapitalFoodPerTurnFromMinorCivsTimes100();
+		}
+		else
+		{
+			iReturnValue = GET_PLAYER(pkCity->getOwner()).GetOtherCitiesFoodPerTurnFromMinorCivsTimes100();
+		}
+		break;
+	case YIELD_PRODUCTION:
+		if (pkCity->isCapital())
+		{
+			iReturnValue = GET_PLAYER(pkCity->getOwner()).GetCapitalProductionPerTurnFromMinorCivsTimes100();
+		}
+		else
+		{
+			iReturnValue = GET_PLAYER(pkCity->getOwner()).GetOtherCitiesProductionPerTurnFromMinorCivsTimes100();
+		}
+		break;
+	}
+
+	lua_pushinteger(L, iReturnValue);
+
+	return 1;
+}
+#endif
+#ifdef COUP_SYSTEM_REWORK
+//------------------------------------------------------------------------------
+//int GetMinorCityEspionageCoupAmount(PlayerTypes eMajor);
+int CvLuaCity::lGetMinorCityEspionageCoupAmount(lua_State* L)
+{
+	const CvCity* pkCity = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+
+	int iReturnValue = pkCity->GetCityEspionage()->m_aiCoupAmount[eMajor];
+	lua_pushinteger(L, iReturnValue);
 
 	return 1;
 }

@@ -142,6 +142,10 @@ CvPlayer::CvPlayer() :
 	, m_iCulturePerWonder("CvPlayer::m_iCulturePerWonder", m_syncArchive)
 	, m_iCultureWonderMultiplier("CvPlayer::m_iCultureWonderMultiplier", m_syncArchive)
 	, m_iCulturePerTechResearched("CvPlayer::m_iCulturePerTechResearched", m_syncArchive)
+#ifdef PLAYER_CULTURE_TIMES_100
+	, m_iJONSCultureTimes100("CvPlayer::m_iJONSCultureTimes100", m_syncArchive)
+	, m_iJONSCultureEverGeneratedTimes100("CvPlayer::m_iJONSCultureEverGeneratedTimes100", m_syncArchive)
+#endif
 	, m_iFaith(0)
 	, m_iFaithEverGenerated(0)
 	, m_iHappiness("CvPlayer::m_iHappiness", m_syncArchive)
@@ -610,6 +614,9 @@ CvPlayer::CvPlayer() :
 	, m_paiImprovementCount("CvPlayer::m_paiImprovementCount", m_syncArchive)
 	, m_paiFreeBuildingCount("CvPlayer::m_paiFreeBuildingCount", m_syncArchive)
 	, m_paiFreePromotionCount("CvPlayer::m_paiFreePromotionCount", m_syncArchive)
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	, m_ppaaiFreePromotionUnitCombatCount("CvPlayer::m_ppaaiFreePromotionUnitCombatCount", m_syncArchive)
+#endif
 	, m_paiUnitCombatProductionModifiers("CvPlayer::m_paiUnitCombatProductionModifiers", m_syncArchive)
 	, m_paiUnitCombatFreeExperiences("CvPlayer::m_paiUnitCombatFreeExperiences", m_syncArchive)
 	, m_paiUnitClassCount("CvPlayer::m_paiUnitClassCount", m_syncArchive, true)
@@ -680,6 +687,9 @@ CvPlayer::CvPlayer() :
 #endif
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	, m_iBorderObstacleCount(0)
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	, m_iAttritionInsideBorders(0)
 #endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
@@ -933,6 +943,9 @@ void CvPlayer::uninit()
 	m_paiImprovementCount.clear();
 	m_paiFreeBuildingCount.clear();
 	m_paiFreePromotionCount.clear();
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	m_ppaaiFreePromotionUnitCombatCount.clear();
+#endif
 	m_paiUnitCombatProductionModifiers.clear();
 	m_paiUnitCombatFreeExperiences.clear();
 	m_paiUnitClassCount.clear();
@@ -1038,6 +1051,10 @@ void CvPlayer::uninit()
 	m_iCulturePerWonder = 0;
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
+#ifdef PLAYER_CULTURE_TIMES_100
+	m_iJONSCultureTimes100 = 0;
+	m_iJONSCultureEverGeneratedTimes100 = 0;
+#endif
 	m_iFaith = 0;
 	m_iFaithEverGenerated = 0;
 	m_iHappiness = 0;
@@ -1519,6 +1536,9 @@ void CvPlayer::uninit()
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	m_iBorderTransitionObstacleCount = 0;
 #endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	m_iAttritionInsideBorders = 0;
+#endif
 
 	m_eID = NO_PLAYER;
 }
@@ -1650,6 +1670,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiFreePromotionCount.clear();
 		m_paiFreePromotionCount.resize(GC.getNumPromotionInfos(), 0);
+
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+		m_ppaaiFreePromotionUnitCombatCount.clear();
+		m_ppaaiFreePromotionUnitCombatCount.resize(GC.getNumPromotionInfos() * GC.getNumUnitCombatClassInfos(), 0);
+#endif
 
 		m_paiUnitClassCount.clear();
 		m_paiUnitClassCount.resize(GC.getNumUnitClassInfos(), 0);
@@ -2434,6 +2459,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #else
 	PlayerTypes eOriginalOwner;
 #endif
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	PlayerTypes eMinorMajorityOwner = pOldCity->getMinorMajorityOwner();
+#endif
 	BuildingTypes eBuilding;
 	bool bRecapture;
 	int iCaptureGold;
@@ -2614,12 +2642,20 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	if(bConquest)
 	{
+#ifdef PLAYER_CULTURE_TIMES_100
+		iCaptureCulture = pOldCity->getJONSCulturePerTurnTimes100();
+#else
 		iCaptureCulture = pOldCity->getJONSCulturePerTurn();
+#endif
 		iCaptureCulture *= GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER);
 
 		if(iCaptureCulture > 0)
 		{
+#ifdef PLAYER_CULTURE_TIMES_100
+			changeJONSCultureTimes100(iCaptureCulture);
+#else
 			changeJONSCulture(iCaptureCulture);
+#endif
 
 #ifdef UPDATE_CULTURE_NOTIFICATION_DURING_TURN
 			// if this is the human player, have the popup come up so that he can choose a new policy
@@ -2841,9 +2877,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 #ifdef AUI_PLAYER_FIX_ACQUIRE_CITY_NO_CITY_LOSSES_ON_RECAPTURE
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	bRecapture = GET_PLAYER(eOriginalOwner).getTeam() == getTeam() || eMinorMajorityOwner != NO_PLAYER && GET_PLAYER(eMinorMajorityOwner).getTeam() == getTeam();
+#else
 	bRecapture = GET_PLAYER(eOriginalOwner).getTeam() == getTeam();
+#endif
+#else
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	bRecapture = GET_PLAYER(eMinorMajorityOwner).getTeam() == getTeam();
 #else
 	bRecapture = false; //((eHighestCulturePlayer != NO_PLAYER) ? (GET_PLAYER(eHighestCulturePlayer).getTeam() == getTeam()) : false);
+#endif
 #endif
 
 	// Returning spies back to pool
@@ -3028,6 +3072,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		pNewCity->setPreviousOwner(NO_PLAYER);
 		pNewCity->setOriginalOwner(m_eID);
+#ifdef CITY_MINOR_MAJORITY_OWNER
+		pNewCity->setMinorMajorityOwner(NO_PLAYER);
+#endif
 		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
 		pNewCity->SetEverCapital(false);
 		AwardFreeBuildings(pNewCity);
@@ -3037,6 +3084,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		pNewCity->setPreviousOwner(eOldOwner);
 		pNewCity->setOriginalOwner(eOriginalOwner);
+#ifdef CITY_MINOR_MAJORITY_OWNER
+		pNewCity->setMinorMajorityOwner(eMinorMajorityOwner);
+#endif
 		pNewCity->setGameTurnFounded(iGameTurnFounded);
 		pNewCity->SetEverCapital(bEverCapital);
 	}
@@ -3522,9 +3572,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(getCapitalCity() != NULL)
 			{
 				getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+				getCapitalCity()->changeYieldRateModifier(YIELD_GOLD, -getCapitalCity()->getCapitalGoldModifier());
+#endif
 			}
 			CvAssertMsg(!(pNewCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 			pNewCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+			pNewCity->changeYieldRateModifier(YIELD_GOLD, pNewCity->getCapitalGoldModifier());
+#endif
 		}
 	}
 
@@ -3637,7 +3693,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 
 		// Is this City being Occupied?
+#ifdef CITY_MINOR_MAJORITY_OWNER
+		if (pNewCity->getOriginalOwner() != GetID() && pNewCity->getMinorMajorityOwner() != GetID())
+#else
 		if(pNewCity->getOriginalOwner() != GetID())
+#endif
 		{
 			pNewCity->SetOccupied(true);
 
@@ -3695,7 +3755,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					pNewCity->DoCreatePuppet();
 				}
+#ifdef CITY_MINOR_MAJORITY_OWNER
+				else if (pNewCity->getOriginalOwner() != GetID() && pNewCity->getMinorMajorityOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
+#else
 				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
+#endif
 				{
 					if(GC.getGame().getActivePlayer() == GetID())
 					{
@@ -5363,7 +5427,7 @@ void CvPlayer::doTurn()
 							CvCity* pLoopCity = NULL;
 							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 							{
-								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
+								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS)
 								{
 									if (!GET_PLAYER(pLoopCity->getOriginalOwner()).isHuman() && pLoopCity->getOriginalOwner() == GetID())
 									{
@@ -5651,7 +5715,11 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			if(isHuman() || getNextPolicyCost() < 1000 || !GC.getGame().isOption("GAMEOPTION_AI_TWEAKS"))
 			{
+#ifdef PLAYER_CULTURE_TIMES_100
+				changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
+#else
 				changeJONSCulture(GetTotalJONSCulturePerTurn());
+#endif
 #ifdef POLICY_BRANCH_NOTIFICATION_LOCKED
 				if(GetNumFreePolicies() <= 0)
 				{
@@ -5685,12 +5753,20 @@ void CvPlayer::doTurnPostDiplomacy()
 #endif
 #else
 		if(getJONSCulture() < getNextPolicyCost())
+#ifdef PLAYER_CULTURE_TIMES_100
+			changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
+#else
 			changeJONSCulture(GetTotalJONSCulturePerTurn());
+#endif
 #endif
 	}
 	else
 	{
+#ifdef PLAYER_CULTURE_TIMES_100
+		changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
+#else
 		changeJONSCulture(GetTotalJONSCulturePerTurn());
+#endif
 	}
 
 	// Compute the cost of policies for this turn
@@ -5978,8 +6054,8 @@ void CvPlayer::DoUnitReset()
 			}
 			else
 			{
-#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
-				if (pLoopUnit->IsHurt() && !(pLoopUnit->plot()->getOwner() != NO_PLAYER && pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && GET_PLAYER(pLoopUnit->plot()->getOwner()).isBorderTransitionObstacle() && pLoopUnit->getDomainType() == DOMAIN_LAND))
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+				if (pLoopUnit->IsHurt() && !(pLoopUnit->plot()->getOwner() != NO_PLAYER && pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && GET_PLAYER(pLoopUnit->plot()->getOwner()).getAttritionInsideBorders() > 0 && pLoopUnit->getDomainType() == DOMAIN_LAND))
 				{
 					pLoopUnit->doHeal();
 				}
@@ -6830,6 +6906,9 @@ void CvPlayer::findNewCapital()
 		}
 		CvAssertMsg(!(pBestCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 		pBestCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+		pBestCity->changeYieldRateModifier(YIELD_GOLD, pBestCity->getCapitalGoldModifier());
+#endif
 	}
 }
 
@@ -6872,9 +6951,13 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	}
 
 	// No razing of capitals
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+	bool bOriginalCapital = pCity->IsOriginalCapital();
+#else
 	CvPlayer* pOriginalOwner = &GET_PLAYER(pCity->getOriginalOwner());
 	bool bOriginalCapital =	pCity->getX() == pOriginalOwner->GetOriginalCapitalX() &&
 	                        pCity->getY() == pOriginalOwner->GetOriginalCapitalY();
+#endif
 
 	if(!bIgnoreCapitals && pCity->IsEverCapital() && bOriginalCapital)
 	{
@@ -8432,6 +8515,9 @@ void CvPlayer::found(int iX, int iY)
 		return;
 
 	int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange();
+#ifdef TRAIT_EXTRA_FOUNDED_CITY_TERRITORY_CLAIM_RANGE_AFTER_ERA
+	iExtraTerritoryClaim += GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRangeAfterEra(GetCurrentEra());
+#endif
 	for (int i = 0; i < iExtraTerritoryClaim; i++)
 	{
 		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
@@ -8455,6 +8541,12 @@ void CvPlayer::found(int iX, int iY)
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
 				if(pkBuildingInfo)
 				{
+#ifdef TRAIT_FREE_BUILDINGS_AFTER_ERA
+					if (GET_PLAYER(GetID()).GetPlayerTraits()->IsFreeBuildingsAfterEra(eBuildingClass, GetCurrentEra()))
+					{
+						pCity->GetCityBuildings()->SetNumRealBuilding(eLoopBuilding, 1);
+					} else
+#endif
 					if(pkBuildingInfo->GetFreeStartEra() != NO_ERA)
 					{
 						if(GC.getGame().getStartEra() >= pkBuildingInfo->GetFreeStartEra())
@@ -10431,6 +10523,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				}
 			}
 		}
+
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+		changeAttritionInsideBorders(pBuildingInfo->GetAttritionInsideBorders() * iChange);
+#endif
 	}
 }
 
@@ -11888,6 +11984,9 @@ void CvPlayer::changeTotalLandScored(int iChange)
 /// Total culture per turn
 int CvPlayer::GetTotalJONSCulturePerTurn() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetTotalJONSCulturePerTurnTimes100() / 100;
+#else
 	if(GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 	{
 		return 0;
@@ -11942,14 +12041,22 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 #endif
 	}
+	
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	// iCultureMod += 5 * std::max(GetNumCapitalsControlled() - 1, 0); // Unused part
+#endif
 
 	return iCulturePerTurn;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 /// Culture per turn from Cities
 int CvPlayer::GetJONSCulturePerTurnFromCities() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetJONSCulturePerTurnFromCitiesTimes100() / 100;
+#else
 	int iCulturePerTurn = 0;
 
 	// Add in culture from Cities
@@ -11961,6 +12068,7 @@ int CvPlayer::GetJONSCulturePerTurnFromCities() const
 	}
 
 	return iCulturePerTurn;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -12035,6 +12143,9 @@ void CvPlayer::ChangeJONSCulturePerTurnFromMinorCivs(int /*iChange*/)
 /// Culture per turn from all minor civs
 int CvPlayer::GetCulturePerTurnFromMinorCivs() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetCulturePerTurnFromMinorCivsTimes100();
+#else
 	int iAmount = 0;
 	PlayerTypes eMinor;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -12044,12 +12155,16 @@ int CvPlayer::GetCulturePerTurnFromMinorCivs() const
 	}
 
 	return iAmount;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 // Culture per turn from a minor civ
 int CvPlayer::GetCulturePerTurnFromMinor(PlayerTypes eMinor) const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetCulturePerTurnFromMinorTimes100(eMinor);
+#else
 	int iAmount = 0;
 
 	if(GET_PLAYER(eMinor).isAlive())
@@ -12059,12 +12174,16 @@ int CvPlayer::GetCulturePerTurnFromMinor(PlayerTypes eMinor) const
 	}
 
 	return iAmount;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 /// Culture per turn from religion
 int CvPlayer::GetCulturePerTurnFromReligion() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetCulturePerTurnFromReligionTimes100() / 100;
+#else
 	int iOtherCulturePerTurn = 0;
 	int iReligionCulturePerTurn = 0;
 
@@ -12116,12 +12235,16 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 	}
 
 	return 0;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 /// Culture from Bonus Turns
 int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetCulturePerTurnFromBonusTurnsTimes100() / 100;
+#else
 	int iValue = 0;
 
 	if (GetCultureBonusTurns() > 0)
@@ -12138,6 +12261,7 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 	}
 
 	return iValue;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -12166,6 +12290,9 @@ void CvPlayer::ChangeJONSCultureCityModifier(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getJONSCulture() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return getJONSCultureTimes100() / 100;
+#else
 	// City States can't pick Policies, sorry!
 	if(isMinorCiv())
 		return 0;
@@ -12176,12 +12303,16 @@ int CvPlayer::getJONSCulture() const
 	}
 
 	return m_iJONSCulture;
+#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::setJONSCulture(int iNewValue)
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	setJONSCultureTimes100(iNewValue * 100);
+#else
 	if(getJONSCulture() != iNewValue)
 	{
 		// Add to the total we've ever had
@@ -12197,35 +12328,52 @@ void CvPlayer::setJONSCulture(int iNewValue)
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		}
 	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeJONSCulture(int iChange)
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	changeJONSCultureTimes100(iChange * 100);
+#else
 	setJONSCulture(getJONSCulture() + iChange);
+#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetJONSCultureEverGenerated() const
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	return GetJONSCultureEverGeneratedTimes100() / 100;
+#else
 	return m_iJONSCultureEverGenerated;
+#endif
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::SetJONSCultureEverGenerated(int iNewValue)
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	SetJONSCultureEverGeneratedTimes100(iNewValue * 100);
+#else
 	if(GetJONSCultureEverGenerated() != iNewValue)
 	{
 		m_iJONSCultureEverGenerated = iNewValue;
 	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeJONSCultureEverGenerated(int iChange)
 {
+#ifdef PLAYER_CULTURE_TIMES_100
+	ChangeJONSCultureEverGeneratedTimes100(iChange * 100);
+#else
 	SetJONSCultureEverGenerated(GetJONSCultureEverGenerated() + iChange);
+#endif
 }
 
 
@@ -12392,6 +12540,274 @@ int CvPlayer::GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 
 	return iSum;
 }
+
+#ifdef PLAYER_CULTURE_TIMES_100
+//	--------------------------------------------------------------------------------
+/// Total culture per turn
+int CvPlayer::GetTotalJONSCulturePerTurnTimes100() const
+{
+	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+	{
+		return 0;
+	}
+
+	// No culture during Anarchy
+#ifdef PENALTY_FOR_DELAYING_POLICIES
+	if (IsAnarchy() || IsDelayedPolicy())
+#else
+	if (IsAnarchy())
+#endif
+	{
+		return 0;
+	}
+
+	int iCulturePerTurn = 0;
+	int iCultureMod = 0;
+
+	// Culture per turn from Cities
+	iCulturePerTurn += GetJONSCulturePerTurnFromCitiesTimes100();
+
+	// Special bonus which adds excess Happiness to Culture?
+	iCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness() * 100;
+
+	// Trait bonus which adds Culture for trade partners? 
+	iCulturePerTurn += GetJONSCulturePerTurnFromTraits() * 100;
+
+	// Free culture that's part of the player
+	iCulturePerTurn += GetJONSCulturePerTurnForFree() * 100;
+
+	// Culture from Minor Civs
+	iCulturePerTurn += GetCulturePerTurnFromMinorCivsTimes100();
+
+	// Culture from Religion
+	iCulturePerTurn += GetCulturePerTurnFromReligionTimes100();
+
+	// Temporary boost from bonus turns
+	if (GetCultureBonusTurns() > 0)
+	{
+		iCultureMod += GC.getTEMPORARY_CULTURE_BOOST_MOD();
+	}
+
+	// Golden Age bonus
+	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
+	{
+#ifdef BRAZIL_UA_REWORK
+		if (GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
+		{
+			iCultureMod += (10 + GC.getGOLDEN_AGE_CULTURE_MODIFIER());
+		}
+		else
+		{
+			iCultureMod += GC.getGOLDEN_AGE_CULTURE_MODIFIER();
+		}
+#else
+		iCultureMod += GC.getGOLDEN_AGE_CULTURE_MODIFIER();
+#endif
+	}
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	iCultureMod += 5 * std::max(GetNumCapitalsControlled() - 1, 0);
+#endif
+
+	iCulturePerTurn *= (100 + iCultureMod);
+	iCulturePerTurn /= 100;
+
+	return iCulturePerTurn;
+}
+
+//	--------------------------------------------------------------------------------
+/// Culture per turn from Cities
+int CvPlayer::GetJONSCulturePerTurnFromCitiesTimes100() const
+{
+	int iCulturePerTurn = 0;
+
+	// Add in culture from Cities
+	const CvCity* pLoopCity;
+	int iLoop;
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iCulturePerTurn += pLoopCity->getJONSCulturePerTurnTimes100();
+	}
+
+	return iCulturePerTurn;
+}
+
+//	--------------------------------------------------------------------------------
+/// Culture per turn from all minor civs
+int CvPlayer::GetCulturePerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetCulturePerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+// Culture per turn from a minor civ
+int CvPlayer::GetCulturePerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		// Includes flat bonus and any bonus from cultural buildings
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentCultureBonusTimes100(GetID());
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+/// Culture per turn from religion
+int CvPlayer::GetCulturePerTurnFromReligionTimes100() const
+{
+	int iOtherCulturePerTurn = 0;
+	int iReligionCulturePerTurn = 0;
+
+	// Start by seeing how much the other types are bringing in
+	iOtherCulturePerTurn += GetJONSCulturePerTurnFromCitiesTimes100();
+	iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness() * 100;
+	iOtherCulturePerTurn += GetJONSCulturePerTurnFromTraits() * 100;
+	iOtherCulturePerTurn += GetJONSCulturePerTurnForFree() * 100;
+	iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivsTimes100();
+
+	// Founder beliefs
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+	if (eFoundedReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+		if (pReligion)
+		{
+			iReligionCulturePerTurn += 100 * pReligion->m_Beliefs.GetHolyCityYieldChange(YIELD_CULTURE);
+
+			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_CULTURE);
+			if (iTemp > 0)
+			{
+				iReligionCulturePerTurn += 100 * (iTemp * GetReligions()->GetNumForeignCitiesFollowing());
+			}
+
+			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(YIELD_CULTURE);
+			if (iTemp > 0)
+			{
+#ifdef BELIEF_WORLD_CHURCH_PER_FOLLOWERS
+				int iFollowers = pReligions->GetNumFollowers(eFoundedReligion);
+#else
+				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
+#endif
+				if (iFollowers > 0)
+				{
+					iReligionCulturePerTurn += 100 * (iFollowers / iTemp);
+				}
+			}
+
+			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
+			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace);
+
+			if (iMod != 0)
+			{
+				iReligionCulturePerTurn += ((iReligionCulturePerTurn + iOtherCulturePerTurn) * iMod) / 100;
+			}
+			return iReligionCulturePerTurn;
+		}
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// Culture from Bonus Turns
+int CvPlayer::GetCulturePerTurnFromBonusTurnsTimes100() const
+{
+	int iValue = 0;
+
+	if (GetCultureBonusTurns() > 0)
+	{
+		// Start by seeing how much the other types are bringing in
+		int iOtherCulturePerTurn = 0;
+		iOtherCulturePerTurn += GetJONSCulturePerTurnFromCitiesTimes100();
+		iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness() * 100;
+		iOtherCulturePerTurn += GetJONSCulturePerTurnFromTraits() * 100;
+		iOtherCulturePerTurn += GetJONSCulturePerTurnForFree() * 100;
+		iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivsTimes100();
+		iOtherCulturePerTurn += GetCulturePerTurnFromReligionTimes100();
+
+		iValue += ((iOtherCulturePerTurn * GC.getTEMPORARY_CULTURE_BOOST_MOD()) / 100);
+	}
+
+	return iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getJONSCultureTimes100() const
+{
+	// City States can't pick Policies, sorry!
+	if (isMinorCiv())
+		return 0;
+
+	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+	{
+		return 0;
+	}
+
+	return m_iJONSCultureTimes100;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::setJONSCultureTimes100(int iNewValue)
+{
+	if (getJONSCultureTimes100() != iNewValue)
+	{
+		// Add to the total we've ever had
+		if (iNewValue > m_iJONSCultureTimes100)
+		{
+			ChangeJONSCultureEverGeneratedTimes100(iNewValue - m_iJONSCultureTimes100);
+		}
+
+		m_iJONSCultureTimes100 = iNewValue;
+
+		if (GC.getGame().getActivePlayer() == GetID())
+		{
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeJONSCultureTimes100(int iChange)
+{
+	setJONSCultureTimes100(getJONSCultureTimes100() + iChange);
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetJONSCultureEverGeneratedTimes100() const
+{
+	return m_iJONSCultureEverGeneratedTimes100;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetJONSCultureEverGeneratedTimes100(int iNewValue)
+{
+	if (GetJONSCultureEverGeneratedTimes100() != iNewValue)
+	{
+		m_iJONSCultureEverGeneratedTimes100 = iNewValue;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeJONSCultureEverGeneratedTimes100(int iChange)
+{
+	SetJONSCultureEverGeneratedTimes100(GetJONSCultureEverGeneratedTimes100() + iChange);
+}
+#endif
 
 #ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 //	--------------------------------------------------------------------------------
@@ -13005,6 +13421,9 @@ void CvPlayer::DoReligionOneShots(ReligionTypes eReligion)
 					pEspionage->CreateSpy();
 				}
 			}
+#ifdef FIX_CITY_ESPIONAGE_UPDATE_SPIES
+			GetEspionage()->UpdateSpies();
+#endif
 		}
 	}
 #endif
@@ -13320,6 +13739,10 @@ void CvPlayer::DoUpdateHappiness()
 
 #ifdef FUTURE_TECH_RESEARCHING_BONUSES
 	m_iHappiness += 5 * GET_TEAM(getTeam()).GetTeamTechs()->GetTechCount((TechTypes)GC.getInfoTypeForString("TECH_FUTURE_TECH", true));
+#endif
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	m_iHappiness += 5 * std::max(GetNumCapitalsControlled() - 1, 0);
 #endif
 
 	if(isLocalPlayer() && GetExcessHappiness() >= 100)
@@ -20612,6 +21035,9 @@ int CvPlayer::GetScienceTimes100() const
 		return 0;
 
 	int iValue = 0;
+#if defined PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	int iMod = 0;
+#endif
 
 	// Science from our Cities
 	iValue += GetScienceFromCitiesTimes100(false);
@@ -20638,6 +21064,15 @@ int CvPlayer::GetScienceTimes100() const
 
 #ifdef SCIENCE_FROM_INFLUENCED_CIVS
 	iValue += GetSciencePerTurnFromInfluencedCivsTimes100();
+#endif
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	iMod += 5 * std::max(GetNumCapitalsControlled() - 1, 0);
+#endif
+
+#if defined PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+	iValue *= (100 + iMod);
+	iValue /= 100;
 #endif
 
 	return max(iValue, 0);
@@ -20668,8 +21103,7 @@ int CvPlayer::GetSciencePerTurnFromMinorTimes100(PlayerTypes eMinor) const
 	if (GET_PLAYER(eMinor).isAlive())
 	{
 		// Includes flat bonus and any bonus from scientific buildings
-		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentScienceBonus(GetID());
-		iAmount *= 100;
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentScienceBonusTimes100(GetID());
 	}
 
 	return iAmount;
@@ -22303,6 +22737,67 @@ void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 		}
 	}
 }
+
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+//	--------------------------------------------------------------------------------
+/// Is ePromotion a free promotion for a specific CombatType?
+int CvPlayer::GetFreePromotionUnitCombatCount(PromotionTypes ePromotion, UnitCombatTypes eUnitCombatType) const
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eUnitCombatType >= 0, "eUnitCombatType is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eUnitCombatType < GC.getNumUnitCombatClassInfos(), "eUnitCombatType is expected to be within maximum bounds (invalid Index)");
+	return m_ppaaiFreePromotionUnitCombatCount[eUnitCombatType * GC.getNumPromotionInfos() + ePromotion];
+}
+
+//	--------------------------------------------------------------------------------
+/// Is ePromotion a free promotion for a specific CombatType?
+bool CvPlayer::IsFreePromotionUnitCombat(PromotionTypes ePromotion, UnitCombatTypes eUnitCombatType)	const
+{
+	return (GetFreePromotionUnitCombatCount(ePromotion, eUnitCombatType) > 0);
+}
+
+//	--------------------------------------------------------------------------------
+/// Is ePromotion a free promotion for a specific CombatType?
+void CvPlayer::ChangeFreePromotionUnitCombatCount(PromotionTypes ePromotion, UnitCombatTypes eUnitCombatType, int iChange)
+{
+	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eUnitCombatType >= 0, "eUnitCombatType is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eUnitCombatType < GC.getNumUnitCombatClassInfos(), "eUnitCombatType is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		bool bWasFree = IsFreePromotionUnitCombat(ePromotion, eUnitCombatType);
+
+		m_ppaaiFreePromotionUnitCombatCount.setAt(eUnitCombatType * GC.getNumPromotionInfos() + ePromotion, m_ppaaiFreePromotionUnitCombatCount[eUnitCombatType * GC.getNumPromotionInfos() + ePromotion] + iChange);
+
+		CvAssert(GetFreePromotionUnitCombatCount(ePromotion, eUnitCombatType) >= 0);
+
+		// This promotion is now set to be free, but wasn't before we called this function
+		if (IsFreePromotionUnitCombat(ePromotion, eUnitCombatType) && !bWasFree)
+		{
+			// Loop through Units
+			CvUnit* pLoopUnit;
+
+			int iLoop;
+			for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			{
+				// Valid Promotion for this Unit?
+				if (::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) && GC.getUnitInfo(pLoopUnit->getUnitType())->GetUnitCombatType() == eUnitCombatType)
+				{
+					pLoopUnit->setHasPromotion(ePromotion, true);
+				}
+
+				else if (::IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
+				{
+					pLoopUnit->setHasPromotion(ePromotion, true);
+				}
+			}
+		}
+	}
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -24794,7 +25289,11 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity* pCity)
 		{
 			--iPopulation;
 
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+			if (iPopulation < GC.getINITIAL_CITY_POPULATION() + GC.getGame().getStartEraInfo().getFreePopulation() + GetPlayerTraits()->GetiFreePopulationAfterEra(GetCurrentEra()))
+#else
 			if(iPopulation < GC.getINITIAL_CITY_POPULATION() + GC.getGame().getStartEraInfo().getFreePopulation())
+#endif
 			{
 				return -1;
 			}
@@ -25561,6 +26060,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		if(pPolicy->IsFreePromotion(ePromotion))
 			ChangeFreePromotionCount(ePromotion, iChange);
+
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+		for (iJ = 0; iJ < GC.getNumUnitCombatClassInfos(); iJ++)
+		{
+			if (pPolicy->IsFreePromotionUnitCombat(ePromotion, iJ))
+			{
+				ChangeFreePromotionUnitCombatCount(ePromotion, (UnitCombatTypes)iJ, iChange);
+			}
+		}
+#endif
 	}
 
 	CvCity* pLoopCity;
@@ -26225,6 +26734,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		GetEspionage()->UpdateSpies();
 	}
+#ifdef FIX_CITY_ESPIONAGE_UPDATE_SPIES
+	if (pPolicy->GetStealTechSlowerModifier() != 0)
+	{
+		GetEspionage()->UpdateSpies();
+	}
+#endif
+	
 
 	CvPlot *pLoopPlot;
 	ResourceTypes eResource;
@@ -26511,6 +27027,22 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iCulturePerWonder;
 	kStream >> m_iCultureWonderMultiplier;
 	kStream >> m_iCulturePerTechResearched;
+#ifdef PLAYER_CULTURE_TIMES_100
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1016)
+	{
+# endif
+		kStream >> m_iJONSCultureTimes100;
+		kStream >> m_iJONSCultureEverGeneratedTimes100;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iJONSCultureTimes100 = 0;
+		m_iJONSCultureEverGeneratedTimes100 = 0;
+	}
+# endif
+#endif
 	kStream >> m_iFaith;
 	kStream >> m_iFaithEverGenerated;
 	kStream >> m_iHappiness;
@@ -28261,6 +28793,22 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreeBuildingCount.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreePromotionCount.dirtyGet());
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	// TODO
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1016)
+	{
+# endif
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiFreePromotionUnitCombatCount.dirtyGet());
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_ppaaiFreePromotionUnitCombatCount.clear();
+		m_ppaaiFreePromotionUnitCombatCount.resize(GC.getNumPromotionInfos()* GC.getNumUnitCombatClassInfos(), 0);
+	}
+# endif
+#endif
 
 	kStream >> m_paiUnitCombatProductionModifiers;
 	kStream >> m_paiUnitCombatFreeExperiences;
@@ -28396,6 +28944,20 @@ void CvPlayer::Read(FDataStream& kStream)
 	else
 	{
 		m_iBorderTransitionObstacleCount = 0;
+	}
+# endif
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1016)
+	{
+# endif
+		kStream >> m_iAttritionInsideBorders;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iAttritionInsideBorders = 0;
 	}
 # endif
 #endif
@@ -28589,6 +29151,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iCulturePerWonder;
 	kStream << m_iCultureWonderMultiplier;
 	kStream << m_iCulturePerTechResearched;
+#ifdef PLAYER_CULTURE_TIMES_100
+	kStream << m_iJONSCultureTimes100;
+	kStream << m_iJONSCultureEverGeneratedTimes100;
+#endif
 	kStream << m_iFaith;
 	kStream << m_iFaithEverGenerated;
 	kStream << m_iHappiness;
@@ -29094,6 +29660,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingTypes, int>(kStream, m_paiFreeBuildingCount);
 
 	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_paiFreePromotionCount);
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_ppaaiFreePromotionUnitCombatCount);
+#endif
 
 	kStream << m_paiUnitCombatProductionModifiers;
 	kStream << m_paiUnitCombatFreeExperiences;
@@ -29136,6 +29705,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	kStream << m_iBorderTransitionObstacleCount;
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	kStream << m_iAttritionInsideBorders;
 #endif
 
 	m_pPlayerPolicies->Write(kStream);
@@ -29618,7 +30190,11 @@ int CvPlayer::getNewCityProductionValue() const
 
 	iValue += (GC.getADVANCED_START_CITY_COST() * kGame.getGameSpeedInfo().getGrowthPercent()) / 100;
 
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+	int iPopulation = GC.getINITIAL_CITY_POPULATION() + kGame.getStartEraInfo().getFreePopulation() + GetPlayerTraits()->GetiFreePopulationAfterEra(GetCurrentEra());
+#else
 	int iPopulation = GC.getINITIAL_CITY_POPULATION() + kGame.getStartEraInfo().getFreePopulation();
+#endif
 	for(int i = 1; i <= iPopulation; ++i)
 	{
 		iValue += (getGrowthThreshold(i) * GC.getADVANCED_START_POPULATION_COST()) / 100;
@@ -30808,6 +31384,24 @@ void CvPlayer::changeBorderTransitionObstacleCount(int iChange)
 }
 #endif
 
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+//	--------------------------------------------------------------------------------
+int CvPlayer::getAttritionInsideBorders() const
+{
+	return m_iAttritionInsideBorders;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeAttritionInsideBorders(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iAttritionInsideBorders = (m_iAttritionInsideBorders + iChange);
+		CvAssert(getBorderTransitionObstacleCount() >= 0);
+	}
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////
@@ -31431,7 +32025,7 @@ void CvPlayer::disconnected()
 							CvCity* pLoopCity = NULL;
 							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 							{
-								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
+								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS)
 								{
 									if (pLoopCity->getOriginalOwner() == GetID())
 									{
@@ -31585,7 +32179,7 @@ void CvPlayer::disconnected()
 						CvCity* pLoopCity = NULL;
 						for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 						{
-							if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && !pLoopCity->IsOriginalCapital())
+							if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS)
 							{
 								if (pLoopCity->getOriginalOwner() == GetID())
 								{
@@ -31810,6 +32404,135 @@ bool CvPlayer::hasTurnTimerExpired()
 {//Indicates if this player's turn time has elapsed.
 	return GC.getGame().hasTurnTimerExpired(GetID());
 }
+
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+int CvPlayer::GetNumCapitalsControlled() const
+{
+	int iNumCapitalsControlled = 0;
+
+	int iCityLoop;
+	const CvCity* pLoopCity = NULL;
+	for (pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+	{
+		if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
+		{
+			iNumCapitalsControlled += 1;
+		}
+	}
+
+	return iNumCapitalsControlled;
+}
+#endif
+
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCapitalFoodPerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentCapitalFoodBonus(GetID());
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCapitalFoodPerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetCapitalFoodPerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetOtherCitiesFoodPerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentOtherCityFoodBonus(GetID());
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetOtherCitiesFoodPerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetOtherCitiesFoodPerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCapitalProductionPerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentCapitalProductionBonus(GetID());
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCapitalProductionPerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetCapitalProductionPerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetOtherCitiesProductionPerTurnFromMinorTimes100(PlayerTypes eMinor) const
+{
+	int iAmount = 0;
+
+	if (GET_PLAYER(eMinor).isAlive())
+	{
+		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentOtherCityProductionBonus(GetID());
+	}
+
+	return iAmount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetOtherCitiesProductionPerTurnFromMinorCivsTimes100() const
+{
+	int iAmount = 0;
+	PlayerTypes eMinor;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		eMinor = (PlayerTypes)iMinorLoop;
+		iAmount += GetOtherCitiesProductionPerTurnFromMinorTimes100(eMinor);
+	}
+
+	return iAmount;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::doArmySize()
@@ -32332,11 +33055,43 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 #endif
 
 #ifdef EG_REPLAYDATASET_FOODFROMCS
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+		int iFoodFromMinersTimes100 = 0;
+		for (int iI = 0; iI < getNumCities(); iI++)
+		{
+			CvCity* pCity = getCity(iI);
+			if (pCity != NULL)
+			{
+				iFoodFromMinersTimes100 = GetOtherCitiesFoodPerTurnFromMinorCivsTimes100();
+				if (pCity->isCapital())
+				{
+					iFoodFromMinersTimes100 += GetCapitalFoodPerTurnFromMinorCivsTimes100();
+				}
+			}
+		}
+#else
 		int iFoodFromMinersTimes100 = GetFoodFromMinorsTimes100() / 1024 + getNumCities() * (GetFoodFromMinorsTimes100() % 1024);
+#endif
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FOODFROMCS"), iGameTurn, iFoodFromMinersTimes100 / 100);
 #endif
 #ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+		int iProductionFromMinersTimes100 = 0;
+		for (int iI = 0; iI < getNumCities(); iI++)
+		{
+			CvCity* pCity = getCity(iI);
+			if (pCity != NULL)
+			{
+				iFoodFromMinersTimes100 = GetOtherCitiesProductionPerTurnFromMinorCivsTimes100();
+				if (pCity->isCapital())
+				{
+					iFoodFromMinersTimes100 += GetCapitalProductionPerTurnFromMinorCivsTimes100();
+				}
+			}
+		}
+#else
 		int iProductionFromMinersTimes100 = GetProductionFromMinorsTimes100() / 1024 + getNumCities() * (GetProductionFromMinorsTimes100() % 1024);
+#endif
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_PRODUCTIONFROMCS"), iGameTurn, iProductionFromMinersTimes100 / 100);
 #endif
 #ifdef EG_REPLAYDATASET_CULTUREFROMCS
@@ -32462,6 +33217,14 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 
 		iMod *= (100 + getPolicyCostModifier());
 		iMod /= 100;
+
+#ifdef POLICY_COST_DISCOUNT_THRESHOLD
+		if (GetNumPolicies() >= POLICY_COST_DISCOUNT_THRESHOLD)
+		{
+			iMod *= (100 + POLICY_COST_DISCOUNT_VALUE);
+			iMod /= 100;
+		}
+#endif
 
 		iEffectiveCulturePerTurn *= 100;
 		iEffectiveCulturePerTurn /= (iMod);

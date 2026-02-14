@@ -342,7 +342,7 @@ function PopulateDomination()
 						if (pCity:IsOriginalMajorCapital()) then
 						
 							iNumCapitals = iNumCapitals + 1;
-							aiCapitalOwner[pCity:GetOriginalOwner()] = iPlayerLoop;
+							aiCapitalOwner[pCity:GetCapitalOriginalOwner()] = iPlayerLoop;
 						end
 					end
 				end
@@ -1256,7 +1256,7 @@ function SetConquestCivIcon(pPlayer, iconSize, controlTable, controlTableTT, con
 				-- get city name
 				local pOriginalCapital = nil;
 				for pCity in pPlayer:Cities() do
-					if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() == iPlayer) then
+					if (pCity:IsOriginalMajorCapital() and pCity:GetCapitalOriginalOwner() == iPlayer) then
 						pOriginalCapital = pCity;
 					end
 				end
@@ -1279,7 +1279,7 @@ function SetConquestCivIcon(pPlayer, iconSize, controlTable, controlTableTT, con
 				-- get city name
 				local pOriginalCapital = nil;
 				for pCity in pDominatingPlayer:Cities() do
-					if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() == iPlayer) then
+					if (pCity:IsOriginalMajorCapital() and pCity:GetCapitalOriginalOwner() == iPlayer) then
 						pOriginalCapital = pCity;
 					end
 				end

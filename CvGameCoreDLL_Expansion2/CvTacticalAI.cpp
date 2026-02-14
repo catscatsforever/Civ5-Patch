@@ -1514,7 +1514,11 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... defensive bastion?
 				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 0 &&
+#ifdef FIX_DEFENSE_MODIFIER
+					pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false) > 0 &&
+#else
+					pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 0 &&
+#endif
 				        m_pPlayer->GetPlotDanger(*pLoopPlot) > 0)
 				{
 					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);

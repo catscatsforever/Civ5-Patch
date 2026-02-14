@@ -322,6 +322,10 @@ CvUnit::CvUnit() :
 	, m_extraFeatureAttackPercent("CvUnit::m_extraFeatureAttackPercent", m_syncArchive/*, true*/)
 	, m_extraFeatureDefensePercent("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
 	, m_extraUnitCombatModifier("CvUnit::m_extraUnitCombatModifier", m_syncArchive/*, true*/)
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	, m_extraUnitCombatAttack("CvUnit::m_extraUnitCombatAttack", m_syncArchive/*, true*/)
+	, m_extraUnitCombatDefense("CvUnit::m_extraUnitCombatDefense", m_syncArchive/*, true*/)
+#endif
 	, m_unitClassModifier("CvUnit::m_unitClassModifier", m_syncArchive/*, true*/)
 	, m_iMissionTimer(0)
 	, m_iMissionAIX("CvUnit::m_iMissionAIX", m_syncArchive)
@@ -1054,9 +1058,19 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		CvAssertMsg((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
 		m_extraUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+		m_extraUnitCombatAttack.clear();
+		m_extraUnitCombatAttack.resize(GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatDefense.clear();
+		m_extraUnitCombatDefense.resize(GC.getNumUnitCombatClassInfos());
+#endif
 		for(int i = 0; i < GC.getNumUnitCombatClassInfos(); i++)
 		{
 			m_extraUnitCombatModifier.setAt(i,0);
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			m_extraUnitCombatAttack.setAt(i,0);
+			m_extraUnitCombatDefense.setAt(i,0);
+#endif
 		}
 
 		m_unitClassModifier.clear();
@@ -1155,6 +1169,10 @@ void CvUnit::uninitInfos()
 	m_extraFeatureAttackPercent.clear();
 	m_extraFeatureDefensePercent.clear();
 	m_extraUnitCombatModifier.clear();
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	m_extraUnitCombatAttack.clear();
+	m_extraUnitCombatDefense.clear();
+#endif
 	m_unitClassModifier.clear();
 }
 
@@ -1243,8 +1261,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	}
 
 	setLevel(pUnit->getLevel());
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier() + pUnit->getUnitInfo().GetLevelExperienceModifier());
+	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier() + getUnitInfo().GetLevelExperienceModifier());
+#else
 	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier());
 	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier());
+#endif
 	setExperience(std::max(0, (pUnit->getExperience() * iOurModifier) / iOldModifier));
 
 	setName(pUnit->getNameNoDesc());
@@ -3109,6 +3132,13 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		// Mod (Policies, etc.)
 		iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+		if (getUnitInfo().IsFightWellDamaged())
+		{
+			iWoundedDamageMultiplier -= GC.getWOUNDED_DAMAGE_MULTIPLIER();
+			iWoundedDamageMultiplier = std::max(iWoundedDamageMultiplier, 0);
+		}
+#endif
 
 		iDamageRatio = GC.getMAX_HIT_POINTS() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
 	}
@@ -3119,17 +3149,15 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 
 	// Don't use rand when calculating projected combat results
 	int iRoll = 0;
-#ifdef BLITZ_MODE
-	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-#else
+#ifndef NO_RAND_DAMAGE
 	if(bIncludeRand)
-#endif
 	{
 		iRoll = /*400*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
 		iRoll *= iDamageRatio;
 		iRoll /= GC.getMAX_HIT_POINTS();
 	}
 	else
+#endif
 	{
 		iRoll = /*400*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
@@ -5340,8 +5368,8 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
-	if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && GET_PLAYER(pPlot->getOwner()).isBorderTransitionObstacle() && getDomainType() == DOMAIN_LAND)
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0 && getDomainType() == DOMAIN_LAND)
 	{
 		return false;
 	}
@@ -5629,7 +5657,16 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if(!isBarbarian())
 	{
+#ifdef LACK_OF_STRATEGIC_RESOURCE_HEAL_PENALTY
+		int iHealRate = healRate(plot());
+		if (GetStrategicResourceCombatPenalty() != 0)
+		{
+			iHealRate = std::min(GC.getENEMY_HEAL_RATE(), iHealRate);
+		}
+		changeDamage(-iHealRate);
+#else
 		changeDamage(-(healRate(plot())));
+#endif
 	}
 }
 
@@ -5658,6 +5695,14 @@ void CvUnit::DoAttrition()
 			}
 		}
 	}
+
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	if (getOwner() != pPlot->getOwner() && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()) && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0)
+	{
+		strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+		changeDamage(GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders(), NO_PLAYER, 0.0, &strAppendText);
+	}
+#endif
 
 	// slewis - helicopters take attrition when ending their turn over mountains.
 	if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
@@ -7462,8 +7507,8 @@ bool CvUnit::pillage()
 		bSuccessfulNonRoadPillage = false;
 	}
 #endif
-#ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
-	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderTransitionObstacle())
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0)
 	{
 		bSuccessfulNonRoadPillage = false;
 	}
@@ -10178,6 +10223,16 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	// Set that we have this Promotion
 	else
 	{
+#ifdef INSTA_HEAL_EVERYPROMOTION
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+		if (!isInstaHealLocked())
+		{
+			changeDamage(-GC.getINSTA_HEAL_RATE());
+		}
+#else
+		changeDamage(-GC.getINSTA_HEAL_RATE());
+#endif
+#endif
 		setHasPromotion(ePromotion, true);
 
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -11484,6 +11539,15 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	if(IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 		iModifier += GetAdjacentModifier();
 
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+	if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+		iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
 #ifndef GOLDEN_AGE_ATTACK_BONUS_MODIFIER
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
@@ -11665,11 +11729,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += iTempModifier;
 
 		// Unit Combat type Modifier
-#ifdef ATTACK_BONUS_VS_RANGED_MOUNTED
-		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT && pOtherUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RANGED_MOUNTED"))
-#else
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
-#endif
 		{
 			iTempModifier = unitCombatModifier(pOtherUnit->getUnitCombatType());
 			iModifier += iTempModifier;
@@ -11716,6 +11776,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				iModifier += 25;
 			}
 		}
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+		if (GET_PLAYER(pOtherUnit->getOwner()).isHuman() && GET_PLAYER(getOwner()).isHuman())
+		{
+			iModifier += 5 * std::max(GET_PLAYER(pOtherUnit->getOwner()).GetNumCapitalsControlled() - 1, 0);
+		}
+#endif
 	}
 
 	return iModifier;
@@ -11762,14 +11829,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	// Our empire fights well in Golden Ages?
 	if(GET_PLAYER(getOwner()).isGoldenAge())
 		iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeCombatModifier();
-#endif
-
-#ifdef ATTACK_BONUS_VS_RANGED_MOUNTED
-	if (pDefender && pDefender->getUnitCombatType() != NO_UNITCOMBAT && pDefender->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RANGED_MOUNTED"))
-	{
-		iTempModifier = unitCombatModifier(pDefender->getUnitCombatType());
-		iModifier += iTempModifier;
-	}
 #endif
 
 	////////////////////////
@@ -11890,6 +11949,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iTempModifier = unitClassAttackModifier(pDefender->getUnitClassType());
 		iModifier += iTempModifier;
 
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+		// Unit combat Attack VS other unit
+		if (pDefender->getUnitCombatType() != NO_UNITCOMBAT)
+			iModifier += unitCombatAttack(pDefender->getUnitCombatType());
+#endif
+
 		// Bonus VS fortified
 		if(pDefender->getFortifyTurns() > 0)
 			iModifier += attackFortifiedModifier();
@@ -11897,6 +11962,11 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		// Bonus VS wounded
 		if(pDefender->getDamage() > 0)
 			iModifier += attackWoundedModifier();
+
+#ifdef UNIT_HEALTHY_MOD
+		if (pDefender->getDamage() == 0)
+			iModifier += getUnitInfo().GetHealthyMod();
+#endif
 	}
 
 	// Unit can't drop below 10% strength
@@ -11948,6 +12018,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		iModifier += iTempModifier;
 	}
 
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	if (getDamage() >= 50)
+		iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
+
 	////////////////////////
 	// KNOWN DEFENSE PLOT
 	////////////////////////
@@ -11955,11 +12030,29 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(pInPlot != NULL)
 	{
 		// No TERRAIN bonuses for this Unit?
+#ifdef FIX_DEFENSE_MODIFIER
+		iTempModifier = pInPlot->defenseModifier(getTeam(), false);
+#else
 		iTempModifier = pInPlot->defenseModifier(getTeam(), (pAttacker != NULL) ? pAttacker->ignoreBuildingDefense() : true);
+#endif
 
 		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
 		if(!noDefensiveBonus() || iTempModifier < 0)
+#if defined UNIT_IGNORE_TERRAIN_DEFENSE && defined FIX_DEFENSE_MODIFIER
+			if (pAttacker != NULL)
+			{
+				if (pAttacker->getUnitInfo().IsIgnoreTerrainDefense() && plot()->defenseModifier(getTeam(), true) > 0)
+				{
+					iModifier += iTempModifier - plot()->defenseModifier(getTeam(), true);
+				}
+				else
+				{
+					iModifier += iTempModifier;
+				}
+			}
+#else
 			iModifier += iTempModifier;
+#endif
 
 		// Fortification
 		iTempModifier = fortifyModifier();
@@ -12025,6 +12118,12 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		// Unit Class Defense Modifier
 		iTempModifier = unitClassDefenseModifier(pAttacker->getUnitClassType());
 		iModifier += iTempModifier;
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+		// Unit combat defense VS other unit
+		if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
+			iModifier += unitCombatDefense(pAttacker->getUnitCombatType());
+#endif
 	}
 
 	// Unit can't drop below 10% strength
@@ -12078,7 +12177,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if (pInPlot != NULL)
 	{
 		// No TERRAIN bonuses for this Unit?
+#ifdef FIX_DEFENSE_MODIFIER
+		iTempModifier = pInPlot->defenseModifier(getTeam(), false);
+#else
 		iTempModifier = pInPlot->defenseModifier(getTeam(), (pAttacker != NULL) ? pAttacker->ignoreBuildingDefense() : true);
+#endif
 
 		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
 		if (!noDefensiveBonus() || iTempModifier < 0)
@@ -12348,11 +12451,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus VS fortified
 		if (pOtherUnit->getFortifyTurns() > 0)
 			iModifier += attackFortifiedModifier();
-#endif
 
 		// Bonus VS wounded
 		if (pOtherUnit->getDamage() > 0)
 			iModifier += attackWoundedModifier();
+#endif
+
+#ifdef UNIT_HEALTHY_MOD
+		if (pOtherUnit->getDamage() == 0)
+			iModifier += getUnitInfo().GetHealthyMod();
+#endif
 
 		// Bonus against city states?
 		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
@@ -12390,6 +12498,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			{
 				iModifier += 25;
 			}
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+			if (GET_PLAYER(pOtherUnit->getOwner()).isHuman() && GET_PLAYER(getOwner()).isHuman())
+			{
+				iModifier += 5 * std::max(GET_PLAYER(pOtherUnit->getOwner()).GetNumCapitalsControlled() - 1, 0);
+			}
+#endif
 		}
 
 		// ATTACKING
@@ -12397,6 +12512,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			// Unit combat modifier VS other unit
+			if (pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+				iModifier += unitCombatAttack(pOtherUnit->getUnitCombatType());
+#endif
 
 			////////////////////////
 			// KNOWN BATTLE PLOT
@@ -12417,8 +12538,26 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			if (pOtherUnit->getFortifyTurns() > 0)
 				iModifier += attackFortifiedModifier();
 
+			// Bonus VS wounded
+			if (pOtherUnit->getDamage() > 0)
+				iModifier += attackWoundedModifier();
+
 			if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 				iModifier += GetAdjacentModifier();
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+			iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+			if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+				iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+			if (getDamage() >= 50)
+				iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 
 			// Trait (player level) bonus against higher tech units
 			iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
@@ -12527,6 +12666,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			// Unit combat defense VS other unit
+			if (pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+				iModifier += unitCombatDefense(pOtherUnit->getUnitCombatType());
+#endif
 		}
 	}
 
@@ -12557,12 +12702,59 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 			iModifier += GetAdjacentModifier();
 #endif
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+		iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+		if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+			iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+		if (getDamage() >= 50)
+			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 	}
 
 	// Ranged attack mod
 	if (bForRangedAttack)
 	{
 		iModifier += GetRangedAttackModifier();
+
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+		if (pCity != NULL)
+		{
+			if (plotDistance(pCity->plot()->getX(), pCity->plot()->getY(), plot()->getX(), plot()->getY()) > 1 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetOuterRingsRangeAttackMod();
+			}
+		}
+		if (pOtherUnit != NULL)
+		{
+			if (plotDistance(pOtherUnit->plot()->getX(), pOtherUnit->plot()->getY(), plot()->getX(), plot()->getY()) > 1 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetOuterRingsRangeAttackMod();
+			}
+		}
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+		if (pCity != NULL)
+		{
+			if (plotDistance(pCity->plot()->getX(), pCity->plot()->getY(), plot()->getX(), plot()->getY()) < 2 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetInnerRingRangeAttackMod();
+			}
+		}
+		if (pOtherUnit != NULL)
+		{
+			if (plotDistance(pOtherUnit->plot()->getX(), pOtherUnit->plot()->getY(), plot()->getX(), plot()->getY()) < 2 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetInnerRingRangeAttackMod();
+			}
+		}
+#endif
 	}
 
 	// This unit on offense
@@ -12578,11 +12770,24 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
 		if (!noDefensiveBonus() || iTempModifier < 0)
+#if defined UNIT_IGNORE_TERRAIN_DEFENSE && defined FIX_DEFENSE_MODIFIER
+			if (pOtherUnit != NULL)
+			{
+				if (pOtherUnit->getUnitInfo().IsIgnoreTerrainDefense() && plot()->defenseModifier(getTeam(), true) > 0)
+				{
+					iModifier += iTempModifier - plot()->defenseModifier(getTeam(), true);
+				}
+				else
+				{
+					iModifier += iTempModifier;
+				}
+			}
+#else
 			iModifier += iTempModifier;
+#endif
 
 		iModifier += getDefenseModifier();
 
-#ifdef DEFENSE_AGAINST_INFLUENCED_CIVS
 		// Tourism Defense
 		if (pOtherUnit != NULL)
 		{
@@ -12593,7 +12798,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = GET_PLAYER(getOwner()).GetCulture()->GetDefenseAgainstInfluencedCiv(ePlayer);
 		}
 		iModifier += iTempModifier;
-#endif
 
 #ifdef FIX_RANGE_DEFENSE_MOD
 		// Ranged Defense Mod
@@ -12601,6 +12805,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 			iModifier += GetAdjacentModifier();
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+		iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+		if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+			iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+		if (getDamage() >= 50)
+			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 
 		// Trait (player level) bonus against higher tech units
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
@@ -12825,11 +13043,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus VS fortified
 		if(pOtherUnit->getFortifyTurns() > 0)
 			iModifier += attackFortifiedModifier();
-#endif
 
 		// Bonus VS wounded
 		if(pOtherUnit->getDamage() > 0)
 			iModifier += attackWoundedModifier();
+#endif
+
+#ifdef UNIT_HEALTHY_MOD
+		if (pOtherUnit->getDamage() == 0)
+			iModifier += getUnitInfo().GetHealthyMod();
+#endif
 
 		// Bonus against city states?
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
@@ -12867,6 +13090,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			{
 				iModifier += 25;
 			}
+
+#ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
+			if (GET_PLAYER(pOtherUnit->getOwner()).isHuman() && GET_PLAYER(getOwner()).isHuman())
+			{
+				iModifier += 5 * std::max(GET_PLAYER(pOtherUnit->getOwner()).GetNumCapitalsControlled() - 1, 0);
+			}
+#endif
 		}
 
 		// ATTACKING
@@ -12874,6 +13104,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			// Unit combat modifier VS other unit
+			if (pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+				iModifier += unitCombatAttack(pOtherUnit->getUnitCombatType());
+#endif
 
 			////////////////////////
 			// KNOWN BATTLE PLOT
@@ -12890,8 +13126,26 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			if (pOtherUnit->getFortifyTurns() > 0)
 				iModifier += attackFortifiedModifier();
 
+			// Bonus VS wounded
+			if (pOtherUnit->getDamage() > 0)
+				iModifier += attackWoundedModifier();
+
 			if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 				iModifier += GetAdjacentModifier();
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+			iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+			if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+				iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+			if (getDamage() >= 50)
+				iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 
 			// Trait (player level) bonus against higher tech units
 			iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
@@ -13004,6 +13258,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			// Unit combat defense VS other unit
+			if (pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+				iModifier += unitCombatDefense(pOtherUnit->getUnitCombatType());
+#endif
 		}
 	}
 
@@ -13034,12 +13294,59 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 			iModifier += GetAdjacentModifier();
 #endif
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+		iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+		if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+			iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+		if (getDamage() >= 50)
+			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 	}
 
 	// Ranged attack mod
 	if(bForRangedAttack)
 	{
 		iModifier += GetRangedAttackModifier();
+
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+		if (pCity != NULL)
+		{
+			if (plotDistance(pCity->plot()->getX(), pCity->plot()->getY(), plot()->getX(), plot()->getY()) > 1 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetOuterRingsRangeAttackMod();
+			}
+		}
+		if (pOtherUnit != NULL)
+		{
+			if (plotDistance(pOtherUnit->plot()->getX(), pOtherUnit->plot()->getY(), plot()->getX(), plot()->getY()) > 1 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetOuterRingsRangeAttackMod();
+			}
+		}
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+		if (pCity != NULL)
+		{
+			if (plotDistance(pCity->plot()->getX(), pCity->plot()->getY(), plot()->getX(), plot()->getY()) < 2 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetInnerRingRangeAttackMod();
+			}
+		}
+		if (pOtherUnit != NULL)
+		{
+			if (plotDistance(pOtherUnit->plot()->getX(), pOtherUnit->plot()->getY(), plot()->getX(), plot()->getY()) < 2 + getExtraRange())
+			{
+				iModifier += getUnitInfo().GetInnerRingRangeAttackMod();
+			}
+		}
+#endif
 	}
 
 	// This unit on offense
@@ -13055,7 +13362,21 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
 		if(!noDefensiveBonus() || iTempModifier < 0)
+#if defined UNIT_IGNORE_TERRAIN_DEFENSE && defined FIX_DEFENSE_MODIFIER
+			if (pOtherUnit != NULL)
+			{
+				if (pOtherUnit->getUnitInfo().IsIgnoreTerrainDefense() && plot()->defenseModifier(getTeam(), true) > 0)
+				{
+					iModifier += iTempModifier - plot()->defenseModifier(getTeam(), true);
+				}
+				else
+				{
+					iModifier += iTempModifier;
+				}
+			}
+#else
 			iModifier += iTempModifier;
+#endif
 
 		iModifier += getDefenseModifier();
 
@@ -13065,6 +13386,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		if (IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
 			iModifier += GetAdjacentModifier();
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+		iModifier += GetNumSpecificFriendlyUnitsAdjacent(NULL, this) * getUnitInfo().GetSameTypeAdjacentMod();
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+		if (!IsFriendlyUnitAdjacent(/*bCombatUnit*/ true))
+			iModifier += getUnitInfo().GetNoAdjacentMod();
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+		if (getDamage() >= 50)
+			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
 
 		// Trait (player level) bonus against higher tech units
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
@@ -13263,17 +13598,15 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	iAttackerDamage /= GC.getMAX_HIT_POINTS();
 
 	int iAttackerRoll = 0;
-#ifdef BLITZ_MODE
-	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-#else
+#ifndef NO_RAND_DAMAGE
 	if(bIncludeRand)
-#endif
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
 	else
+#endif
 	{
 		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
@@ -13374,17 +13707,15 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	iAttackerDamage /= GC.getMAX_HIT_POINTS();
 
 	int iAttackerRoll = 0;
-#ifdef BLITZ_MODE
-	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-#else
+#ifndef NO_RAND_DAMAGE
 	if(bIncludeRand)
-#endif
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
 	else
+#endif
 	{
 		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
@@ -13457,17 +13788,15 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GC.getMAX_HIT_POINTS();
 
 	int iDefenderRoll = 0;
-#ifdef BLITZ_MODE
-	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-#else
+#ifndef NO_RAND_DAMAGE
 	if(bIncludeRand)
-#endif
 	{
 		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
 		iDefenderRoll /= GC.getMAX_HIT_POINTS();
 	}
 	else
+#endif
 	{
 		iDefenderRoll = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE();
 		iDefenderRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
@@ -13661,17 +13990,15 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GC.getMAX_HIT_POINTS();
 
 	int iInterceptorRoll = 0;
-#ifdef BLITZ_MODE
-	if(bIncludeRand && !GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-#else
+#ifndef NO_RAND_DAMAGE
 	if(bIncludeRand)
-#endif
 	{
 		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
 		iInterceptorRoll *= iInterceptorDamageRatio;
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
 	}
 	else
+#endif
 	{
 		iInterceptorRoll = /*300*/ GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iInterceptorRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
@@ -13800,9 +14127,17 @@ int CvUnit::fortifyModifier() const
 	
 		// Apply modifiers
 		int iMod = GET_PLAYER(getOwner()).getUnitFortificationModifier();
+#ifdef UNIT_FORTIFICATION_MODIFIER
+		iMod += getUnitInfo().GetFortificationModifier();
+#endif
 		if(iMod != 0)
 		{
+#ifdef FIX_FORTIFY_MODIFIER
+			iValue *= (100 + iMod);
+			iValue /= 100;
+#else
 			iValue = ((100 + iMod) / 100) * iValue;
+#endif
 		}
 
 		if(iValue < 0)
@@ -13832,7 +14167,11 @@ int CvUnit::experienceNeeded() const
 
 	int iExperienceNeeded = /*10*/ GC.getEXPERIENCE_PER_LEVEL() * iExperienceMultiplier;
 
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	const int iModifier = GET_PLAYER(getOwner()).getLevelExperienceModifier() + getUnitInfo().GetLevelExperienceModifier();
+#else
 	const int iModifier = GET_PLAYER(getOwner()).getLevelExperienceModifier();
+#endif
 	if(0 != iModifier)
 	{
 		float fTemp = (float) iExperienceNeeded;
@@ -14615,6 +14954,61 @@ int CvUnit::GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude, const
 	return iNumEnemiesAdjacent;
 }
 
+#ifdef UNIT_NUM_SPECIFIC_FRIENDLY_UNITS_ADJACENT
+//	--------------------------------------------------------------------------------
+int CvUnit::GetNumSpecificFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pUnitCompare) const
+{
+	int iNumFriendlyAdjacent = 0;
+
+	TeamTypes eMyTeam = getTeam();
+
+	CvPlot* pLoopPlot;
+	IDInfo* pUnitNode;
+
+	CvUnit* pLoopUnit;
+	TeamTypes eTheirTeam;
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if (pLoopPlot != NULL)
+		{
+			pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while (pUnitNode != NULL)
+			{
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if (pLoopUnit->IsCombatUnit())
+					{
+						eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be at war with us
+						if (eTheirTeam == eMyTeam)
+						{
+
+							if (pLoopUnit->getUnitType() == pUnitCompare->getUnitType())
+							{
+								iNumFriendlyAdjacent++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumFriendlyAdjacent;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Is there a friendly Unit adjacent to us?
 bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
@@ -14946,6 +15340,26 @@ int CvUnit::unitCombatModifier(UnitCombatTypes eUnitCombat) const
 	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eUnitCombat is expected to be within maximum bounds (invalid Index)");
 	return (getExtraUnitCombatModifier(eUnitCombat));
 }
+
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+//	--------------------------------------------------------------------------------
+int CvUnit::unitCombatAttack(UnitCombatTypes eUnitCombat) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitCombat >= 0, "eUnitCombat is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eUnitCombat is expected to be within maximum bounds (invalid Index)");
+	return (getExtraUnitCombatAttack(eUnitCombat));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::unitCombatDefense(UnitCombatTypes eUnitCombat) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitCombat >= 0, "eUnitCombat is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eUnitCombat is expected to be within maximum bounds (invalid Index)");
+	return (getExtraUnitCombatDefense(eUnitCombat));
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -19971,6 +20385,46 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 	m_extraUnitCombatModifier.setAt(eIndex, m_extraUnitCombatModifier[eIndex] + iChange);
 }
 
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatAttack(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatAttack[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatAttack(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatAttack.setAt(eIndex, m_extraUnitCombatAttack[eIndex] + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatDefense(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatDefense[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatDefense(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatDefense.setAt(eIndex, m_extraUnitCombatDefense[eIndex] + iChange);
+}
+#endif
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getUnitClassModifier(UnitClassTypes eIndex) const
@@ -20398,6 +20852,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
 			changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+			changeExtraUnitCombatAttack(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatAttackPercent(iI) * iChange));
+			changeExtraUnitCombatDefense(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatDefensePercent(iI) * iChange));
+#endif
 		}
 
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)

@@ -1216,10 +1216,13 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 			}
 			if (eMajority == eReligion)
 			{
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 				bool bFriends = GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->IsFriends(ePlayer);
 				bool bAllies = GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->IsAllies(ePlayer);
+#endif
 				MinorCivTraitTypes eTrait = GET_PLAYER((PlayerTypes)iI).GetMinorCivAI()->GetTrait();
-
+				
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 				if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 				{
 					int iCapitalFoodTimes100 = 0;
@@ -1248,9 +1251,6 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 
 					GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 					GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
-#ifdef EG_REPLAYDATASET_FOODFROMCS
-					GET_PLAYER(ePlayer).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
-#endif
 				}
 
 				if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -1281,10 +1281,8 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 
 					GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 					GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
-#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
-					GET_PLAYER(ePlayer).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
-#endif
 				}
+#endif
 
 				if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 				{
@@ -2542,11 +2540,15 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 
 	int iChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
 	iChance += (iFaith - iCost);
+#ifdef NO_RANDOM_PROPHET
+	iChance = 1000;
+#else
 #ifdef DUEL_NO_RANDOM_PROPHET
 	if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 	{
 		iChance = 1000;
 	}
+#endif
 #endif
 
 	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
@@ -2564,6 +2566,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	if(pSpawnCity != NULL && pSpawnCity->getOwner() == kPlayer.GetID())
 	{
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
+#ifdef NO_RANDOM_PROPHET
+		kPlayer.ChangeFaith(-iCost);
+#else
 #ifdef DUEL_NO_RANDOM_PROPHET
 		if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 		{
@@ -2579,6 +2584,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #else
 		kPlayer.SetFaith(0);
 #endif
+#endif
 	}
 	else
 	{
@@ -2586,6 +2592,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		if(pSpawnCity != NULL)
 		{
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
+#ifdef NO_RANDOM_PROPHET
+			kPlayer.ChangeFaith(-iCost);
+#else
 #ifdef DUEL_NO_RANDOM_PROPHET
 			if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 			{
@@ -2600,6 +2609,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			}
 #else
 			kPlayer.SetFaith(0);
+#endif
 #endif
 		}
 	}
@@ -2822,7 +2832,19 @@ void CvPlayerReligions::ChangeNumProphetsSpawned(int iValue)
 /// How much will the next prophet cost this player?
 int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAdjustForSpeedDifficulty) const
 {
+#ifdef NO_RANDOM_PROPHET
+	int iCost;
+	if (m_iNumProphetsSpawned > 0)
+	{
+		iCost = GC.getGame().GetGameReligions()->GetFaithGreatProphetNumber(m_iNumProphetsSpawned + 1);
+	}
+	else
+	{
+		iCost = GC.getGame().GetGameReligions()->GetFaithGreatProphetNumber(m_iNumProphetsSpawned + 2);
+	}
+#else
 	int iCost = GC.getGame().GetGameReligions()->GetFaithGreatProphetNumber(m_iNumProphetsSpawned + 1);
+#endif
 
 	// Boost to faith due to belief?
 	ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer();
@@ -4393,6 +4415,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 #ifdef RELIGIOUS_UNITY_CS_BONUS
 	if (GET_PLAYER(m_pCity->getOwner()).isAlive() && GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
 	{
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 		if (eOldMajority > RELIGION_PANTHEON && GC.getGame().GetGameReligions()->GetReligion(eOldMajority, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY")))
 		{
 			bool bFriends = GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->IsFriends(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder);
@@ -4427,9 +4450,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
-#ifdef EG_REPLAYDATASET_FOODFROMCS
-				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
-#endif
 			}
 
 			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -4460,17 +4480,18 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
-#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
-				GET_PLAYER(pReligions->GetReligion(eOldMajority, NO_PLAYER)->m_eFounder).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
-#endif
 			}
 		}
+#endif
 		if (eMajority > RELIGION_PANTHEON && GC.getGame().GetGameReligions()->GetReligion(eMajority, NO_PLAYER)->m_Beliefs.HasBelief((BeliefTypes)GC.getInfoTypeForString("BELIEF_RELIGIOUS_UNITY")))
 		{
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 			bool bFriends = GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->IsFriends(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder);
 			bool bAllies = GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->IsAllies(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder);
+#endif
 			MinorCivTraitTypes eTrait = GET_PLAYER(m_pCity->getOwner()).GetMinorCivAI()->GetTrait();
 
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 			if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 			{
 			int iCapitalFoodTimes100 = 0;
@@ -4499,9 +4520,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
-#ifdef EG_REPLAYDATASET_FOODFROMCS
-				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeFoodFromMinorsTimes100(1024 * iCapitalFoodTimes100 + iOtherCitiesFoodTimes100);
-#endif
 			}
 
 			if (eTrait == MINOR_CIV_TRAIT_MANUFACTORY)
@@ -4532,10 +4550,8 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCapitalYieldChange(YIELD_PRODUCTION, iCapitalProductionTimes100);
 				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeCityYieldChange(YIELD_PRODUCTION, iOtherCitiesProductionTimes100);
-#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
-				GET_PLAYER(pReligions->GetReligion(eMajority, NO_PLAYER)->m_eFounder).ChangeProductionFromMinorsTimes100(1024 * iCapitalProductionTimes100 + iOtherCitiesProductionTimes100);
-#endif
 			}
+#endif
 
 			if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 			{

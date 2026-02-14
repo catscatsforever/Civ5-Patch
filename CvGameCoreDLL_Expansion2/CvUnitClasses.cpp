@@ -99,6 +99,39 @@ CvUnitEntry::CvUnitEntry(void) :
 #ifdef UNIT_NUKE_DEFENSE
 	m_iNukeDefense(0),
 #endif
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+	m_iOuterRingsRangeAttackMod(0),
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+	m_iInnerRingRangeAttackMod(0),
+#endif
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	m_iSameTypeAdjacentMod(0),
+#endif
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	m_bFightWellDamaged(false),
+#endif
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	m_iLevelExperienceModifier(0),
+#endif
+#ifdef UNIT_HEALTHY_MOD
+	m_iHealthyMod(0),
+#endif
+#ifdef UNIT_NO_ADJACENT_MOD
+	m_iNoAdjacentMod(0),
+#endif
+#ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
+	m_iRangeAttackAreaDamageMod(0),
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	m_iLowHealthDefenseModifier(0),
+#endif
+#ifdef UNIT_FORTIFICATION_MODIFIER
+	m_iFortificationModifier(0),
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+	m_bIgnoreTerrainDefense(false),
+#endif
 	m_pbUpgradeUnitClass(NULL),
 	m_pbUnitAIType(NULL),
 	m_pbNotUnitAIType(NULL),
@@ -222,6 +255,39 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumExoticGoods = kResults.GetInt("NumExoticGoods");
 #ifdef UNIT_NUKE_DEFENSE
 	m_iNukeDefense = kResults.GetInt("NukeDefense");
+#endif
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+	m_iOuterRingsRangeAttackMod = kResults.GetInt("OuterRingsRangeAttackMod");
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+	m_iInnerRingRangeAttackMod = kResults.GetInt("InnerRingRangeAttackMod");
+#endif
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	m_iSameTypeAdjacentMod = kResults.GetInt("SameTypeAdjacentMod");
+#endif
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
+#endif
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	m_iLevelExperienceModifier = kResults.GetInt("LevelExperienceModifier");
+#endif
+#ifdef UNIT_HEALTHY_MOD
+	m_iHealthyMod = kResults.GetInt("HealthyMod");
+#endif
+#ifdef UNIT_NO_ADJACENT_MOD
+	m_iNoAdjacentMod = kResults.GetInt("NoAdjacentMod");
+#endif
+#ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
+	m_iRangeAttackAreaDamageMod = kResults.GetInt("RangeAttackAreaDamageMod");
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	m_iLowHealthDefenseModifier = kResults.GetInt("LowHealthDefenseModifier");
+#endif
+#ifdef UNIT_FORTIFICATION_MODIFIER
+	m_iFortificationModifier = kResults.GetInt("FortificationModifier");
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+	m_bIgnoreTerrainDefense = kResults.GetBool("IgnoreTerrainDefense");
 #endif
 
 	m_strUnitArtInfoTag = kResults.GetText("UnitArtInfo");
@@ -944,6 +1010,94 @@ int CvUnitEntry::GetNumExoticGoods() const
 int CvUnitEntry::GetNukeDefense() const
 {
 	return m_iNukeDefense;
+}
+#endif
+
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+///
+int CvUnitEntry::GetOuterRingsRangeAttackMod() const
+{
+	return m_iOuterRingsRangeAttackMod;
+}
+#endif
+
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+///
+int CvUnitEntry::GetInnerRingRangeAttackMod() const
+{
+	return m_iInnerRingRangeAttackMod;
+}
+#endif
+
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+///
+int CvUnitEntry::GetSameTypeAdjacentMod() const
+{
+	return m_iSameTypeAdjacentMod;
+}
+#endif
+
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+///
+bool CvUnitEntry::IsFightWellDamaged() const
+{
+	return m_bFightWellDamaged;
+}
+#endif
+
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+///
+int CvUnitEntry::GetLevelExperienceModifier() const
+{
+	return m_iLevelExperienceModifier;
+}
+#endif
+
+#ifdef UNIT_HEALTHY_MOD
+///
+int CvUnitEntry::GetHealthyMod() const
+{
+	return m_iHealthyMod;
+}
+#endif
+
+#ifdef UNIT_NO_ADJACENT_MOD
+///
+int CvUnitEntry::GetNoAdjacentMod() const
+{
+	return m_iNoAdjacentMod;
+}
+#endif
+
+#ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
+///
+int CvUnitEntry::GetRangeAttackAreaDamageMod() const
+{
+	return m_iRangeAttackAreaDamageMod;
+}
+#endif
+
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+///
+int CvUnitEntry::GetLowHealthDefenseModifier() const
+{
+	return m_iLowHealthDefenseModifier;
+}
+#endif
+
+#ifdef UNIT_FORTIFICATION_MODIFIER
+///
+int CvUnitEntry::GetFortificationModifier() const
+{
+	return m_iFortificationModifier;
+}
+#endif
+
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+///
+bool CvUnitEntry::IsIgnoreTerrainDefense() const
+{
+	return m_bIgnoreTerrainDefense;
 }
 #endif
 

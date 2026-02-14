@@ -118,6 +118,39 @@ public:
 #ifdef UNIT_NUKE_DEFENSE
 	int GetNukeDefense() const;
 #endif
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+	int GetOuterRingsRangeAttackMod() const;
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+	int GetInnerRingRangeAttackMod() const;
+#endif
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	int GetSameTypeAdjacentMod() const;
+#endif
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	bool IsFightWellDamaged() const;
+#endif
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	int GetLevelExperienceModifier() const;
+#endif
+#ifdef UNIT_HEALTHY_MOD
+	int GetHealthyMod() const;
+#endif
+#ifdef UNIT_NO_ADJACENT_MOD
+	int GetNoAdjacentMod() const;
+#ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
+#endif
+	int GetRangeAttackAreaDamageMod() const;
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	int GetLowHealthDefenseModifier() const;
+#endif
+#ifdef UNIT_FORTIFICATION_MODIFIER
+	int GetFortificationModifier() const;
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+	bool IsIgnoreTerrainDefense() const;
+#endif
 
 	float GetUnitMaxSpeed() const;
 	float GetUnitPadTime() const;
@@ -254,6 +287,39 @@ private:
 	int m_iNumExoticGoods;
 #ifdef UNIT_NUKE_DEFENSE
 	int m_iNukeDefense;
+#endif
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+	int m_iOuterRingsRangeAttackMod;
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+	int m_iInnerRingRangeAttackMod;
+#endif
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	int m_iSameTypeAdjacentMod;
+#endif
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	bool m_bFightWellDamaged;
+#endif
+#ifdef UNIT_LEVEL_EXPIRIENCE_MODIFIER
+	int m_iLevelExperienceModifier;
+#endif
+#ifdef UNIT_HEALTHY_MOD
+	int m_iHealthyMod;
+#endif
+#ifdef UNIT_NO_ADJACENT_MOD
+	int m_iNoAdjacentMod;
+#endif
+#ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
+	int m_iRangeAttackAreaDamageMod;
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	int m_iLowHealthDefenseModifier;
+#endif
+#ifdef UNIT_FORTIFICATION_MODIFIER
+	int m_iFortificationModifier;
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+	bool m_bIgnoreTerrainDefense;
 #endif
 
 	// This is not loaded from XML, but cached so we don't have to recalculate every time

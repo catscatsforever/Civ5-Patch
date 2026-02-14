@@ -154,7 +154,7 @@ function GetCityStateStatusRow( majorPlayerID, minorPlayerID )
 			return kMinorAfraid
 
 		-- Angry
-		elseif minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) < GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL then
+		elseif minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100 < GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL then
 			return kMinorAngry
 
 		-- Neutral
@@ -179,7 +179,7 @@ function UpdateCityStateStatusBar(majorPlayerID, minorPlayerID, posBarCtrl, negB
 	if majorPlayer and minorPlayer then
 
 		local info = GetCityStateStatusRow(majorPlayerID, minorPlayerID)
-		local iInf = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
+		local iInf = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100
 
 		if iInf >= 0 then
 			local percentFull = math_abs(iInf) / kPosInfRange
@@ -243,7 +243,7 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		local majorTeam = Teams[majorTeamID]
 
 		local isAtWar = majorTeam:IsAtWar(minorTeamID)
-		local majorInfluenceWithMinor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
+		local majorInfluenceWithMinor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100
 
 		-- Status
 
@@ -275,7 +275,7 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 			strStatusText = "[COLOR_WHITE]" .. L("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL")
 		end
 		strStatusText = strStatusText .. "[ENDCOLOR]"
-		if not isAtWar then
+		if true then
 			strStatusText = strStatusText .. " " .. majorInfluenceWithMinor .. "[ICON_INFLUENCE]"
 			if not gk_mode and majorInfluenceWithMinor ~= 0 then
 				strStatusText = strStatusText .. (" (%+g[ICON_INFLUENCE] / "):format(minorPlayer:GetFriendshipChangePerTurnTimes100(majorPlayerID) / 100).. L"TXT_KEY_DO_TURN" .. ")" --"TXT_KEY_CITY_STATE_TITLE_TOOL_TIP_CURRENT"
@@ -328,13 +328,13 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
 		end
 
-		local scienceBonusTimes = minorPlayer:GetMinorCivCurrentScienceBonus(majorPlayerID) + minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID) / 100
+		local scienceBonusTimes = minorPlayer:GetMinorCivCurrentScienceBonusTimes100(majorPlayerID) / 100 + minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID) / 100
 		if scienceBonusTimes ~= 0 then
 			table_insert( tips, L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonusTimes) )
 		end
 
 		if gk_mode then
-			local cultureBonus = minorPlayer:GetMinorCivCurrentCultureBonus(majorPlayerID)
+			local cultureBonus = minorPlayer:GetMinorCivCurrentCultureBonusTimes100(majorPlayerID) / 100
 			if cultureBonus ~= 0 then
 				table_insert( tips, L("TXT_KEY_CSTATE_CULTURE_BONUS", cultureBonus) )
 			end
@@ -379,7 +379,7 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		local minorTeam = Teams[minorTeamID]
 
 		local strShortDesc = minorPlayer:GetCivilizationShortDescription()
-		local influenceAccumulated = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
+		local influenceAccumulated = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100
 
 		-- Name
 		local tip = strShortDesc
@@ -496,12 +496,12 @@ function GetAllyToolTip( majorPlayerID, minorPlayerID )
 	local majorPlayer = Players[majorPlayerID]
 	local minorPlayer = Players[minorPlayerID]
 	if majorPlayer and minorPlayer then
-		local minorCivFriendshipWithMajor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
+		local minorCivFriendshipWithMajor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100
 		local allyID = minorPlayer:GetAlly()
 		local ally = Players[allyID]
 		-- Has an ally
 		if ally then
-			local minorCivFriendshipWithAlly = minorPlayer:GetMinorCivFriendshipWithMajor(allyID)
+			local minorCivFriendshipWithAlly = minorPlayer:GetMinorCivFriendshipWithMajor(allyID) / 100
 			-- Not us
 			if allyID ~= majorPlayerID then
 				-- Someone we know
@@ -595,62 +595,73 @@ else
 end
 
 local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
+	local majorPlayer = Players[majorPlayerID]
+	local questLength = math.floor( GameDefines["MINOR_QUEST_STANDARD_CONTEST_LENGTH"] * GameInfo.GameSpeeds[PreGame.GetGameSpeed()].GreatPeoplePercent / 100 )
+	local questOneShotReward = minorPlayer:IsQuestOneShotReward(majorPlayerID, questID);
 	if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_ROUTE"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_ROUTE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP then
-		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CAMP"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CAMP_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CAMP"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] )
+		if not questOneShotReward then
+			return L( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL", GameInfo.Resources[questData1].Description, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 200 ), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / (100 * questLength) ) )
+		else
+			return L( "TXT_KEY_CITY_STATE_QUEST_CONNECT_RESOURCE_FORMAL_ONE_SHOT", GameInfo.Resources[questData1].Description, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONNECT_RESOURCE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / (100 * questLength) ) )
+		end
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_CONSTRUCT_WONDER"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_WONDER_FORMAL", GameInfo.Buildings[questData1].Description, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONSTRUCT_WONDER"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON then
-		return L( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[questData1].Description, GameDefines["MINOR_QUEST_FRIENDSHIP_GREAT_PERSON"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_GREAT_PERSON_FORMAL", GameInfo.Units[questData1].Description, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_GREAT_PERSON"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE then
-		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CITY_STATE"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey(), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_KILL_CITY_STATE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_PLAYER"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_PLAYER"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif civ5_mode and questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER then
-		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_NATURAL_WONDER"] )
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_FIND_NATURAL_WONDER"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 	elseif gk_mode then
 		if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD then
-			return L( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_GIVE_GOLD"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_GIVE_GOLD_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_GIVE_GOLD"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT then
-			return L( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_PLEDGE_TO_PROTECT"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_PLEDGE_TO_PROTECT_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_PLEDGE_TO_PROTECT"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_WINNING_FORMAL", iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_CULTURE_LOSING_FORMAL", iLeaderScore, iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_CULTURE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL", iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL", iLeaderScore, iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_FAITH"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS then
 			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
 			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
 			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL", iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			else
-				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore, GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] )
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore, math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_CONTEST_TECHS"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST then
-			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_INVEST"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_INVEST"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE then
-			return L( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_BULLY_CITY_STATE"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_BULLY_CITY_STATE_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_BULLY_CITY_STATE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), GameDefines["MINOR_QUEST_FRIENDSHIP_DENOUNCE_MAJOR"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey(), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_DENOUNCE_MAJOR"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION then
-			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game_GetReligionName(questData1), GameDefines["MINOR_QUEST_FRIENDSHIP_SPREAD_RELIGION"] )
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game_GetReligionName(questData1), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_SPREAD_RELIGION"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 100 ) )
 		elseif bnw_mode then
 			if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE then
-				return L("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL", GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] )
+				if not questOneShotReward then
+					return L("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / 200 ), math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / (100 * questLength) ) )
+				else
+					return L("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL_ONE_SHOT", math.floor( GameDefines["MINOR_QUEST_FRIENDSHIP_TRADE_ROUTE"] * (100 + majorPlayer:GetMinorQuestFriendshipMod()) / (100 * questLength) ) )
+				end
 			end
 		end
 	end
@@ -778,10 +789,10 @@ function GetCityStateStatusAlly( majorPlayerID, minorPlayerID, isFullInfo )
 		toolTip = L("TXT_KEY_CITY_STATE_ALLY_TT")
 	elseif majorPlayer and minorPlayer then
 		local allyID = minorPlayer:GetAlly()
-		local minorCivFriendshipWithMajor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
+		local minorCivFriendshipWithMajor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID) / 100
 		if allyID and allyID ~= -1 then -- already has an ally
 
-			local minorCivFriendshipAlly = minorPlayer:GetMinorCivFriendshipWithMajor(allyID) - minorCivFriendshipWithMajor + 1	-- needs to pass up the current ally, not just match
+			local minorCivFriendshipAlly = minorPlayer:GetMinorCivFriendshipWithMajor(allyID) / 100 - minorCivFriendshipWithMajor + 1	-- needs to pass up the current ally, not just match
 			local ally = Players[allyID]
 
 			if Teams[majorPlayer:GetTeam()]:IsHasMet(ally:GetTeam()) then

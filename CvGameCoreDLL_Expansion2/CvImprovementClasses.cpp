@@ -131,6 +131,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
 	m_ppiRouteYieldChanges(NULL),
+#ifdef IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+	m_bDoublesStrategicResource(false),
+#endif
 	m_paImprovementResource(NULL)
 {
 }
@@ -469,6 +472,10 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		pResults->Reset();
 
 	}
+
+#ifdef IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+	m_bDoublesStrategicResource = kResults.GetBool("DoublesStrategicResource");
+#endif
 
 	return true;
 }
@@ -1038,6 +1045,13 @@ int CvImprovementEntry::GetFlavorValue(int i) const
 	CvAssertMsg(i > -1, "Indes out of bounds");
 	return m_piFlavorValue[i];
 }
+
+#ifdef IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+bool CvImprovementEntry::IsDoublesStrategicResource() const
+{
+	return m_bDoublesStrategicResource;
+}
+#endif
 
 
 //=====================================

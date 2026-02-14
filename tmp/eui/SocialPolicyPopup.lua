@@ -272,11 +272,11 @@ function UpdateDisplay()
 	local bShowAll = OptionsManager.GetPolicyInfo();
 
 	Controls.NextCost:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost() )
-	Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture() )
-	Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn() )
+	Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCultureTimes100() / 100 )
+	Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurnTimes100() / 100 )
 
-	local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture()
-	local culturePerTurn = player:GetTotalJONSCulturePerTurn()
+	local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCultureTimes100() / 100
+	local culturePerTurn = player:GetTotalJONSCulturePerTurnTimes100() / 100
 	Controls.NextPolicyTurnLabel:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_TURN_LABEL", cultureNeeded <= 0 and 0 or ( culturePerTurn <= 0 and "?" or math_ceil( cultureNeeded / culturePerTurn ) ) )
 
 	-- Player Title

@@ -713,6 +713,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			end
 			if city and gk_mode then
 				yieldChange = yieldChange + city:GetReligionBuildingClassYieldChange( buildingClassID, yieldID )
+				yieldModifier = yieldModifier + city:GetReligionBuildingClassYieldModifier( buildingClassID, yieldID )
 				if bnw_mode then
 					yieldChange = yieldChange + city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID )
 				end
@@ -1082,6 +1083,11 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			for row in GameInfo.Belief_BuildingClassYieldChanges( thisBuildingClassType ) do
 				if row.BeliefType and (row.YieldChange or 0)~=0 then
 					items[row.BeliefType] = S( "%s %+i%s", items[row.BeliefType] or "", row.YieldChange, tostring(YieldIcons[row.YieldType]) )
+				end
+			end
+			for row in GameInfo.Belief_BuildingClassYieldModifiers( thisBuildingClassType ) do
+				if row.BeliefType and (row.YieldMod or 0)~=0 then
+					items[row.BeliefType] = S( "%s %+i%%%s", items[row.BeliefType] or "", row.YieldMod, tostring(YieldIcons[row.YieldType]) )
 				end
 			end
 			if maxGlobalInstances > 0 then -- world wonder
@@ -1668,6 +1674,19 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_RELIGION", city:GetBaseYieldRateFromReligion( yieldID ), yieldIconString )
 	end
 
+	-- Base Yield from Trade Routes
+	if yieldID == YieldTypes.YIELD_FOOD then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetTradeValuesAtCityTimes100( yieldID )/100 )
+		baseYield = baseYield + city:GetTradeValuesAtCityTimes100( yieldID )/100
+	elseif yieldID == YieldTypes.YIELD_PRODUCTION then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODUCTION_FROM_TRADE_ROUTES", city:GetTradeValuesAtCityTimes100( yieldID )/100 )
+		baseYield = baseYield + city:GetTradeValuesAtCityTimes100( yieldID )/100
+	end
+
+	-- Base Yield from Minors
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MINORS", city:GetYieldFromMinorsTimes100( yieldID ) / 100, yieldIconString )
+	baseYield = baseYield + city:GetYieldFromMinorsTimes100( yieldID ) / 100
+
 	if civBE_mode then
 		-- Yield from Production Processes
 		local yieldFromProcesses = city:GetYieldRateFromProductionProcesses( yieldID )
@@ -1681,7 +1700,6 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 	-- Food eaten by pop
 	if yieldID == YieldTypes.YIELD_FOOD then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
 		strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
 	elseif civBE_mode then
 		local yieldFromTrade = city:GetYieldPerTurnFromTrade( yieldID )
@@ -1927,8 +1945,8 @@ local function GetCultureTooltip( city )
 	local culturePerTurn, cultureStored, cultureNeeded, cultureFromBuildings, cultureFromPolicies, cultureFromSpecialists, cultureFromTraits, baseCulturePerTurn
 	-- Thanks fo Firaxis Cleverness...
 	if civ5_mode then
-		culturePerTurn = city:GetJONSCulturePerTurn()
-		cultureStored = city:GetJONSCultureStored()
+		culturePerTurn = city:GetJONSCulturePerTurnTimes100() / 100
+		cultureStored = city:GetJONSCultureStoredTimes100() / 100
 		cultureNeeded = city:GetJONSCultureThreshold()
 		cultureFromBuildings = city:GetJONSCulturePerTurnFromBuildings()
 		cultureFromPolicies = city:GetJONSCulturePerTurnFromPolicies()

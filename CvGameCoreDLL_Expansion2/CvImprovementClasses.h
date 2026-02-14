@@ -157,6 +157,10 @@ public:
 
 	int  GetFlavorValue(int i) const;
 
+#ifdef IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+	bool IsDoublesStrategicResource() const;
+#endif
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 	void InitImprovementResourceList(CvImprovementResourceInfo** ppImprovementResource, int iListLen);
@@ -240,6 +244,10 @@ protected:
 	int** m_ppiRouteYieldChanges;
 
 	CvImprovementResourceInfo* m_paImprovementResource;
+
+#ifdef IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+	bool m_bDoublesStrategicResource;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

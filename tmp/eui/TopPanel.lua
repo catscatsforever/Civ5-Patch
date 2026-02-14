@@ -966,7 +966,8 @@ local function UpdateTopPanelNow()
 
 		local sciencePerTurnTimes100 = g_activePlayer:GetScienceTimes100()
 
-		local strSciencePerTurn = S( "+%.0f", sciencePerTurnTimes100 / 100 )
+		local strSciencePerTurn = ""
+		strSciencePerTurn = S( "+%g", sciencePerTurnTimes100 / 100 )
 
 		-- Gold being deducted from our Science ?
 		if g_activePlayer:GetScienceFromBudgetDeficitTimes100() == 0 then
@@ -1045,8 +1046,8 @@ local function UpdateTopPanelNow()
 
 	if civ5_mode then
 		-- Clever Firaxis...
-		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurn()
-		cultureProgress = g_activePlayer:GetJONSCulture()
+		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
+		cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
 
 		-----------------------------
 		-- Update gold stats
@@ -1434,7 +1435,7 @@ local function UpdateTopPanelNow()
 		end
 
 		Controls.CultureTurns:SetText(turnsRemaining)
-		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%i[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
+		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%g[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
 	end
 
 	Controls.TopPanelInfoStack:CalculateSize()
@@ -1575,44 +1576,72 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 		-- if we have one, update the tech picture
 		showPortrait = tech and IconHookup( tech.PortraitIndex, size, tech.IconAtlas, tipControls.ItemPortrait )
 
-		tips:insert( g_scienceTextColor )
-		tips:insert( S( "%+g", sciencePerTurnTimes100 / 100 ) .. "[ENDCOLOR] " .. L"TXT_KEY_REPLAY_DATA_SCIENCEPERTURN" )
+		-- tips:insert( g_scienceTextColor )
+		-- tips:insert( S( "%+g", sciencePerTurnTimes100 / 100 ) .. "[ENDCOLOR] " .. L"TXT_KEY_REPLAY_DATA_SCIENCEPERTURN" )
+		tips:insert("")
+
+		local iBase = 0
 
 		-- Science LOSS from Budget Deficits
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100 )
+		iBase = iBase + g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100
 
 		-- Science from Cities
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_CITIES", g_activePlayer:GetScienceFromCitiesTimes100(true) / 100 )
+		iBase = iBase + g_activePlayer:GetScienceFromCitiesTimes100() / 100
 
 		-- Science from Trade Routes
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ITR", ( g_activePlayer:GetScienceFromCitiesTimes100(false) - g_activePlayer:GetScienceFromCitiesTimes100(true) ) / 100 )
+		iBase = iBase + ( g_activePlayer:GetScienceFromCitiesTimes100(false) - g_activePlayer:GetScienceFromCitiesTimes100(true) ) / 100
 
 		-- Science from Other Players
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", (g_activePlayer:GetScienceFromOtherPlayersTimes100() + g_activePlayer:GetSciencePerTurnFromMinorCivsTimes100()) / 100 )
+		iBase = iBase + (g_activePlayer:GetScienceFromOtherPlayersTimes100() + g_activePlayer:GetSciencePerTurnFromMinorCivsTimes100()) / 100
 
 		-- Science from Religion
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RELIGION", g_activePlayer:GetSciencePerTurnFromReligionTimes100() / 100 )
+		iBase = iBase + g_activePlayer:GetSciencePerTurnFromReligionTimes100() / 100
 
 		if civ5_mode then
 			-- Science from Happiness
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
+			iBase = iBase + g_activePlayer:GetScienceFromHappinessTimes100() / 100
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			if g_activePlayer.GetScienceFromVassalTimes100 then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetScienceFromVassalTimes100() / 100 )
+				iBase = iBase + g_activePlayer:GetScienceFromVassalTimes100() / 100
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
 			if g_activePlayer.GetScienceRateFromMinorAllies and g_activePlayer.GetScienceRateFromLeagueAid then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
+				iBase = iBase + g_activePlayer:GetScienceRateFromMinorAllies() / 100
 				tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", g_activePlayer:GetScienceRateFromLeagueAid() )
+				iBase = iBase + g_activePlayer:GetScienceRateFromLeagueAid() / 100
 			end
 
 			-- Science from Research Agreements
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
+			iBase = iBase + g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100
 
-		-- Scince from influenced civs
+			-- Scince from influenced civs
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_INFLUENCED_CIVS", g_activePlayer:GetSciencePerTurnFromInfluencedCivsTimes100() / 100 )
+			iBase = iBase + g_activePlayer:GetSciencePerTurnFromInfluencedCivsTimes100() / 100
+
+			local iMod = 0;
+			local iNumCapitalsScienceMod = 5 * math.max(g_activePlayer:GetNumCapitalsControlled() - 1, 0);
+			iMod = iMod + iNumCapitalsScienceMod;
+
+			if iMod ~= 0 then
+				tips:insert( "----------------" )
+				tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_BASE", iBase, "[ICON_RESEARCH]" )
+				tips:insert( "" )
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_NUM_CAPITALS_SCIENCE_MOD", iNumCapitalsScienceMod )
+			end
+
+			tips:insert( "----------------" )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_TOTAL", g_activePlayer:GetScienceTimes100() / 100, "[ICON_RESEARCH]" )
 
 			-- Show Research Agreements
 
@@ -2096,9 +2125,10 @@ if civ5_mode then
 			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
 			local FutureTechHappiness = 5 * g_activeTeam:GetTeamTechs():GetTechCount(80);
+			local NumCapitalsHappiness = 5 * math.max(g_activePlayer:GetNumCapitalsControlled() - 1, 0);
 			local totalHappiness = g_activePlayer:GetHappiness()
 			local happinessFromVassals = g_activePlayer.GetHappinessFromVassals and g_activePlayer:GetHappinessFromVassals() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - FutureTechHappiness - happinessFromVassals	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - FutureTechHappiness - NumCapitalsHappiness - happinessFromVassals	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 
 			if g_activePlayer:IsEmpireVeryUnhappy() then
 
@@ -2184,6 +2214,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorCivHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_FUTURE_TECH", FutureTechHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NUM_CAPITALS", NumCapitalsHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 
 			-- Happiness from Luxury Variety
@@ -2690,10 +2721,10 @@ g_toolTipHandler.CultureString = function()-- control )
 		local cultureProgress, culturePerTurn, culturePerTurnForFree, culturePerTurnFromCities, culturePerTurnFromExcessHappiness, culturePerTurnFromTraits
 		-- Firaxis Cleverness...
 		if civ5_mode then
-			cultureProgress = g_activePlayer:GetJONSCulture()
-			culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurn()
+			cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
+			culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
 			culturePerTurnForFree = g_activePlayer:GetJONSCulturePerTurnForFree()
-			culturePerTurnFromCities = g_activePlayer:GetJONSCulturePerTurnFromCities()
+			culturePerTurnFromCities = g_activePlayer:GetJONSCulturePerTurnFromCitiesTimes100() / 100
 			culturePerTurnFromExcessHappiness = g_activePlayer:GetJONSCulturePerTurnFromExcessHappiness()
 			culturePerTurnFromTraits = bnw_mode and g_activePlayer:GetJONSCulturePerTurnFromTraits() or 0
 		else
@@ -2734,47 +2765,89 @@ g_toolTipHandler.CultureString = function()-- control )
 		end
 
 		tips:insert( "" )
-		tips:insert( "[COLOR_MAGENTA]" .. S( "%+g", culturePerTurn )
-				.. "[ENDCOLOR] " .. L"TXT_KEY_REPLAY_DATA_CULTUREPERTURN" )
+
+		local iBase = 0
 
 		-- Culture for Free
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FOR_FREE", culturePerTurnForFree )
+		iBase = iBase + culturePerTurnForFree
 
 		-- Culture from Cities
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_CITIES", culturePerTurnFromCities )
+		iBase = iBase + culturePerTurnFromCities
 
 		-- Culture from Excess Happiness / Health
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_" .. g_happinessString, culturePerTurnFromExcessHappiness )
+		iBase = iBase + culturePerTurnFromExcessHappiness
 
 		-- Culture from Traits
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_TRAITS", culturePerTurnFromTraits )
+		iBase = iBase + culturePerTurnFromTraits
 
 		if civ5_mode then
 			-- Culture from Minor Civs
-			local culturePerTurnFromMinorCivs = g_activePlayer:GetJONSCulturePerTurnFromMinorCivs()
+			local culturePerTurnFromMinorCivs = g_activePlayer:GetCulturePerTurnFromMinorCivsTimes100() / 100
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_MINORS", culturePerTurnFromMinorCivs )
+			iBase = iBase + culturePerTurnFromMinorCivs
 
 			-- Culture from Religion
-			local culturePerTurnFromReligion = gk_mode and g_activePlayer:GetCulturePerTurnFromReligion() or 0
+			local culturePerTurnFromReligion = gk_mode and g_activePlayer:GetCulturePerTurnFromReligionTimes100() / 100 or 0
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_RELIGION", culturePerTurnFromReligion )
+			iBase = iBase + culturePerTurnFromReligion
 
 			-- Culture from bonus turns (League Project)
-			local culturePerTurnFromBonusTurns = 0
+			--[[local culturePerTurnFromBonusTurns = 0
 			if bnw_mode then
 				culturePerTurnFromBonusTurns = g_activePlayer:GetCulturePerTurnFromBonusTurns()
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", culturePerTurnFromBonusTurns, g_activePlayer:GetCultureBonusTurns() )
-			end
+			end]]
 
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			local culturePerTurnFromVassals = g_activePlayer.GetJONSCulturePerTurnFromVassals and g_activePlayer:GetJONSCulturePerTurnFromVassals() or 0
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
 
 			-- Culture from Golden Age
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+			-- tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 		else
 			-- Uncategorized Culture
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromTraits )
+			-- tips:insertLocalizedIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromTraits )
 		end
+
+		local iMod = 0
+
+		-- Culture from Golden Age
+		local iGoldenAgeMod = 0
+		if g_activePlayer:IsGoldenAge() then
+			if g_activePlayer:GetGoldenAgeGreatArtistRateModifier() > 0 then
+				iGoldenAgeMod = 10 + GameDefines["GOLDEN_AGE_CULTURE_MODIFIER"]
+			else
+				iGoldenAgeMod = GameDefines["GOLDEN_AGE_CULTURE_MODIFIER"]
+			end
+		end
+		iMod = iMod + iGoldenAgeMod
+
+		-- Culture from bonus turns (League Project)
+		local iBonusTurnsMod = 0
+		if g_activePlayer:GetCultureBonusTurns() > 0 then
+			iBonusTurnsMod = GameDefines["TEMPORARY_CULTURE_BOOST_MOD"]
+		end
+		iMod = iMod + iBonusTurnsMod
+
+		-- Num Capitals Culture mod
+		local iNumCapitalsCultureMod = 5 * math.max(g_activePlayer:GetNumCapitalsControlled() - 1, 0);
+		iMod = iMod + iNumCapitalsCultureMod;
+
+		if iMod ~= 0 then
+			tips:insert( "----------------" )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_BASE", iBase, "[ICON_CULTURE]" )
+			tips:insert( "" )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iGoldenAgeMod )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", iBonusTurnsMod, g_activePlayer:GetCultureBonusTurns() )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_NUM_CAPITALS_CULTURE_MOD", iNumCapitalsCultureMod )
+		end
+
+		tips:insert( "----------------" )
+		tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_TOTAL", culturePerTurn, "[ICON_CULTURE]" )
 
 		-- Let people know that building more cities makes policies harder to get
 

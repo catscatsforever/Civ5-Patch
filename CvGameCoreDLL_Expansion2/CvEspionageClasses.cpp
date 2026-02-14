@@ -337,6 +337,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		if(pCityEspionage->HasReachedGoal(ePlayer))
 		{
 			pCityEspionage->ResetProgress(ePlayer);
+#ifdef COUP_SYSTEM_REWORK
+			pCityEspionage->m_aiCoupAmount[ePlayer] = 0;
+#endif
 			if (pSpy->m_bIsDiplomat)
 			{
 				pSpy->m_eSpyState = SPY_STATE_MAKING_INTRODUCTIONS;
@@ -377,6 +380,18 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				int iGoal = CalcRequired(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
 				pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 				pCityEspionage->SetLastProgress(ePlayer, iRate);
+#ifdef COUP_SYSTEM_REWORK
+				pCityEspionage->m_aiCoupAmount[ePlayer] = 0;
+				int iCoupRate = 0;
+				if (pSpy->m_eRank == 0)
+					iCoupRate = 3;
+				else if (pSpy->m_eRank == 1)
+					iCoupRate = 5;
+				else
+					iCoupRate = 7;
+
+				pCityEspionage->m_aiCoupAmount[ePlayer] = pCityEspionage->m_aiCoupAmount[ePlayer] + iCoupRate;
+#endif
 			}
 			else
 			{
@@ -911,9 +926,26 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		}
 		break;
 	case SPY_STATE_RIG_ELECTION:
+#ifdef COUP_SYSTEM_REWORK
+	{
+		// resetting the value is done in MinorCivAI
+		pCityEspionage->Process(ePlayer);
+		int iCoupRate = 0;
+		if (pSpy->m_eRank == 0)
+			iCoupRate = 3;
+		else if (pSpy->m_eRank == 1)
+			iCoupRate = 5;
+		else
+			iCoupRate = 7;
+
+		pCityEspionage->m_aiCoupAmount[ePlayer] = pCityEspionage->m_aiCoupAmount[ePlayer] + iCoupRate;
+		break;
+	}
+#else
 		// resetting the value is done in MinorCivAI
 		pCityEspionage->Process(ePlayer);
 		break;
+#endif
 	case SPY_STATE_COUNTER_INTEL:
 		break;
 	case SPY_STATE_MAKING_INTRODUCTIONS:
@@ -928,6 +960,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		if(pCityEspionage->HasReachedGoal(ePlayer))
 		{
 			pCityEspionage->ResetProgress(ePlayer);
+#ifdef COUP_SYSTEM_REWORK
+			pCityEspionage->m_aiCoupAmount[ePlayer] = 0;
+#endif
 			pSpy->m_eSpyState = SPY_STATE_SCHMOOZE;
 #ifdef NEW_DIPLOMATS_MISSIONS
 			int iPotentialRate = CalcPerTurn(SPY_STATE_SCHMOOZE, pCity, uiSpyIndex);
@@ -1561,6 +1596,9 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;
 	pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
+#ifdef COUP_SYSTEM_REWORK
+	pCity->GetCityEspionage()->m_aiCoupAmount[m_pPlayer->GetID()] = 0;
+#endif
 #ifdef CITY_BANNER_MISSING_UPDATES_FIX
 	auto_ptr<ICvCity1> pICity = GC.WrapCityPointer(pCity);
 	DLLUI->SetSpecificCityInfoDirty(pICity.get(), CITY_UPDATE_TYPE_BANNER);
@@ -1663,6 +1701,9 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
 			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
 			int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
+#ifdef UNDERGROUND_SECT_REWORK
+			iPlayerEspionageModifier += m_pPlayer->GetReligions()->GetSpyPressure() * 50;
+#endif
 			int iFinalModifier = (iBaseYieldRate * (100 + iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iMyPoliciesEspionageModifier)) / 100;
 
 			int iResult = max(iFinalModifier, 1);
@@ -2039,6 +2080,18 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 		return false;
 	}
 
+#ifdef COUP_SYSTEM_REWORK
+	int iCoupGoal = 100;
+	int iBullyMetric = GET_PLAYER(eCityOwner).GetMinorCivAI()->CalculateBullyMetric(m_pPlayer->GetID(), /*bForUnit*/false);
+	if (GET_PLAYER(eCityOwner).GetMinorCivAI()->CanMajorBullyUnit(m_pPlayer->GetID(), iBullyMetric))
+	{
+		iCoupGoal -= 30;
+	}
+	if (pCity->GetCityEspionage()->m_aiCoupAmount[m_pPlayer->GetID()] >= iCoupGoal)
+	{
+		return true;
+	}
+#else
 	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
 	PlayerTypes eMinorCivAlly = pMinorCivAI->GetAlly();
 
@@ -2046,6 +2099,7 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 	{
 		return true;
 	}
+#endif
 
 	return false;
 }
@@ -2053,6 +2107,9 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 /// GetCoupChangeOfSuccess - What is the % chance of success that a spy will be able to pull off a coup?
 int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 {
+#ifdef COUP_SYSTEM_REWORK
+	return 0;
+#endif
 	// if you can't stage a coup, then the likelihood is zero!
 	if(!CanStageCoup(uiSpyIndex))
 	{
@@ -2183,6 +2240,192 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 }
 
 /// AttemptCoup - Have a spy try to overthrow a city state. If success, the spy's owner becomes the ally. If failure, the spy dies.
+#ifdef COUP_SYSTEM_REWORK
+bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
+{
+	// if you're not allowed to stage a coup here, the coup fails
+	if (!CanStageCoup(uiSpyIndex))
+	{
+		return false;
+	}
+
+	CvCity* pCity = GetCityWithSpy(uiSpyIndex);
+	CvAssertMsg(pCity, "Spy isn't in a city.");
+	if (!pCity)
+	{
+		return false;
+	}
+
+	PlayerTypes eCityOwner = pCity->getOwner();
+	if (!GET_PLAYER(eCityOwner).isMinorCiv())
+	{
+		// this city state is not a minor civ
+		return false;
+	}
+
+	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
+
+	PlayerTypes ePreviousAlly = pMinorCivAI->GetAlly();
+
+#ifdef NQ_COUP_FORMULA_USES_BASE_FRIENDSHIP_NOT_EFFECTIVE_FRIENDSHIP
+	int iNewInfluenceValueTimes100 = pMinorCivAI->GetBaseFriendshipWithMajorTimes100((PlayerTypes)m_pPlayer->GetID());
+#else
+	int iNewInfluenceValueTimes100 = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100((PlayerTypes)m_pPlayer->GetID());
+#endif
+
+	m_aSpyList[uiSpyIndex].m_bEvaluateReassignment = true; // flag for reassignment
+	pCity->GetCityEspionage()->m_aiCoupAmount[m_pPlayer->GetID()] = 0;
+	if (GC.getLogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Re-eval: attempting coup, %d,", uiSpyIndex);
+		strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+		LogEspionageMsg(strMsg);
+	}
+
+	bool bAttemptSuccess = false;
+	iNewInfluenceValueTimes100 += 6000;
+
+	// do others influence first so that the potential coup person will be the ally
+	pMinorCivAI->SetDisableNotifications(true);
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)ui;
+		if (!GET_PLAYER(ePlayer).isAlive())
+		{
+			continue;
+		}
+
+		// skip the spy player
+		if (ePlayer == m_pPlayer->GetID())
+		{
+			continue;
+		}
+
+		// send notification to other civs if they have met this minor
+		bool bMetMinor = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eCityOwner).getTeam());
+		bool bNotify = false;
+		bool bAllies = pMinorCivAI->IsAllies(ePlayer);
+
+		if (bAllies)
+		{
+			bNotify = true;
+		}
+
+		CvPlayerEspionage* pOtherEspionage = GET_PLAYER(ePlayer).GetEspionage();
+		int iSpyIndex = pOtherEspionage->GetSpyIndexInCity(pCity);
+		if (iSpyIndex >= 0)
+		{
+			bNotify = true;
+		}
+
+		CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+		if (pNotifications && bMetMinor && bNotify)
+		{
+			NotificationTypes eNotification;
+			Localization::String strSummary;
+			Localization::String strNotification;
+			eNotification = NOTIFICATION_SPY_STAGE_COUP_SUCCESS;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_SUCCESS_S");
+			strSummary << m_pPlayer->getCivilizationAdjectiveKey();
+			strSummary << pCity->getNameKey();
+			strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_SUCCESS");
+			strNotification << m_pPlayer->getCivilizationShortDescriptionKey();
+			strNotification << pCity->getNameKey();
+			pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+		}
+	}
+
+	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), iNewInfluenceValueTimes100);
+	pMinorCivAI->SetDisableNotifications(false);
+	// send notification to player
+	CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+	if (pNotifications)
+	{
+		NotificationTypes eNotification;
+		Localization::String strSummary;
+		Localization::String strNotification;
+		eNotification = NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS_S");
+		strSummary << pCity->getNameKey();
+		strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS");
+		strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+		strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+		strNotification << pCity->getNameKey();
+		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+	}
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+	{
+		if (ePreviousAlly != NO_PLAYER)
+		{
+			if (GET_PLAYER(ePreviousAlly).isHuman() && GET_PLAYER(m_pPlayer->GetID()).isHuman() && GET_PLAYER(ePreviousAlly).getTeam() != GET_PLAYER(m_pPlayer->GetID()).getTeam())
+			{
+				CvGame& kGame = GC.getGame();
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+				float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+				float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
+				float fTimeElapsed = kGame.getTimeElapsed();
+				float fCSAllyingWarRestrictionTimer;
+#ifdef BLITZ_MODE
+				if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+				{
+					fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER / 4;
+				}
+				else
+				{
+					fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+				}
+#else
+				fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+#endif
+				if (fGameTurnEnd - fTimeElapsed > fCSAllyingWarRestrictionTimer)
+				{
+					GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn());
+					GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fTimeElapsed + fCSAllyingWarRestrictionTimer);
+				}
+				else
+				{
+					GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn() + 1);
+					GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fCSAllyingWarRestrictionTimer - (fGameTurnEnd - fTimeElapsed));
+				}
+			}
+			if (GET_PLAYER(ePreviousAlly).isHuman())
+			{
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+				{
+					GET_PLAYER(ePreviousAlly).setTurnCSWarAllowingMinor((PlayerTypes)iI, eCityOwner, -1);
+					GET_PLAYER(ePreviousAlly).setTimeCSWarAllowingMinor((PlayerTypes)iI, eCityOwner, 0.f);
+				}
+			}
+		}
+	}
+#endif
+#ifdef REPLAY_EVENTS
+	std::vector<int> vArgs;
+	vArgs.push_back(static_cast<int>(uiSpyIndex));
+	vArgs.push_back(static_cast<int>(pCity->getOwner()));
+	vArgs.push_back(pCity->plot()->GetPlotIndex());
+	vArgs.push_back(static_cast<int>(bAttemptSuccess));
+	GC.getGame().addReplayEvent(REPLAYEVENT_SpyCoupResult, m_pPlayer->GetID(), vArgs);
+#endif
+
+	//Achievements!
+	if (bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+	{
+		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
+	}
+
+	// Update City banners and game info
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+
+	return bAttemptSuccess;
+}
+#else
 bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 {
 	// if you're not allowed to stage a coup here, the coup fails
@@ -2376,55 +2619,42 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
 
-#ifdef AUTO_PEACE_WITH_MINOR_ON_COUP
-	if (bAttemptSuccess)
-	{
-		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eCityOwner).getTeam()))
-		{
-			GET_TEAM(m_pPlayer->getTeam()).makePeace(GET_PLAYER(eCityOwner).getTeam());
-		}
-	}
-#endif
-
 #ifdef CS_ALLYING_WAR_RESCTRICTION
 	if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
 		if (ePreviousAlly != NO_PLAYER)
 		{
-			if (ePreviousAlly != NO_PLAYER)
+			if (GET_PLAYER(ePreviousAlly).isHuman() && GET_PLAYER(m_pPlayer->GetID()).isHuman() && GET_PLAYER(ePreviousAlly).getTeam() != GET_PLAYER(m_pPlayer->GetID()).getTeam())
 			{
-				if (GET_PLAYER(ePreviousAlly).isHuman() && GET_PLAYER(m_pPlayer->GetID()).isHuman() && GET_PLAYER(ePreviousAlly).getTeam() != GET_PLAYER(m_pPlayer->GetID()).getTeam())
-				{
-					CvGame& kGame = GC.getGame();
+				CvGame& kGame = GC.getGame();
 #ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
-					float fGameTurnEnd = kGame.getPreviousTurnLen();
+				float fGameTurnEnd = kGame.getPreviousTurnLen();
 #else
-					float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+				float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
 #endif
-					float fTimeElapsed = kGame.getTimeElapsed();
-					float fCSAllyingWarRestrictionTimer;
+				float fTimeElapsed = kGame.getTimeElapsed();
+				float fCSAllyingWarRestrictionTimer;
 #ifdef BLITZ_MODE
-					if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
-					{
-						fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER / 4;
-					}
-					else
-					{
-						fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
-					}
-#else
+				if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+				{
+					fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER / 4;
+				}
+				else
+				{
 					fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+				}
+#else
+				fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
 #endif
-					if (fGameTurnEnd - fTimeElapsed > fCSAllyingWarRestrictionTimer)
-					{
-						GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn());
-						GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fTimeElapsed + fCSAllyingWarRestrictionTimer);
-					}
-					else
-					{
-						GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn() + 1);
-						GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fCSAllyingWarRestrictionTimer - (fGameTurnEnd - fTimeElapsed));
-					}
+				if (fGameTurnEnd - fTimeElapsed > fCSAllyingWarRestrictionTimer)
+				{
+					GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn());
+					GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fTimeElapsed + fCSAllyingWarRestrictionTimer);
+				}
+				else
+				{
+					GET_PLAYER(m_pPlayer->GetID()).setTurnCSWarAllowingMinor(ePreviousAlly, eCityOwner, kGame.getGameTurn() + 1);
+					GET_PLAYER(m_pPlayer->GetID()).setTimeCSWarAllowingMinor(ePreviousAlly, eCityOwner, fCSAllyingWarRestrictionTimer - (fGameTurnEnd - fTimeElapsed));
 				}
 			}
 			if (GET_PLAYER(ePreviousAlly).isHuman())
@@ -2459,6 +2689,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 
 	return bAttemptSuccess;
 }
+#endif
 
 /// GetTurnsUntilStateComplete - How many turns until this spy's current state is resolved?
 int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
@@ -4431,6 +4662,9 @@ void CvCityEspionage::Reset(void)
 		m_aiAmount[ui] = -1;
 		m_aiRate[ui] = -1;
 		m_aiGoal[ui] = -1;
+#ifdef COUP_SYSTEM_REWORK
+		m_aiCoupAmount[ui] = 0;
+#endif
 		m_aiLastProgress[ui] = -1;
 		m_aiLastPotential[ui] = -1;
 		m_aiLastBasePotential[ui] = -1;
@@ -4554,6 +4788,30 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 		loadFrom >> writeTo.m_aiGoal[ui];
 	}
 
+#ifdef COUP_SYSTEM_REWORK
+	// coup amount
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1000)
+	{
+# endif
+		uint uiNumCoupAmounts;
+		loadFrom >> uiNumCoupAmounts;
+		for (uint ui = 0; ui < uiNumCoupAmounts; ui++)
+		{
+			loadFrom >> writeTo.m_aiCoupAmount[ui];
+		}
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		{
+			writeTo.m_aiCoupAmount[ui] = 0;
+		}
+	}
+# endif
+#endif
+
 	// last progress
 	int iNumLastProgresses;
 	loadFrom >> iNumLastProgresses;
@@ -4600,6 +4858,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const CvCityEspionage& readFrom)
 {
 	uint uiVersion = 0;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	uiVersion = BUMP_SAVE_VERSION_CITY_ESPIONAGE;
+#endif
 	saveTo << uiVersion;
 
 	saveTo << MAX_MAJOR_CIVS;
@@ -4628,6 +4889,15 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aiGoal[ui];
 	}
+
+#ifdef COUP_SYSTEM_REWORK
+	// coup amount
+	saveTo << MAX_MAJOR_CIVS;
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		saveTo << readFrom.m_aiCoupAmount[ui];
+	}
+#endif
 
 	// last progress
 	saveTo << MAX_MAJOR_CIVS;

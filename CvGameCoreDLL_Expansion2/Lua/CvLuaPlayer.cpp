@@ -242,6 +242,24 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetJONSCultureEverGenerated);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	Method(GetTotalJONSCulturePerTurnTimes100);
+
+	Method(GetJONSCulturePerTurnFromCitiesTimes100);
+
+	Method(GetCulturePerTurnFromMinorCivsTimes100);
+	Method(GetCulturePerTurnFromMinorTimes100);
+
+	Method(GetCulturePerTurnFromReligionTimes100);
+	Method(GetCulturePerTurnFromBonusTurnsTimes100);
+
+	Method(GetJONSCultureTimes100);
+	Method(SetJONSCultureTimes100);
+	Method(ChangeJONSCultureTimes100);
+
+	Method(GetJONSCultureEverGeneratedTimes100);
+#endif
+
 	Method(GetLastTurnLifetimeCulture);
 	Method(GetInfluenceOn);
 	Method(GetLastTurnInfluenceOn);
@@ -577,6 +595,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetQuestData1);
 	Method(GetQuestData2);
 	Method(GetQuestTurnsRemaining);
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	Method(IsQuestOneShotReward);
+#endif
 	Method(IsMinorCivContestLeader);
 	Method(GetMinorCivContestValueForLeader);
 	Method(GetMinorCivContestValueForPlayer);
@@ -597,8 +618,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivCurrentCulturePerBuildingBonus);
 	Method(GetCurrentCultureBonus); // DEPRECATED
 	Method(GetMinorCivCurrentCultureBonus);
+#ifdef PLAYER_CULTURE_TIMES_100
+	Method(GetMinorCivCurrentCultureFlatBonusTimes100);
+	Method(GetMinorCivCurrentCultureBonusTimes100);
+#endif
 #ifdef NEW_CITY_STATES_TYPES
-	Method(GetMinorCivCurrentScienceBonus);
+	Method(GetMinorCivCurrentScienceBonusTimes100);
 #endif
 	Method(GetMinorCivHappinessFriendshipBonus); // DEPRECATED
 	Method(GetMinorCivCurrentHappinessFlatBonus);
@@ -1044,6 +1069,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
 	Method(GetBuildingClassTourismChanges);
+#endif
+#ifdef LUA_METHOD_GET_MINOR_QUEST_FRIENDSHIP_MOD
+	Method(GetMinorQuestFriendshipMod);
+#endif
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+	Method(GetNumCapitalsControlled);
+#endif
+#ifdef COUP_SYSTEM_REWORK
+	Method(GetMinorCoupGoal);
 #endif
 
 
@@ -2432,6 +2466,68 @@ int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCultureEverGenerated);
 }
+#ifdef PLAYER_CULTURE_TIMES_100
+//------------------------------------------------------------------------------
+//void GetTotalJONSCulturePerTurnTimes100(int iNewValue);
+int CvLuaPlayer::lGetTotalJONSCulturePerTurnTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetTotalJONSCulturePerTurnTimes100);
+}
+//------------------------------------------------------------------------------
+//void GetJONSCulturePerTurnFromCitiesTimes100(int iChange);
+int CvLuaPlayer::lGetJONSCulturePerTurnFromCitiesTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromCitiesTimes100);
+}
+//------------------------------------------------------------------------------
+//int GetCulturePerTurnFromMinorCivsTimes100();
+int CvLuaPlayer::lGetCulturePerTurnFromMinorCivsTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromMinorCivsTimes100);
+}
+//------------------------------------------------------------------------------
+//int GetCulturePerTurnFromMinorTimes100(int iMinor);
+int CvLuaPlayer::lGetCulturePerTurnFromMinorTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromMinorTimes100);
+}
+//------------------------------------------------------------------------------
+//int GetCulturePerTurnFromReligionTimes100();
+int CvLuaPlayer::lGetCulturePerTurnFromReligionTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromReligionTimes100);
+}
+//------------------------------------------------------------------------------
+//void GetCulturePerTurnFromBonusTurnsTimes100(int iNewValue);
+int CvLuaPlayer::lGetCulturePerTurnFromBonusTurnsTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromBonusTurnsTimes100);
+}
+//------------------------------------------------------------------------------
+//void getJONSCultureTimes100(int iChange);
+int CvLuaPlayer::lGetJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getJONSCultureTimes100);
+}
+//------------------------------------------------------------------------------
+//int setJONSCultureTimes100();
+int CvLuaPlayer::lSetJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::setJONSCultureTimes100);
+}
+//------------------------------------------------------------------------------
+//int changeJONSCultureTimes100();
+int CvLuaPlayer::lChangeJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::changeJONSCultureTimes100);
+}
+//------------------------------------------------------------------------------
+//int GetJONSCultureEverGeneratedTimes100();
+int CvLuaPlayer::lGetJONSCultureEverGeneratedTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCultureEverGeneratedTimes100);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetLastTurnLifetimeCulture();
 int CvLuaPlayer::lGetLastTurnLifetimeCulture(lua_State* L)
@@ -6174,7 +6270,11 @@ int CvLuaPlayer::lGetMinorCivFriendshipWithMajor(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	const int iResult = pkPlayer->GetMinorCivAI()->GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+#else
 	const int iResult = pkPlayer->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -6371,6 +6471,19 @@ int CvLuaPlayer::lGetQuestTurnsRemaining(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef QUESTS_SYSTEM_OVERHAUL
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsQuestOneShotReward(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes)lua_tointeger(L, 3);
+
+	const bool iResult = pkPlayer->GetMinorCivAI()->IsQuestOneShotReward(ePlayer, eType);
+	lua_pushboolean(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsMinorCivContestLeader(lua_State* L)
 {
@@ -6542,13 +6655,31 @@ int CvLuaPlayer::lGetMinorCivCurrentCultureBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureBonus(ePlayer));
 	return 1;
 }
-#ifdef NEW_CITY_STATES_TYPES
+#ifdef PLAYER_CULTURE_TIMES_100
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
+int CvLuaPlayer::lGetMinorCivCurrentCultureFlatBonusTimes100(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureFlatBonusTimes100(ePlayer));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentCultureBonusTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureBonusTimes100(ePlayer));
+	return 1;
+}
+#endif
+#ifdef NEW_CITY_STATES_TYPES
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetMinorCivCurrentScienceBonusTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonusTimes100(ePlayer));
 	return 1;
 }
 #endif
@@ -11351,6 +11482,41 @@ int CvLuaPlayer::lGetBuildingClassTourismChanges(lua_State* L)
 	}
 
 	lua_pushinteger(L, iTourismFromBuilding);
+	return 1;
+}
+#endif
+
+#ifdef LUA_METHOD_GET_MINOR_QUEST_FRIENDSHIP_MOD
+int CvLuaPlayer::lGetMinorQuestFriendshipMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getMinorQuestFriendshipMod);
+}
+#endif
+
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+int CvLuaPlayer::lGetNumCapitalsControlled(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetNumCapitalsControlled);
+}
+#endif
+
+#ifdef COUP_SYSTEM_REWORK
+//------------------------------------------------------------------------------
+//int GetMinorCoupGoal(PlayerTypes eMajor);
+int CvLuaPlayer::lGetMinorCoupGoal(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+	int iReturnValue = 100;
+	int iBullyMetric = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/false);
+
+	if (pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor, iBullyMetric))
+	{
+		iReturnValue -= 30;
+	}
+
+	lua_pushinteger(L, iReturnValue);
+
 	return 1;
 }
 #endif

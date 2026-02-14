@@ -184,6 +184,10 @@ public:
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 	int GetUnitCombatModifierPercent(int i) const;
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	int GetUnitCombatAttackPercent(int i) const;
+	int GetUnitCombatDefensePercent(int i) const;
+#endif
 	int GetUnitClassModifierPercent(int i) const;
 	int GetDomainModifierPercent(int i) const;
 	int GetFeaturePassableTech(int i) const;
@@ -339,6 +343,10 @@ protected:
 	int* m_piFeatureAttackPercent;
 	int* m_piFeatureDefensePercent;
 	int* m_piUnitCombatModifierPercent;
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	int* m_piUnitCombatAttackModifier;
+	int* m_piUnitCombatDefenseModifier;
+#endif
 	int* m_piUnitClassModifierPercent;
 	int* m_piDomainModifierPercent;
 

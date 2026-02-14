@@ -268,6 +268,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #ifdef NO_OUTCOMING_INTERNATIONAL_CARAVAN_PILLAGE
 	m_bNoOutcomingInternationlCaravanPillage(false),
 #endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	m_iCapitalGoldModifier(0),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -845,6 +848,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #endif
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	m_bPlayerBorderTransitionObstacle = kResults.GetBool("BorderTransitionObstacle");
+#endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	m_iCapitalGoldModifier = kResults.GetInt("CapitalGoldModifier");
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	m_iAttritionInsideBorders = kResults.GetInt("AttritionInsideBorders");
 #endif
 
 	return true;
@@ -2431,6 +2440,20 @@ bool CvBuildingEntry::IsNoOutcomingInternationlCaravanPillage() const
 bool CvBuildingEntry::IsPlayerBorderTransitionObstacle() const
 {
 	return m_bPlayerBorderTransitionObstacle;
+}
+#endif
+
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+int CvBuildingEntry::GetCapitalGoldModifier() const
+{
+	return m_iCapitalGoldModifier;
+}
+#endif
+
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+int CvBuildingEntry::GetAttritionInsideBorders() const
+{
+	return m_iAttritionInsideBorders;
 }
 #endif
 

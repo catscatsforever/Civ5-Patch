@@ -240,6 +240,9 @@ typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyAssignmentList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyAmountProgressList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyRateProgressList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyGoalProgressList;
+#ifdef COUP_SYSTEM_REWORK
+typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyCoupRateProgressList;
+#endif
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> LastProgressList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> SpyResultList;
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> LastPotentialList;
@@ -270,6 +273,9 @@ public:
 	SpyAmountProgressList m_aiAmount; // how much has been collected so far
 	SpyRateProgressList m_aiRate; // how much per turn
 	SpyGoalProgressList m_aiGoal; // how many we need
+#ifdef COUP_SYSTEM_REWORK
+	SpyCoupRateProgressList m_aiCoupAmount; // how many coup points we have
+#endif
 	LastProgressList m_aiLastProgress; // the last progress we got from this city. This is recalculated when transitioning between surveillance and stealing a tech and while stealing techs
 	LastPotentialList m_aiLastPotential; // the last potential we calculated from this city taking into account the spy stealing
 	LastPotentialList m_aiLastBasePotential; // the last potential we calculated from this city without taking into account the spy

@@ -252,6 +252,14 @@ protected:
 	static int lGetCultureRateModifier(lua_State* L);
 	static int lChangeCultureRateModifier(lua_State* L);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	static int lGetJONSCultureStoredTimes100(lua_State* L);
+	static int lSetJONSCultureStoredTimes100(lua_State* L);
+	static int lChangeJONSCultureStoredTimes100(lua_State* L);
+	static int lGetJONSCultureThresholdTimes100(lua_State* L);
+	static int lGetJONSCulturePerTurnTimes100(lua_State* L);
+#endif
+
 	static int lGetNumGreatWorks(lua_State* L);
 	static int lGetNumGreatWorkSlots(lua_State* L);
 	static int lGetBaseTourism(lua_State* L);
@@ -291,6 +299,9 @@ protected:
 	static int lAdoptReligionFully(lua_State* L);
 	static int lGetReligionBuildingClassHappiness(lua_State* L);
 	static int lGetReligionBuildingClassYieldChange(lua_State* L);
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	static int lGetReligionBuildingClassYieldModifier(lua_State* L);
+#endif
 	static int lGetLeagueBuildingClassYieldChange(lua_State* L);
 	static int lGetNumTradeRoutesAddingPressure(lua_State* L);
 
@@ -365,6 +376,12 @@ protected:
 	static int lGetTeam(lua_State* L);
 	static int lGetPreviousOwner(lua_State* L);
 	static int lGetOriginalOwner(lua_State* L);
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	static int lGetMinorMajorityOwner(lua_State* L);
+#endif
+#ifdef CHANGE_CITY_ORIGINAL_OWNER
+	static int lGetCapitalOriginalOwner(lua_State* L);
+#endif
 	static int lGetSeaPlotYield(lua_State* L);
 	static int lGetRiverPlotYield(lua_State* L);
 	static int lGetLakePlotYield(lua_State* L);
@@ -510,6 +527,15 @@ protected:
 #endif
 #ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
 	static int lIsOrderRepeat(lua_State* L);
+#endif
+#ifdef LUA_CITY_METHOD_GET_TRADE_VALUES_AT_CITY_TIMES_100
+	static int lGetTradeValuesAtCityTimes100(lua_State* L);
+#endif
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+	static int lGetYieldFromMinorsTimes100(lua_State* L);
+#endif
+#ifdef COUP_SYSTEM_REWORK
+	static int lGetMinorCityEspionageCoupAmount(lua_State* L);
 #endif
 };
 

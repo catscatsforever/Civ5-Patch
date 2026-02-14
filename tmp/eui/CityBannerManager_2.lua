@@ -234,9 +234,9 @@ local g_cityToolTips = {
 
 			if cityTeamID == g_activeTeamID then
 
-				local cultureStored = city:GetJONSCultureStored()
+				local cultureStored = city:GetJONSCultureStoredTimes100() / 100
 				local cultureNeeded = city:GetJONSCultureThreshold()
-				local culturePerTurn = city:GetJONSCulturePerTurn()
+				local culturePerTurn = city:GetJONSCulturePerTurnTimes100() / 100
 				local turnsRemaining
 				if culturePerTurn > 0 then
 					turnsRemaining = math_max(math_ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)

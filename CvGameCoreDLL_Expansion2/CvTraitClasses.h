@@ -198,6 +198,15 @@ public:
 #ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
 	int GetFreeUnitOnCapitalFoundation() const;
 #endif
+#ifdef TRAIT_FREE_BUILDINGS_AFTER_ERA
+	bool IsFreeBuildingsAfterEra(const int buildingClassID, const int eraID) const;
+#endif
+#ifdef TRAIT_EXTRA_FOUNDED_CITY_TERRITORY_CLAIM_RANGE_AFTER_ERA
+	int GetExtraFoundedCityTerritoryClaimRangeAfterEra(int i) const;
+#endif
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+	int GetFreePopulationAfterEra(int i) const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -340,6 +349,15 @@ protected:
 #endif
 #ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
 	int m_iFreeUnitOnCapitalFoundation;
+#endif
+#ifdef TRAIT_FREE_BUILDINGS_AFTER_ERA
+	std::multimap<int, int> m_pFreeBuildingsAfterEra;
+#endif
+#ifdef TRAIT_EXTRA_FOUNDED_CITY_TERRITORY_CLAIM_RANGE_AFTER_ERA
+	int* m_paiExtraFoundedCityTerritoryClaimRangeAfterEra;
+#endif
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+	int* m_paiFreePopulationAfterEra;
 #endif
 
 private:
@@ -860,6 +878,15 @@ public:
 		return m_iFreeUnitOnCapitalFoundation;
 	};
 #endif
+#ifdef TRAIT_FREE_BUILDINGS_AFTER_ERA
+	bool IsFreeBuildingsAfterEra(const int buildingClassID, const int eraID) const;
+#endif
+#ifdef TRAIT_EXTRA_FOUNDED_CITY_TERRITORY_CLAIM_RANGE_AFTER_ERA
+	int GetExtraFoundedCityTerritoryClaimRangeAfterEra(EraTypes eEra) const;
+#endif
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+	int GetiFreePopulationAfterEra(EraTypes eEra) const;
+#endif
 
 	// Serialization
 	void Read(FDataStream& kStream);
@@ -1015,6 +1042,12 @@ private:
 #endif
 #ifdef TRAIT_FREE_UNIT_IN_CAPITAL_FOUNDATION
 	int m_iFreeUnitOnCapitalFoundation;
+#endif
+#ifdef TRAIT_EXTRA_FOUNDED_CITY_TERRITORY_CLAIM_RANGE_AFTER_ERA
+	int m_paiExtraFoundedCityTerritoryClaimRangeAfterEra[NUM_ERA_TYPES];
+#endif
+#ifdef TRAIT_FREE_POPULATION_AFTER_ERA
+	int m_paiFreePopulationAfterEra[NUM_ERA_TYPES];
 #endif
 };
 

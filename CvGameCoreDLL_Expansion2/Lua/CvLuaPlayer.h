@@ -233,6 +233,24 @@ protected:
 
 	static int lGetJONSCultureEverGenerated(lua_State* L);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	static int lGetTotalJONSCulturePerTurnTimes100(lua_State* L);
+
+	static int lGetJONSCulturePerTurnFromCitiesTimes100(lua_State* L);
+
+	static int lGetCulturePerTurnFromMinorCivsTimes100(lua_State* L);
+	static int lGetCulturePerTurnFromMinorTimes100(lua_State* L);
+
+	static int lGetCulturePerTurnFromReligionTimes100(lua_State* L);
+	static int lGetCulturePerTurnFromBonusTurnsTimes100(lua_State* L);
+
+	static int lGetJONSCultureTimes100(lua_State* L);
+	static int lSetJONSCultureTimes100(lua_State* L);
+	static int lChangeJONSCultureTimes100(lua_State* L);
+
+	static int lGetJONSCultureEverGeneratedTimes100(lua_State* L);
+#endif
+
 	static int lGetLastTurnLifetimeCulture(lua_State* L);
 	static int lGetInfluenceOn(lua_State* L);
 	static int lGetLastTurnInfluenceOn(lua_State* L);
@@ -565,6 +583,9 @@ protected:
 	static int lGetMinorCivNumDisplayedQuestsForPlayer(lua_State* L);
 	static int lGetQuestData1(lua_State* L);
 	static int lGetQuestData2(lua_State* L);
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	static int lIsQuestOneShotReward(lua_State* L);
+#endif
 	static int lGetQuestTurnsRemaining(lua_State* L);
 	static int lIsMinorCivContestLeader(lua_State* L);
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
@@ -585,8 +606,12 @@ protected:
 	static int lGetMinorCivCurrentCulturePerBuildingBonus(lua_State* L);
 	static int lGetCurrentCultureBonus(lua_State* L); // DEPRECATED, use lGetMinorCivCurrentCultureBonus instead
 	static int lGetMinorCivCurrentCultureBonus(lua_State* L);
+#ifdef PLAYER_CULTURE_TIMES_100
+	static int lGetMinorCivCurrentCultureFlatBonusTimes100(lua_State* L);
+	static int lGetMinorCivCurrentCultureBonusTimes100(lua_State* L);
+#endif
 #ifdef NEW_CITY_STATES_TYPES
-	static int lGetMinorCivCurrentScienceBonus(lua_State* L);
+	static int lGetMinorCivCurrentScienceBonusTimes100(lua_State* L);
 #endif
 	static int lGetMinorCivHappinessFriendshipBonus(lua_State* L); // DEPRECATED
 	static int lGetMinorCivCurrentHappinessFlatBonus(lua_State* L);
@@ -1051,6 +1076,15 @@ protected:
 
 #ifdef POLICY_BUILDINGCLASS_TOURISM_CHANGES
 	static int lGetBuildingClassTourismChanges(lua_State* L);
+#endif
+#ifdef LUA_METHOD_GET_MINOR_QUEST_FRIENDSHIP_MOD
+	static int lGetMinorQuestFriendshipMod(lua_State* L);
+#endif
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+	static int lGetNumCapitalsControlled(lua_State* L);
+#endif
+#ifdef COUP_SYSTEM_REWORK
+	static int lGetMinorCoupGoal(lua_State* L);
 #endif
 };
 

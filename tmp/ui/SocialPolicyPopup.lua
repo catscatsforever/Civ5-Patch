@@ -238,21 +238,21 @@ function UpdateDisplay()
     local szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost());
     Controls.NextCost:SetText(szText);
     
-    szText = Locale.ConvertTextKey("TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture());
+    szText = Locale.ConvertTextKey("TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCultureTimes100() / 100);
     Controls.CurrentCultureLabel:SetText(szText);
     
-    szText = Locale.ConvertTextKey("TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn());
+    szText = Locale.ConvertTextKey("TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurnTimes100() / 100);
     Controls.CulturePerTurnLabel:SetText(szText);
     
     local iTurns;
-    local iCultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture();
+    local iCultureNeeded = player:GetNextPolicyCost() - player:GetJONSCultureTimes100() / 100;
     if (iCultureNeeded <= 0) then
 		iTurns = 0;
     else
-		if (player:GetTotalJONSCulturePerTurn() == 0) then
+		if (player:GetTotalJONSCulturePerTurnTimes100() == 0) then
 			iTurns = "?";
 		else
-			iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurn();
+			iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurnTimes100() / 100;
 			iTurns = iTurns + 1;
 			iTurns = math.floor(iTurns);
 		end

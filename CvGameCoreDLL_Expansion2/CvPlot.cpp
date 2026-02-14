@@ -3026,6 +3026,73 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 
 
 //	--------------------------------------------------------------------------------
+#ifdef FIX_DEFENSE_MODIFIER
+int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp) const
+{
+	CvCity* pCity;
+	ImprovementTypes eImprovement;
+	int iModifier;
+
+	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+
+	// Can only get Defensive Bonus from ONE thing - they don't stack
+
+	// Hill (and mountain)
+	if(isHills() || isMountain())
+	{
+		iModifier = /*25*/ GC.getHILLS_EXTRA_DEFENSE();
+	}
+	// Feature
+	else if(getFeatureType() != NO_FEATURE)
+	{
+		iModifier = GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
+	}
+	// Terrain
+	else
+	{
+		iModifier = GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
+
+		// Flat land gives defensive PENALTY
+		if(!isWater())
+		{
+			iModifier += /*-25*/ GC.getFLAT_LAND_EXTRA_DEFENSE();
+		}
+	}
+
+	if (!bIgnoreBuilding)
+	{
+		if (bHelp)
+		{
+			eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
+		}
+		else
+		{
+			eImprovement = getImprovementType();
+		}
+
+		if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+		{
+			if (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam())))
+			{
+				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+				if (pkImprovement)
+					iModifier += pkImprovement->GetDefenseModifier();
+			}
+		}
+	}
+
+	if(!bHelp)
+	{
+		pCity = getPlotCity();
+
+		if(pCity != NULL)
+		{
+		}
+	}
+
+	return iModifier;
+}
+#else
 int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 {
 	CvCity* pCity;
@@ -3088,6 +3155,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 
 	return iModifier;
 }
+#endif
 
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
@@ -6116,7 +6184,9 @@ void CvPlot::changeNumResource(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
+#ifdef ADVANCED_GET_NUM_RESOURCE_FOR_PLAYER
+int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, ImprovementTypes eImprovement) const
+#endif
 {
 	int iRtnValue = m_iResourceNum;
 
@@ -6152,12 +6222,31 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 					}
 				}
 
+#if defined IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+				int iQuantityMod = 0;
+				if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+				{
+					iQuantityMod += GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
+				}
+#endif
+#if defined IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE && defined ADVANCED_GET_NUM_RESOURCE_FOR_PLAYER
+				ImprovementTypes eCurrentEmprovement = eImprovement != NO_IMPROVEMENT ? eImprovement : getImprovementType();
+				if (GC.getImprovementInfo(eCurrentEmprovement) && GC.getImprovementInfo(eCurrentEmprovement)->IsDoublesStrategicResource())
+				{
+					iQuantityMod += 100;
+				}
+#endif
+#if defined IMPROVEMENT_DOUBLES_STRATEGIC_RESOURCE
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+#else
 				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
 				{
 					int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
 					iRtnValue *= 100 + iQuantityMod;
 					iRtnValue /= 100;
 				}
+#endif
 			}
 		}
 	}
@@ -6492,7 +6581,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
 						{
+#ifdef ADVANCED_GET_NUM_RESOURCE_FOR_PLAYER
+							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID, eOldImprovement));
+#else
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
+#endif
 
 							// Disconnect resource link
 							if(GetResourceLinkedCity() != NULL)

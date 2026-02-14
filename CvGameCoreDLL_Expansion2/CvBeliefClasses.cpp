@@ -101,6 +101,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	m_ppiBuildingClassYieldModifiers(NULL),
+#endif
 	m_paiBuildingClassHappiness(NULL),
 	m_paiBuildingClassTourism(NULL),
 	m_ppaiFeatureYieldChange(NULL),
@@ -132,6 +135,9 @@ CvBeliefEntry::~CvBeliefEntry()
 {
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
@@ -558,6 +564,18 @@ int CvBeliefEntry::GetBuildingClassYieldChange(int i, int j) const
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
 
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+/// Yield modifier for a specific BuildingClass by yield type
+int CvBeliefEntry::GetBuildingClassYieldMod(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingClassYieldModifiers[i][j];
+}
+#endif
+
 /// Amount of extra Happiness per turn a BuildingClass provides
 int CvBeliefEntry::GetBuildingClassHappiness(int i) const
 {
@@ -861,6 +879,31 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
 	}
+
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	//BuildingClassYieldModifiers
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingClassYieldModifiers, "BuildingClasses", "Yields");
+
+		std::string strKey("Belief_BuildingClassYieldModifiers");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, YieldMod from Belief_BuildingClassYieldModifiers inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while (pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldMod = pResults->GetInt(2);
+
+			m_ppiBuildingClassYieldModifiers[BuildingClassID][iYieldID] = iYieldMod;
+		}
+	}
+#endif
 
 	//FeatureYieldChanges
 	{
@@ -1362,7 +1405,11 @@ int CvReligionBeliefs:: GetWonderProductionModifier(EraTypes eWonderEra) const
 	{
 		if(HasBelief((BeliefTypes)i))
 		{
+#ifdef ENHANCED_WONDER_PRODUCTION_MODIFIER
+			if ((int)eWonderEra < (int)pBeliefs->GetEntry(i)->GetObsoleteEra() || pBeliefs->GetEntry(i)->GetObsoleteEra() == NO_ERA)
+#else
 			if((int)eWonderEra < (int)pBeliefs->GetEntry(i)->GetObsoleteEra())
+#endif
 			{
 				rtnValue += pBeliefs->GetEntry(i)->GetWonderProductionModifier();
 			}
@@ -1660,6 +1707,28 @@ int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingC
 
 	return rtnValue;
 }
+
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+/// Get yield mod from beliefs for a specific building class
+int CvReligionBeliefs::GetBuildingClassYieldMod(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if (HasBelief((BeliefTypes)i))
+		{
+			if (iFollowers >= pBeliefs->GetEntry(i)->GetMinFollowers())
+			{
+				rtnValue += pBeliefs->GetEntry(i)->GetBuildingClassYieldMod(eBuildingClass, eYieldType);
+			}
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 
 /// Get Happiness from beliefs for a specific building class
 int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers) const

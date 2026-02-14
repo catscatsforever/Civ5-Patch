@@ -466,7 +466,11 @@ public:
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
+#ifdef ADVANCED_GET_NUM_RESOURCE_FOR_PLAYER
+	int getNumResourceForPlayer(PlayerTypes ePlayer, ImprovementTypes eImprovement = NO_IMPROVEMENT) const;
+#else
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
+#endif
 
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true);

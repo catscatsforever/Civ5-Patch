@@ -403,6 +403,16 @@ public:
 	int getCultureRateModifier() const;
 	void changeCultureRateModifier(int iChange);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	int GetJONSCultureStoredTimes100() const;
+	void SetJONSCultureStoredTimes100(int iValue);
+	void ChangeJONSCultureStoredTimes100(int iChange);
+
+	int GetJONSCultureThresholdTimes100() const;
+
+	int getJONSCulturePerTurnTimes100() const;
+#endif
+
 	// END Culture
 #ifdef BELIEF_HALF_FAITH_IN_CITY
 	int GetFaithMod() const;
@@ -584,6 +594,11 @@ public:
 	PlayerTypes getOriginalOwner() const;
 	void setOriginalOwner(PlayerTypes eNewValue);
 
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	PlayerTypes getMinorMajorityOwner() const;
+	void setMinorMajorityOwner(PlayerTypes eNewValue);
+#endif
+
 	PlayerTypes GetPlayersReligion() const;
 	void SetPlayersReligion(PlayerTypes eNewValue);
 
@@ -627,6 +642,11 @@ public:
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
+
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	int GetYieldModFromReligion(YieldTypes eIndex) const;
+	void ChangeYieldModFromReligion(YieldTypes eIndex, int iChange);
+#endif
 	// END Base Yield
 
 	int GetYieldPerPopTimes100(YieldTypes eIndex) const;
@@ -924,6 +944,10 @@ public:
 	int GetNumPurchasedAirUnitsThisTurn() const;
 	void ChangeNumPurchasedAirUnitsThisTurn(int iChange);
 #endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	int getCapitalGoldModifier() const;
+	void changeCapitalGoldModifier(int iChange);
+#endif
 
 	int iScratch; // know the scope of your validity
 
@@ -964,6 +988,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
+#ifdef PLAYER_CULTURE_TIMES_100
+	FAutoVariable<int, CvCity> m_iJONSCultureStoredTimes100;
+#endif
 	int m_iFaithPerTurnFromBuildings;
 	int m_iFaithPerTurnFromPolicies;
 	int m_iFaithPerTurnFromReligion;
@@ -1027,6 +1054,9 @@ protected:
 
 	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;
 	FAutoVariable<PlayerTypes, CvCity> m_eOriginalOwner;
+#ifdef CITY_MINOR_MAJORITY_OWNER
+	FAutoVariable<PlayerTypes, CvCity> m_eMinorMajorityOwner;
+#endif
 	FAutoVariable<PlayerTypes, CvCity> m_ePlayersReligion;
 
 	FAutoVariable<std::vector<int>, CvCity> m_aiSeaPlotYield;
@@ -1038,6 +1068,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromSpecialists;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromMisc;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	std::vector<int> m_aiYieldModFromReligion;
+#endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
 	std::vector<int> m_aiYieldPerReligion;
@@ -1167,6 +1200,9 @@ protected:
 #endif
 #ifdef DOMAIN_AIR_PURCHASE_RESTRICTION
 	int m_iNumPurchasedAirUnitsThisTurn;
+#endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	int m_iCapitalGoldModifier;
 #endif
 
 	void doGrowth();

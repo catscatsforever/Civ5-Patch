@@ -1697,10 +1697,10 @@ function OnCityViewUpdate()
 		end
 		--Controls.ScienceBox:SetToolTipString(strToolTip);
 		
-		local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
+		local iCulturePerTurn = pCity:GetJONSCulturePerTurnTimes100() / 100;
 		Controls.CulturePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iCulturePerTurn) );
 		--Controls.CultureBox:SetToolTipString(strToolTip);
-		local cultureStored = pCity:GetJONSCultureStored();
+		local cultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
 		if iCulturePerTurn > 0 then

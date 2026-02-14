@@ -663,25 +663,27 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_TRAITS", iCultureFromTraits);
 		end
+
+		strCultureToolTip = strCultureToolTip .. "[NEWLINE]" .. "----------------"
 		
 		-- Empire Culture modifier
 		local iAmount = Players[pCity:GetOwner()]:GetCultureCityModifier();
 		if (iAmount ~= 0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_PLAYER_MOD", iAmount);
 		end
 		
 		-- City Culture modifier
 		local iAmount = pCity:GetCultureRateModifier();
 		if (iAmount ~= 0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_CITY_MOD", iAmount);
 		end
 		
 		-- Policy Culture modifier
 		local iAmount = pCity:GetCapitalCultureModPerDiplomat();
 		if (iAmount ~= 0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_POLICY_MOD", iAmount);
 		end
 		
@@ -691,14 +693,15 @@ function GetCultureTooltip(pCity)
 			iAmount = Players[pCity:GetOwner()]:GetCultureWonderMultiplier();
 			
 			if (iAmount ~= 0) then
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WONDER_BONUS", iAmount);
 			end
 		end
+		
 		-- Future Tech modifier
 		local iAmount = 10 * Teams[Players[pCity:GetOwner()]:GetTeam()]:GetTeamTechs():GetTechCount(80);
 		if (iAmount ~= 0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FUTURE_TECH_BONUS", iAmount);
 		end
 		
@@ -715,8 +718,8 @@ function GetCultureTooltip(pCity)
 	
 	
 	-- Tile growth
-	local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
-	local iCultureStored = pCity:GetJONSCultureStored();
+	local iCulturePerTurn = pCity:GetJONSCulturePerTurnTimes100() / 100;
+	local iCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
 
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
@@ -904,12 +907,29 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 	
+	-- Base Yield from Trade Routes
+	local iYieldFromTradeRoutes = 0
 	if (iYieldType == YieldTypes.YIELD_FOOD) then
-		local iYieldFromTrade = pCity:GetYieldRate(YieldTypes.YIELD_FOOD, false) - pCity:GetYieldRate(YieldTypes.YIELD_FOOD, true);
+		local iYieldFromTrade = pCity:GetTradeValuesAtCityTimes100(YieldTypes.YIELD_FOOD);
+		iYieldFromTradeRoutes = iYieldFromTradeRoutes + pCity:GetTradeValuesAtCityTimes100(YieldTypes.YIELD_FOOD)/100
 		if (iYieldFromTrade ~= 0) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FOOD_FROM_TRADE_ROUTES", iYieldFromTrade);
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FOOD_FROM_TRADE_ROUTES", iYieldFromTrade/100);
 			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 		end
+	elseif (iYieldType == YieldTypes.YIELD_PRODUCTION) then
+		local iYieldFromTrade = pCity:GetTradeValuesAtCityTimes100(YieldTypes.YIELD_PRODUCTION);
+		iYieldFromTradeRoutes = iYieldFromTradeRoutes + pCity:GetTradeValuesAtCityTimes100(YieldTypes.YIELD_PRODUCTION)/100
+		if (iYieldFromTrade ~= 0) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_FROM_TRADE_ROUTES", iYieldFromTrade/100);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+		end
+	end
+
+	-- Base Yield from Minors
+	local iYieldFromMinors = pCity:GetYieldFromMinorsTimes100(iYieldType);
+	if (iYieldFromMinors ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MINORS", iYieldFromMinors/100, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 		
 	local strExtraBaseString = "";
@@ -934,6 +954,8 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 			--end
 		end
 	end
+
+	iBase = iBase + iYieldFromTradeRoutes + iYieldFromMinors
 	
 	local strTotal;
 	if (iTotal >= 0) then

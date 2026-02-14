@@ -392,8 +392,8 @@ local function UpdateCity( instance )
 		instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
 		instance.Name:SetString( city:GetName() )
 
-		local culturePerTurn = city:GetJONSCulturePerTurn()
-		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / culturePerTurn ) )
+		local culturePerTurn = city:GetJONSCulturePerTurnTimes100() / 100
+		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStoredTimes100() / 100) / culturePerTurn ) )
 
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
 		instance.Button:SetColor( Color( 1, percent, percent, 1 ) )
@@ -808,7 +808,7 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	end,
 	BorderGrowth = function( control )
 		local city = FindCity( control )
-		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / city:GetJONSCulturePerTurn() ) ), GetCultureTooltip( city ) )
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStoredTimes100() / 100) / city:GetJONSCulturePerTurnTimes100() / 100 ) ), GetCultureTooltip( city ) )
 	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )

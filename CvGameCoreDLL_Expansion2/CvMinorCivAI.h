@@ -125,11 +125,20 @@ public:
 	bool IsObsolete();
 	bool IsHandled();
 	void SetHandled(bool bValue);
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	bool IsOneShotReward() const;
+	void SetOneShotReward(bool bValue);
+	bool IsRewardEveryTurn() const;
+	void SetRewardEveryTurn(bool bValue);
+#endif
 
 	// Starting and finishing
 	void DoStartQuest(int iStartTurn);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
 	bool DoFinishQuest();
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	int GetEveryTurnReward();
+#endif
 	bool DoCancelQuest();
 
 	// Public data
@@ -140,6 +149,10 @@ public:
 	int m_iData1;
 	int m_iData2;
 	bool m_bHandled;
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	bool m_bOneShotReward;
+	bool m_bRewardEveryTurn;
+#endif
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
@@ -308,6 +321,9 @@ public:
 	int GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 	int GetQuestData2(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 	int GetQuestTurnsRemaining(PlayerTypes ePlayer, MinorCivQuestTypes eType, int iGameTurn) const;
+#ifdef QUESTS_SYSTEM_OVERHAUL
+	bool IsQuestOneShotReward(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
+#endif
 	bool IsContestLeader(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 	int GetContestValueForLeader(MinorCivQuestTypes eType);
 	int GetContestValueForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);
@@ -424,6 +440,11 @@ public:
 	int GetCurrentCulturePerBuildingBonus(PlayerTypes ePlayer);
 	int GetCurrentCultureBonus(PlayerTypes ePlayer);
 
+#ifdef PLAYER_CULTURE_TIMES_100
+	int GetCurrentCultureFlatBonusTimes100(PlayerTypes ePlayer);
+	int GetCurrentCultureBonusTimes100(PlayerTypes ePlayer);
+#endif
+
 	// Happiness bonuses
 	int GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetHappinessFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
@@ -440,14 +461,12 @@ public:
 	int GetCurrentFaithBonus(PlayerTypes ePlayer);
 
 	// Food bonuses
-#ifdef NEW_LEAGUE_RESOLUTIONS
-	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
-	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
-	int GetAlliesCapitalFoodBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
-	int GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
-#else
 	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+	int GetAlliesCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+#else
 	int GetAlliesCapitalFoodBonus(PlayerTypes ePlayer);
 	int GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer);
 #endif
@@ -474,15 +493,16 @@ public:
 	int GetCurrentScienceFlatBonus(PlayerTypes ePlayer);
 	int GetCurrentScienceBonus(PlayerTypes ePlayer);
 
+	int GetCurrentScienceFlatBonusTimes100(PlayerTypes ePlayer);
+	int GetCurrentScienceBonusTimes100(PlayerTypes ePlayer);
+
 	// Production bonuses
-#ifdef NEW_LEAGUE_RESOLUTIONS
-	int GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
-	int GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA, int iLeagueMod = 0);
-	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
-	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer, int iLeagueMod = 0);
-#else
 	int GetFriendsCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetFriendsOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
+#else
 	int GetAlliesCapitalProductionBonus(PlayerTypes ePlayer);
 	int GetAlliesOtherCityProductionBonus(PlayerTypes ePlayer);
 #endif

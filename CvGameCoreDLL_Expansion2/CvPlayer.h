@@ -427,11 +427,11 @@ public:
 	int GetNumKilledSpies() const;
 	void ChangeNumKilledSpies(int iChange);
 #endif
-#ifdef EG_REPLAYDATASET_FOODFROMCS
+#if defined EG_REPLAYDATASET_FOODFROMCS
 	int GetFoodFromMinorsTimes100() const;
 	void ChangeFoodFromMinorsTimes100(int iChange);
 #endif
-#ifdef EG_REPLAYDATASET_PRODUCTIONFROMCS
+#if defined EG_REPLAYDATASET_PRODUCTIONFROMCS
 	int GetProductionFromMinorsTimes100() const;
 	void ChangeProductionFromMinorsTimes100(int iChange);
 #endif
@@ -586,6 +586,27 @@ public:
 	void ChangeSpecialistCultureChange(int iChange);
 
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
+
+#ifdef PLAYER_CULTURE_TIMES_100
+	int GetTotalJONSCulturePerTurnTimes100() const;
+
+	int GetJONSCulturePerTurnFromCitiesTimes100() const;
+
+	int GetCulturePerTurnFromMinorCivsTimes100() const;
+	int GetCulturePerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+
+	int GetCulturePerTurnFromReligionTimes100() const;
+
+	int GetCulturePerTurnFromBonusTurnsTimes100() const;
+
+	int getJONSCultureTimes100() const;
+	void setJONSCultureTimes100(int iNewValue);
+	void changeJONSCultureTimes100(int iChange);
+
+	int GetJONSCultureEverGeneratedTimes100() const;
+	void SetJONSCultureEverGeneratedTimes100(int iNewValue);
+	void ChangeJONSCultureEverGeneratedTimes100(int iChange);
+#endif
 
 #ifdef POLICY_BUILDINGS_SPECIALIST_COUNT_CHANGE
 	int getBuildingScecialistCountChange(BuildingTypes eIndex1, SpecialistTypes eIndex2) const;
@@ -1498,6 +1519,11 @@ public:
 	int GetFreePromotionCount(PromotionTypes eIndex) const;
 	bool IsFreePromotion(PromotionTypes eIndex) const;
 	void ChangeFreePromotionCount(PromotionTypes eIndex, int iChange);
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	int GetFreePromotionUnitCombatCount(PromotionTypes eIndex, UnitCombatTypes eUnitCombatType) const;
+	bool IsFreePromotionUnitCombat(PromotionTypes eIndex, UnitCombatTypes eUnitCombatType) const;
+	void ChangeFreePromotionUnitCombatCount(PromotionTypes eIndex, UnitCombatTypes eUnitCombatType, int iChange);
+#endif
 
 	int getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const;
 	void changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange);
@@ -1824,6 +1850,10 @@ public:
 	bool isBorderTransitionObstacle() const;
 	void changeBorderTransitionObstacleCount(int iChange);
 #endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	int getAttritionInsideBorders() const;
+	void changeAttritionInsideBorders(int iChange);
+#endif
 
 	CvPlayerPolicies* GetPlayerPolicies() const;
 	CvPlayerTraits* GetPlayerTraits() const;
@@ -1909,6 +1939,22 @@ public:
 
 	bool hasTurnTimerExpired();
 
+#ifdef PLAYER_GET_NUM_CAPITALS_CONTROLLED
+	int GetNumCapitalsControlled() const;
+#endif
+
+#ifdef CHANGE_FOOD_PROD_MINORS_SCALE
+	int GetCapitalFoodPerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+	int GetCapitalFoodPerTurnFromMinorCivsTimes100() const;
+	int GetOtherCitiesFoodPerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+	int GetOtherCitiesFoodPerTurnFromMinorCivsTimes100() const;
+
+	int GetCapitalProductionPerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+	int GetCapitalProductionPerTurnFromMinorCivsTimes100() const;
+	int GetOtherCitiesProductionPerTurnFromMinorTimes100(PlayerTypes eMinor) const;
+	int GetOtherCitiesProductionPerTurnFromMinorCivsTimes100() const;
+#endif
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -1980,6 +2026,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCulturePerWonder;
 	FAutoVariable<int, CvPlayer> m_iCultureWonderMultiplier;
 	FAutoVariable<int, CvPlayer> m_iCulturePerTechResearched;
+#ifdef PLAYER_CULTURE_TIMES_100
+	FAutoVariable<int, CvPlayer> m_iJONSCultureTimes100;
+	FAutoVariable<int, CvPlayer> m_iJONSCultureEverGeneratedTimes100;
+#endif
 	int m_iFaith;
 	int m_iFaithEverGenerated;
 	FAutoVariable<int, CvPlayer> m_iHappiness;
@@ -2482,6 +2532,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+	FAutoVariable<std::vector<int>, CvPlayer> m_ppaaiFreePromotionUnitCombatCount;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatProductionModifiers;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatFreeExperiences;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassCount;
@@ -2656,6 +2709,9 @@ protected:
 #endif
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	int m_iBorderTransitionObstacleCount;
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	int m_iAttritionInsideBorders;
 #endif
 };
 

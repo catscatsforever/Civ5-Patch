@@ -41,6 +41,7 @@ copy /y "%patchfolder%\tmp\ui\ReplayViewer.xml" "%patchfolder%\UI\ReplayViewer.x
 copy /y "%patchfolder%\tmp\ui\ReligionOverview.lua" "%patchfolder%\UI\ReligionOverview.lua" > nul
 copy /y "%patchfolder%\tmp\ui\ReligionOverview.xml" "%patchfolder%\UI\ReligionOverview.xml" > nul
 copy /y "%patchfolder%\tmp\ui\EspionageOverview.lua" "%patchfolder%\UI\EspionageOverview.lua" > nul
+copy /y "%patchfolder%\tmp\ui\EspionageOverview.xml" "%patchfolder%\UI\EspionageOverview.xml" > nul
 copy /y "%patchfolder%\tmp\ui\CityList.lua" "%patchfolder%\UI\CityList.lua" > nul
 copy /y "%patchfolder%\tmp\ui\CityList.xml" "%patchfolder%\UI\CityList.xml" > nul
 copy /y "%patchfolder%\tmp\ui\GPList.lua" "%patchfolder%\UI\GPList.lua" > nul

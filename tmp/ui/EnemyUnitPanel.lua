@@ -512,7 +512,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 				
 			else
-				iModifier = pMyUnit:GetRangedAttackModifier();
+				iModifier = pMyUnit:GetRangedAttackModifier(pToPlot);
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_ATTACK_MODIFIER" );
@@ -601,6 +601,17 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				if (pMyUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ADJACENT_FRIEND_UNIT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
+
+			-- No Adjacent Modifier
+			iModifier = pMyUnit:GetNoAdjacentMod();
+			if (iModifier ~= 0) then
+				local bCombatUnit = true;
+				if (not pMyUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_ADJACENT_FRIEND_UNIT_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
@@ -1070,6 +1081,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
+
+			-- No Adjacent Modifier
+			iModifier = pMyUnit:GetNoAdjacentMod();
+			if (iModifier ~= 0) then
+				local bCombatUnit = true;
+				if (not pMyUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_ADJACENT_FRIEND_UNIT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
 			
 			-- Attack Modifier
 			iModifier = pMyUnit:GetAttackModifier();
@@ -1119,6 +1141,23 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+			-- UnitCombatAttack
+			if (pTheirUnit:GetUnitCombatType() ~= -1) then
+				iModifier = pMyUnit:UnitCombatAttack(pTheirUnit:GetUnitCombatType());
+
+				if (iModifier > 0) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				elseif (iModifier < 0) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_PENALTY_VS_CLASS", unitClassType );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
+
 			-- DomainModifier
 			iModifier = pMyUnit:DomainModifier(pTheirUnit:GetDomainType());
 			if (iModifier ~= 0) then
@@ -1132,6 +1171,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				--kDomainInfo.CacheResult(kResult);
 
 				--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
+			end
+		
+			-- Number of Capitals Modifier
+			iModifier = 5 * math.max(pTheirPlayer:GetNumCapitalsControlled() - 1, 0)
+			if (iModifier ~= 0 and pMyPlayer:IsHuman() and pTheirPlayer:IsHuman()) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_NUM_CAPITALS_MODIFIER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 			
 			-- attackFortifiedMod
@@ -1152,6 +1199,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_WOUND_UNITS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
+			
+			-- HealthyMod
+			if (pTheirUnit:GetDamage() == 0) then
+				iModifier = pMyUnit:HealthyModifier();
+
+				if (iModifier ~= 0) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_HEALTHY_UNITS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
@@ -1189,7 +1247,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			
 			if(bRanged) then
-				iModifier = pMyUnit:GetRangedAttackModifier();
+				iModifier = pMyUnit:GetRangedAttackModifier(pToPlot);
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_ATTACK_MODIFIER" );
@@ -1355,8 +1413,30 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 				end
 
+				-- No Adjacent Modifier
+				iModifier = pTheirUnit:GetNoAdjacentMod();
+				if (iModifier ~= 0) then
+					local bCombatUnit = true;
+					if (not pTheirUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_ADJACENT_FRIEND_UNIT_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
+				end
+
+				-- Low Health Modifier
+				iModifier = pTheirUnit:GetLowHealthDefenseModifier();
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_LOW_HEALTH_COMBAT_MOD" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+
 				-- Plot Defense
 				iModifier = pToPlot:DefenseModifier(pTheirUnit:GetTeam(), false, false);
+				if (pMyUnit:IsIgnoreTerrainDefense() and pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false) > 0) then
+					iModifier = iModifier - pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false);
+				end
 				if (iModifier < 0 or not pTheirUnit:NoDefensiveBonus()) then
 
 					if (iModifier ~= 0) then
@@ -1534,6 +1614,27 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					--end
 				--end
 
+				-- UnitCombatDefense
+				if (pMyUnit:GetUnitCombatType() ~= -1) then
+					if (GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].ID == 15) then
+						iModifier = 0;
+					else
+						iModifier = pTheirUnit:UnitCombatDefense(pMyUnit:GetUnitCombatType());
+					end
+
+					if (iModifier > 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					elseif (iModifier < 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_PENALTY_VS_CLASS", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
+				end
+
 				-- DomainModifier
 				iModifier = pTheirUnit:DomainModifier(pMyUnit:GetDomainType());
 				if (iModifier ~= 0) then
@@ -1547,6 +1648,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					--kDomainInfo.CacheResult(kResult);
 
 					--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
+				end
+			
+				-- HealthyMod
+				if (pMyUnit:GetDamage() == 0) then
+					iModifier = pTheirUnit:HealthyModifier();
+
+					if (iModifier ~= 0) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_HEALTHY_UNITS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
 				end
 		
 				-- Range Defense Modifier
@@ -1564,6 +1676,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (iModifier ~= 0) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_CULTURAL_INFLUENCE_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+		
+				-- Number of Capitals Modifier
+				iModifier = 5 * math.max(pMyPlayer:GetNumCapitalsControlled() - 1, 0)
+				if (iModifier ~= 0 and pMyPlayer:IsHuman() and pTheirPlayer:IsHuman()) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_NUM_CAPITALS_MODIFIER" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 				
@@ -1858,6 +1978,25 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_ADJACENT_FRIEND_UNIT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
+		end
+
+		-- No Adjacent Modifier
+		iModifier = theirUnit:GetNoAdjacentMod();
+		if (iModifier ~= 0) then
+			local bCombatUnit = true;
+			if (not theirUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_ADJACENT_FRIEND_UNIT_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			end
+		end
+
+		-- Low Health Modifier
+		iModifier = theirUnit:GetLowHealthDefenseModifier();
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_LOW_HEALTH_COMBAT_MOD" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
 		
 		-- Plot Defense

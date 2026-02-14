@@ -14,6 +14,9 @@
 #include "CvLuaUnit.h"
 #include "../CvMinorCivAI.h"
 #include "../CvUnitCombat.h"
+#ifdef INCLUDE_GAMECOREUTILS_IN_LUA_UNIT
+#include "../CvGameCoreUtils.h"
+#endif
 
 //Utility macro for registering methods
 #define Method(Name)			\
@@ -253,6 +256,15 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(WithdrawalProbability);
 
 	Method(GetAdjacentModifier);
+#ifdef UNIT_NO_ADJACENT_MOD
+	Method(GetNoAdjacentMod);
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+	Method(GetLowHealthDefenseModifier);
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+	Method(IsIgnoreTerrainDefense);
+#endif
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
 #ifdef FIX_RANGE_DEFENSE_MOD
@@ -273,6 +285,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(RoughRangedAttackModifier);
 	Method(AttackFortifiedModifier);
 	Method(AttackWoundedModifier);
+#ifdef UNIT_HEALTHY_MOD
+	Method(HealthyModifier);
+#endif
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
 	Method(TerrainAttackModifier);
@@ -282,6 +297,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitClassAttackModifier);
 	Method(UnitClassDefenseModifier);
 	Method(UnitCombatModifier);
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	Method(UnitCombatAttack);
+	Method(UnitCombatDefense);
+#endif
 	Method(DomainModifier);
 	Method(GetStrategicResourceCombatPenalty);
 	Method(GetUnhappinessCombatPenalty);
@@ -445,6 +464,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetExtraFeatureAttackPercent);
 	Method(GetExtraFeatureDefensePercent);
 	Method(GetExtraUnitCombatModifier);
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+	Method(GetExtraUnitCombatAttack);
+	Method(GetExtraUnitCombatDefense);
+#endif
 	Method(GetUnitClassModifier);
 
 	Method(CanAcquirePromotion);
@@ -2595,10 +2618,50 @@ int CvLuaUnit::lGetAdjacentModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
+#ifdef UNIT_SAME_TYPE_ADJACENT_MOD
+	const int iResult = pkUnit->GetAdjacentModifier() + pkUnit->GetNumSpecificFriendlyUnitsAdjacent(NULL, pkUnit) * pkUnit->getUnitInfo().GetSameTypeAdjacentMod();
+#else
 	const int iResult = pkUnit->GetAdjacentModifier();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef UNIT_NO_ADJACENT_MOD
+//------------------------------------------------------------------------------
+//int GetNoAdjacentMod();
+int CvLuaUnit::lGetNoAdjacentMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->IsFriendlyUnitAdjacent(true) ? 0 : pkUnit->getUnitInfo().GetNoAdjacentMod();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
+#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+//------------------------------------------------------------------------------
+//int GetLowHealthDefenseModifier();
+int CvLuaUnit::lGetLowHealthDefenseModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getDamage() < 50 ? 0 : pkUnit->getUnitInfo().GetLowHealthDefenseModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
+#ifdef UNIT_IGNORE_TERRAIN_DEFENSE
+//------------------------------------------------------------------------------
+//int IsIgnoreTerrainDefense();
+int CvLuaUnit::lIsIgnoreTerrainDefense(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->getUnitInfo().IsIgnoreTerrainDefense();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getAttackModifier();
 int CvLuaUnit::lGetAttackModifier(lua_State* L)
@@ -2649,10 +2712,32 @@ int CvLuaUnit::lGetCulturalInfluenceDefenseModifier(lua_State* L)
 //int GetRangedAttackModifier();
 int CvLuaUnit::lGetRangedAttackModifier(lua_State* L)
 {
+#if defined UNIT_OUTER_RINGS_RANGE_ATTACK_MOD || defined UNIT_INNER_RING_RANGE_ATTACK_MOD
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+
+	int iResult = pkUnit->GetRangedAttackModifier();
+#endif
+#ifdef UNIT_OUTER_RINGS_RANGE_ATTACK_MOD
+	if (plotDistance(pkPlot->getX(), pkPlot->getY(), pkUnit->plot()->getX(), pkUnit->plot()->getY()) > 1 + pkUnit->getExtraRange())
+	{
+		iResult += pkUnit->getUnitInfo().GetOuterRingsRangeAttackMod();
+	}
+#endif
+#ifdef UNIT_INNER_RING_RANGE_ATTACK_MOD
+	if (plotDistance(pkPlot->getX(), pkPlot->getY(), pkUnit->plot()->getX(), pkUnit->plot()->getY()) < 2 + pkUnit->getExtraRange())
+	{
+		iResult += pkUnit->getUnitInfo().GetInnerRingRangeAttackMod();
+	}
+#endif
+#if defined UNIT_OUTER_RINGS_RANGE_ATTACK_MOD || defined UNIT_INNER_RING_RANGE_ATTACK_MOD
+	lua_pushinteger(L, iResult);
+#else
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->GetRangedAttackModifier();
 	lua_pushinteger(L, iResult);
+#endif
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2755,6 +2840,18 @@ int CvLuaUnit::lAttackWoundedModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef UNIT_HEALTHY_MOD
+//------------------------------------------------------------------------------
+//int HealthyModifier();
+int CvLuaUnit::lHealthyModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getUnitInfo().GetHealthyMod();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int FlankAttackModifier();
 int CvLuaUnit::lFlankAttackModifier(lua_State* L)
@@ -2862,6 +2959,30 @@ int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+//------------------------------------------------------------------------------
+//int unitCombatAttack(int /*UnitCombatTypes*/ eUnitCombat);
+int CvLuaUnit::lUnitCombatAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eUnitCombat = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->unitCombatAttack(eUnitCombat);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int unitCombatDefense(int /*UnitCombatTypes*/ eUnitCombat);
+int CvLuaUnit::lUnitCombatDefense(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eUnitCombat = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->unitCombatDefense(eUnitCombat);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);
 int CvLuaUnit::lDomainModifier(lua_State* L)
@@ -4271,6 +4392,30 @@ int CvLuaUnit::lGetExtraUnitCombatModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef PROMOTION_ADVANCED_UNIT_COMBAT_MODS
+//------------------------------------------------------------------------------
+//int getExtraUnitCombatAttack(int /*UnitCombatTypes*/ eIndex);
+int CvLuaUnit::lGetExtraUnitCombatAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraUnitCombatAttack(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getExtraUnitCombatDefense(int /*UnitCombatTypes*/ eIndex);
+int CvLuaUnit::lGetExtraUnitCombatDefense(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraUnitCombatDefense(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetUnitClassModifier(int /*UnitClassTypes*/ eIndex);
 int CvLuaUnit::lGetUnitClassModifier(lua_State* L)

@@ -765,7 +765,7 @@ function RefreshAgents()
 				
 				if (city ~= nil) then
 					local iCityAlly = Players[city:GetOwner()]:GetAlly();
-					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_EO_STAGE_COUP_QUESTION", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city), city:GetNameKey(), Players[iCityAlly]:GetCivilizationDescriptionKey(), city:GetNameKey(), v.Rank, v.Name, city:GetNameKey());
+					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_EO_STAGE_COUP_QUESTION", v.Rank, v.Name, city:GetNameKey(), v.Rank, v.Name, city:GetNameKey());
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();
 					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
@@ -778,6 +778,13 @@ function RefreshAgents()
 			if (city and Players[city:GetOwner()]:IsMinorCiv()) then
 				local bCoupDisabled = not pActivePlayer:CanSpyStageCoup(v.AgentID) or v.State == "TXT_KEY_SPY_STATE_DEAD";
 				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
+				local iMinorCityEspionageCoupAmount = city:GetMinorCityEspionageCoupAmount(Game.GetActivePlayer());
+				local iMinorCoupGoal = Players[city:GetOwner()]:GetMinorCoupGoal(Game.GetActivePlayer());
+				if bCoupDisabled then
+					agentEntry.StageCoupButton:LocalizeAndSetText("TXT_KEY_EO_COUP_NUMS", iMinorCityEspionageCoupAmount, iMinorCoupGoal);
+				else
+					agentEntry.StageCoupButton:LocalizeAndSetText("TXT_KEY_EO_COUP");
+				end
 				agentEntry.StageCoupButton:RegisterCallback(Mouse.eLClick, OnCoupClicked);
 				local iCityAlly = Players[city:GetOwner()]:GetAlly();
 				
@@ -792,7 +799,7 @@ function RefreshAgents()
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_YOU_ALLY_TT", v.Rank, v.Name, city:GetNameKey());
 					end
 				else
-					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_ENABLED_TT", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city), v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationShortDescriptionKey(), v.Rank, v.Name, city:GetNameKey());
+					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_ENABLED_TT", v.Rank, v.Name, city:GetNameKey());
 				end
 			
 				agentEntry.ViewCityButton:SetHide(true);

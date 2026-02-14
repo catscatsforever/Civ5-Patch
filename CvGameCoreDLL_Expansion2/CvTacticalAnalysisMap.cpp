@@ -560,7 +560,11 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 	}
 
 	cell.SetImpassableTerritory(bImpassableTerritory);
+#ifdef FIX_DEFENSE_MODIFIER
+	cell.SetDefenseModifier(pPlot->defenseModifier(NO_TEAM, false));
+#else
 	cell.SetDefenseModifier(pPlot->defenseModifier(NO_TEAM, true));
+#endif
 
 	if(pPlot->getNumUnits() > 0)
 	{

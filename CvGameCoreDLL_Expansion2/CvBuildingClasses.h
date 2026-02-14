@@ -378,6 +378,12 @@ public:
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	bool IsPlayerBorderTransitionObstacle() const;
 #endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	int GetCapitalGoldModifier() const;
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	int GetAttritionInsideBorders() const;
+#endif
 
 private:
 	int m_iBuildingClassType;
@@ -651,6 +657,12 @@ private:
 #endif
 #ifdef BUILDING_BORDER_TRANSITION_OBSTACLE
 	bool m_bPlayerBorderTransitionObstacle;
+#endif
+#ifdef BUILDING_CAPITAL_GOLD_MODIFIER
+	int m_iCapitalGoldModifier;
+#endif
+#ifdef BUILDING_ATTRITION_INSIDE_BORDERS
+	int m_iAttritionInsideBorders;
 #endif
 };
 

@@ -635,7 +635,11 @@ void CvHomelandAI::FindHomelandTargets()
 
 						// Get weight for this sentry point
 						int iWeight = iOutsidePlots * 100;
+#ifdef FIX_DEFENSE_MODIFIER
+						iWeight += pLoopPlot->defenseModifier(eTeam, false);
+#else
 						iWeight += pLoopPlot->defenseModifier(eTeam, true);
+#endif
 						iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot);
 
 						CvCity* pFriendlyCity = m_pPlayer->GetClosestFriendlyCity(*pLoopPlot, 5 /*i SearchRadius */);

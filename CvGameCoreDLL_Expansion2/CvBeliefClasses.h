@@ -114,6 +114,9 @@ public:
 	int GetResourceQuantityModifier(int i) const;
 	int GetImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetBuildingClassYieldChange(int i, int j) const;
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	int GetBuildingClassYieldMod(int i, int j) const;
+#endif
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassTourism(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
@@ -231,6 +234,9 @@ protected:
 	int* m_piResourceQuantityModifiers;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldChanges;
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	int** m_ppiBuildingClassYieldModifiers;
+#endif
 	int* m_paiBuildingClassHappiness;
 	int* m_paiBuildingClassTourism;
 	int** m_ppaiFeatureYieldChange;
@@ -479,6 +485,9 @@ public:
 	int GetResourceQuantityModifier(ResourceTypes eResource) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const;
+#ifdef BELIEF_BUILDING_CLASS_YIELD_MODIFIERS
+	int GetBuildingClassYieldMod(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const;
+#endif
 	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers) const;
 	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass) const;
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
