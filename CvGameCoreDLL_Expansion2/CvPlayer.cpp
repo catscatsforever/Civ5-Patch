@@ -10523,11 +10523,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				}
 			}
 		}
+	}
 
 #ifdef BUILDING_ATTRITION_INSIDE_BORDERS
-		changeAttritionInsideBorders(pBuildingInfo->GetAttritionInsideBorders() * iChange);
+	changeAttritionInsideBorders(pBuildingInfo->GetAttritionInsideBorders()* iChange);
 #endif
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -22754,7 +22754,14 @@ int CvPlayer::GetFreePromotionUnitCombatCount(PromotionTypes ePromotion, UnitCom
 /// Is ePromotion a free promotion for a specific CombatType?
 bool CvPlayer::IsFreePromotionUnitCombat(PromotionTypes ePromotion, UnitCombatTypes eUnitCombatType)	const
 {
-	return (GetFreePromotionUnitCombatCount(ePromotion, eUnitCombatType) > 0);
+	if (eUnitCombatType != NO_UNITCOMBAT)
+	{
+		return (GetFreePromotionUnitCombatCount(ePromotion, eUnitCombatType) > 0);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -28799,7 +28806,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	if (uiVersion >= 1016)
 	{
 # endif
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiFreePromotionUnitCombatCount.dirtyGet());
+		kStream >> m_ppaaiFreePromotionUnitCombatCount;
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	}
 	else
@@ -29661,7 +29668,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_paiFreePromotionCount);
 #ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
-	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_ppaaiFreePromotionUnitCombatCount);
+	kStream << m_ppaaiFreePromotionUnitCombatCount;
 #endif
 
 	kStream << m_paiUnitCombatProductionModifiers;

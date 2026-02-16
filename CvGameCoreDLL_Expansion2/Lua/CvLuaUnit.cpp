@@ -2216,7 +2216,19 @@ int CvLuaUnit::lGetRangeCombatDamage(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bIncludeRand = lua_toboolean(L, 4);
 
+#ifdef FIX_LUA_METHOD_GET_RANGE_COMBAT_DAMAGE_FOR_AIR_DOMAIN
+	int iResult = 0;
+	if (pkUnit->getDomainType() == DOMAIN_AIR)
+	{
+		iResult = pkUnit->GetAirCombatDamage(pkDefender, pkCity, bIncludeRand);
+	}
+	else
+	{
+		iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, bIncludeRand);
+	}
+#else
 	const int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, bIncludeRand);
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }

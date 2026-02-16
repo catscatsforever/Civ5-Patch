@@ -780,7 +780,7 @@ function RefreshAgents()
 				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
 				local iMinorCityEspionageCoupAmount = city:GetMinorCityEspionageCoupAmount(Game.GetActivePlayer());
 				local iMinorCoupGoal = Players[city:GetOwner()]:GetMinorCoupGoal(Game.GetActivePlayer());
-				if bCoupDisabled then
+				if bCoupDisabled and v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_RIGGING_ELECTION") then
 					agentEntry.StageCoupButton:LocalizeAndSetText("TXT_KEY_EO_COUP_NUMS", iMinorCityEspionageCoupAmount, iMinorCoupGoal);
 				else
 					agentEntry.StageCoupButton:LocalizeAndSetText("TXT_KEY_EO_COUP");

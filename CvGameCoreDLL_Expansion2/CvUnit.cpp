@@ -568,6 +568,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 
 		}
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+		if (kPlayer.IsFreePromotionUnitCombat(ePromotion, (UnitCombatTypes)GC.getUnitInfo(getUnitType())->GetUnitCombatType()))
+		{
+			// Valid Promotion for this Unit?
+			if (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
+			{
+				setHasPromotion(ePromotion, true);
+			}
+		}
+#endif
 	}
 
 	// Give embark promotion for free?
@@ -1234,6 +1244,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			{
 				bGivePromotion = true;
 			}
+#ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
+			else if (GET_PLAYER(getOwner()).IsFreePromotionUnitCombat(ePromotion, (UnitCombatTypes)GC.getUnitInfo(getUnitType())->GetUnitCombatType()) && ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
+			{
+				bGivePromotion = true;
+			}
+#endif
 
 			setHasPromotion(ePromotion, bGivePromotion);
 		}
@@ -11469,6 +11485,13 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 
 	// Mod (Policies, etc.) - lower means Units are less bothered by damage
 	iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	if (getUnitInfo().IsFightWellDamaged())
+	{
+		iWoundedDamageMultiplier -= GC.getWOUNDED_DAMAGE_MULTIPLIER();
+		iWoundedDamageMultiplier = std::max(iWoundedDamageMultiplier, 0);
+	}
+#endif
 
 	int iStrength = GetMaxAttackStrength(NULL,NULL,NULL) / 100;
 
@@ -13589,7 +13612,22 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
 
 	// Note, 0 is valid - means we don't do anything
+#ifdef FIX_WOUNDED_DAMAGE_MULTIPLIER_FOR_DOMAIN_AIR
+	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
+	iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	if (getUnitInfo().IsFightWellDamaged())
+	{
+		iWoundedDamageMultiplier -= GC.getWOUNDED_DAMAGE_MULTIPLIER();
+		iWoundedDamageMultiplier = std::max(iWoundedDamageMultiplier, 0);
+	}
+#endif
+
+
+	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
+#else
 	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - getDamage() - iAssumeExtraDamage;
+#endif
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 
@@ -13696,6 +13734,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	// Note, 0 is valid - means we don't do anything
 	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
 	iWoundedDamageMultiplier += kPlayer.GetWoundedUnitDamageMod();
+#ifdef UNIT_FIGHT_WELL_DAMAGE
+	if (getUnitInfo().IsFightWellDamaged())
+	{
+		iWoundedDamageMultiplier -= GC.getWOUNDED_DAMAGE_MULTIPLIER();
+		iWoundedDamageMultiplier = std::max(iWoundedDamageMultiplier, 0);
+	}
+#endif
 
 
 	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);

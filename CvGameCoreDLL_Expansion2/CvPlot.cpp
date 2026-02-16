@@ -767,7 +767,14 @@ void CvPlot::verifyUnitValidPlot(bool bIsMinor, TeamTypes eTeam, TeamTypes eMino
 #endif
 								{
 									if (!pLoopUnit->jumpToNearestValidPlot(bIsMinor))
+#ifdef FIX_NULL_POINTER_ON_NUKING
+										if (pLoopUnit->isSuicide())
+											pLoopUnit->kill(true);
+										else
+											pLoopUnit->kill(false);
+#else
 										pLoopUnit->kill(false);
+#endif
 								}
 							}
 						}
