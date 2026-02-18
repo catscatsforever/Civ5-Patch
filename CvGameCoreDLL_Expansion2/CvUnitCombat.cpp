@@ -901,8 +901,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 								if (pLoopPlot != NULL && pLoopPlot != pkTargetPlot)
 								{
-									CvCity* pLoopCity = pLoopPlot->getPlotCity();
-
 									FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
 									IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
@@ -1059,8 +1057,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 								if (pLoopPlot != NULL && pLoopPlot != pkTargetPlot)
 								{
-									CvCity* pLoopCity = pLoopPlot->getPlotCity();
-
 									FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
 									IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 

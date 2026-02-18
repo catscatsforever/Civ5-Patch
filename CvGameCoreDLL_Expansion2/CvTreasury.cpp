@@ -511,7 +511,7 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 			BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				iGoldPerRiverOrCoastalCity += 1;
+				iGoldPerRiverOrCoastalCity += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();;
 			}
 #ifdef BUILDING_DOUBLE_PANTHEON
 			if (pReligion)

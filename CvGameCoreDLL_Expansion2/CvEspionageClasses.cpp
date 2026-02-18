@@ -2109,7 +2109,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 {
 #ifdef COUP_SYSTEM_REWORK
 	return 0;
-#endif
+#else
 	// if you can't stage a coup, then the likelihood is zero!
 	if(!CanStageCoup(uiSpyIndex))
 	{
@@ -2237,6 +2237,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 
 
 	return iResultPercentage;
+#endif
 }
 
 /// AttemptCoup - Have a spy try to overthrow a city state. If success, the spy's owner becomes the ally. If failure, the spy dies.
