@@ -4056,6 +4056,12 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript)
 				if((pUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pUnit->getUnitCombatType()))
 				{
 					pUnit->setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_ADD_PRODUCTION_EXPERIENCE
+					if (pUnit->getMoves() > 0)
+					{
+						pUnit->changeMoves(pkPromotionInfo->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+					}
+#endif
 				}
 			}
 		}

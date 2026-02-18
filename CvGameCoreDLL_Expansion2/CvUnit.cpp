@@ -10250,6 +10250,12 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 #endif
 #endif
 		setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+		if (getMoves() > 0)
+		{
+			changeMoves(pkPromotionInfo->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+		}
+#endif
 
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)

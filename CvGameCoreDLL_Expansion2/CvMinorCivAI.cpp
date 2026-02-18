@@ -6251,6 +6251,175 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	CvAssertMsg(eNewAlly >= NO_PLAYER, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eNewAlly < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
+#ifdef AUTO_PEACE_WITH_MINOR_ON_ALLYING
+	if (eNewAlly != NO_PLAYER && IsAtWarWithPlayersTeam(eNewAlly))
+	{
+		GET_TEAM(GetPlayer()->getTeam()).makePeace(GET_PLAYER(eNewAlly).getTeam());
+	}
+	else
+	{
+		CvMap& theMap = GC.getMap();
+		int iNumPlots = GC.getMap().numPlots();
+
+		PlayerTypes eOldAlly = GetAlly();
+
+#ifdef CS_ALLYING_WAR_RESCTRICTION
+		if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+		{
+			if (eOldAlly != NO_PLAYER)
+			{
+				if (eNewAlly != NO_PLAYER)
+				{
+					if (GET_PLAYER(eOldAlly).isHuman() && GET_PLAYER(eNewAlly).isHuman() && GET_PLAYER(eOldAlly).getTeam() != GET_PLAYER(eNewAlly).getTeam())
+					{
+						CvGame& kGame = GC.getGame();
+#ifdef GAME_UPDATE_TURN_TIMER_ONCE_PER_TURN
+						float fGameTurnEnd = kGame.getPreviousTurnLen();
+#else
+						float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+#endif
+						float fTimeElapsed = kGame.getTimeElapsed();
+						float fCSAllyingWarRestrictionTimer;
+#ifdef BLITZ_MODE
+						if (GC.getGame().isOption("GAMEOPTION_BLITZ_MODE"))
+						{
+							fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER / 4;
+						}
+						else
+						{
+							fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+						}
+#else
+						fCSAllyingWarRestrictionTimer = CS_ALLYING_WAR_RESCTRICTION_TIMER;
+#endif
+						if (fGameTurnEnd - fTimeElapsed > fCSAllyingWarRestrictionTimer)
+						{
+							GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn());
+							GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fTimeElapsed + fCSAllyingWarRestrictionTimer);
+						}
+						else
+						{
+							GET_PLAYER(eNewAlly).setTurnCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), kGame.getGameTurn() + 1);
+							GET_PLAYER(eNewAlly).setTimeCSWarAllowingMinor(eOldAlly, GetPlayer()->GetID(), fCSAllyingWarRestrictionTimer - (fGameTurnEnd - fTimeElapsed));
+						}
+					}
+				}
+				if (GET_PLAYER(eOldAlly).isHuman())
+				{
+					for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+					{
+						GET_PLAYER(eOldAlly).setTurnCSWarAllowingMinor((PlayerTypes)iI, GetPlayer()->GetID(), -1);
+						GET_PLAYER(eOldAlly).setTimeCSWarAllowingMinor((PlayerTypes)iI, GetPlayer()->GetID(), 0.f);
+					}
+				}
+			}
+		}
+#endif
+
+		int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+
+		if (eOldAlly != NO_PLAYER)
+		{
+			for (int iI = 0; iI < iNumPlots; iI++)
+			{
+				CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
+				if (pPlot->getOwner() == m_pPlayer->GetID())
+				{
+					pPlot->changeAdjacentSight(GET_PLAYER(eOldAlly).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+				}
+			}
+			if (eOldAlly == GC.getGame().getActivePlayer())
+			{
+				theMap.updateDeferredFog();
+			}
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+			GET_PLAYER(eOldAlly).ChangeNumAlliedCS(-1);
+#endif
+		}
+
+		m_eAlly = eNewAlly;
+		m_iTurnAllied = GC.getGame().getGameTurn();
+
+		// Seed the GP counter?
+		if (eNewAlly != NO_PLAYER)
+		{
+			CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
+
+			// share the visibility with my ally (and his team-mates)
+			for (int iI = 0; iI < iNumPlots; iI++)
+			{
+				CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
+				if (pPlot->getOwner() == m_pPlayer->GetID())
+				{
+					pPlot->changeAdjacentSight(kNewAlly.getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+				}
+			}
+
+			for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			{
+				const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
+				CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
+				if (pkPolicyInfo)
+				{
+					if (kNewAlly.GetPlayerPolicies()->HasPolicy(eLoopPolicy) && !kNewAlly.GetPlayerPolicies()->IsPolicyBlocked(eLoopPolicy))
+					{
+						// This is the policy we want!
+						if (pkPolicyInfo->IsMinorGreatPeopleAllies())
+						{
+							if (kNewAlly.GetGreatPeopleSpawnCounter() <= 0)
+								kNewAlly.DoSeedGreatPeopleSpawnCounter();
+							else
+								kNewAlly.DoApplyNewAllyGPBonus();
+						}
+					}
+				}
+			}
+
+			//Achievement Test
+			kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
+#ifdef EG_REPLAYDATASET_ALLIEDCS
+			GET_PLAYER(eNewAlly).ChangeNumAlliedCS(1);
+#endif
+		}
+
+		// Alter who gets this guy's resources
+		DoUpdateAlliesResourceBonus(eNewAlly, eOldAlly);
+
+		// Declare war on Ally's enemies
+		if (eNewAlly != NO_PLAYER)
+		{
+			CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
+			CvTeam& kNewAllyTeam = GET_TEAM(kNewAlly.getTeam());
+			CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
+
+			TeamTypes eLoopTeam;
+			for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+			{
+				eLoopTeam = (TeamTypes)iTeamLoop;
+
+				if (!GET_TEAM(eLoopTeam).isAlive())
+					continue;
+
+				if (kNewAllyTeam.isAtWar(eLoopTeam))
+					kOurTeam.declareWar(eLoopTeam);
+			}
+		}
+
+		DoTestEndWarsVSMinors(eOldAlly, eNewAlly);
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(eOldAlly);
+			args->Push(eNewAlly);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
+		}
+	}
+#else
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = GC.getMap().numPlots();
 
@@ -6330,10 +6499,6 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #endif
 	}
 
-#ifdef AUTO_PEACE_WITH_MINOR_ON_ALLYING
-	if (eNewAlly != NO_PLAYER && IsAtWarWithPlayersTeam(eNewAlly))
-		GET_TEAM(GetPlayer()->getTeam()).makePeace(GET_PLAYER(eNewAlly).getTeam());
-#endif
 	m_eAlly = eNewAlly;
 	m_iTurnAllied = GC.getGame().getGameTurn();
 
@@ -6415,6 +6580,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
 	}
+#endif
 }
 
 /// How many turns has the alliance been active?

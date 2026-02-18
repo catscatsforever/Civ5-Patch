@@ -6075,9 +6075,6 @@ void CvPlayer::DoUnitReset()
 		}
 
 		// Finally (now that healing is done), restore movement points
-#ifdef DO_TURN_CHANGE_ORDER
-		if (!(pLoopUnit->isTrade() && pLoopUnit->IsAutomated()))
-#endif
 		pLoopUnit->setMoves(pLoopUnit->maxMoves());
 		if(pLoopUnit->IsGreatGeneral())
 		{
@@ -7873,6 +7870,12 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		{
 			PromotionTypes eMobility = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY", true);
 			pUnit->setHasPromotion(eMobility, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+			if (pUnit->getMoves() > 0)
+			{
+				pUnit->changeMoves(GC.getPromotionInfo(eMobility)->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+			}
+#endif
 		}
 #else
 		pUnit->changeExperience(kGoodyInfo.getExperience());
@@ -16360,10 +16363,32 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				locString << getCivilizationAdjectiveKey();
 				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
 
+#ifdef FIX_CHANGE_GOLDEN_AGE_MOVES_ON_START_END_GOLDEN_AGE
+				int iLoop = 0;
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+				{
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(GetPlayerTraits()->GetGoldenAgeMoveChange() * GC.getMOVE_DENOMINATOR());
+					}
+				}
+#endif
+
 				gDLL->GameplayGoldenAgeStarted();
 			}
 			else
 			{
+#ifdef FIX_CHANGE_GOLDEN_AGE_MOVES_ON_START_END_GOLDEN_AGE
+				int iLoop = 0;
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+				{
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(-GetPlayerTraits()->GetGoldenAgeMoveChange() * GC.getMOVE_DENOMINATOR());
+					}
+				}
+#endif
+
 				gDLL->GameplayGoldenAgeEnded();
 			}
 
@@ -20211,10 +20236,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 						doTurn();
 
-#ifdef DO_TURN_CHANGE_ORDER
-						DoUnitReset();
-#endif
-
 						doTurnUnits();
 					}
 				}
@@ -20268,20 +20289,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
-#ifndef DO_TURN_CHANGE_ORDER
 			DoUnitReset();
-#endif
-#ifdef DO_TURN_CHANGE_ORDER
-			CvUnit* pLoopUnit;
-			int iLoop;
-			for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			{
-				if (pLoopUnit->isTrade() && pLoopUnit->IsAutomated())
-				{
-					pLoopUnit->setMoves(pLoopUnit->maxMoves());
-				}
-			}
-#endif
 
 			if(!isHuman())
 			{
@@ -22727,11 +22735,23 @@ void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 				if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
 				{
 					pLoopUnit->setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(GC.getPromotionInfo(ePromotion)->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+					}
+#endif
 				}
 
 				else if(::IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
 				{
 					pLoopUnit->setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(GC.getPromotionInfo(ePromotion)->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+					}
+#endif
 				}
 			}
 		}
@@ -22794,11 +22814,23 @@ void CvPlayer::ChangeFreePromotionUnitCombatCount(PromotionTypes ePromotion, Uni
 				if (::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) && GC.getUnitInfo(pLoopUnit->getUnitType())->GetUnitCombatType() == eUnitCombatType)
 				{
 					pLoopUnit->setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(GC.getPromotionInfo(ePromotion)->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+					}
+#endif
 				}
 
 				else if (::IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
 				{
 					pLoopUnit->setHasPromotion(ePromotion, true);
+#ifdef FIX_PROMOTION_MOVES_CHANGE_ON_MID_TURN_PROMOTION
+					if (pLoopUnit->getMoves() > 0)
+					{
+						pLoopUnit->changeMoves(GC.getPromotionInfo(ePromotion)->GetMovesChange() * GC.getMOVE_DENOMINATOR());
+					}
+#endif
 				}
 			}
 		}

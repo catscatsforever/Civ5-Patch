@@ -1502,10 +1502,13 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
-#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 #ifdef NEW_LEAGUE_RESOLUTIONS
+	if (GetEffects()->iTradeRouteGoldModifier != 0)
+	{
+	}
 	if (GetEffects()->iCSBonuModifier != 0)
 	{
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
 			PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
@@ -1651,8 +1654,8 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				}
 			}
 		}
-	}
 #endif
+	}
 	if (GetEffects()->bNoSpiesInCS)
 	{
 		for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
@@ -1869,10 +1872,13 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
-#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 #ifdef NEW_LEAGUE_RESOLUTIONS
+	if (GetEffects()->iTradeRouteGoldModifier != 0)
+	{
+	}
 	if (GetEffects()->iCSBonuModifier != 0)
 	{
+#ifndef CHANGE_FOOD_PROD_MINORS_SCALE
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
 			PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
@@ -2018,8 +2024,14 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 				}
 			}
 		}
-	}
 #endif
+	}
+	if (GetEffects()->bNoSpiesInCS)
+	{
+	}
+	if (GetEffects()->bDoubleResourceHappiness)
+	{
+	}
 #endif
 
 	m_iTurnEnacted = -1;
@@ -5715,6 +5727,13 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << effects.iCulturePerNaturalWonder;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
+#ifdef SHOW_NUCLEAR_NON_PROLIFERATION_ACTIVE_EFFECT
+	if (effects.bNoTrainingNuclearWeapons)
+	{
+		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_NUCLEAR_NON_PROLIFERATION");
+		vsEffects.push_back(sTemp.toUTF8());
+	}
+#endif
 	if (effects.iArtsyGreatPersonRateMod != 0)
 	{
 		int iMod = effects.iArtsyGreatPersonRateMod;
@@ -5801,13 +5820,6 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << effects.iLandmarkCulture;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
-#ifdef SHOW_NUCLEAR_NON_PROLIFERATION_ACTIVE_EFFECT
-	if (effects.bNoTrainingNuclearWeapons)
-	{
-		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_NUCLEAR_NON_PROLIFERATION");
-		vsEffects.push_back(sTemp.toUTF8());
-	}
-#endif
 #ifdef NEW_LEAGUE_RESOLUTIONS
 	if (effects.iTradeRouteGoldModifier != 0)
 	{
