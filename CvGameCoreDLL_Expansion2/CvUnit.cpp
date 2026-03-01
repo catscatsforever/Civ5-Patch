@@ -341,6 +341,9 @@ CvUnit::CvUnit() :
 	, m_iMapLayer(DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped(0)
 	, m_iLastGameTurnAtFullHealth(-1)
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	, m_iFriendlyLandsDefenseModifier(0)
+#endif
 {
 	initPromotions();
 	OBJECT_ALLOCATED
@@ -573,6 +576,21 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			// Valid Promotion for this Unit?
 			if (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
+			{
+				setHasPromotion(ePromotion, true);
+			}
+		}
+#endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+		if (kPlayer.IsFreePromotionUnitClass(ePromotion, (UnitClassTypes)GC.getUnitInfo(getUnitType())->GetUnitClassType()))
+		{
+			// Valid Promotion for this Unit?
+			if (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
+			{
+				setHasPromotion(ePromotion, true);
+			}
+
+			else if (::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType()))
 			{
 				setHasPromotion(ePromotion, true);
 			}
@@ -1022,6 +1040,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
 	m_iLastGameTurnAtFullHealth = -1;
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	m_iFriendlyLandsDefenseModifier = 0;
+#endif
 
 	if(!bConstructorCall)
 	{
@@ -1250,6 +1271,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				bGivePromotion = true;
 			}
 #endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+			else if (GET_PLAYER(getOwner()).IsFreePromotionUnitClass(ePromotion, (UnitClassTypes)GC.getUnitInfo(getUnitType())->GetUnitClassType()) && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
+			{
+				bGivePromotion = true;
+			}
+#endif
 
 			setHasPromotion(ePromotion, bGivePromotion);
 		}
@@ -1349,6 +1376,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if (getUnitCombatType() != NO_UNITCOMBAT && ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER)
 	{
 		GET_PLAYER(ePlayer).ChangeNumKilledUnits(1);
+	}
+#endif
+#ifdef EG_REPLAYDATASET_KILLEDGENERALS
+	if (getUnitClassType() == (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true) && ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER)
+	{
+		GET_PLAYER(ePlayer).ChangeKilledGenerals(1);
 	}
 #endif
 #ifdef EG_REPLAYDATASET_NUMLOSTUNITS
@@ -1876,6 +1909,9 @@ void CvUnit::doTurn()
 	{
 		if(0 != GC.getFeatureInfo(eFeature)->getTurnDamage())
 		{
+			#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+			GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), GC.getFeatureInfo(eFeature)->getTurnDamage()));
+			#endif
 			changeDamage(GC.getFeatureInfo(eFeature)->getTurnDamage(), NO_PLAYER);
 		}
 	}
@@ -5680,6 +5716,9 @@ void CvUnit::doHeal()
 		{
 			iHealRate = std::min(GC.getENEMY_HEAL_RATE(), iHealRate);
 		}
+		#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+		GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(min(getDamage(), iHealRate));
+		#endif
 		changeDamage(-iHealRate);
 #else
 		changeDamage(-(healRate(plot())));
@@ -5700,6 +5739,9 @@ void CvUnit::DoAttrition()
 			if(GC.getGame().getJonRandNum(100, "Enemy Territory Damage Chance") < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+				#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+				GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), getEnemyDamage()));
+				#endif
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
 			}
 		}
@@ -5708,6 +5750,9 @@ void CvUnit::DoAttrition()
 			if(GC.getGame().getJonRandNum(100, "Neutral Territory Damage Chance") < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+				#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+				GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), getNeutralDamage()));
+				#endif
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
 			}
 		}
@@ -5717,6 +5762,9 @@ void CvUnit::DoAttrition()
 	if (getOwner() != pPlot->getOwner() && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()) && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0)
 	{
 		strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+		#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+		GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders()));
+		#endif
 		changeDamage(GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders(), NO_PLAYER, 0.0, &strAppendText);
 	}
 #endif
@@ -5725,6 +5773,9 @@ void CvUnit::DoAttrition()
 	if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
 	{
 		strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+		#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+		GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), 50));
+		#endif
 		changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
 	}
 
@@ -7535,11 +7586,17 @@ bool CvUnit::pillage()
 		if (hasHealOnPillage())
 		{
 			// completely heal unit
+			#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(getDamage());
+			#endif
 			changeDamage(-getDamage());
 		}
 		else
 		{
 			int iHealAmount = min(getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
+			#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(iHealAmount);
+			#endif
 			changeDamage(-iHealAmount);
 		}
 	}
@@ -9080,6 +9137,9 @@ bool CvUnit::repairFleet()
 		CvUnit *pUnit = pPlot->getUnitByIndex(iUnitLoop);
 		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
 		{
+			#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(pUnit->getDamage());
+			#endif
 			pUnit->changeDamage(-pUnit->getDamage());
 		}
 	}
@@ -9096,6 +9156,9 @@ bool CvUnit::repairFleet()
 				CvUnit *pUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
 				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
 				{
+					#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+					GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(pUnit->getDamage());
+					#endif
 					pUnit->changeDamage(-pUnit->getDamage());
 				}
 			}
@@ -10231,10 +10294,16 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		changeLevel(1);
 	}
-
+	
+	#ifdef EG_REPLAYDATASET_NUMUNITPROMOTIONS
+	GET_PLAYER(getOwner()).ChangeNumUnitPromotions(1);
+	#endif
 	// Insta-Heal: never earned
 	if(pkPromotionInfo->IsInstaHeal())
 	{
+		#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+		GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(min(getDamage(), GC.getINSTA_HEAL_RATE()));
+		#endif
 		changeDamage(-GC.getINSTA_HEAL_RATE());
 	}
 	// Set that we have this Promotion
@@ -10244,6 +10313,9 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 		if (!isInstaHealLocked())
 		{
+			#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(min(getDamage(), GC.getINSTA_HEAL_RATE()));
+			#endif
 			changeDamage(-GC.getINSTA_HEAL_RATE());
 		}
 #else
@@ -12032,6 +12104,14 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	iTempModifier = getDefenseModifier();
 	iModifier += iTempModifier;
 
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	if (pInPlot->IsFriendlyTerritory(getOwner()))
+	{
+		iTempModifier = getFriendlyLandsDefenseModifier();
+		iModifier += iTempModifier;
+	}
+#endif
+
 	// Defense against Ranged
 	if(bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
@@ -12195,6 +12275,14 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	// Generic Defense Bonus
 	iTempModifier = getDefenseModifier();
 	iModifier += iTempModifier;
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	if (pInPlot->IsFriendlyTerritory(getOwner()))
+	{
+		iTempModifier = getFriendlyLandsDefenseModifier();
+		iModifier += iTempModifier;
+	}
+#endif
 
 	// Defense against Ranged
 	if (bFromRangedAttack)
@@ -12818,6 +12906,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		iModifier += getDefenseModifier();
 
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+		if (plot()->IsFriendlyTerritory(getOwner()))
+		{
+			iTempModifier = getFriendlyLandsDefenseModifier();
+			iModifier += iTempModifier;
+		}
+#endif
+
 		// Tourism Defense
 		if (pOtherUnit != NULL)
 		{
@@ -13409,6 +13505,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #endif
 
 		iModifier += getDefenseModifier();
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+		if (plot()->IsFriendlyTerritory(getOwner()))
+		{
+			iTempModifier = getFriendlyLandsDefenseModifier();
+			iModifier += iTempModifier;
+		}
+#endif
 
 #ifdef FIX_RANGE_DEFENSE_MOD
 		// Ranged Defense Mod
@@ -20946,6 +21050,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
 		}
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+		changeFriendlyLandsDefenseModifier(thisPromotion.GetFriendlyLandsDefenseModifier() * iChange);
+#endif
 	}
 }
 
@@ -21317,6 +21425,20 @@ void CvUnit::read(FDataStream& kStream)
 	}
 # endif
 #endif
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1003)
+	{
+# endif
+		kStream >> m_iFriendlyLandsDefenseModifier;
+# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iFriendlyLandsDefenseModifier = 0;
+	}
+# endif
+#endif
 
 	//  Read mission queue
 	UINT uSize;
@@ -21448,6 +21570,9 @@ void CvUnit::write(FDataStream& kStream) const
 #ifdef PROMOTION_INSTA_HEAL_LOCKED
 	kStream << m_bInstaHealLocked;
 #endif
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	kStream << m_iFriendlyLandsDefenseModifier;
+#endif 
 
 	//  Write mission list
 	kStream << m_missionQueue.getLength();
@@ -24772,3 +24897,22 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	writeTo.read(loadFrom);
 	return loadFrom;
 }
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+//	--------------------------------------------------------------------------------
+int CvUnit::getFriendlyLandsDefenseModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iFriendlyLandsDefenseModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeFriendlyLandsDefenseModifier(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iFriendlyLandsDefenseModifier += iChange;
+	}
+}
+#endif

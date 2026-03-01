@@ -245,16 +245,15 @@ function UpdateDisplay()
     Controls.CulturePerTurnLabel:SetText(szText);
     
     local iTurns;
-    local iCultureNeeded = player:GetNextPolicyCost() - player:GetJONSCultureTimes100() / 100;
-    if (iCultureNeeded <= 0) then
+    local iCultureNeededTimes100 = 100 * player:GetNextPolicyCost() - player:GetJONSCultureTimes100();
+    if (iCultureNeededTimes100 <= 0) then
 		iTurns = 0;
     else
 		if (player:GetTotalJONSCulturePerTurnTimes100() == 0) then
 			iTurns = "?";
 		else
-			iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurnTimes100() / 100;
-			iTurns = iTurns + 1;
-			iTurns = math.floor(iTurns);
+			iTurns = iCultureNeededTimes100 / player:GetTotalJONSCulturePerTurnTimes100();
+			iTurns = math.ceil(iTurns);
 		end
     end
     szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_TURN_LABEL", iTurns);

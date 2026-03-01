@@ -7367,6 +7367,20 @@ public:
 	{
 		return m_fLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD;
 	}
+#ifdef COUP_SYSTEM_REWORK
+	inline int getESPIONAGE_COUP_RATE_1()
+	{
+		return m_iESPIONAGE_COUP_RATE_1;
+	}
+	inline int getESPIONAGE_COUP_RATE_2()
+	{
+		return m_iESPIONAGE_COUP_RATE_2;
+	}
+	inline int getESPIONAGE_COUP_RATE_3()
+	{
+		return m_iESPIONAGE_COUP_RATE_3;
+	}
+#endif
 
 	////////////// END DEFINES //////////////////
 
@@ -9250,6 +9264,11 @@ protected:
 	int   m_iPOLICY_BRANCH_FREEDOM;
 	int   m_iPOLICY_BRANCH_AUTOCRACY;
 	int   m_iPOLICY_BRANCH_ORDER;
+#ifdef COUP_SYSTEM_REWORK
+	int   m_iESPIONAGE_COUP_RATE_1;
+	int   m_iESPIONAGE_COUP_RATE_2;
+	int   m_iESPIONAGE_COUP_RATE_3;
+#endif
 
 	// -- post defines --
 

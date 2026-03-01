@@ -1022,7 +1022,7 @@ void CvGameTrade::ClearAllTradeRoutesToPlayerByType(PlayerTypes ePlayer, TradeCo
 		bool bMatchesDest = (m_aTradeConnections[ui].m_eDestOwner == ePlayer);
 
 		TradeConnectionType eType = m_aTradeConnections[ui].m_eConnectionType;
-		if (bMatchesOrigin && bMatchesDest && eType == eConnectionType)
+		if (bMatchesOrigin && !bMatchesDest && eType == eConnectionType)
 		{
 			// if the destination was wiped, the origin gets a trade unit back
 			if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())

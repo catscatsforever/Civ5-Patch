@@ -140,6 +140,9 @@ public:
 #ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
 	int GetExtraCityTerritoryPerFirstCityConversation() const;
 #endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -205,6 +208,9 @@ protected:
 #endif
 #ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
 	int m_iExtraCityTerritoryPerFirstCityConversation;
+#endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	std::multimap<int, int> m_FreePromotionUnitClasses;
 #endif
 
 
@@ -516,6 +522,9 @@ public:
 #endif
 #ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
 	int GetExtraCityTerritoryPerFirstCityConversation() const;
+#endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 #endif
 
 	// Serialization

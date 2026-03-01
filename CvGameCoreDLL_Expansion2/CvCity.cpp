@@ -205,6 +205,9 @@ CvCity::CvCity() :
 	, m_bFeatureSurrounded("CvCity::m_bFeatureSurrounded", m_syncArchive)
 	, m_ePreviousOwner("CvCity::m_ePreviousOwner", m_syncArchive)
 	, m_eOriginalOwner("CvCity::m_eOriginalOwner", m_syncArchive)
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	, m_eSettlementFounder("CvCity::m_eSettlementFounder", m_syncArchive)
+	#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 	, m_eMinorMajorityOwner("CvCity::m_eMinorMajorityOwner", m_syncArchive)
 #endif
@@ -854,6 +857,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
 	m_eOriginalOwner = eOwner;
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	m_eSettlementFounder = eOwner;
+	#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 	m_eMinorMajorityOwner = NO_PLAYER;
 #endif
@@ -3950,7 +3956,14 @@ bool CvCity::canContinueProduction(OrderData order)
 	switch(order.eOrderType)
 	{
 	case ORDER_TRAIN:
+#ifdef FIX_CAN_CONTINUE_PRODUCTION
+	{
+		UnitTypes eUpgradeUnit = allUpgradesAvailable((UnitTypes)(order.iData1));
+		return canTrain((UnitTypes)(order.iData1), true) || canTrain(eUpgradeUnit, true);
+	}
+#else
 		return canTrain((UnitTypes)(order.iData1), true);
+#endif
 		break;
 
 	case ORDER_CONSTRUCT:
@@ -11167,7 +11180,22 @@ void CvCity::setOriginalOwner(PlayerTypes eNewValue)
 	m_eOriginalOwner = eNewValue;
 }
 
+#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+//	--------------------------------------------------------------------------------
+PlayerTypes CvCity::getSettlementFounder() const
+{
+	VALIDATE_OBJECT
+	return m_eSettlementFounder;
+}
 
+
+//	--------------------------------------------------------------------------------
+void CvCity::setSettlementFounder(PlayerTypes eNewValue)
+{
+	VALIDATE_OBJECT
+	m_eSettlementFounder = eNewValue;
+}
+#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 //	--------------------------------------------------------------------------------
 PlayerTypes CvCity::getMinorMajorityOwner() const
@@ -15442,11 +15470,19 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #endif
 
 			kPlayer.ChangeFaith(-iFaithCost);
-#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+#if defined(EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS) || defined(EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS)
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-			if (pkUnitInfo->GetCombat() > 0)
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
+			if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
 			{
 				kPlayer.ChangeNumFaithSpentOnMilitaryUnits(iFaithCost);
+			}
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+			if (pkUnitInfo->GetCombat() == 0 && pkUnitInfo->GetRangedCombat() == 0)
+			{
+				kPlayer.ChangeNumFaithSpentOnNonCombatUnits(iFaithCost);
 			}
 #endif
 
@@ -15782,6 +15818,9 @@ void CvCity::doGrowth()
 		}
 		else
 		{
+			#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
+			GET_PLAYER(getOwner()).ChangeFoodKeptAfterGrowth(getFoodKept());
+			#endif
 			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
 #ifdef REPLAY_EVENTS
@@ -16150,6 +16189,52 @@ void CvCity::doProduction(bool bAllowNoProduction)
 			}
 		}
 
+		#if defined(EG_REPLAYDATASET_PRODUCTIONSPENTONBUILDINGS) || defined(EG_REPLAYDATASET_PRODUCTIONSPENTONCOMBATUNITS) || defined(EG_REPLAYDATASET_PRODUCTIONSPENTONNONCOMBATUNITS) || defined(EG_REPLAYDATASET_PRODUCTIONSPENTONWONDERS)
+		int iProd = getCurrentProductionDifferenceTimes100(true, true) / 100;
+		const OrderData* pOrderNode = headOrderQueueNode();
+		int iData1 = -1;
+		if (pOrderNode != NULL)
+		{
+			iData1 = pOrderNode->iData1;
+		}
+		if (isProductionBuilding())
+		{
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iData1);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingInfo)
+			{
+				#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONWONDERS
+				if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				{
+					GET_PLAYER(getOwner()).ChangeProductionSpentOnWonders(iProd);
+				}
+				#endif
+				#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONBUILDINGS
+				if (!isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				{
+					GET_PLAYER(getOwner()).ChangeProductionSpentOnBuildings(iProd);
+				}
+				#endif
+			}
+		}
+		else if (isProductionUnit())
+		{
+			const UnitTypes eUnitType = static_cast<UnitTypes>(iData1);
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+			#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONCOMBATUNITS
+			if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
+			{
+				GET_PLAYER(getOwner()).ChangeProductionSpentOnCombatUnits(iProd);
+			}
+			#endif
+			#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONNONCOMBATUNITS
+			if (pkUnitInfo->GetCombat() == 0 && pkUnitInfo->GetRangedCombat() == 0)
+			{
+				GET_PLAYER(getOwner()).ChangeProductionSpentOnNonCombatUnits(iProd);
+			}
+			#endif
+		}
+		#endif
 		changeProductionTimes100(getCurrentProductionDifferenceTimes100(false, true));
 
 #ifdef FIX_EXCHANGE_PRODUCTION_OVERFLOW_INTO_GOLD_OR_SCIENCE
@@ -16532,6 +16617,20 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_eOwner;
 	kStream >> m_ePreviousOwner;
 	kStream >> m_eOriginalOwner;
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1009)
+	{
+	# endif
+		kStream >> m_eSettlementFounder;
+	# ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_eSettlementFounder = m_eOriginalOwner;
+	}
+	# endif
+	#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 # ifdef SAVE_BACKWARDS_COMPATIBILITY
 	if (uiVersion >= 1008)
@@ -17219,6 +17318,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_eOwner;
 	kStream << m_ePreviousOwner;
 	kStream << m_eOriginalOwner;
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	kStream << m_eSettlementFounder;
+	#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 	kStream << m_eMinorMajorityOwner;
 #endif

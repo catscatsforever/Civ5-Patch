@@ -1323,6 +1323,11 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	int getFriendlyLandsDefenseModifier() const;
+	void changeFriendlyLandsDefenseModifier(int iValue);
+#endif
+
 protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;
 	MissionQueueNode* HeadMissionQueueNode();
@@ -1601,6 +1606,10 @@ protected:
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	int m_iFriendlyLandsDefenseModifier;
+#endif
 
 private:
 

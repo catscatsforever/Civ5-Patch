@@ -202,6 +202,9 @@ public:
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
 	bool IsPostCombatRandomPromotion(int i) const;
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	int  GetFriendlyLandsDefenseModifier() const;
+#endif
 
 protected:
 	int m_iLayerAnimationPath;
@@ -363,6 +366,10 @@ protected:
 	bool* m_pbUnitCombat;
 	bool* m_pbCivilianUnitType;
 	bool* m_pbPostCombatRandomPromotion;
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	int m_iFriendlyLandsDefenseModifier;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

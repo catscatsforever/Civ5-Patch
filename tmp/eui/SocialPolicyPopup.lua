@@ -275,9 +275,9 @@ function UpdateDisplay()
 	Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCultureTimes100() / 100 )
 	Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurnTimes100() / 100 )
 
-	local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCultureTimes100() / 100
-	local culturePerTurn = player:GetTotalJONSCulturePerTurnTimes100() / 100
-	Controls.NextPolicyTurnLabel:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_TURN_LABEL", cultureNeeded <= 0 and 0 or ( culturePerTurn <= 0 and "?" or math_ceil( cultureNeeded / culturePerTurn ) ) )
+	local cultureNeededTimes100 = 100 * player:GetNextPolicyCost() - player:GetJONSCultureTimes100()
+	local culturePerTurnTimes100 = player:GetTotalJONSCulturePerTurnTimes100()
+	Controls.NextPolicyTurnLabel:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_TURN_LABEL", cultureNeededTimes100 <= 0 and 0 or ( culturePerTurnTimes100 <= 0 and "?" or math_ceil( cultureNeededTimes100 / culturePerTurnTimes100 ) ) )
 
 	-- Player Title
 	local dominantBranch = GameInfo.PolicyBranchTypes[ player:GetDominantPolicyBranchForTitle() ]

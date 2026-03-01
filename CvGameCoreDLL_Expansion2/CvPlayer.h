@@ -483,6 +483,66 @@ public:
 	int GetNumFaithSpentOnMilitaryUnits() const;
 	void ChangeNumFaithSpentOnMilitaryUnits(int iChange);
 #endif
+	#ifdef EG_REPLAYDATASET_DISBANDEDUNITSSTRENGTH
+	int GetDisbandedUnitsStrength() const;
+	void ChangeDisbandedUnitsStrength(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+	int GetNumFaithSpentOnNonCombatUnits() const;
+	void ChangeNumFaithSpentOnNonCombatUnits(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
+	int GetFoodKeptAfterGrowth() const;
+	void ChangeFoodKeptAfterGrowth(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_KILLEDGENERALS
+	int GetKilledGenerals() const;
+	void ChangeKilledGenerals(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_EFFECTIVEKNOWNTECHSCOST
+	int GetEffectiveKnownTechsCost() const;
+	void ChangeEffectiveKnownTechsCost(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONBUILDINGS
+	int GetProductionSpentOnBuildings() const;
+	void ChangeProductionSpentOnBuildings(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONCOMBATUNITS
+	int GetProductionSpentOnCombatUnits() const;
+	void ChangeProductionSpentOnCombatUnits(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONNONCOMBATUNITS
+	int GetProductionSpentOnNonCombatUnits() const;
+	void ChangeProductionSpentOnNonCombatUnits(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONWONDERS
+	int GetProductionSpentOnWonders() const;
+	void ChangeProductionSpentOnWonders(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCEFROMRESEARCHAGREEMENTS
+	int GetNumScienceFromResearchAgreements() const;
+	void ChangeScienceFromResearchAgreements(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCEDISCOUNTSGAIN
+	int GetScienceDiscountGain() const;
+	void ChangeScienceDiscountGain(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCELOSTTODEFICIT
+	int GetScienceLostToDeficit() const;
+	void ChangeScienceLostToDeficit(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMUNITPROMOTIONS
+	int GetNumUnitPromotions() const;
+	void ChangeNumUnitPromotions(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+	int GetUnitsRestoredHP() const;
+	void ChangeUnitsRestoredHP(int iChange);
+	#endif
+	#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+	int GetUnitsHPAttrition() const;
+	void ChangeUnitsHPAttrition(int iChange);
+	#endif
 
 	int GetNumUnitsOutOfSupply() const;
 
@@ -1524,6 +1584,11 @@ public:
 	bool IsFreePromotionUnitCombat(PromotionTypes eIndex, UnitCombatTypes eUnitCombatType) const;
 	void ChangeFreePromotionUnitCombatCount(PromotionTypes eIndex, UnitCombatTypes eUnitCombatType, int iChange);
 #endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	int GetFreePromotionUnitClassCount(PromotionTypes eIndex, UnitClassTypes eUnitClassType) const;
+	bool IsFreePromotionUnitClass(PromotionTypes eIndex, UnitClassTypes eUnitClassType) const;
+	void ChangeFreePromotionUnitClassCount(PromotionTypes eIndex, UnitClassTypes eUnitClassType, int iChange);
+#endif
 
 	int getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const;
 	void changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange);
@@ -2209,6 +2274,51 @@ protected:
 #ifdef EG_REPLAYDATASET_NUMFAITHONMILITARYUNITS
 	int m_iNumFaithSpentOnMilitaryUnits;
 #endif
+	#ifdef EG_REPLAYDATASET_DISBANDEDUNITSSTRENGTH
+	int m_iDisbandedUnitsStrength;
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+	int m_iNumFaithSpentOnNonCombatUnits;
+	#endif
+	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
+	int m_iFoodKeptAfterGrowth;
+	#endif
+	#ifdef EG_REPLAYDATASET_KILLEDGENERALS
+	int m_iKilledGenerals;
+	#endif
+	#ifdef EG_REPLAYDATASET_EFFECTIVEKNOWNTECHSCOST
+	int m_iEffectiveKnownTechsCost;
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONBUILDINGS
+	int m_iProductionSpentOnBuildings;
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONCOMBATUNITS
+	int m_iProductionSpentOnCombatUnits;
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONNONCOMBATUNITS
+	int m_iProductionSpentOnNonCombatUnits;
+	#endif
+	#ifdef EG_REPLAYDATASET_PRODUCTIONSPENTONWONDERS
+	int m_iProductionSpentOnWonders;
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCEFROMRESEARCHAGREEMENTS
+	int m_iNumScienceFromResearchAgreements;
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCEDISCOUNTSGAIN
+	int m_iScienceDiscountGain;
+	#endif
+	#ifdef EG_REPLAYDATASET_SCIENCELOSTTODEFICIT
+	int m_iScienceLostToDeficit;
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMUNITPROMOTIONS
+	int m_iNumUnitPromotions;
+	#endif
+	#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+	int m_iUnitsRestoredHP;
+	#endif
+	#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+	int m_iUnitsHPAttrition;
+	#endif
 	int m_iExtraLeagueVotes;
 #ifdef POLICY_MAX_EXTRA_VOTES_FROM_MINORS
 	int m_iMaxExtraVotesFromMinors;
@@ -2534,6 +2644,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;
 #ifdef POLICY_FREE_PROMOTION_UNIT_COMBAT
 	FAutoVariable<std::vector<int>, CvPlayer> m_ppaaiFreePromotionUnitCombatCount;
+#endif
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	FAutoVariable<std::vector<int>, CvPlayer> m_ppaaiFreePromotionUnitClassCount;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatProductionModifiers;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatFreeExperiences;

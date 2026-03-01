@@ -5271,7 +5271,17 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_30);
 		}
-
+		
+		#ifdef EG_REPLAYDATASET_EFFECTIVEKNOWNTECHSCOST
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iI));
+			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+			{
+				kPlayer.ChangeEffectiveKnownTechsCost(GetTeamTechs()->GetResearchCost(eIndex));
+			}
+		}
+		#endif
 		if(pkTechInfo->IsRepeat())
 		{
 			GetTeamTechs()->IncrementTechCount(eIndex);

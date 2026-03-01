@@ -511,6 +511,10 @@ protected:
 	static int lIsLargerCivThan(lua_State* L);
 
 	static int lIsRangedSupportFire(lua_State* L);
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	static int lGetFriendlyLandsDefenseModifier(lua_State* L);
+#endif
 };
 
 

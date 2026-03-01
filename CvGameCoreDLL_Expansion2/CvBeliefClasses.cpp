@@ -723,6 +723,30 @@ int CvBeliefEntry::GetExtraCityTerritoryPerFirstCityConversation() const
 }
 #endif
 
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+/// Does the specific unit combat get a specific free promotion?
+bool CvBeliefEntry::IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const
+{
+	std::multimap<int, int>::const_iterator it = m_FreePromotionUnitClasses.find(promotionID);
+	if (it != m_FreePromotionUnitClasses.end())
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::multimap<int, int>::const_iterator lastElement = m_FreePromotionUnitClasses.upper_bound(promotionID);
+
+		// for each element in the sequence [itr, lastElement)
+		for (; it != lastElement; ++it)
+		{
+			if (it->second == unitClassID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
+
 /// Load XML data
 bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -1001,6 +1025,35 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 #ifdef BELIEF_EXTRA_CITY_TERRITORY_PER_FIRST_CONVERSATION
 	m_iExtraCityTerritoryPerFirstCityConversation = kResults.GetInt("ExtraCityTerritoryPerFirstCityConversation");
+#endif
+
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+	//UnitClassFreePromotions
+	{
+		m_FreePromotionUnitClasses.clear();
+		std::string sqlKey = "m_FreePromotionUnitClasses";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitPromotions.ID, UnitClasses.ID  from Belief_FreePromotionUnitClasses inner join UnitPromotions on PromotionType = UnitPromotions.Type inner join UnitClasses on UnitClassType = UnitClasses.Type where BeliefType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szBeliefType, false);
+
+		while (pResults->Step())
+		{
+			const int UnitPromotionID = pResults->GetInt(0);
+			const int UnitClassID = pResults->GetInt(1);
+
+			m_FreePromotionUnitClasses.insert(std::pair<int, int>(UnitPromotionID, UnitClassID));
+		}
+
+		//Trim capacity
+		std::multimap<int, int>(m_FreePromotionUnitClasses).swap(m_FreePromotionUnitClasses);
+
+		pResults->Reset();
+	}
 #endif
 
 	return true;
@@ -2053,6 +2106,26 @@ int CvReligionBeliefs::GetExtraCityTerritoryPerFirstCityConversation() const
 	}
 
 	return rtnValue;
+}
+#endif
+
+#ifdef BELIEF_FREE_PROMOTION_UNIT_CLASSES
+bool CvReligionBeliefs::IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if (HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->IsFreePromotionUnitClass(promotionID, unitClassID))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 #endif
 

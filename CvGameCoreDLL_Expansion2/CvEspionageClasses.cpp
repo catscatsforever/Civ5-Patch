@@ -384,11 +384,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				pCityEspionage->m_aiCoupAmount[ePlayer] = 0;
 				int iCoupRate = 0;
 				if (pSpy->m_eRank == 0)
-					iCoupRate = 3;
+					iCoupRate = GC.getESPIONAGE_COUP_RATE_1();
 				else if (pSpy->m_eRank == 1)
-					iCoupRate = 5;
+					iCoupRate = GC.getESPIONAGE_COUP_RATE_2();
 				else
-					iCoupRate = 7;
+					iCoupRate = GC.getESPIONAGE_COUP_RATE_3();
 
 				pCityEspionage->m_aiCoupAmount[ePlayer] = pCityEspionage->m_aiCoupAmount[ePlayer] + iCoupRate;
 #endif
@@ -932,11 +932,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		pCityEspionage->Process(ePlayer);
 		int iCoupRate = 0;
 		if (pSpy->m_eRank == 0)
-			iCoupRate = 3;
+			iCoupRate = GC.getESPIONAGE_COUP_RATE_1();
 		else if (pSpy->m_eRank == 1)
-			iCoupRate = 5;
+			iCoupRate = GC.getESPIONAGE_COUP_RATE_2();
 		else
-			iCoupRate = 7;
+			iCoupRate = GC.getESPIONAGE_COUP_RATE_3();
 
 		pCityEspionage->m_aiCoupAmount[ePlayer] = pCityEspionage->m_aiCoupAmount[ePlayer] + iCoupRate;
 		break;

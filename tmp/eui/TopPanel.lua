@@ -1042,12 +1042,12 @@ local function UpdateTopPanelNow()
 	end
 	Controls.CurrentTurn:LocalizeAndSetText( "TXT_KEY_TP_TURN_COUNTER", gameTurn )
 
-	local culturePerTurn, cultureProgress
+	local culturePerTurnTimes100, cultureProgressTimes100
 
 	if civ5_mode then
 		-- Clever Firaxis...
-		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
-		cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
+		culturePerTurnTimes100 = g_activePlayer:GetTotalJONSCulturePerTurnTimes100()
+		cultureProgressTimes100 = g_activePlayer:GetJONSCultureTimes100()
 
 		-----------------------------
 		-- Update gold stats
@@ -1409,8 +1409,8 @@ local function UpdateTopPanelNow()
 		end
 
 		-- Clever Firaxis...
-		culturePerTurn = g_activePlayer:GetTotalCulturePerTurn()
-		cultureProgress = g_activePlayer:GetCulture()
+		culturePerTurnTimes100 = 100 * g_activePlayer:GetTotalCulturePerTurn()
+		cultureProgressTimes100 = 100 * g_activePlayer:GetCulture()
 	end
 
 	-----------------------------
@@ -1419,15 +1419,15 @@ local function UpdateTopPanelNow()
 
 	if g_isPoliciesEnabled then
 
-		local cultureTheshold = g_activePlayer:GetNextPolicyCost()
-		local cultureProgressNext = cultureProgress + culturePerTurn
+		local cultureThesholdTimes100 = 100 * g_activePlayer:GetNextPolicyCost()
+		local cultureProgressNextTimes100 = cultureProgressTimes100 + culturePerTurnTimes100
 		local turnsRemaining = ""
 
-		if cultureTheshold > 0 then
-			Controls.CultureBar:SetPercent( cultureProgress / cultureTheshold )
-			Controls.CultureBarShadow:SetPercent( cultureProgressNext / cultureTheshold )
-			if culturePerTurn > 0 then
-				turnsRemaining = math_ceil((cultureTheshold - cultureProgress) / culturePerTurn )
+		if cultureThesholdTimes100 > 0 then
+			Controls.CultureBar:SetPercent( cultureProgressTimes100 / cultureThesholdTimes100 )
+			Controls.CultureBarShadow:SetPercent( cultureProgressTimes100 / cultureThesholdTimes100 )
+			if culturePerTurnTimes100 > 0 then
+				turnsRemaining = math_ceil( (cultureThesholdTimes100 - cultureProgressTimes100) / culturePerTurnTimes100 )
 			end
 			Controls.CultureBox:SetHide(false)
 		else
@@ -1435,7 +1435,7 @@ local function UpdateTopPanelNow()
 		end
 
 		Controls.CultureTurns:SetText(turnsRemaining)
-		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%g[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
+		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%g[ENDCOLOR][ICON_CULTURE]", culturePerTurnTimes100 / 100 ) )
 	end
 
 	Controls.TopPanelInfoStack:CalculateSize()
@@ -2718,27 +2718,27 @@ g_toolTipHandler.CultureString = function()-- control )
 		tips:insert( L"TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP" )
 	else
 		local turnsRemaining = 1
-		local cultureProgress, culturePerTurn, culturePerTurnForFree, culturePerTurnFromCities, culturePerTurnFromExcessHappiness, culturePerTurnFromTraits
+		local cultureProgressTimes100, culturePerTurnTimes100, culturePerTurnForFree, culturePerTurnFromCities, culturePerTurnFromExcessHappiness, culturePerTurnFromTraits
 		-- Firaxis Cleverness...
 		if civ5_mode then
-			cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
-			culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
+			cultureProgressTimes100 = g_activePlayer:GetJONSCultureTimes100()
+			culturePerTurnTimes100 = g_activePlayer:GetTotalJONSCulturePerTurnTimes100()
 			culturePerTurnForFree = g_activePlayer:GetJONSCulturePerTurnForFree()
 			culturePerTurnFromCities = g_activePlayer:GetJONSCulturePerTurnFromCitiesTimes100() / 100
 			culturePerTurnFromExcessHappiness = g_activePlayer:GetJONSCulturePerTurnFromExcessHappiness()
 			culturePerTurnFromTraits = bnw_mode and g_activePlayer:GetJONSCulturePerTurnFromTraits() or 0
 		else
-			cultureProgress = g_activePlayer:GetCulture()
-			culturePerTurn = g_activePlayer:GetTotalCulturePerTurn()
+			cultureProgressTimes100 = 100 * g_activePlayer:GetCulture()
+			culturePerTurnTimes100 = 100 * g_activePlayer:GetTotalCulturePerTurn()
 			culturePerTurnForFree = g_activePlayer:GetCulturePerTurnForFree()
 			culturePerTurnFromCities = g_activePlayer:GetCulturePerTurnFromCities()
 			culturePerTurnFromExcessHappiness = g_activePlayer:GetCulturePerTurnFromExcessHealth()
 			culturePerTurnFromTraits = g_activePlayer:GetCulturePerTurnFromTraits()
 		end
-		local cultureTheshold = g_activePlayer:GetNextPolicyCost()
-		if cultureTheshold > cultureProgress then
-			if culturePerTurn > 0 then
-				turnsRemaining = math_ceil( (cultureTheshold - cultureProgress) / culturePerTurn)
+		local cultureThesholdTimes100 = 100 * g_activePlayer:GetNextPolicyCost()
+		if cultureThesholdTimes100 > cultureProgressTimes100 then
+			if culturePerTurnTimes100 > 0 then
+				turnsRemaining = math_ceil( (cultureThesholdTimes100 - cultureProgressTimes100) / culturePerTurnTimes100 )
 			else
 				turnsRemaining = "?"
 			end
@@ -2750,15 +2750,15 @@ g_toolTipHandler.CultureString = function()-- control )
 		end
 
 		tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_MAGENTA]" .. Locale.ToUpper"TXT_KEY_ADVISOR_SCREEN_SOCIAL_POLICY_DISPLAY" .. "[ENDCOLOR]" )
-				.. " " .. cultureProgress .. "[ICON_CULTURE]/ " .. cultureTheshold .. "[ICON_CULTURE]" )
+				.. " " .. cultureProgressTimes100 / 100 .. "[ICON_CULTURE]/ " .. cultureThesholdTimes100 / 100 .. "[ICON_CULTURE]" )
 
-		if culturePerTurn > 0 then
-			local cultureOverflow = culturePerTurn * turnsRemaining + cultureProgress - cultureTheshold
+		if culturePerTurnTimes100 > 0 then
+			local cultureOverflow = (culturePerTurnTimes100 * turnsRemaining + cultureProgressTimes100 - cultureThesholdTimes100) / 100
 			local tip = "[COLOR_MAGENTA]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) )
 					.. "[ENDCOLOR]"	.. S( " %+g[ICON_CULTURE]", cultureOverflow )
 			if turnsRemaining > 1 then
 				tip = L( "TXT_KEY_STR_TURNS", turnsRemaining -1 )
-					.. S( " %+g[ICON_CULTURE]  ", cultureOverflow - culturePerTurn )
+					.. S( " %+g[ICON_CULTURE]  ", cultureOverflow - culturePerTurnTimes100 / 100 )
 					.. tip
 			end
 			tips:insert( tip )
@@ -2847,7 +2847,7 @@ g_toolTipHandler.CultureString = function()-- control )
 		end
 
 		tips:insert( "----------------" )
-		tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_TOTAL", culturePerTurn, "[ICON_CULTURE]" )
+		tips:insertLocalizedIfNonZero( "TXT_KEY_YIELD_TOTAL", culturePerTurnTimes100 / 100, "[ICON_CULTURE]" )
 
 		-- Let people know that building more cities makes policies harder to get
 

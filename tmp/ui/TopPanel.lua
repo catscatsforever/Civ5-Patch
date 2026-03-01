@@ -948,14 +948,14 @@ function CultureTipHandler( control )
 		local pPlayer = Players[iPlayerID];
     
 	    local iTurns;
-		local iCultureNeeded = pPlayer:GetNextPolicyCost() - pPlayer:GetJONSCultureTimes100() / 100;
-	    if (iCultureNeeded <= 0) then
+		local iCultureNeededTimes100 = 100 * pPlayer:GetNextPolicyCost() - pPlayer:GetJONSCultureTimes100();
+	    if (iCultureNeededTimes100 <= 0) then
 			iTurns = 0;
 		else
 			if (pPlayer:GetTotalJONSCulturePerTurnTimes100() == 0) then
 				iTurns = "?";
 			else
-				iTurns = iCultureNeeded / (pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
+				iTurns = iCultureNeededTimes100 / pPlayer:GetTotalJONSCulturePerTurnTimes100();
 				iTurns = math.ceil(iTurns);
 			end
 	    end

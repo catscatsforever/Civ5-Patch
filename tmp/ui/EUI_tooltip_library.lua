@@ -1942,21 +1942,21 @@ local function GetCultureTooltip( city )
 
 	local tips = table()
 	local cityOwner = Players[city:GetOwner()]
-	local culturePerTurn, cultureStored, cultureNeeded, cultureFromBuildings, cultureFromPolicies, cultureFromSpecialists, cultureFromTraits, baseCulturePerTurn
+	local culturePerTurnTimes100, cultureStoredTimes100, cultureNeededTimes100, cultureFromBuildings, cultureFromPolicies, cultureFromSpecialists, cultureFromTraits, baseCulturePerTurn
 	-- Thanks fo Firaxis Cleverness...
 	if civ5_mode then
-		culturePerTurn = city:GetJONSCulturePerTurnTimes100() / 100
-		cultureStored = city:GetJONSCultureStoredTimes100() / 100
-		cultureNeeded = city:GetJONSCultureThreshold()
+		culturePerTurnTimes100 = city:GetJONSCulturePerTurnTimes100()
+		cultureStoredTimes100 = city:GetJONSCultureStoredTimes100()
+		cultureNeededTimes100 = city:GetJONSCultureThreshold()
 		cultureFromBuildings = city:GetJONSCulturePerTurnFromBuildings()
 		cultureFromPolicies = city:GetJONSCulturePerTurnFromPolicies()
 		cultureFromSpecialists = city:GetJONSCulturePerTurnFromSpecialists()
 		cultureFromTraits = city:GetJONSCulturePerTurnFromTraits()
 		baseCulturePerTurn = city:GetBaseJONSCulturePerTurn()
 	else
-		culturePerTurn = city:GetCulturePerTurn()
-		cultureStored = city:GetCultureStored()
-		cultureNeeded = city:GetCultureThreshold()
+		culturePerTurnTimes100 = 100 * city:GetCulturePerTurn()
+		cultureStoredTimes100 = 100 * city:GetCultureStored()
+		cultureNeededTimes100 = 100 * city:GetCultureThreshold()
 		cultureFromBuildings = city:GetCulturePerTurnFromBuildings()
 		cultureFromPolicies = city:GetCulturePerTurnFromPolicies()
 		cultureFromSpecialists = city:GetCulturePerTurnFromSpecialists()
@@ -1996,7 +1996,7 @@ local function GetCultureTooltip( city )
 	-- Culture from Traits
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_TRAITS", cultureFromTraits )
 	-- Base Total
-	if baseCulturePerTurn ~= culturePerTurn then
+	if 100 * baseCulturePerTurn ~= culturePerTurnTimes100 then
 		tips:insert( "----------------" )
 		tips:insertLocalized( "TXT_KEY_YIELD_BASE", baseCulturePerTurn, "[ICON_CULTURE]" )
 		tips:insert( "" )
@@ -2026,17 +2026,17 @@ local function GetCultureTooltip( city )
 
 	-- Total
 	tips:insert( "----------------" )
-	tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", culturePerTurn, "[ICON_CULTURE]" )
+	tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", culturePerTurnTimes100 / 100, "[ICON_CULTURE]" )
 
 	-- Tile growth
 	tips:insert( "" )
-	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
-	if culturePerTurn > 0 then
+	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStoredTimes100 / 100 .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeededTimes100 / 100 .. "[ICON_CULTURE][ENDCOLOR]" )
+	if culturePerTurnTimes100 > 0 then
 		local tipText = ""
-		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
-		local overflow = culturePerTurn * turnsRemaining + cultureStored - cultureNeeded
+		local turnsRemaining =  math_max(math_ceil(( cultureNeededTimes100 - cultureStoredTimes100 ) / culturePerTurnTimes100), 1)
+		local overflow = (culturePerTurnTimes100 * turnsRemaining + cultureStoredTimes100 - cultureNeededTimes100) / 100
 		if turnsRemaining > 1 then
-			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurn )
+			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurnTimes100 )
 		end
 		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
 	end

@@ -718,16 +718,16 @@ function GetCultureTooltip(pCity)
 	
 	
 	-- Tile growth
-	local iCulturePerTurn = pCity:GetJONSCulturePerTurnTimes100() / 100;
-	local iCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
-	local iCultureNeeded = pCity:GetJONSCultureThreshold();
+	local iCulturePerTurnTimes100 = pCity:GetJONSCulturePerTurnTimes100();
+	local iCultureStoredTimes100 = pCity:GetJONSCultureStoredTimes100();
+	local iCultureNeededTimes100 = 100 * pCity:GetJONSCultureThreshold();
 
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
-	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStored, iCultureNeeded);
+	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStoredTimes100, iCultureNeededTimes100);
 	
-	if iCulturePerTurn > 0 then
-		local iCultureDiff = iCultureNeeded - iCultureStored;
-		local iCultureTurns = math.ceil(iCultureDiff / iCulturePerTurn);
+	if iCulturePerTurnTimes100 > 0 then
+		local iCultureDiffTimes100 = iCultureNeededTimes100 - iCultureStoredTimes100;
+		local iCultureTurns = math.ceil(iCultureDiffTimes100 / iCulturePerTurnTimes100);
 		strCultureToolTip = strCultureToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_CULTURE_TURNS", iCultureTurns);
 	end
 	

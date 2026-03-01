@@ -2204,6 +2204,9 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		if(iOverflow >= 0)
 		{
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
+			#ifdef EG_REPLAYDATASET_SCIENCEDISCOUNTSGAIN
+			GET_PLAYER(ePlayer).ChangeScienceDiscountGain(GetResearchCost(eIndex) - (GetResearchCost(eIndex) * 100 / iResearchMod));
+			#endif
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
 			SetNoTradeTech(eIndex, true);
 

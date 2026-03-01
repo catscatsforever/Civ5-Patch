@@ -164,6 +164,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbFeatureImpassable(NULL),
 	m_pbUnitCombat(NULL),
 	m_pbCivilianUnitType(NULL),
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	m_iFriendlyLandsDefenseModifier(0),
+#endif
 	m_pbPostCombatRandomPromotion(NULL)
 {
 }
@@ -648,6 +651,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 #ifdef PROMOTION_NO_UNHAPPINESS_PENALTY
 	m_bNoUnhappinessPenalty = kResults.GetBool("NoUnhappinessPenalty");
+#endif
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	m_iFriendlyLandsDefenseModifier = kResults.GetInt("FriendlyLandsDefenseModifier");
 #endif
 
 	kUtility.PopulateArrayByExistence(m_pbPostCombatRandomPromotion,
@@ -1772,6 +1779,13 @@ bool CvPromotionEntry::IsPostCombatRandomPromotion(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbPostCombatRandomPromotion ? m_pbPostCombatRandomPromotion[i] : false;
 }
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+int CvPromotionEntry::GetFriendlyLandsDefenseModifier() const
+{
+	return m_iFriendlyLandsDefenseModifier;
+}
+#endif
 
 //=====================================
 // CvPromotionEntryXMLEntries

@@ -505,6 +505,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsLargerCivThan);
 
 	Method(IsRangedSupportFire);
+
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+	Method(GetFriendlyLandsDefenseModifier);
+#endif
 }
 //------------------------------------------------------------------------------
 const char* CvLuaUnit::GetTypeName()
@@ -4749,3 +4753,15 @@ int CvLuaUnit::lIsRangedSupportFire(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#ifdef PROMOTION_FRIENDLY_LANDS_DEFENSE_MOD
+//------------------------------------------------------------------------------
+//int GetFriendlyLandsDefenseModifier();
+int CvLuaUnit::lGetFriendlyLandsDefenseModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getFriendlyLandsDefenseModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif

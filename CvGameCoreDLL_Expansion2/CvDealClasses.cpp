@@ -3015,6 +3015,9 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 #ifdef RA_LESS_TURNS
 			iBeakersBonus = iBeakersBonus * 5 / 3;
 #endif
+			#ifdef EG_REPLAYDATASET_SCIENCEFROMRESEARCHAGREEMENTS
+			toPlayer.ChangeScienceFromResearchAgreements(iBeakersBonus);
+			#endif
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)

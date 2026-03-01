@@ -1528,6 +1528,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FIGHT_AT_HOME_BONUS" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
+
+					-- Defense mod
+					iModifier = pTheirUnit:GetFriendlyLandsDefenseModifier();
+					if (iModifier ~= 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_DEFENSE_IN_FRIEND_LANDS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
 					
 					iModifier = pTheirPlayer:GetFoundedReligionFriendlyCityCombatMod(pToPlot);
 					if (iModifier ~= 0) then
@@ -2061,6 +2069,14 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			if (iModifier ~= 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FIGHT_AT_HOME_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			end
+
+			-- Defense mod
+			iModifier = theirUnit:GetFriendlyLandsDefenseModifier();
+			if (iModifier ~= 0) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_DEFENSE_IN_FRIEND_LANDS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
 	

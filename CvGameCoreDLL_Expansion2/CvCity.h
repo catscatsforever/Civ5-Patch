@@ -593,6 +593,10 @@ public:
 
 	PlayerTypes getOriginalOwner() const;
 	void setOriginalOwner(PlayerTypes eNewValue);
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	PlayerTypes getSettlementFounder() const;
+	void setSettlementFounder(PlayerTypes eNewValue);
+	#endif
 
 #ifdef CITY_MINOR_MAJORITY_OWNER
 	PlayerTypes getMinorMajorityOwner() const;
@@ -1054,6 +1058,9 @@ protected:
 
 	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;
 	FAutoVariable<PlayerTypes, CvCity> m_eOriginalOwner;
+	#ifdef EG_REPLAYDATASET_CONQUEREDCITIES
+	FAutoVariable<PlayerTypes, CvCity> m_eSettlementFounder;
+	#endif
 #ifdef CITY_MINOR_MAJORITY_OWNER
 	FAutoVariable<PlayerTypes, CvCity> m_eMinorMajorityOwner;
 #endif
