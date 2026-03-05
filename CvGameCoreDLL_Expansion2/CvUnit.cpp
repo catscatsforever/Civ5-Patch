@@ -5759,7 +5759,7 @@ void CvUnit::DoAttrition()
 	}
 
 #ifdef BUILDING_ATTRITION_INSIDE_BORDERS
-	if (getOwner() != pPlot->getOwner() && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()) && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0)
+	if (getOwner() != pPlot->getOwner() && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()) && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0 && getDomainType() == DOMAIN_LAND)
 	{
 		strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 		#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
@@ -7576,7 +7576,7 @@ bool CvUnit::pillage()
 	}
 #endif
 #ifdef BUILDING_ATTRITION_INSIDE_BORDERS
-	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0)
+	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0 && getDomainType() == DOMAIN_LAND)
 	{
 		bSuccessfulNonRoadPillage = false;
 	}

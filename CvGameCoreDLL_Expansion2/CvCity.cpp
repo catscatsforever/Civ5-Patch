@@ -11447,7 +11447,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if (eIndex == YIELD_SCIENCE && GET_PLAYER(getOwner()).GetCityScienceSquaredModPerXPop() > 0)
 	{
 		iTempMod = getPopulation() / GET_PLAYER(getOwner()).GetCityScienceSquaredModPerXPop();
-		iTempMod = std::min(iTempMod, 6);
+		iTempMod = std::min(iTempMod, 7);
 		iTempMod = iTempMod * iTempMod;
 		iModifier += iTempMod;
 		if (toolTipSink)

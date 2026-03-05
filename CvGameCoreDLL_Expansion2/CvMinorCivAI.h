@@ -396,6 +396,13 @@ public:
 	int GetAlliesThreshold() const;
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
+#ifdef MINOR_FRIENDHSIP_T100
+	void DoFriendshipChangeEffectsTimes100(PlayerTypes ePlayer, int iOldFriendshipTimes100, int iNewFriendshipTimes100, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
+
+	bool IsFriendshipAboveFriendsThresholdTimes100(int iFriendshipTimes100) const;
+	bool IsFriendshipAboveAlliesThresholdTimes100(int iFriendshipTimes100) const;
+#endif
+
 	void DoIntrusion();
 
 	// DEPRECATED

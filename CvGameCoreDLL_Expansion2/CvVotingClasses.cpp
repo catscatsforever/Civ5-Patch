@@ -1362,6 +1362,20 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	{
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
+#ifdef MINOR_FRIENDHSIP_T100
+			int iNeutralTimes100 = GC.getMINOR_FRIENDSHIP_ANCHOR_DEFAULT() * 100;
+			for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinor;
+				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(ePlayer) < iNeutralTimes100)
+				{
+					if (pLeague->IsMember(eMinor))
+					{
+						GET_PLAYER(eMinor).GetMinorCivAI()->SetFriendshipWithMajorTimes100(ePlayer, iNeutralTimes100);
+					}
+				}
+			}
+#else
 			int iNeutral = GC.getMINOR_FRIENDSHIP_ANCHOR_DEFAULT();
 			for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 			{
@@ -1374,6 +1388,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					}
 				}
 			}
+#endif
 		}
 	}
 

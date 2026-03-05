@@ -5440,7 +5440,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
 												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 												{
+#ifdef FIX_SET_HAS_TECH_RESOURCE_CONNECTION
+													if (!pLoopPlot->IsImprovementPillaged())
+#endif
 													kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
+													SLOG("eLoopPlayer = %d, plotX = %d, plot Y = %d", eLoopPlayer, pLoopPlot->getX(), pLoopPlot->getY());
 												}
 
 												// Reconnect resource link
@@ -5457,6 +5461,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											// Removing Tech
 											else
 											{
+#ifdef FIX_SET_HAS_TECH_RESOURCE_CONNECTION
+												if (!pLoopPlot->IsImprovementPillaged())
+#endif
 												kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
 
 												// Disconnect resource link
