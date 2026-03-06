@@ -973,6 +973,15 @@ enum ReplayEventTypes
 	REPLAYEVENT_DraftPlayerBans,
 	REPLAYEVENT_DraftPlayerPicks,
 
+	// Map events
+	REPLAYEVENT_AddTerrain,
+	REPLAYEVENT_BuildProgress,
+	REPLAYEVENT_FeatureChanged,
+	REPLAYEVENT_ResourceChanged,
+	REPLAYEVENT_RouteChanged,
+	REPLAYEVENT_TileOwnerChanged,
+	REPLAYEVENT_YieldChanged,
+
 	NUM_REPLAYEVENTS
 };
 # endif

@@ -323,6 +323,9 @@ CvPlayer::CvPlayer() :
 	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 	, m_iNumFaithSpentOnNonCombatUnits(0)
 	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+	, m_iNumFaithSpentOnBuildings(0)
+	#endif
 	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 	, m_iFoodKeptAfterGrowth(0)
 	#endif
@@ -1282,6 +1285,9 @@ void CvPlayer::uninit()
 	#endif
 	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 	m_iNumFaithSpentOnNonCombatUnits = 0;
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+	m_iNumFaithSpentOnBuildings = 0;
 	#endif
 	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 	m_iFoodKeptAfterGrowth = 0;
@@ -11571,6 +11577,16 @@ int CvPlayer::GetNumFaithSpentOnNonCombatUnits() const
 void CvPlayer::ChangeNumFaithSpentOnNonCombatUnits(int iChange)
 {
 	m_iNumFaithSpentOnNonCombatUnits = (m_iNumFaithSpentOnNonCombatUnits + iChange);
+}
+#endif
+#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+int CvPlayer::GetNumFaithSpentOnBuildings() const
+{
+	return m_iNumFaithSpentOnBuildings;
+}
+void CvPlayer::ChangeNumFaithSpentOnBuildings(int iChange)
+{
+	m_iNumFaithSpentOnBuildings = (m_iNumFaithSpentOnBuildings + iChange);
 }
 #endif
 #ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
@@ -27518,6 +27534,9 @@ void CvPlayer::Read(FDataStream& kStream)
 		#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 		kStream >> m_iNumFaithSpentOnNonCombatUnits;
 		#endif
+		#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+		kStream >> m_iNumFaithSpentOnBuildings;
+		#endif
 		#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 		kStream >> m_iFoodKeptAfterGrowth;
 		#endif
@@ -27565,6 +27584,9 @@ void CvPlayer::Read(FDataStream& kStream)
 		#endif
 		#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 		m_iNumFaithSpentOnNonCombatUnits = 0;
+		#endif
+		#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+		m_iNumFaithSpentOnBuildings = 0;
 		#endif
 		#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 		m_iFoodKeptAfterGrowth = 0;
@@ -29730,6 +29752,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	#endif
 	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 	kStream << m_iNumFaithSpentOnNonCombatUnits;
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+	kStream << m_iNumFaithSpentOnBuildings;
 	#endif
 	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 	kStream << m_iFoodKeptAfterGrowth;
@@ -33879,18 +33904,21 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		#ifdef EG_REPLAYDATASET_DISBANDEDUNITSSTRENGTH
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_DISBANDEDUNITSSTRENGTH"), iGameTurn, GetDisbandedUnitsStrength());
 		#endif
-		#ifdef EG_REPLAYDATASET_EFFECTIVEPRODUCTIONPERTURN
+		#ifdef EG_REPLAYDATASET_EFFECTIVEPRODUCTIONPERTURN_TIMES100
 		iLoopCity = 0;
 		int iEffectiveProduction = 0;
 		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
 			if (!pLoopCity->IsPuppet())
-				iEffectiveProduction += pLoopCity->getCurrentProductionDifferenceTimes100(true, true) / 100;
+				iEffectiveProduction += pLoopCity->getCurrentProductionDifferenceTimes100(false, false);
 		}
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVEPRODUCTIONPERTURN"), iGameTurn, iEffectiveProduction);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_EFFECTIVEPRODUCTIONPERTURN_TIMES100"), iGameTurn, iEffectiveProduction);
 		#endif
 		#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMFAITHONNONCOMBATUNITS"), iGameTurn, GetNumFaithSpentOnNonCombatUnits());
+		#endif
+		#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMFAITHONBUILDINGS"), iGameTurn, GetNumFaithSpentOnBuildings());
 		#endif
 		#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_FOODKEPTAFTERGROWTH"), iGameTurn, GetFoodKeptAfterGrowth());

@@ -491,6 +491,10 @@ public:
 	int GetNumFaithSpentOnNonCombatUnits() const;
 	void ChangeNumFaithSpentOnNonCombatUnits(int iChange);
 	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+	int GetNumFaithSpentOnBuildings() const;
+	void ChangeNumFaithSpentOnBuildings(int iChange);
+	#endif
 	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 	int GetFoodKeptAfterGrowth() const;
 	void ChangeFoodKeptAfterGrowth(int iChange);
@@ -2279,6 +2283,9 @@ protected:
 	#endif
 	#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
 	int m_iNumFaithSpentOnNonCombatUnits;
+	#endif
+	#ifdef EG_REPLAYDATASET_NUMFAITHONBUILDINGS
+	int m_iNumFaithSpentOnBuildings;
 	#endif
 	#ifdef EG_REPLAYDATASET_FOODKEPTAFTERGROWTH
 	int m_iFoodKeptAfterGrowth;

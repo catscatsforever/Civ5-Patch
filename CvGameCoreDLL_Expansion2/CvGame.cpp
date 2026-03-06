@@ -10315,9 +10315,8 @@ void CvGame::generateReplayKeys()
 		// ReplayEventKeys
 		sqlite3_exec(db, "DROP TABLE IF EXISTS main.ReplayEventKeys;\
 							CREATE TABLE main.ReplayEventKeys AS\
-							SELECT ID AS ReplayEventID, Category, IFNULL(Text, db2.ReplayEvents.Description), Num1Type, Num2Type,\
-							Num3Type, Num4Type, Num5Type, Num6Type, Num7Type, Num8Type, Num9Type, Num10Type FROM db2.ReplayEvents\
-							LEFT JOIN db3.Language_en_US ON db3.Language_en_US.Tag = db2.ReplayEvents.Description;", NULL, 0, &err);
+							SELECT ID AS ReplayEventID, Category, db2.ReplayEvents.Type AS Type, Num1Type, Num2Type,\
+							Num3Type, Num4Type, Num5Type, Num6Type, Num7Type, Num8Type, Num9Type, Num10Type FROM db2.ReplayEvents", NULL, 0, &err);
 		SLOG("ReplayEventKeys %s", err);
 		// TechnologyEras
 		sqlite3_exec(db, "DROP TABLE IF EXISTS main.TechnologyEras;\

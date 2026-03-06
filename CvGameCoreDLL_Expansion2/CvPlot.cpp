@@ -5169,6 +5169,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	// Remove effects for old owner before changing the member
 	if(getOwner() != eNewValue)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		GC.getGame().addReplayEvent(REPLAYEVENT_TileOwnerChanged, eNewValue, vArgs);
+#endif
 		PlayerTypes eOldOwner = getOwner();;
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
@@ -5916,6 +5923,20 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 
 	if(getTerrainType() != eNewValue)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		vArgs.push_back(getPlotType());
+		vArgs.push_back(isNEOfRiver());
+		vArgs.push_back(isNWOfRiver());
+		vArgs.push_back(isWOfRiver());
+		vArgs.push_back(getRiverSWFlowDirection());
+		vArgs.push_back(getRiverSEFlowDirection());
+		vArgs.push_back(getRiverEFlowDirection());
+		GC.getGame().addReplayEvent(REPLAYEVENT_AddTerrain, getOwner(), vArgs);
+#endif
 		if((getTerrainType() != NO_TERRAIN) &&
 		        (eNewValue != NO_TERRAIN) &&
 		        ((GC.getTerrainInfo(getTerrainType())->getSeeFromLevel() != GC.getTerrainInfo(eNewValue)->getSeeFromLevel()) ||
@@ -5963,6 +5984,13 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 	if((eOldFeature != eNewValue) || (m_iFeatureVariety != iVariety))
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		GC.getGame().addReplayEvent(REPLAYEVENT_FeatureChanged, NO_PLAYER, vArgs);
+#endif
 		if((eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
 		        (GC.getFeatureInfo(eOldFeature)->getSeeThroughChange() != GC.getFeatureInfo(eNewValue)->getSeeThroughChange()))
@@ -6141,6 +6169,14 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 
 		}
 
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		vArgs.push_back(iResourceNum);
+		GC.getGame().addReplayEvent(REPLAYEVENT_ResourceChanged, getOwner(), vArgs);
+#endif
 		m_eResourceType = eNewValue; // !!! Here is where we actually change the value
 
 		setNumResource(iResourceNum);
@@ -6350,6 +6386,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 	if(eOldImprovement != eNewValue)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		vArgs.push_back(0);  // bPillaged
+		GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, eBuilder, vArgs);
+#endif
 #ifdef AUI_PLOT_FIX_PILLAGED_PLOT_ON_NEW_IMPROVEMENT
 		SetImprovementPillaged(false);
 #endif
@@ -6662,6 +6706,14 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 
 	if(bPillaged != bWasPillaged)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(static_cast<int>(getImprovementType()));
+		vArgs.push_back(bPillaged ? 1 : 0);  // bPillaged
+		GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, NO_PLAYER, vArgs);
+#endif
 		m_bImprovementPillaged = bPillaged;
 		updateYield();
 
@@ -6808,6 +6860,14 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 
 	if(eOldRoute != eNewValue || (eOldRoute == eNewValue && IsRoutePillaged()))
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(eNewValue);
+		vArgs.push_back(0);  // bPillaged
+		GC.getGame().addReplayEvent(REPLAYEVENT_RouteChanged, getOwner(), vArgs);
+#endif
 		bOldRoute = isRoute(); // XXX is this right???
 
 		// Remove old effects
@@ -6917,6 +6977,14 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 {
 	if(m_bRoutePillaged != bPillaged)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(getRouteType());
+		vArgs.push_back(bPillaged ? 1 : 0);  // bPillaged
+		GC.getGame().addReplayEvent(REPLAYEVENT_RouteChanged, getOwner(), vArgs);
+#endif
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
@@ -8388,6 +8456,16 @@ void CvPlot::updateYield()
 
 	if(bChange)
 	{
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		for (iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+		{
+			vArgs.push_back(m_aiYield[iI]);
+		}
+		GC.getGame().addReplayEvent(REPLAYEVENT_YieldChanged, getOwner(), vArgs);
+#endif
 		updateSymbols();
 	}
 }
@@ -9501,6 +9579,15 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 		m_paiBuildProgress[eBuild] += iChange;
 		CvAssert(getBuildProgress(eBuild) >= 0);
+#ifdef REPLAY_EVENTS
+		std::vector<int> vArgs;
+		vArgs.push_back(getX());
+		vArgs.push_back(getY());
+		vArgs.push_back(static_cast<int>(eBuild));
+		vArgs.push_back(getBuildProgress(eBuild));
+		vArgs.push_back(getBuildTime(eBuild, ePlayer));
+		GC.getGame().addReplayEvent(REPLAYEVENT_BuildProgress, ePlayer, vArgs);
+#endif
 
 		if(getBuildProgress(eBuild) >= getBuildTime(eBuild, ePlayer))
 		{
@@ -9510,16 +9597,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				setImprovementType(eImprovement, ePlayer);
-#ifdef REPLAY_EVENTS
-				if (GET_PLAYER(ePlayer).isHuman())
-				{
-					std::vector<int> vArgs;
-					vArgs.push_back(getX());
-					vArgs.push_back(getY());
-					vArgs.push_back(static_cast<int>(eImprovement));
-					GC.getGame().addReplayEvent(REPLAYEVENT_ImprovementFinished, ePlayer, vArgs);
-				}
-#endif
 
 				// Unowned plot, someone has to foot the bill
 				if(getOwner() == NO_PLAYER)

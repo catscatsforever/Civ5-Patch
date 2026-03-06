@@ -499,7 +499,7 @@ Panels = {
 				end	
 			end
 						
-			local numSegments = 100;
+			local numSegments = 143;
 			local numVerts = numSegments + 1;
 			
 			function DrawGraph(playerInfo, color, scoreType, graphWidth, minX, maxX, yScale, yOffset)
@@ -1001,7 +1001,12 @@ Panels = {
 				if(cityColor ~= nil and cityColor.Alpha > 0) then
 					return cityColor;
 				elseif(cultureColor ~= nil and cultureColor.Alpha > 0) then
-					return cultureColor;
+					if plotTerrains[plotIdx] == TerrainTypes.TERRAIN_COAST or plotTerrains[plotIdx] == TerrainTypes.TERRAIN_OCEAN then
+						return ClearColor;
+					else
+						cultureColor.Alpha = 0.75
+						return cultureColor;
+					end
 				elseif(featureColor ~= nil) then
 					return featureColor;
 				else
