@@ -2568,6 +2568,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
 #ifdef NO_RANDOM_PROPHET
 		kPlayer.ChangeFaith(-iCost);
+		#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+		kPlayer.ChangeNumFaithSpentOnNonCombatUnits(iCost);
+		#endif
 #else
 #ifdef DUEL_NO_RANDOM_PROPHET
 		if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
@@ -2594,6 +2597,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, false /*bIncrementCount*/, true);
 #ifdef NO_RANDOM_PROPHET
 			kPlayer.ChangeFaith(-iCost);
+			#ifdef EG_REPLAYDATASET_NUMFAITHONNONCOMBATUNITS
+			kPlayer.ChangeNumFaithSpentOnNonCombatUnits(iCost);
+			#endif
 #else
 #ifdef DUEL_NO_RANDOM_PROPHET
 			if (GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))

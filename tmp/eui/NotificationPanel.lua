@@ -314,7 +314,7 @@ for k, v, w in ([[
 	NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL	CultureVictoryNegative	B
 
 	NOTIFICATION_CHOOSE_IDEOLOGY			ChooseIdeology			popup
-	NOTIFICATION_IDEOLOGY_CHOSEN			IdeologyChosen			popup
+	NOTIFICATION_IDEOLOGY_CHOSEN			IdeologyChosen
 
 	NOTIFICATION_LIBERATED_MAJOR_CITY		CapitalRecovered
 	NOTIFICATION_RESURRECTED_MAJOR_CIV		CapitalRecovered
@@ -474,6 +474,24 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			itemInfo = GameInfo.Buildings[ iGameValue ]
 			itemImage = instance.WonderConstructedAlphaAnim
 			smallCivFrame = instance.WonderSmallCivFrame
+
+		elseif type == NotificationTypes.NOTIFICATION_IDEOLOGY_CHOSEN then
+			if iExtraGameData == 9 then
+				instance.IdeologyPortrait:SetTexture( "Ideology_Freedom_80.dds" )
+				instance.IdeologyPortraitGlow:SetTexture( "Ideology_Freedom_Glow_80.dds" )
+			elseif iExtraGameData == 10 then
+				instance.IdeologyPortrait:SetTexture( "Ideology_Order_80.dds" )
+				instance.IdeologyPortraitGlow:SetTexture( "Ideology_Order_Glow_80.dds" )
+			elseif iExtraGameData == 11 then
+				instance.IdeologyPortrait:SetTexture( "Ideology_Autocracy_80.dds" )
+				instance.IdeologyPortraitGlow:SetTexture( "Ideology_Autocracy_Glow_80.dds" )
+			end
+			if iGameValue == -1 then
+				instance.IdeologySmallCivFrame:SetHide( true )
+			else
+				instance.IdeologySmallCivFrame:SetHide( false )
+			end
+			return CivIconHookup( iGameValue, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true );
 
 		elseif type == NotificationTypes.NOTIFICATION_MP_IRR_PROPOSAL
 			or type == NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL
