@@ -11988,6 +11988,15 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			{
 				iTempModifier = featureAttackModifier(pToPlot->getFeatureType());
 				iModifier += iTempModifier;
+
+#ifdef FIX_MELEE_ATTACK_MOD
+				// Tack on Hills Attack Mod
+				if (pToPlot->isHills())
+				{
+					iTempModifier = terrainAttackModifier(TERRAIN_HILL);
+					iModifier += iTempModifier;
+				}
+#endif
 			}
 			// No Feature - Use Terrain Attack Mod
 			else
@@ -12160,6 +12169,10 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 					iModifier += iTempModifier;
 				}
 			}
+			else
+			{
+				iModifier += iTempModifier;
+			}
 #else
 			iModifier += iTempModifier;
 #endif
@@ -12201,6 +12214,15 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		{
 			iTempModifier = featureDefenseModifier(pInPlot->getFeatureType());
 			iModifier += iTempModifier;
+
+#ifdef FIX_MELEE_DEFENSE_MOD
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
+			}
+#endif
 		}
 		// No Feature - use Terrain Defense Mod
 		else
@@ -12342,6 +12364,15 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		{
 			iTempModifier = featureDefenseModifier(pInPlot->getFeatureType());
 			iModifier += iTempModifier;
+
+#ifdef FIX_RANGE_DEFENSE_MOD
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
+			}
+#endif
 		}
 		// No Feature - use Terrain Defense Mod
 		else
@@ -12772,6 +12803,35 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 					}
 				}
 			}
+
+#ifdef FIX_RANGE_ATTACK_MOD
+			// Attacking into a Feature
+			if (pTargetPlot->getFeatureType() != NO_FEATURE)
+			{
+				iTempModifier = featureAttackModifier(pTargetPlot->getFeatureType());
+				iModifier += iTempModifier;
+
+				// Tack on Hills Attack Mod
+				if (pTargetPlot->isHills())
+				{
+					iTempModifier = terrainAttackModifier(TERRAIN_HILL);
+					iModifier += iTempModifier;
+				}
+			}
+			// No Feature - Use Terrain Attack Mod
+			else
+			{
+				iTempModifier = terrainAttackModifier(pTargetPlot->getTerrainType());
+				iModifier += iTempModifier;
+
+				// Tack on Hills Attack Mod
+				if (pTargetPlot->isHills())
+				{
+					iTempModifier = terrainAttackModifier(TERRAIN_HILL);
+					iModifier += iTempModifier;
+				}
+			}
+#endif
 		}
 
 		// Ranged DEFENSE
@@ -12833,6 +12893,40 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
 		if (getDamage() >= 50)
 			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+#endif
+
+#ifdef FIX_IS_FRIENDLY_TERRITORY_MODIFIERS_AGAINST_CITIES
+		CvPlot* pTargetPlot = pCity->plot();
+		// Bonus for fighting in one's lands
+		if (pTargetPlot->IsFriendlyTerritory(getOwner()))
+		{
+		}
+
+		// Bonus for fighting outside one's lands
+		else
+		{
+			iTempModifier = getOutsideFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Founder Belief bonus (this must be a city controlled by an enemy)
+			CvCity* pPlotCity = pTargetPlot->getWorkingCity();
+			if (pPlotCity)
+			{
+				if (atWar(getTeam(), pPlotCity->getTeam()))
+				{
+					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+					if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					{
+						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
+						if (pCityReligion)
+						{
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities();
+							iModifier += iTempModifier;
+						}
+					}
+				}
+			}
+		}
 #endif
 	}
 
@@ -12899,6 +12993,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				{
 					iModifier += iTempModifier;
 				}
+			}
+			else
+			{
+				iModifier += iTempModifier;
 			}
 #else
 			iModifier += iTempModifier;
@@ -13038,6 +13136,33 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						}
 					}
 				}
+			}
+		}
+
+		// Attacking into a Feature
+		if (plot()->getFeatureType() != NO_FEATURE)
+		{
+			iTempModifier = featureDefenseModifier(plot()->getFeatureType());
+			iModifier += iTempModifier;
+
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
+			}
+		}
+		// No Feature - Use Terrain Attack Mod
+		else
+		{
+			iTempModifier = terrainDefenseModifier(plot()->getTerrainType());
+			iModifier += iTempModifier;
+
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
 			}
 		}
 #endif
@@ -13371,6 +13496,35 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						}
 					}
 				}
+
+#ifdef FIX_RANGE_ATTACK_MOD
+				// Attacking into a Feature
+				if (pTargetPlot->getFeatureType() != NO_FEATURE)
+				{
+					iTempModifier = featureAttackModifier(pTargetPlot->getFeatureType());
+					iModifier += iTempModifier;
+
+					// Tack on Hills Attack Mod
+					if (pTargetPlot->isHills())
+					{
+						iTempModifier = terrainAttackModifier(TERRAIN_HILL);
+						iModifier += iTempModifier;
+					}
+				}
+				// No Feature - Use Terrain Attack Mod
+				else
+				{
+					iTempModifier = terrainAttackModifier(pTargetPlot->getTerrainType());
+					iModifier += iTempModifier;
+
+					// Tack on Hills Attack Mod
+					if (pTargetPlot->isHills())
+					{
+						iTempModifier = terrainAttackModifier(TERRAIN_HILL);
+						iModifier += iTempModifier;
+					}
+				}
+#endif
 			}
 		}
 
@@ -13499,6 +13653,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				{
 					iModifier += iTempModifier;
 				}
+			}
+			else
+			{
+				iModifier += iTempModifier;
 			}
 #else
 			iModifier += iTempModifier;
@@ -13629,6 +13787,33 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				}
 			}
 		}
+
+		// Attacking into a Feature
+		if (plot()->getFeatureType() != NO_FEATURE)
+		{
+			iTempModifier = featureDefenseModifier(plot()->getFeatureType());
+			iModifier += iTempModifier;
+
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
+			}
+		}
+		// No Feature - Use Terrain Attack Mod
+		else
+		{
+			iTempModifier = terrainDefenseModifier(plot()->getTerrainType());
+			iModifier += iTempModifier;
+
+			// Tack on Hills Attack Mod
+			if (plot()->isHills())
+			{
+				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
+				iModifier += iTempModifier;
+			}
+		}
 #endif
 	}
 
@@ -13735,7 +13920,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 #endif
 
 
-	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
+	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() + iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
 #else
 	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - getDamage() - iAssumeExtraDamage;
 #endif

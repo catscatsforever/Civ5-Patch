@@ -5530,25 +5530,20 @@ void CvPlayer::doTurn()
 #ifdef CHANGE_CITY_ORIGINAL_OWNER
 				if (GC.getGame().isNetworkMultiPlayer())
 				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					if (isHuman())
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-						if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isHuman())
+						int iCityLoop;
+						CvCity* pLoopCity = NULL;
+						for (pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
 						{
-							int iCityLoop;
-							CvCity* pLoopCity = NULL;
-							for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+							if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS)
 							{
-								if ((int)pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS)
+								if (!GET_PLAYER(pLoopCity->getOriginalOwner()).isHuman() && pLoopCity->getOriginalOwner() != GetID())
 								{
-									if (!GET_PLAYER(pLoopCity->getOriginalOwner()).isHuman() && pLoopCity->getOriginalOwner() == GetID())
+									if (pLoopCity->IsNoOccupiedUnhappiness())
 									{
-										if (pLoopCity->IsNoOccupiedUnhappiness())
-										{
-											pLoopCity->setOriginalOwner(eLoopPlayer);
-											pLoopCity->SetOccupied(false);
-										}
+										pLoopCity->setOriginalOwner(GetID());
+										pLoopCity->SetOccupied(false);
 									}
 								}
 							}

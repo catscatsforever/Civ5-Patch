@@ -1061,6 +1061,9 @@
 ///
 #define FIX_MAX_EFFECTIVE_CITIES
 ///
+#define FIX_MELEE_ATTACK_MOD
+#define FIX_MELEE_DEFENSE_MOD
+#define FIX_RANGE_ATTACK_MOD
 #define FIX_RANGE_DEFENSE_MOD
 /// if free tech notification is present, mark choose tech notification as redundant
 #define FIX_REDUNDANT_CHOOSE_TECH_NOTIFICATION
@@ -1138,6 +1141,8 @@
 #define FIX_CAN_CONTINUE_PRODUCTION
 ///
 #define FIX_SET_HAS_TECH_RESOURCE_CONNECTION
+///
+#define FIX_IS_FRIENDLY_TERRITORY_MODIFIERS_AGAINST_CITIES
 /*BUGS FIXES END*/
 
 

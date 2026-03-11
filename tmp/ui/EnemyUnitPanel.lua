@@ -616,6 +616,14 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 			
+			-- Attack Modifier
+			iModifier = pMyUnit:GetAttackModifier();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_MOD_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+			
 			-- Policy Attack bonus
 			local iTurns = pMyPlayer:GetAttackBonusTurns();
 			if (iTurns > 0) then
@@ -1286,6 +1294,16 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", featureTypeBonus );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
+				
+				if (pToPlot:IsHills()) then
+					iModifier = pMyUnit:TerrainAttackModifier(GameInfo.Terrains["TERRAIN_HILL"].ID);
+					if (iModifier ~= 0) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						local terrainTypeBonus = Locale.ConvertTextKey( GameInfo.Terrains["TERRAIN_HILL"].Description );
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", terrainTypeBonus  );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					end
+				end
 			else
 			
 				-- TerrainAttackModifier		
@@ -1778,6 +1796,16 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", typeBonus );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
+					
+					if (pToPlot:IsHills()) then
+						iModifier = pTheirUnit:TerrainDefenseModifier(GameInfo.Terrains["TERRAIN_HILL"].ID);
+						if (iModifier ~= 0) then
+							controlTable = g_TheirCombatDataIM:GetInstance();
+							local terrainTypeBonus = Locale.ConvertTextKey( GameInfo.Terrains["TERRAIN_HILL"].Description );
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", terrainTypeBonus  );
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						end
+					end
 				else
 				
 					-- TerrainDefenseModifier		
@@ -2016,15 +2044,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
 		end
-
-		-- FortifyModifier
-		iModifier = theirUnit:FortifyModifier();
-		if (iModifier ~= 0) then
-			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_FORTIFICATION_BONUS" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
---				strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_FORTIFY_MOD", iModifier));
-		end
 		
 		-- Great General bonus
 		if (theirUnit:IsNearGreatGeneral()) then
@@ -2176,6 +2195,16 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				local typeBonus = Locale.ConvertTextKey(GameInfo.Features[theirPlot:GetFeatureType()].Description);
 				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", typeBonus );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			end
+			
+			if (theirPlot:IsHills()) then
+				iModifier = theirUnit:TerrainDefenseModifier(GameInfo.Terrains["TERRAIN_HILL"].ID);
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					local terrainTypeBonus = Locale.ConvertTextKey( GameInfo.Terrains["TERRAIN_HILL"].Description );
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", terrainTypeBonus  );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
 			end
 		else
 		
