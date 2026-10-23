@@ -1,0 +1,113 @@
+name: Patch Version Release
+
+run-name: "Patch Version Release: ${{ github.event_name != 'pull_request' && github.event.head_commit.message || github.event.pull_request.title }}"
+
+on: 
+  push:
+    branches: [main]
+    paths:
+      - PATCH_VERSION.txt
+      - .github/workflows/patch_release.yaml
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build from source
+    strategy:
+      matrix:
+        config: [Mod]
+    env:
+      url_0: https://archive.org/download/vs-2008-express-w-sp-1/VS2008-Express-w-SP1.ISO # Visual Studio 2008 Express Editions
+      url_1: https://archive.org/download/microsoftnet.framework4.0/Microsoft%20Net.Framework%204.0.iso # Net.Framework 4.0
+      url_2: https://archive.org/download/microsoft-windows-sdk-for-windows-7-and-.net-framework-4/GRMSDKX_EN_DVD.iso # Windows SDK 7.1
+      url_3: https://download.microsoft.com/download/7/5/0/75040801-126c-4591-bce4-4cd1fd1499aa/VC-Compiler-KB2519277.exe # Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
+    runs-on: windows-2022
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            Art/
+            Fonts/
+            Override/
+            tmp/
+            UI/
+            MPModsPack.Civ5Pkg
+            PATCH_VERSION.txt
+            ui_check.bat
+            CvGameCoreDLL_Expansion2/
+          sparse-checkout-cone-mode: false
+
+      - name: Generate Release Tag
+        id: tag
+        shell: pwsh
+        run: |
+          $version = Get-Content -Path "PATCH_VERSION.txt" -TotalCount 1
+          $tag = $version.Substring(1)
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$version"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "tag=$tag"
+
+      - name: Cache VS Installer
+        id: cache-vs-install
+        uses: actions/cache@v4
+        with:
+          path: |
+            redist
+          key: ${{ runner.os }}-vs2008-install
+
+      - name: Download VS Installer
+        if: steps.cache-vs-install.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          choco install 7zip.install
+          Invoke-WebRequest "$($Env:url_0)" -OutFile vs2008.iso
+          Invoke-WebRequest "$($Env:url_1)" -OutFile net4.iso
+          Invoke-WebRequest "$($Env:url_2)" -OutFile sdk7_1.iso
+          7z.exe x -y -o".\redist\vs2008" vs2008.iso
+          7z.exe x -y -o".\redist\net4" net4.iso
+          7z.exe x -y -o".\redist\sdk7_1" sdk7_1.iso
+          Invoke-WebRequest "$($Env:url_3)" -OutFile redist/KB2519277.exe
+
+      - name: Install Visual Studio
+        shell: pwsh
+        run: |
+          Start-Process -FilePath ".\redist\vs2008\VCExpress\setup.exe" -ArgumentList "/q" -Wait
+          Start-Process -FilePath ".\redist\net4\Framwork 4.0\dotNetFx40_Full_x86_x64.exe" -ArgumentList "/q" -Wait
+          Start-Process -FilePath ".\redist\sdk7_1\setup.exe" -ArgumentList "/q" -Wait
+          Start-Process -FilePath ".\redist\KB2519277.exe" -ArgumentList "/q" -Wait
+          Get-Content -Path "$([System.IO.Path]::GetTempPath())VSMsi*.txt" -ErrorAction SilentlyContinue
+          Set-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows" -Name "CurrentInstallFolder" -Value "C:\Program Files\Microsoft SDKs\Windows\v7.1\"
+
+      - name: Build Project
+        shell: pwsh
+        run: |
+          C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe "CvGameCoreDLL_Expansion2\_build_gh_actions.vcxproj" /p:configuration=${{ matrix.config }} /p:platform=Win32
+
+      - name: Prepare Release Archive
+        shell: pwsh
+        run: |
+          mkdir "Tournament Mod V${{ steps.tag.outputs.tag }}"
+          Copy-Item -Path "Art" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}\Art" -Recurse
+          Copy-Item -Path "Fonts" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}\Fonts" -Recurse
+          Copy-Item -Path "Override" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}\Override" -Recurse
+          Copy-Item -Path "tmp" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}\tmp" -Recurse
+          Copy-Item -Path "UI" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}\UI" -Recurse
+          Copy-Item "CvGameCoreDLL_Expansion2\BuildOutput\VS2013_ModWin32\CvGameCore_Expansion2.dll" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}"
+          Copy-Item "CvGameCoreDLL_Expansion2\BuildOutput\VS2013_ModWin32\CvGameCore_Expansion2.pdb" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}"
+          Copy-Item "MPModsPack.Civ5Pkg" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}"
+          Copy-Item "ui_check.bat" -Destination "Tournament Mod V${{ steps.tag.outputs.tag }}"
+          7z a -tzip "Tournament_Mod_V${{ steps.tag.outputs.tag }}.zip" "Tournament Mod V${{ steps.tag.outputs.tag }}\*"
+
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.version }}
+          body: |
+            Update ${{ steps.tag.outputs.tag }}
+            https://catscatsforever.github.io/civilopedia-online/#PATCH${{ steps.tag.outputs.tag }}
+            https://docs.google.com/document/d/1CIhWQHXBoCd-A-PpHAn4gbuej8Pha-fcbGJFxFj_fZo
+          files: Tournament_Mod_V${{ steps.tag.outputs.tag }}.zip
