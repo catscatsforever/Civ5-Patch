@@ -1024,20 +1024,26 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes eMinor, int iUnitID)
 {
-#ifdef MP_PLAYERS_VOTING_SYSTEM
+#ifdef NET_MESSAGE_MODDING
 	// MODDING. reserved iUnitID values:
-	// -1 -- reset timer
-	// -2 -- irr
-	// -3 -- cc
-	// -4 -- scrap
-	// -5 -- vote yes
-	// -6 -- vote no
-	// -7 -- pause timer
-	// -8 -- increment num times opened demographics
-	// -9 -- increment num times opened city screen
-	// -10 -- timer autopaus on
-	// -11 -- timer autopaus off
-	// -12 -- set city order repeat
+	enum NetMessageControls
+	{
+		MOD_MESSAGE_RESET_TIMER = -1,
+		MOD_MESSAGE_DRAFT_PROPOSE_IRR = -2,
+		MOD_MESSAGE_DRAFT_PROPOSE_CC = -3,
+		MOD_MESSAGE_DRAFT_PROPOSE_SCRAP = -4,
+		MOD_MESSAGE_DRAFT_VOTE_YES = -5,
+		MOD_MESSAGE_DRAFT_VOTE_NO = -6,
+		MOD_MESSAGE_PAUSE_TIMER = -7,
+		MOD_MESSAGE_STATS_OPEN_DEMO = -8,
+		MOD_MESSAGE_STATS_OPEN_CITY = -9,
+		MOD_MESSAGE_AUTOPAUSE_TIMER_ON = -10,
+		MOD_MESSAGE_AUTOPAUSE_TIMER_OFF = -11,
+		MOD_MESSAGE_CITY_REPEAT_ORDER = -12,
+		MOD_MESSAGE_MAP_PING = -13,
+	};
+#endif
+#ifdef MP_PLAYERS_VOTING_SYSTEM
 	CvGame& game = GC.getGame();
 	CvMPVotingSystem* pkMPVotingSystem = game.GetMPVotingSystem();
 #ifdef REPLAY_EVENTS
@@ -1056,34 +1062,34 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	}
 #endif
 	switch (iUnitID) {
-	case -2:
+	case MOD_MESSAGE_DRAFT_PROPOSE_IRR:
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalIrr, ePlayer, vArgs);
 #endif
 		game.GetMPVotingSystem()->AddProposal(PROPOSAL_IRR, ePlayer, ePlayer);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_IRR", GET_PLAYER(ePlayer).getName()).GetCString());
 		return;
-	case -3:
+	case MOD_MESSAGE_DRAFT_PROPOSE_CC:
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalCc, ePlayer, vArgs);
 #endif
 		pkMPVotingSystem->AddProposal(PROPOSAL_CC, ePlayer, eMinor);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_CC", GET_PLAYER(ePlayer).getName(), GET_PLAYER(eMinor).getName()).GetCString());
 		return;
-	case -4:
+	case MOD_MESSAGE_DRAFT_PROPOSE_SCRAP:
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalScrap, ePlayer, vArgs);
 #endif
 		pkMPVotingSystem->AddProposal(PROPOSAL_SCRAP, ePlayer, NO_PLAYER);
 		DLLUI->AddMessage(0, CvPreGame::activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MP_MESSAGE_PROPOSED_SCRAP", GET_PLAYER(ePlayer).getName()).GetCString());
 		return;
-	case -5:
+	case MOD_MESSAGE_DRAFT_VOTE_YES:
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalYes, ePlayer, vArgs);
 #endif
 		pkMPVotingSystem->DoVote((int)eMinor, ePlayer, true);
 		return;
-	case -6:
+	case MOD_MESSAGE_DRAFT_VOTE_NO:
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_ProposalNo, ePlayer, vArgs);
 #endif
@@ -1095,7 +1101,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 #ifdef TURN_TIMER_RESET_BUTTON
 	// here we intercept response, when UnitID equals -1 we agree to reset timer
-	if (iUnitID == -1) {
+	if (iUnitID == MOD_MESSAGE_RESET_TIMER) {
 		if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
@@ -1158,7 +1164,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	else
 #endif
 #ifdef TURN_TIMER_PAUSE_BUTTON
-	if (iUnitID == -7) {
+	if (iUnitID == MOD_MESSAGE_PAUSE_TIMER) {
 		if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
@@ -1202,8 +1208,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	else
 #endif
 #ifdef EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS
-	// -8 -- increment num times opened demographics
-	if (iUnitID == -8) {
+	if (iUnitID == MOD_MESSAGE_STATS_OPEN_DEMO) {
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_OpenDemoScreen, ePlayer, vArgs);
 #endif
@@ -1212,8 +1217,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	else
 #endif
 #ifdef EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN
-	// -9 -- increment num times entered city screen
-	if (iUnitID == -9) {
+	if (iUnitID == MOD_MESSAGE_STATS_OPEN_CITY) {
 #ifdef REPLAY_EVENTS
 		GC.getGame().addReplayEvent(REPLAYEVENT_EnterCityScreen, ePlayer, vArgs);
 #endif
@@ -1222,7 +1226,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	else
 #endif
 #if defined TURN_TIMER_PAUSE_BUTTON && defined AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
-	if (iUnitID == -10) {
+	if (iUnitID == MOD_MESSAGE_AUTOPAUSE_TIMER_ON) {
 		if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if (!GC.getGame().m_bIsPaused)
@@ -1243,7 +1247,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 		}
 	}
 	else
-	if (iUnitID == -11) {
+	if (iUnitID == MOD_MESSAGE_AUTOPAUSE_TIMER_OFF) {
 		if (GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if (GC.getGame().m_bIsPaused)
@@ -1267,8 +1271,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	else
 #endif
 #ifdef LUA_CITY_METHOD_SET_REPEAT_ORDER
-	// -12 -- set city order repeat
-	if (iUnitID == -12) {
+	if (iUnitID == MOD_MESSAGE_CITY_REPEAT_ORDER) {
 		int iNum = static_cast<int>((static_cast<uint>(eMinor) >> 25) & 127);  // 7-bit
 		bool bValue = static_cast<int>((static_cast<uint>(eMinor) >> 24) & 1) == 1;  // 1-bit
 		int iCityID = static_cast<int>((static_cast<uint>(eMinor)) & 16777215);  // 24-bit
@@ -1286,7 +1289,24 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 	}
 	else
 #endif
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN) || defined(LUA_CITY_METHOD_SET_REPEAT_ORDER)
+#ifdef MP_MAP_PING
+	if (iUnitID == MOD_MESSAGE_MAP_PING) {
+		int iX = static_cast<int>((static_cast<uint>(eMinor) >> 16) & 65535);  // 16-bit
+		int iY = static_cast<int>((static_cast<uint>(eMinor)) & 65535);  // 16-bit
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			bool bResult;
+			args->Push(ePlayer);
+			args->Push(iX);
+			args->Push(iY);
+			LuaSupport::CallHook(pkScriptSystem, "AddMapPing", args.get(), bResult);
+		}
+	}
+	else
+#endif
+#ifdef NET_MESSAGE_MODDING
 	{
 #endif
 		CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
@@ -1301,7 +1321,7 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 #endif
 		GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
 
-#if defined(TURN_TIMER_RESET_BUTTON) || defined(TURN_TIMER_PAUSE_BUTTON) || defined(EG_REPLAYDATASET_NUMTIMESOPENEDDEMOGRAPHICS) || defined(EG_REPLAYDATASET_TIMESENTEREDCITYSCREEN) || defined(LUA_CITY_METHOD_SET_REPEAT_ORDER)
+#ifdef NET_MESSAGE_MODDING
 	}
 #endif
 }
@@ -1680,21 +1700,27 @@ void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyB
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID, const char* szName)
 {
+#ifdef NET_MESSAGE_MODDING
+	// MODDING. reserved iCityID values:
+	enum NetMessageControls
+	{
+		MOD_MESSAGE_DRAFT_SECRET_HASH_RECEIVED = -1,
+		MOD_MESSAGE_DRAFT_BANS_RECEIVED = -2,
+		MOD_MESSAGE_DRAFT_SECRET_RECEIVED = -3,
+		MOD_MESSAGE_DRAFT_BANS_ROLLBACK = -4,
+		MOD_MESSAGE_DRAFT_SYNC_BANS = -5,
+		MOD_MESSAGE_DRAFT_PLAYERS_SWAP = -6,
+		MOD_MESSAGE_DRAFT_ALL_BANS_RECEIVED = -7,
+	};
+#endif
 #ifdef INGAME_CIV_DRAFTER
-	// -1 -- receive secret hash
-	// -2 -- parse bans
-	// -3 -- receive secret
-	// -4 -- failed ban rollback
-	// -5 -- bans synced by host
-	// -6 -- swap players
-	// -7 -- receive AllBansReceived
-	SLOG("ResponseRenameCity << ePlayer %d iCityID %d szName %s", (int)ePlayer, iCityID, szName);
-	if (iCityID == -1)
+	//SLOG("ResponseRenameCity << ePlayer %d iCityID %d szName %s", (int)ePlayer, iCityID, szName);
+	if (iCityID == MOD_MESSAGE_DRAFT_SECRET_HASH_RECEIVED)
 	{
 		CvPreGame::DraftResponseSecretHash(ePlayer, szName);
 		return;
 	}
-	else if (iCityID == -2)
+	else if (iCityID == MOD_MESSAGE_DRAFT_BANS_RECEIVED)
 	{
 		if (gDLL->IsHost())
 		{
@@ -1702,17 +1728,17 @@ void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID
 		}
 		return;
 	}
-	else if (iCityID == -3)
+	else if (iCityID == MOD_MESSAGE_DRAFT_SECRET_RECEIVED)
 	{
 		CvPreGame::DraftResponseSecret(ePlayer, szName);
 		return;
 	}
-	else if (iCityID == -4)
+	else if (iCityID == MOD_MESSAGE_DRAFT_BANS_ROLLBACK)
 	{
 		CvPreGame::DraftResponseBanRollback(ePlayer, szName);
 		return;
 	}
-	else if (iCityID == -5)
+	else if (iCityID == MOD_MESSAGE_DRAFT_SYNC_BANS)
 	{
 		// format: "msgnum|eMsgPlayer|bans"
 		CvString s = CvString(szName);
@@ -1735,12 +1761,12 @@ void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID
 		}
 		return;
 	}
-	else if (iCityID == -6)
+	else if (iCityID == MOD_MESSAGE_DRAFT_PLAYERS_SWAP)
 	{
 		CvPreGame::DraftResponseSwapPlayers(ePlayer, szName);
 		return;
 	}
-	else if (iCityID == -7)
+	else if (iCityID == MOD_MESSAGE_DRAFT_ALL_BANS_RECEIVED)
 	{
 		CvPreGame::DraftResponseAllBansReceived(ePlayer);
 		return;

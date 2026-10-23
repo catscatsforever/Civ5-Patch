@@ -4524,6 +4524,26 @@ int CvCityCulture::GetBaseTourism()
 		}
 	}
 
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER_NEW
+	PolicyTypes eCustomPolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_DICTATORSHIP_PROLETARIAT");
+
+	if (eCustomPolicy != NO_POLICY && kPlayer.GetPlayerPolicies()->HasPolicy(eCustomPolicy))
+	{
+		int iExcessHappiness = kPlayer.GetExcessHappiness();
+
+		if (iExcessHappiness > 0)
+		{
+			int iHappinessModifier = (iExcessHappiness / 5) * 10;
+
+			if (iHappinessModifier > 50)
+			{
+				iHappinessModifier = 50;
+			}
+
+			iModifier += iHappinessModifier;
+		}
+	}
+#endif
 	if (iModifier > 0)
 	{
 		iBase = iBase * (100 + iModifier) / 100;
@@ -4866,6 +4886,31 @@ CvString CvCityCulture::GetTourismTooltip()
 #endif
 #ifdef PLAYER_MODIFIERS_FOR_NUM_CAP_CONTROLLED
 	int iNumCapitalsControlled = 15 * std::max(kCityPlayer.GetNumCapitalsControlled() - 1, 0);
+#endif
+
+#ifdef POLICY_HAPPY_TOURISM_MODIFIER_NEW
+	PolicyTypes eCustomPolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_DICTATORSHIP_PROLETARIAT");
+	if (eCustomPolicy != NO_POLICY && kCityPlayer.GetPlayerPolicies()->HasPolicy(eCustomPolicy))
+	{
+		int iExcessHappiness = kCityPlayer.GetExcessHappiness();
+		if (iExcessHappiness > 0)
+		{
+			int iHappinessModifier = (iExcessHappiness / 5) * 10;
+			if (iHappinessModifier > 50)
+			{
+				iHappinessModifier = 50;
+			}
+			if (iHappinessModifier > 0)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE][NEWLINE]";
+				}
+				szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_HAPPY_BONUS_NEW", iHappinessModifier, iExcessHappiness);
+				szRtnValue += szTemp;
+			}
+		}
+	}
 #endif
 
 	// If generating any, itemize which players we have bonuses with

@@ -7,7 +7,10 @@
 -- processed in the processing chain, after this is 
 -- it is in engine side C++
 -------------------------------------------------
--- edit: Ingame Hotkey Manager – extended controls
+-- edits:
+--     Ingame Hotkey Manager – extended controls
+--     Map Pings
+-- for EUI & Vanila UI
 -------------------------------------------------
 g_needsUpdate = true;
 -- NEW: simple map from legacy KB to VK keycodes
@@ -19,10 +22,14 @@ g_KeyMap = { 27, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 189, 65, 66, 67, 68, 69
 -- check g_needsUpdate before any call to GameInfoActions[].HotKey property
 Events.GameOptionsChanged.Add(function() g_needsUpdate = true; end);
 -- NEW: search for hex grid control index
-local ToggleGrid;
+local ToggleGrid, Ping;
 for actionID, action in next, GameInfoActions do
     if action.Type == 'CONTROL_TOGGLE_HEX_GRID' then
     	ToggleGrid = actionID;
+    end
+    --if action.Type == 'INTERFACEMODE_PING' then
+    if action.Type == 'CONTROL_PING' then
+    	Ping = actionID;
     end
 end
 -------------------------------------------------
@@ -121,6 +128,9 @@ function( wParam, lParam )
 		return true;
     elseif ( wParam == g_KeyMap[GameInfoActions[ToggleGrid].HotKeyVal] and UIManager:GetControl() == GameInfoActions[ToggleGrid].CtrlDown and UIManager:GetAlt() == GameInfoActions[ToggleGrid].AltDown and UIManager:GetShift() == GameInfoActions[ToggleGrid].ShiftDown ) then
 		UI.ToggleGridVisibleMode();
+		return true;
+    elseif ( wParam == g_KeyMap[GameInfoActions[Ping].HotKeyVal] and UIManager:GetControl() == GameInfoActions[Ping].CtrlDown and UIManager:GetAlt() == GameInfoActions[Ping].AltDown and UIManager:GetShift() == GameInfoActions[Ping].ShiftDown ) then
+		UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
 		return true;
     end
     return false;
@@ -310,6 +320,49 @@ end
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.LButtonUp] = GiftTileImprovement;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.RButtonUp] = GiftTileImprovement;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.PointerUp] = GiftTileImprovement;
+-- Map Pings START
+function PingInputHandler()
+	local plot = Map.GetPlot( UI.GetMouseOverHex() );
+	if plot and plot:IsRevealed(Players[Matchmaking:GetLocalID()]:GetTeam(), false) then
+		local plotX = plot:GetX();
+		local plotY = plot:GetY();
+		local product = plotX * 2 ^ 16 + plotY
+		Network.SendGiftUnit(product, -13)  -- send map ping
+	end
+end
+function OnMouseMoveHex()
+	local interfaceMode = UI.GetInterfaceMode();
+	if interfaceMode == InterfaceModeTypes.INTERFACEMODE_PING then
+		PingInputHandler()
+	end
+end
+Events.SerialEventMouseOverHex.Add( OnMouseMoveHex );
+
+g_MapPings = {}
+local C = {}
+for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+	if Players[i]:IsEverAlive() then
+		local col1, col2 = Players[i]:GetPlayerColors()  -- cache player colors
+		C[i] = {col1, col2}
+	end
+end
+local mw, _ = Map.GetGridSize()
+
+GameEvents.AddMapPing.Add(function(playerID,x,y)
+	if g_MapPingMute[playerID] ~= true then
+		g_MapPings[y*mw + x] = {playerID = playerID, x = x, y = y, cache = 40, tick = 2, ended = 0}
+	end
+end)
+
+g_MapPingMute = {}
+LuaEvents.MapPingMutePlayer.Add(function(_, playerID)
+	if g_MapPingMute[playerID] == true then
+		g_MapPingMute[playerID] = false
+	else
+		g_MapPingMute[playerID] = true
+	end
+end)
+-- Map Pings END
 ----------------------------------------------------------------        
 -- Input handling
 ----------------------------------------------------------------        
@@ -824,7 +877,7 @@ local NewInterfaceModeChangeHandler =
 {
 	--[InterfaceModeTypes.INTERFACEMODE_DEBUG] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_SELECTION] = ClearUnitHexHighlights,
-	--[InterfaceModeTypes.INTERFACEMODE_PING] = nil,
+	[InterfaceModeTypes.INTERFACEMODE_PING] = PingInputHandler,
 	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO] = ShowMovementRangeIndicator,
 	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE] = nil,
 	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = nil,
@@ -1036,6 +1089,37 @@ Events.SerialEventUnitDestroyed.Add( OnUnitDestroyed );
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 function OnUpdate(fDTime)
+-- Map Pings START
+	local k = 0
+	local k2 = 0
+	for i = 0, Map.GetNumPlots() - 1 do
+		if g_MapPings[i] and g_MapPings[i].ended == 0 then
+			k = k + 1
+			local x = i % mw
+			local y = math.floor(i / mw)
+			if g_MapPings[i].tick < 0 then
+				g_MapPings[i].ended = 1
+				k2 = k2 + 1
+				Events.SerialEventHexHighlight(ToHexFromGrid{x=x,y}, false, nil, "Ping");
+				Events.SerialEventHexHighlight(ToHexFromGrid{x=x,y}, false, nil, "EditorHexStyle3");
+			else
+				local rtime = math.floor(g_MapPings[i].tick * 20)
+				if rtime < g_MapPings[i].cache then
+					local c1 = C[g_MapPings[i].playerID][2]
+					local c2 = C[g_MapPings[i].playerID][1]
+					Events.SerialEventHexHighlight(ToHexFromGrid{x=x,y=y}, true, {x=c1.x,y=c1.y,z=c1.z,w=c1.w*g_MapPings[i].cache/40}, "Ping");
+					Events.SerialEventHexHighlight(ToHexFromGrid{x=x,y=y}, true, {x=c2.x,y=c2.y,z=c2.z,w=c2.w*g_MapPings[i].cache/40}, "EditorHexStyle3");
+					g_MapPings[i].cache = rtime
+				end
+			end
+			g_MapPings[i].tick = g_MapPings[i].tick - fDTime
+		end
+	end
+	if k == k2 then  -- 2D view fix
+		Events.ClearHexHighlightStyle("Ping");
+		Events.ClearHexHighlightStyle("EditorHexStyle3");
+	end
+-- Map Pings END
 
 	if #alertTable > 0 then
 		for i, v in ipairs( alertTable ) do

@@ -9281,6 +9281,30 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 int CvCity::GetJONSCulturePerTurnFromBuildings() const
 {
 	VALIDATE_OBJECT
+
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	// CulturePerPopulationInCity
+	int iCulturePerPop = 0;
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
+
+		if (GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+		{
+			CvBuildingEntry* pInfo = GC.getBuildingInfo(eBuilding);
+			if (pInfo)
+			{
+				int iXPopulation = pInfo->GetCulturePerXPopulationInCity();
+
+				if (iXPopulation > 0)
+				{
+					iCulturePerPop += getPopulation() / iXPopulation;
+				}
+			}
+		}
+	}
+#endif
+
 #ifdef BUILDING_CULTURE_PER_X_ANCIENCT_BUILDING
 	int iCulturePerXAncientBuildings = 0;
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
@@ -9293,9 +9317,9 @@ int CvCity::GetJONSCulturePerTurnFromBuildings() const
 		}
 	}
 
-	return m_iJONSCulturePerTurnFromBuildings + iCulturePerXAncientBuildings;
+	return m_iJONSCulturePerTurnFromBuildings + iCulturePerXAncientBuildings + iCulturePerPop;
 #else
-	return m_iJONSCulturePerTurnFromBuildings;
+	return m_iJONSCulturePerTurnFromBuildings + iCulturePerPop;
 #endif
 }
 
@@ -9492,7 +9516,45 @@ int CvCity::GetFaithPerTurn() const
 int CvCity::GetFaithPerTurnFromBuildings() const
 {
 	VALIDATE_OBJECT
-	return m_iFaithPerTurnFromBuildings;
+	int iTotalFaith = m_iFaithPerTurnFromBuildings;
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	// FaithPerPopulationInCity
+	int iFaithPerPop = 0;
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
+
+		if (GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+		{
+			CvBuildingEntry* pInfo = GC.getBuildingInfo(eBuilding);
+			if (pInfo)
+			{
+				int iXPopulation = pInfo->GetFaithPerXPopulationInCity();
+
+				if (iXPopulation > 0)
+				{
+					iFaithPerPop += getPopulation() / iXPopulation;
+					iTotalFaith += iFaithPerPop;
+				}
+			}
+		}
+	}
+#endif
+#ifdef TRAIT_WONDER_BUILDERS_FAITH_PER_POP
+	int iCustomPalaceFaith = 0;
+		BuildingTypes ePalace = (BuildingTypes)GC.getInfoTypeForString("BUILDING_PALACE");
+	if (ePalace != NO_BUILDING && GetCityBuildings()->GetNumBuilding(ePalace) > 0)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		CivilizationTypes eTargetCiv = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_EGYPT");
+		if (eTargetCiv != NO_CIVILIZATION && kPlayer.getCivilizationType() == eTargetCiv)
+		{
+			iCustomPalaceFaith += getPopulation() / 3;
+		}
+	}
+	iTotalFaith += iCustomPalaceFaith;
+#endif
+	return iTotalFaith;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9691,6 +9753,14 @@ int CvCity::getJONSCulturePerTurnTimes100() const
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
+
+#ifdef BUILDING_HARBOR_INTERNATIONAL_CARGO_CULTURE
+		CvPlayerTrade* pPlayerTrade = GET_PLAYER(getOwner()).GetTrade();
+	if (pPlayerTrade)
+	{
+		iCulture += pPlayerTrade->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE);
+	}
+#endif
 
 	iCulture *= iModifier;
 	iCulture /= 100;
@@ -10545,6 +10615,26 @@ int CvCity::GetLocalHappiness() const
 		{
 			int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding((BuildingClassTypes)pInfo->GetBuildingClassType());
 			iLocalHappiness += iGreatWorks * pInfo->GetHappinessForFilledGreatWorkSlot();
+		}
+	}
+#endif
+
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY	
+	// HappinessPerPopulationInCity
+	for (int iBuilding = 0; iBuilding < GetCityBuildings()->GetBuildings()->GetNumBuildings(); iBuilding++)
+	{
+		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
+		if (pInfo)
+		{
+			if (GetCityBuildings()->GetNumBuilding((BuildingTypes)iBuilding) > 0)
+			{
+				int iXPopulation = pInfo->GetHappinessPerXPopulationInCity();
+
+				if (iXPopulation > 0)
+				{
+					iLocalHappiness += (getPopulation() / iXPopulation);
+				}
+			}
 		}
 	}
 #endif
@@ -13463,6 +13553,9 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 
 	DoUpdateCheapestPlotInfluence();
 
+#ifdef FIX_UPDATE_DEFERRED_FOG_ON_PLOT_ACQUISITION
+	GC.getMap().updateDeferredFog();
+#endif
 #ifdef UPDATE_UNIT_PROMOTIONS_ON_ACQUIRED_PLOT
 	if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbark())
 	{

@@ -7,6 +7,7 @@
 --     Ingame Civ Drafter
 --     Emote Picker Menu
 --     Quick delete text with Ctrl+Backspace
+--     Civilopedia Button
 -- for EUI and vanilla UI
 -------------------------------------------------
 include( "IconSupport" );
@@ -2547,6 +2548,10 @@ end
 Controls.EmotesScrollPanel:ReprocessAnchoring()
 Controls.EmotesScrollPanel:CalculateInternalSize()
 -- Emote Picker Menu END
+
+-- Civilopedia Button START
+Controls.CivilopediaButton:RegisterCallback( Mouse.eLClick, function() PreGame.SetReady(Matchmaking.GetLocalID(), false); UIManager:QueuePopup(Controls.Civilopedia, PopupPriority.HallOfFame) end )
+-- Civilopedia Button END
 
 -------------------------------------------------
 -- INGAME CIV DRAFTER

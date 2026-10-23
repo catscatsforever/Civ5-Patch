@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- edit:
+	- Close Button
+for EUI & Vanilla UI -->
 <Context Font="TwCenMT14" FontStyle="Base" Color="Beige" Color1="Black">
 	<Instance Name="ItemInstance">
 		<Box Anchor="L,C" Offset="0,0" Size="560,53" Color="255,255,255,0">

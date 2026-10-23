@@ -46,7 +46,10 @@ function ResetMultiplayerOptions()
 
 	PreGame.ResetGameOptions();
 	PreGame.ResetMapOptions();
-	
+
+	-- Default Private Game
+	PreGame.SetPrivateGame(true);
+
 	-- Default Game Options
 	if (PreGame.IsHotSeatGame()) then
 		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", false);

@@ -155,6 +155,15 @@ public:
 	int GetUnhappinessModifier() const;
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	int GetHappinessPerXPopulationInCity() const;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	int GetCulturePerXPopulationInCity() const;
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	int GetFaithPerXPopulationInCity() const;
+#endif
 	int GetCityCountUnhappinessMod() const;
 	bool IsNoOccupiedUnhappiness() const;
 	int GetGlobalPopulationChange() const;
@@ -457,6 +466,15 @@ private:
 	int m_iUnhappinessModifier;
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	int m_iHappinessPerXPopulationInCity;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	int m_iCulturePerXPopulationInCity;
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	int m_iFaithPerXPopulationInCity;
+#endif
 	int m_iCityCountUnhappinessMod;
 	bool m_bNoOccupiedUnhappiness;
 	int m_iGlobalPopulationChange;

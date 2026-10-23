@@ -1554,6 +1554,17 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_CITY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 			}
+#ifdef UNIT_NAVAL_MELEE_COMBAT_PENALTY_ATTACKING_CITY
+			if (pkAttacker != NULL && pkAttacker->getDomainType() == DOMAIN_SEA)
+			{
+				int iExtraCost = GC.getMOVE_DENOMINATOR();
+				pkAttacker->changeMoves(-iExtraCost);
+				if (pkAttacker->getMoves() < 0)
+				{
+					pkAttacker->setMoves(0);
+				}
+			}
+#endif
 			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
 
 #ifdef FIX_TEST_PROMOTION_READY

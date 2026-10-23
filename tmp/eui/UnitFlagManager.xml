@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- edit:
+	- Enhanced Unit Flags
+for EUI -->
 <Context ColorSet="Beige_Black_Alpha" >
 
 	<!--AlphaAnim ID="FlagFader" AlphaStart="1" AlphaEnd="0" Speed="2" Cycle="Once" Stopped="1" -->
@@ -64,9 +67,12 @@
 				<!-- Selection or War Highlight -->
 				<Image ID="FlagHighlight" Size="64,64" TextureOffset="0,64" Texture="UnitFlagBase.dds" Hidden="1" />
 
+				<!-- Enhanced Unit Flags -->
         		<Label ID="IsHealing" Anchor="L,T" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_GREEN_CROSS]" Hidden="1" />
         		<Label ID="IsOutOfAttacks" Anchor="L,B" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_WAR]" Hidden="1" />
         		<Label ID="IsNoCapture" Anchor="L,B" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_CAPITAL]" Hidden="1" />
+        		<Label ID="IsIdleCaravan" Anchor="R,T" Offset="10,10" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="[ICON_MOVES]" Hidden="1" />
+        		<Image ID="IsPromotionReady" Anchor="R,T" Size="24,24" Offset="7,5" Texture="promotions24.dds" Color="240,199,0,255" Hidden="1" />
 
 				<!-- Health Bar -->
 				<Bar ID="HealthBar" Offset="52,16" Size="2,32" Direction="Up" FGColor="0,255,255,255" BGColor="0,0,0,255" Hidden="1" />

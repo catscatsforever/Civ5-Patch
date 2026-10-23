@@ -1,6 +1,10 @@
 -------------------------------------------------
 -- Choose Maya Bonus Popup
 -------------------------------------------------
+-- edit:
+--     Close Button
+--     Grayed out disabled choices
+-- for EUI & Vanilla UI
 include("IconSupport");
 include("InfoTooltipInclude");
 
@@ -41,6 +45,10 @@ PopulateItems["GreatPeople"] = function(stackControl, playerID)
 			if (iEarlierBaktun > 0 and not player:IsFreeMayaGreatPersonChoice()) then
 				controlTable.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_SELECTED_EARLIER_BAKTUN", iEarlierBaktun));
 				controlTable.Button:SetDisabled(true);
+-- Grayed out disabled choices START
+				controlTable.Name:SetColor({ x=50/255, y=50/255, z=50/255, w=1 },0)
+				controlTable.Icon64:SetColor({ x=150/255, y=150/255, z=150/255, w=1 })
+-- Grayed out disabled choices END
 			else
 				controlTable.Button:SetToolTipString(Locale.ConvertTextKey( info.Strategy ) );
 			
@@ -138,10 +146,12 @@ function DisplayPopup(playerID, classType, numberOfFreeItems)
 	end);
 end
 
+-- Close Button START
 function OnClose()
 	ContextPtr:SetHide(true);
 end
 Controls.CloseButton:RegisterCallback(Mouse.eLClick, OnClose);
+-- Close Button END
 
 
 function OnPopup( popupInfo )	
@@ -155,6 +165,7 @@ function OnPopup( popupInfo )
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 
+-- Close Button START
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function InputHandler( uiMsg, wParam, lParam )
@@ -174,6 +185,7 @@ function InputHandler( uiMsg, wParam, lParam )
     end
 end
 ContextPtr:SetInputHandler( InputHandler );
+-- Close Button END
   
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 --     Diplomacy stack left/right switch option
 --     FIX Events.NotificationRemoved missing PlayerID argument
 --     FIX stacked tech notifications
+--     CS stage coup ready
 -- for EUI
 -------------------------------------------------
 include( "EUI_tooltips" )
@@ -337,6 +338,7 @@ for k, v, w in ([[
 	NOTIFICATION_MP_SCRAP_PROPOSAL		MPVotingSystemProposal
 	NOTIFICATION_MP_REMAP_PROPOSAL		MPVotingSystemProposal
 	NOTIFICATION_MP_PROPOSAL_RESULT		MPVotingSystemResult
+	NOTIFICATION_SPY_YOU_STAGE_COUP_READY		CSCoupReady	B
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
 	if n then

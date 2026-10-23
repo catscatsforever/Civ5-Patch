@@ -142,8 +142,8 @@ public:
 #endif
 	int GetRangeAttackAreaDamageMod() const;
 #endif
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
-	int GetLowHealthDefenseModifier() const;
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
+	int GetLowHealthCombatModifier() const;
 #endif
 #ifdef UNIT_FORTIFICATION_MODIFIER
 	int GetFortificationModifier() const;
@@ -312,8 +312,8 @@ private:
 #ifdef UNIT_RANGE_ATTACK_AREA_DAMAGE_MOD
 	int m_iRangeAttackAreaDamageMod;
 #endif
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
-	int m_iLowHealthDefenseModifier;
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
+	int m_iLowHealthCombatModifier;
 #endif
 #ifdef UNIT_FORTIFICATION_MODIFIER
 	int m_iFortificationModifier;

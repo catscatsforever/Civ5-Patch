@@ -3,7 +3,10 @@
 -- modified by bc1 from Civ V 1.0.3.276 code
 -- code is common using gk_mode and bnw_mode switches
 ------------------------------------------------------
--- edit: Ingame Hotkey Manager for EUI
+-- edit:
+--     Ingame Hotkey Manager
+--     FIX promotions always visible
+-- for EUI
 ------------------------------------------------------
 -- Ingame Hotkey Manager START
 g_actionInstances = {};
@@ -1089,6 +1092,9 @@ local function UpdateUnitActions( unit )
 		end
 
 		button:RegisterCallback( Mouse.eLClick, OnUnitActionClicked )
+		-- Ingame Hotkey Manager START
+		button:RegisterCallback( Mouse.eRClick, OnHotkeyEdit )
+		-- Ingame Hotkey Manager END
 		button:SetVoid1( action.ID )
 		button:SetToolTipCallback( ActionToolTipHandler )
 
@@ -2366,7 +2372,14 @@ end)
 --]]
 
 -- Ingame Hotkey Manager START
--- NEW update GameInfoActions for this context explicitly
+function OnHotkeyEdit( actionID )
+	if not UIManager:GetControl() then  -- Ctrl + RClick
+		return
+	end
+	LuaEvents.QuickHotkeyEdit(actionID)
+end
+
+-- update GameInfoActions for this context explicitly
 local function updateActions()
 	Game.UpdateActions()
 	g_iActionStyle = math.max(math.min(tonumber(HotkeyManagerData.GetValue('iActionStyle')) or 1, 4), 1)
@@ -2381,7 +2394,9 @@ Events.GameOptionsChanged.Add( updateActions )
 LuaEvents.EnemyPanelHide.Add(
 	function( isEnemyPanelHide )
 		if g_isWorkerActionPanelOpen then
-			Controls.WorkerActionPanel:SetHide( not isEnemyPanelHide )
+			-- FIX promotions always visible START
+			Controls.WorkerActionPanel:SetHide( not UI_GetHeadSelectedUnit():IsCombatUnit() and UI_GetHeadSelectedUnit():GetDomainType() ~= DomainTypes.DOMAIN_AIR and not isEnemyPanelHide )
+			-- FIX promotions always visible END
 		end
 		if not g_isHideUnitTypes and not g_isHideUnitList then
 			Controls.UnitTypesPanel:SetHide( not isEnemyPanelHide )

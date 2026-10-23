@@ -2525,6 +2525,19 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 				}
 #endif
 				GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);
+#ifdef CS_SHOW_FIRST_MEET_GOLD
+				if (ePlayer == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldGift);
+					float fDelay = 0.0f;
+					CvCity* pCapital = GetPlayer()->getCapitalCity();
+					if (pCapital)
+					{
+						DLLUI->AddPopupText(pCapital->getX(), pCapital->getY(), text, fDelay);
+					}
+				}
+#endif
 
 				// Faith gift
 				if(iFaithGift > 0)

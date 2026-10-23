@@ -410,6 +410,15 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessFromBuildings("CvPlayer::m_iHappinessFromBuildings", m_syncArchive)
 	, m_iHappinessPerCity("CvPlayer::m_iHappinessPerCity", m_syncArchive)
 	, m_iHappinessPerXPolicies(0)
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	, m_iHappinessPerXPopulationInCity(0)
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	, m_iCulturePerXPopulationInCity(0)
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	, m_iFaithPerXPopulationInCity(0)
+#endif
 	, m_iAdvancedStartPoints("CvPlayer::m_iAdvancedStartPoints", m_syncArchive)
 	, m_iAttackBonusTurns("CvPlayer::m_iAttackBonusTurns", m_syncArchive)
 	, m_iCultureBonusTurns(0)
@@ -1373,6 +1382,15 @@ void CvPlayer::uninit()
 	m_iHappinessFromBuildings = 0;
 	m_iHappinessPerCity = 0;
 	m_iHappinessPerXPolicies = 0;
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	m_iHappinessPerXPopulationInCity = 0;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	m_iCulturePerXPopulationInCity = 0;
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	m_iFaithPerXPopulationInCity = 0;
+#endif
 	m_iAdvancedStartPoints = -1;
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
@@ -2835,6 +2853,34 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 #endif
 
+#ifdef SONGHAI_UA_ADDITION
+	if (bConquest)
+	{
+		CivilizationTypes eTargetCiv = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_SONGHAI");
+		if (eTargetCiv != NO_CIVILIZATION && getCivilizationType() == eTargetCiv)
+		{
+			if (!pOldCity->isEverOwned(GetID()))
+			{
+				PlayerTypes eOldOwner = pOldCity->getOwner();
+				if (eOldOwner != NO_PLAYER)
+				{
+					bool bIsOldOwnerHuman = GET_PLAYER(eOldOwner).isHuman();
+					bool bIsOldOwnerMinor = GET_PLAYER(eOldOwner).isMinorCiv();
+					bool bIsOptionEnabled = GC.getGame().isOption("GAMEOPTION_AI_TWEAKS");
+					if (bIsOldOwnerHuman || bIsOldOwnerMinor || (!bIsOldOwnerHuman && !bIsOptionEnabled))
+					{
+						CvCity* pCapital = getCapitalCity();
+						if (pCapital != NULL)
+						{
+							pCapital->changePopulation(1, true);							
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
+
 	// slewis - warmonger calculations
 	if (bConquest)
 	{
@@ -3874,6 +3920,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				else if (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bIsMinorCivBuyout)
 #endif
 				{
+#ifdef CITY_CAPTURE_AUTO_PUPPET
+					if (eLiberatedPlayer == NO_PLAYER)
+					{
+						pNewCity->DoCreatePuppet();
+					}
+					else
+#endif
 					if(GC.getGame().getActivePlayer() == GetID())
 					{
 						int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, eLiberatedPlayer };
@@ -6163,9 +6216,27 @@ void CvPlayer::DoUnitReset()
 			else
 			{
 #ifdef BUILDING_ATTRITION_INSIDE_BORDERS
-				if (pLoopUnit->IsHurt() && !(pLoopUnit->plot()->getOwner() != NO_PLAYER && pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && GET_PLAYER(pLoopUnit->plot()->getOwner()).getAttritionInsideBorders() > 0 && pLoopUnit->getDomainType() == DOMAIN_LAND))
+				if (pLoopUnit->IsHurt())
 				{
-					pLoopUnit->doHeal();
+					bool bBlockHealingByWall = false;
+
+					if (pLoopUnit->plot()->getOwner() != NO_PLAYER &&
+						pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() &&
+						GET_PLAYER(pLoopUnit->plot()->getOwner()).getAttritionInsideBorders() > 0 &&
+						pLoopUnit->getDomainType() == DOMAIN_LAND)
+					{
+						TeamTypes ePlotOwnerTeam = GET_PLAYER(pLoopUnit->plot()->getOwner()).getTeam();
+
+						if (GET_TEAM(pLoopUnit->getTeam()).isAtWar(ePlotOwnerTeam))
+						{
+							bBlockHealingByWall = true;
+						}
+					}
+
+					if (!bBlockHealingByWall)
+					{
+						pLoopUnit->doHeal();
+					}
 				}
 #else
 				if(pLoopUnit->IsHurt())
@@ -6183,6 +6254,19 @@ void CvPlayer::DoUnitReset()
 			ChangeUnitsHPAttrition(min(pLoopUnit->GetMaxHitPoints() - pLoopUnit->getDamage(), iCitadelDamage));
 			#endif
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+#ifdef DEATH_ON_ATTRITION_NOTIFICATIONS
+			if (pLoopUnit->getDamage() >= GC.getMAX_HIT_POINTS())
+			{
+				CvString strBuffer;
+				CvNotifications* pNotification = GetNotifications();
+				if (pNotification)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
+					pNotification->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), GetID());
+				}
+			}
+#endif
 		}
 
 		// Finally (now that healing is done), restore movement points
@@ -10516,6 +10600,21 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	// Extra Happiness Per Policy
 	ChangeExtraHappinessPerXPolicies(pBuildingInfo->GetHappinessPerXPolicies() * iChange);
 
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	// Extra Happiness Per Population In City
+	ChangeExtraHappinessPerXPopulationInCity(pBuildingInfo->GetHappinessPerXPopulationInCity()* iChange);
+#endif
+
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	// Extra Culture Per Population In City
+	ChangeExtraCulturePerXPopulationInCity(pBuildingInfo->GetCulturePerXPopulationInCity()* iChange);
+#endif
+
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	// Extra Faith Per Population In City
+	ChangeExtraFaithPerXPopulationInCity(pBuildingInfo->GetFaithPerXPopulationInCity()* iChange);
+#endif
+
 	// City Count Unhappiness Mod
 	ChangeCityCountUnhappinessMod(pBuildingInfo->GetCityCountUnhappinessMod() * iChange);
 
@@ -14767,6 +14866,34 @@ int CvPlayer::GetExtraHappinessPerXPolicies() const
 	return m_iHappinessPerXPolicies;
 }
 
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Returns the amount of extra Happiness per City Population
+int CvPlayer::GetExtraHappinessPerXPopulationInCity() const
+{
+	return m_iHappinessPerXPopulationInCity;
+}
+#endif
+
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Returns the amount of extra Culture per City Population
+int CvPlayer::GetExtraCulturePerXPopulationInCity() const
+{
+	return m_iCulturePerXPopulationInCity;
+}
+#endif
+
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Returns the amount of extra Culture per City Population
+int CvPlayer::GetExtraFaithPerXPopulationInCity() const
+{
+	return m_iFaithPerXPopulationInCity;
+}
+#endif
+
+
 //	--------------------------------------------------------------------------------
 /// Changes amount of extra Happiness per City
 void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
@@ -14776,6 +14903,44 @@ void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
 	if(iChange != 0)
 		m_iHappinessPerXPolicies += iChange;
 }
+
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Changes amount of extra Happiness per City Population
+void CvPlayer::ChangeExtraHappinessPerXPopulationInCity(int iChange)
+{
+	CvAssertMsg(m_iHappinessPerXPopulationInCity >= 0, "Count of extra happiness per population is corrupted");
+
+	if (iChange != 0)
+		m_iHappinessPerXPopulationInCity += iChange;
+}
+#endif
+
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Changes amount of extra Culture per City Population
+void CvPlayer::ChangeExtraCulturePerXPopulationInCity(int iChange)
+{
+	CvAssertMsg(m_iCulturePerXPopulationInCity >= 0, "Count of extra culture per population is corrupted");
+
+	if (iChange != 0)
+		m_iCulturePerXPopulationInCity += iChange;
+}
+#endif
+
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+//	--------------------------------------------------------------------------------
+/// Changes amount of extra Faith per City Population
+void CvPlayer::ChangeExtraFaithPerXPopulationInCity(int iChange)
+{
+	CvAssertMsg(m_iFaithPerXPopulationInCity >= 0, "Count of extra faith per population is corrupted");
+
+	if (iChange != 0)
+		m_iFaithPerXPopulationInCity += iChange;
+}
+#endif
+
+
 
 //	--------------------------------------------------------------------------------
 /// Total amount of Happiness gained from Resources
@@ -14975,12 +15140,29 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 			return 0;
 		}
 
+#ifdef TRAIT_EXTRA_LUXURY_HAPPINESS
+		int iResourceCount = getNumResourceAvailable(eResource, /*bIncludeImport*/ true);
+		if (iResourceCount > 0)
+		{
+			int iTotalHappiness = iBaseHappiness;
+			CivilizationTypes eTargetCiv = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_PORTUGAL");
+			if (eTargetCiv != NO_CIVILIZATION && getCivilizationType() == eTargetCiv)
+			{
+				if (iResourceCount > 1)
+				{
+					int iExtraCopies = iResourceCount - 1;
+					iTotalHappiness += (iExtraCopies * 1);
+				}
+			}
+			return iTotalHappiness;
+		}
+#else
 		// Any extras?
-		else if(getNumResourceAvailable(eResource, /*bIncludeImport*/ true) > 0)
+		else if (getNumResourceAvailable(eResource, /*bIncludeImport*/ true) > 0)
 		{
 			return iBaseHappiness;
 		}
-
+#endif
 		else if(GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 		{
 			if(getResourceExport(eResource) > 0)
@@ -27510,6 +27692,48 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iHappinessPerTradeRouteCount;
 	kStream >> m_iHappinessPerXPopulation;
 	kStream >> m_iHappinessPerXPolicies;
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1018)
+	{
+#endif
+		kStream >> m_iHappinessPerXPopulationInCity;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iHappinessPerXPopulationInCity = 0;
+	}
+#endif
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1018)
+	{
+#endif
+		kStream >> m_iCulturePerXPopulationInCity;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iCulturePerXPopulationInCity = 0;
+	}
+#endif
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	if (uiVersion >= 1018)
+	{
+#endif
+		kStream >> m_iFaithPerXPopulationInCity;
+#ifdef SAVE_BACKWARDS_COMPATIBILITY
+	}
+	else
+	{
+		m_iFaithPerXPopulationInCity = 0;
+	}
+#endif
+#endif
 	if (uiVersion >= 8)
 	{
 		kStream >> m_iHappinessFromLeagues;
@@ -29739,6 +29963,15 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iHappinessPerTradeRouteCount;
 	kStream << m_iHappinessPerXPopulation;
 	kStream << m_iHappinessPerXPolicies;
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	kStream << m_iHappinessPerXPopulationInCity;
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	kStream << m_iCulturePerXPopulationInCity;
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	kStream << m_iFaithPerXPopulationInCity;
+#endif
 	kStream << m_iHappinessFromLeagues;
 	kStream << m_iEspionageModifier;
 	kStream << m_iSpyStartingRank;

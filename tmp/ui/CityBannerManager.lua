@@ -885,6 +885,7 @@ function RefreshCityDamage(instance, iDamage, iMaxDamage)
 	local iHealthPercent = 1 - (iDamage / iMaxDamage);
 
     instance.SubControls.CityBannerHealthBar:SetPercent(iHealthPercent);
+    instance.SubControls.CityBannerHealthBar:SetToolTipString( string.format("%g / %g", iMaxDamage - iDamage, iMaxDamage) )
     
 	---- Health bar color based on amount of damage
 	local tBarColor = {};

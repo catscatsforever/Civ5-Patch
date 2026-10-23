@@ -1,6 +1,9 @@
 -------------------------------------------------
--- edit: MP voting system for vanilla UI
--- edit: FIX Events.NotificationRemoved missing PlayerID argument 
+-- edits:
+--     MP voting system
+--     FIX Events.NotificationRemoved missing PlayerID argument 
+--     CS stage coup ready
+-- for vanilla UI
 -------------------------------------------------
 -- Action Info Panel
 -------------------------------------------------
@@ -234,6 +237,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_MP_CC_PROPOSAL ] = "MPVotingSystemPr
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_SCRAP_PROPOSAL ] = "MPVotingSystemProposal";
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_REMAP_PROPOSAL ] = "MPVotingSystemProposal";
 g_NameTable[ NotificationTypes.NOTIFICATION_MP_PROPOSAL_RESULT ] = "MPVotingSystemResult";
+g_NameTable[ NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_READY ] = "CSCoupReady";
 
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------

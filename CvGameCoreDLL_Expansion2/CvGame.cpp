@@ -60,7 +60,7 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
-#if defined (DEV_RECORDING_STATISTICS) || defined (REPLAY_EVENTS)
+#if defined (DEV_RECORDING_STATISTICS) && defined (REPLAY_EVENTS)
 # include <winsqlite3.h>
 # pragma comment(lib, "winsqlite3.lib")
 #endif
@@ -3322,6 +3322,13 @@ void CvGame::handleAction(int iAction)
 								{
 									if(pPlot->getImprovementType() != NO_IMPROVEMENT && !(pPlot->getFeatureType() == FEATURE_FALLOUT && pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
 									{
+#ifdef FIX_REDUNDANT_CONFIRM_REBUILD_POPUPS
+										CvImprovementEntry* pImprovementInfo2 = GC.getImprovementInfo(pPlot->getImprovementType());
+										if (!pBuildInfo->IsRemoveRoute() &&  // Let them remove a route
+											!(pImprovementInfo2 && !pImprovementInfo2->IsRequiresFeature() && (pBuildInfo->isFeatureRemove(FEATURE_FOREST) || pBuildInfo->isFeatureRemove(FEATURE_JUNGLE) || pBuildInfo->isFeatureRemove(FEATURE_MARSH))) &&  // remove a non-required feature
+											!(pkHeadSelectedUnit->IsGreatPerson())  // build a great person's improvement
+										)
+#endif
 										bShowConfirmPopup = true;
 									}
 								}
@@ -5615,6 +5622,14 @@ void CvGame::DoUpdateDiploVictory()
 	int iVotesToWin = (int)floor(fCivVotesPortion + fCityStateVotesPortion);
 	iVotesToWin = MAX(iVotesForHost + iVotesPerCiv + 1, iVotesToWin);
 	iVotesToWin = MIN(iVotesForHost + (iVotesPerCiv * (int)fCivsToCount) + (iVotesPerCityState * (int)fCityStatesToCount), iVotesToWin);
+
+#ifdef LESS_TOTAL_VOTES_FOR_VICTORY
+	iVotesToWin -= LESS_TOTAL_VOTES_FOR_VICTORY;
+	if (iVotesToWin < 1)
+	{
+		iVotesToWin = 1;
+	}
+#endif
 
 	SetVotesNeededForDiploVictory(iVotesToWin);
 	GC.GetEngineUserInterface()->setDirty(LeagueScreen_DIRTY_BIT, true);
@@ -10347,7 +10362,7 @@ void CvGame::generateReplayKeys()
 	}
 }
 #endif
-#ifdef REPLAY_EVENTS
+#if defined (DEV_RECORDING_STATISTICS) && defined (REPLAY_EVENTS)
 
 //	--------------------------------------------------------------------------------
 void CvGame::exportReplayEvents()

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ingame Hotkey Manager -->
+<Context ColorSet="Beige_Black" Font="TwCenMT16" FontStyle="Shadow" >
+	<Box ID="HotkeyBGBlock" Style="BGBlock" />
+
+	<Container ID="QuickHotkeyEdit" Anchor="L,B" Size="200,34" Offset="300,200" ConsumeMouse="1" Hidden="0">
+		<Box Anchor="L,C" Size="200,34" ID="HotkeyEditButtonsBox" Color="0,0,0,0" Hidden="0">
+			<Button Offset="210,-36" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditCancelButton">
+				<HideOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" />
+						<Image Color="Red,220" Anchor="L,C" AnchorSide="O.I" Offset="2,-2" Texture="checkx.dds" Size="26,26" />
+					</Stack>
+				</HideOnMouseOver>
+				<ShowOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" />
+						<Image Color="Red,220" Anchor="L,C" AnchorSide="O.I" Offset="2,-2" Texture="checkx.dds" Size="26,26" />
+					</Stack>
+				</ShowOnMouseOver>
+			</Button>
+			<Button Offset="210,0" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditConfirmButton">
+				<HideOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_CONFIRM_HOTKEY" />
+				<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="checkmark.dds" Size="26,26" />
+					</Stack>
+				</HideOnMouseOver>
+				<ShowOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_CONFIRM_HOTKEY" />
+				<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="checkmark.dds" Size="26,26" />
+					</Stack>
+				</ShowOnMouseOver>
+			</Button>
+			<Button Offset="210,36" Anchor="R,C" TextAnchorSide="Right" Font="TwCenMT22" Size="100,36" ConsumeMouse="1" ID="HotkeyEditResetButton">
+				<HideOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_OPSCREEN_RESET_HOTKEY" />
+						<Label Offset="0,-1" String="[ICON_SWAP]" />
+					</Stack>
+				</HideOnMouseOver>
+				<ShowOnMouseOver>
+					<Stack Anchor="R,C" Size="100,36" Offset="0,0" StackGrowth="Left" >
+						<Label Anchor="R,C" Font="TwCenMT22" FontStyle="SoftShadow" String="TXT_KEY_OPSCREEN_RESET_HOTKEY" />
+						<Label Offset="0,-1" String="[ICON_SWAP]" />
+					</Stack>
+				</ShowOnMouseOver>
+			</Button>
+		</Box>
+		<Box Anchor="L,C" Size="154,24" Color="255,255,200,255" ID="HotkeyOuterBox" >
+			<Box Anchor="C,C" Size="152,22" Offset="0,0" Color="0,0,0,255" >
+				<EditBox ID="HotkeyEdit" EditMode="1" Size="150,18" Anchor="C,C" Font="TwCenMT16" NumberInput="0" Disabled="1" MaxLength="64" />
+			</Box>
+		</Box>
+		<Button ID="HotkeyEditButton" Anchor="L,C" Size="154,24" ToolTipType="Simple" ConsumeMouse="1">
+			<Label ID="HotkeyEditFrontLabel" Size="150,18" Anchor="C,C" Font="TwCenMT16" />
+		</Button>
+		<Image ID="HotkeyDescriptionIcon" Offset="153,0" Anchor="L,C" Size="45,45" />
+		<Image ID="HotkeyDescriptionIcon32" Offset="160,0" Anchor="L,C" Size="32,32" Hidden="1" />
+		<Label ID="HotkeyDescriptionLabel" Offset="197,0" Anchor="L,C" Font="TwCenMT20" TruncateWidth="350" />
+	</Container>
+
+	<!-- Tooltips -->
+	<ToolTipType Name="Simple" >
+		<Grid ID="Root" Anchor="L,T" Offset="30,5" Size="555,12" Padding="8,8" Style="GridBlack8" Color="White,240">
+			<Label ID="Text" Anchor="C,C" Font="TwCenMT16" String="Brief description" WrapWidth="555" />
+		</Grid>
+	</ToolTipType>
+</Context>

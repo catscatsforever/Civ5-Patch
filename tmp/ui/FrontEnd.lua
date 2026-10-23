@@ -12,19 +12,24 @@ g_LoadingPaths = {
 	'loadingbasegame_1.dds',  -- mod 1
 	'loadingbasegame_3.dds',  -- mod 2
 	'loadingbasegame_7.dds',  -- mod 3
+	'loadingbasegame_8.dds',  -- Himeji Castle
 	'loadingbasegame_9.dds',  -- mod 4
 	'loadingbasegame_10.dds',  -- mod 5
+	'loadingbasegame_12.dds',  -- Great Lighthouse
 	'loadingbasegame_13.dds',  -- mod 6
 	'loadingbasegame_14.dds',  -- mod 7
 	'loadingbasegame_15.dds',  -- mod 8
+	'loadingbasegame_17.dds',  -- Cristo Redentor
 	'loadingbasegame_18.dds',  -- mod 9
-	-- patch /Art/Loadings
-	'mod_loading_10.dds',
-	'mod_loading_11.dds',
+	'loadingbasegame_20.dds',  -- Brandenburg Gate
 	-- Expansion2UITextures.fpk
-	'loading_2.dds',  -- mod 12
-	'loading_3.dds',  -- mod 13
-	'loading_6.dds',  -- mod 14
+	'loading_2.dds',  -- Parthenon
+	'loading_3.dds',  -- Uffizi
+	'loading_4.dds',  -- Broadway
+	'loading_6.dds',  -- Borobudur
+	-- patch /Art/Loadings
+	'mod_loading_10.dds',  -- Alhambra
+	'mod_loading_11.dds',  -- Leaning Tower of Pisa
 }
 -- Random background image & scaling END
 
@@ -56,7 +61,7 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 
 -- Random background image & scaling START
 function OnScreenResize()
-	local rx, ry = UIManager.GetScreenSizeVal();
+	local rx, ry = UIManager:GetScreenSizeVal();
 	Controls.AtlasLogo:Resize(rx, rx * 1200 / 1920);
 end
 

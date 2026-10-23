@@ -3,6 +3,7 @@
 -------------------------------------------------
 -- edit:
 --     Patch Updates Checker and Changelog Button
+--     Ingame Civ Drafter
 -- for EUI & vanilla UI
 -------------------------------------------------
 include( "MPGameDefaults" );
@@ -120,7 +121,12 @@ Controls.PatchNotesCloseButton:RegisterCallback( Mouse.eLClick, function() ShowH
 function ShowHideHandler( bIsHide, bIsInit )
     if( not bIsHide ) then
         Controls.Civ5Logo:SetTexture( "CivilzationV_Logo.dds" );
-        
+
+		-- Ingame Civ Drafter START
+		print('entered main menu: reset drafts (local)')
+		local product = 4 * 2 ^ 28;  -- reset draft data (local)
+		PreGame.SetLeaderKey( product, 'TXT_KEY_DRAFTS_RESET_DISC' );
+		-- Ingame Civ Drafter END
 		-- Patch Updates Checker and Changelog Button START
 		t1 = os.time();
 		Controls.PatchChangelog:LocalizeAndSetToolTip( 'TXT_KEY_PATCH_UPDATE_NOTES_TOOLTIP' );

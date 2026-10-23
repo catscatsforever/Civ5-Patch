@@ -21814,7 +21814,7 @@
 			<BeliefType>BELIEF_DESERT_FOLKLORE</BeliefType> 
 			<FeatureType>FEATURE_OASIS</FeatureType> 
 			<YieldType>YIELD_PRODUCTION</YieldType> 
-			<Yield>1</Yield> 
+			<Yield>2</Yield> 
 		</Row>
 	</Belief_FeatureYieldChanges> 
 
@@ -22087,6 +22087,12 @@
 		<Row> 
 			<BeliefType>BELIEF_SPIRIT_ANIMALS</BeliefType> 
 			<ResourceType>RESOURCE_DEER</ResourceType> 
+			<YieldType>YIELD_FAITH</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
+			<BeliefType>BELIEF_SPIRIT_ANIMALS</BeliefType> 
+			<ResourceType>RESOURCE_BISON</ResourceType> 
 			<YieldType>YIELD_FAITH</YieldType> 
 			<Yield>1</Yield> 
 		</Row>
@@ -22686,7 +22692,7 @@
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType> 
 			<YieldType>YIELD_CULTURE</YieldType> 
-			<ForeignFollowers>7</ForeignFollowers> 
+			<ForeignFollowers>6</ForeignFollowers> 
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INTERFAITH_DIALOGUE</BeliefType> 
@@ -29060,10 +29066,6 @@
 			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType> 
 		</Row>
 		<Row> 
-			<BuildingType>BUILDING_SEAPORT</BuildingType> 
-			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType> 
-		</Row>
-		<Row> 
 			<BuildingType>BUILDING_CEILIDH_HALL</BuildingType> 
 			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType> 
 		</Row>
@@ -33304,6 +33306,11 @@
 			<Yield>3</Yield> 
 		</Row>
 		<Row> 
+			<BuildingType>BUILDING_FLOATING_MARKET</BuildingType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
 			<BuildingType>BUILDING_GLASSBLOWING_WORKSHOP</BuildingType> 
 			<YieldType>YIELD_PRODUCTION</YieldType> 
 			<Yield>3</Yield> 
@@ -33832,16 +33839,6 @@
 			<BuildingType>BUILDING_MOSQUE</BuildingType> 
 			<YieldType>YIELD_CULTURE</YieldType> 
 			<Yield>1</Yield> 
-		</Row>
-		<Row> 
-			<BuildingType>BUILDING_MOSQUE</BuildingType> 
-			<YieldType>YIELD_FAITH</YieldType> 
-			<Yield>3</Yield> 
-		</Row>
-		<Row> 
-			<BuildingType>BUILDING_PAGODA</BuildingType> 
-			<YieldType>YIELD_CULTURE</YieldType> 
-			<Yield>3</Yield> 
 		</Row>
 		<Row> 
 			<BuildingType>BUILDING_PAGODA</BuildingType> 
@@ -34390,6 +34387,9 @@
 		<Column name="BorderTransitionObstacle" type="boolean"  default="0"/>
 		<Column name="CapitalGoldModifier" type="integer"  default="0"/>
 		<Column name="AttritionInsideBorders" type="integer"  default="0"/>
+		<Column name="HappinessPerXPopulationInCity" type="integer"  default="0"/>
+		<Column name="CulturePerXPopulationInCity" type="integer"  default="0"/>
+		<Column name="FaithPerXPopulationInCity" type="integer"  default="0"/>
 	</Table> 
 	<Buildings>
 		<Delete />
@@ -34826,7 +34826,7 @@
 			<DiplomaticVoting>false</DiplomaticVoting> 
 			<AffectSpiesNow>false</AffectSpiesNow> 
 			<NullifyInfluenceModifier>false</NullifyInfluenceModifier> 
-			<Cost>75</Cost> 
+			<Cost>65</Cost> 
 			<FaithCost>0</FaithCost> 
 			<LeagueCost>0</LeagueCost> 
 			<UnlockedByBelief>false</UnlockedByBelief> 
@@ -49971,11 +49971,12 @@
 			<NukeModifier>0</NukeModifier> 
 			<NukeExplosionRand>0</NukeExplosionRand> 
 			<HealRateChange>0</HealRateChange> 
-			<Happiness>2</Happiness> 
+			<Happiness>0</Happiness> 
 			<UnmoddedHappiness>0</UnmoddedHappiness> 
 			<UnhappinessModifier>0</UnhappinessModifier> 
 			<HappinessPerCity>0</HappinessPerCity> 
 			<HappinessPerXPolicies>0</HappinessPerXPolicies> 
+			<HappinessPerXPopulationInCity>6</HappinessPerXPopulationInCity>
 			<CityCountUnhappinessMod>0</CityCountUnhappinessMod> 
 			<NoOccupiedUnhappiness>false</NoOccupiedUnhappiness> 
 			<WorkerSpeedModifier>0</WorkerSpeedModifier> 
@@ -50173,6 +50174,7 @@
 			<ArtInfoCulturalVariation>false</ArtInfoCulturalVariation> 
 			<ArtInfoEraVariation>false</ArtInfoEraVariation> 
 			<ArtInfoRandomVariation>false</ArtInfoRandomVariation> 
+			<FaithPerXPopulationInCity>4</FaithPerXPopulationInCity> 
 		</Row>
 		<Row> 
 			<ID>139</ID> 
@@ -50205,7 +50207,7 @@
 			<AffectSpiesNow>false</AffectSpiesNow> 
 			<NullifyInfluenceModifier>false</NullifyInfluenceModifier> 
 			<Cost>-1</Cost> 
-			<FaithCost>225</FaithCost> 
+			<FaithCost>200</FaithCost> 
 			<LeagueCost>0</LeagueCost> 
 			<UnlockedByBelief>true</UnlockedByBelief> 
 			<UnlockedByLeague>false</UnlockedByLeague> 
@@ -50304,6 +50306,7 @@
 			<ArtInfoCulturalVariation>false</ArtInfoCulturalVariation> 
 			<ArtInfoEraVariation>false</ArtInfoEraVariation> 
 			<ArtInfoRandomVariation>false</ArtInfoRandomVariation> 
+			<CulturePerXPopulationInCity>5</CulturePerXPopulationInCity>
 		</Row>
 		<Row> 
 			<ID>140</ID> 
@@ -50735,7 +50738,7 @@
 			<DiplomaticVoting>false</DiplomaticVoting> 
 			<AffectSpiesNow>false</AffectSpiesNow> 
 			<NullifyInfluenceModifier>false</NullifyInfluenceModifier> 
-			<Cost>75</Cost> 
+			<Cost>65</Cost> 
 			<FaithCost>0</FaithCost> 
 			<LeagueCost>0</LeagueCost> 
 			<UnlockedByBelief>false</UnlockedByBelief> 
@@ -53677,7 +53680,7 @@
 			<ID>165</ID> 
 			<Type>BUILDING_SKI_RESORT</Type>
 			<BuildingClass>BUILDINGCLASS_HOTEL</BuildingClass>
-			<Cost>300</Cost>
+			<Cost>250</Cost>
 			<GoldMaintenance>0</GoldMaintenance>
 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SKI_RESORT_HELP</Help>
@@ -53761,7 +53764,7 @@
 			<ID>169</ID> 
 			<Type>BUILDING_SENNACHERIB_GARDEN</Type>
 			<BuildingClass>BUILDINGCLASS_GARDEN</BuildingClass>
-			<Cost>120</Cost>
+			<Cost>140</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_THEOLOGY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_SENNACHERIB_GARDEN</Description>
@@ -53864,7 +53867,7 @@
 			<ID>174</ID>
 			<Type>BUILDING_PRUSSIAN_STAFF_COLLEGE</Type>
 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
-			<Cost>300</Cost>
+			<Cost>250</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<Help>TXT_KEY_BUILDING_PRUSSIAN_STAFF_COLLEGE_HELP</Help>
@@ -53929,7 +53932,7 @@
 			<BuildingClass>BUILDINGCLASS_TEMPLE</BuildingClass>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<Cost>100</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_STAVE_CHURCH_DESC</Description>
 			<Help>TXT_KEY_BUILDING_STAVE_CHURCH_HELP</Help>
@@ -54193,7 +54196,7 @@
 			<ID>190</ID>
 			<Type>BUILDING_PA</Type>
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
-			<Cost>75</Cost>
+			<Cost>65</Cost>
 			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_PA_HELP</Help>
 			<Description>TXT_KEY_BUILDING_PA</Description>
@@ -54215,7 +54218,7 @@
 			<ID>191</ID>
 			<Type>BUILDING_BARBICAN</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>160</Cost>
+			<Cost>150</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_BARBICAN_HELP</Help>
 			<Description>TXT_KEY_BUILDING_BARBICAN</Description>
@@ -54239,7 +54242,7 @@
 			<ID>192</ID>
 			<Type>BUILDING_TORRE_DE_BELEM</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>160</Cost>
+			<Cost>150</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_TORRE_DE_BELEM_HELP</Help>
 			<Description>TXT_KEY_BUILDING_TORRE_DE_BELEM</Description>
@@ -82326,7 +82329,7 @@
 		</Row>
 		<Row> 
 			<Name>EXOTIC_GOODS_GOLD_MAX</Name> 
-			<Value>400</Value> 
+			<Value>250</Value> 
 		</Row>
 		<Row> 
 			<Name>EXOTIC_GOODS_XP_MIN</Name> 
@@ -130558,6 +130561,12 @@
 			<Welcomeness>0</Welcomeness> 
 			<Urgent>false</Urgent> 
 		</Row>
+		<Row> 
+			<ID>150</ID> 
+			<NotificationType>NOTIFICATION_SPY_YOU_STAGE_COUP_READY</NotificationType> 
+			<Welcomeness>0</Welcomeness> 
+			<Urgent>false</Urgent> 
+		</Row>
 	</Notifications> 
 
 	<Table name="PlayerColors">
@@ -132093,7 +132102,7 @@
 			<MedianTechPercentChange>0</MedianTechPercentChange> 
 			<StrategicResourceMod>0</StrategicResourceMod> 
 			<WonderProductionModifier>0</WonderProductionModifier> 
-			<BuildingProductionModifier>5</BuildingProductionModifier> 
+			<BuildingProductionModifier>10</BuildingProductionModifier> 
 			<GreatPeopleRateModifier>0</GreatPeopleRateModifier> 
 			<GreatGeneralRateModifier>0</GreatGeneralRateModifier> 
 			<GreatAdmiralRateModifier>0</GreatAdmiralRateModifier> 
@@ -133066,7 +133075,7 @@
 			<MilitaryFoodProduction>false</MilitaryFoodProduction> 
 			<HappinessToCulture>0</HappinessToCulture> 
 			<HappinessToScience>0</HappinessToScience> 
-			<NumCitiesFreeCultureBuilding>4</NumCitiesFreeCultureBuilding> 
+			<NumCitiesFreeCultureBuilding>5</NumCitiesFreeCultureBuilding> 
 			<NumCitiesFreeFoodBuilding>0</NumCitiesFreeFoodBuilding> 
 			<HalfSpecialistUnhappiness>false</HalfSpecialistUnhappiness> 
 			<HalfSpecialistFood>false</HalfSpecialistFood> 
@@ -133580,7 +133589,7 @@
 			<PolicyBranchType>POLICY_BRANCH_HONOR</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>2</GridX> 
+			<GridX>3</GridX> 
 			<GridY>1</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -133882,7 +133891,7 @@
 			<PolicyBranchType>POLICY_BRANCH_HONOR</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>3</GridX> 
+			<GridX>4</GridX> 
 			<GridY>2</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -134034,8 +134043,8 @@
 			<PolicyBranchType>POLICY_BRANCH_HONOR</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>5</GridX> 
-			<GridY>2</GridY> 
+			<GridX>1</GridX> 
+			<GridY>1</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
 			<CulturePerCity>0</CulturePerCity> 
@@ -134086,7 +134095,7 @@
 			<FreeUnitsPopulationPercent>0</FreeUnitsPopulationPercent> 
 			<FreeMilitaryUnitsPopulationPercent>0</FreeMilitaryUnitsPopulationPercent> 
 			<HappinessPerGarrisonedUnit>1</HappinessPerGarrisonedUnit> 
-			<CulturePerGarrisonedUnit>2</CulturePerGarrisonedUnit> 
+			<CulturePerGarrisonedUnit>1</CulturePerGarrisonedUnit> 
 			<HappinessPerTradeRoute>0</HappinessPerTradeRoute> 
 			<HappinessPerXPopulation>0</HappinessPerXPopulation> 
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury> 
@@ -134185,7 +134194,7 @@
 			<PolicyBranchType>POLICY_BRANCH_HONOR</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>1</GridX> 
+			<GridX>2</GridX> 
 			<GridY>2</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -136304,7 +136313,7 @@
 			<PolicyBranchType>POLICY_BRANCH_COMMERCE</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>4</GridX> 
+			<GridX>2</GridX> 
 			<GridY>1</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -136455,7 +136464,7 @@
 			<PolicyBranchType>POLICY_BRANCH_COMMERCE</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>2</GridX> 
+			<GridX>4</GridX> 
 			<GridY>3</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -136757,7 +136766,7 @@
 			<PolicyBranchType>POLICY_BRANCH_COMMERCE</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>4</GridX> 
+			<GridX>2</GridX> 
 			<GridY>3</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -136908,7 +136917,7 @@
 			<PolicyBranchType>POLICY_BRANCH_COMMERCE</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
-			<GridX>2</GridX> 
+			<GridX>4</GridX> 
 			<GridY>1</GridY> 
 			<Level>0</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
@@ -138043,7 +138052,7 @@
 			<UnitSupplyMod>0</UnitSupplyMod> 
 			<UnitUpgradeCostMod>0</UnitUpgradeCostMod> 
 			<CityStrengthMod>0</CityStrengthMod> 
-			<CityGrowthMod>20</CityGrowthMod> 
+			<CityGrowthMod>15</CityGrowthMod> 
 			<CapitalGrowthMod>0</CapitalGrowthMod> 
 			<SettlerProductionModifier>0</SettlerProductionModifier> 
 			<CapitalSettlerProductionModifier>0</CapitalSettlerProductionModifier> 
@@ -138054,7 +138063,7 @@
 			<HappinessToCulture>0</HappinessToCulture> 
 			<HappinessToScience>0</HappinessToScience> 
 			<NumCitiesFreeCultureBuilding>0</NumCitiesFreeCultureBuilding> 
-			<NumCitiesFreeFoodBuilding>4</NumCitiesFreeFoodBuilding> 
+			<NumCitiesFreeFoodBuilding>5</NumCitiesFreeFoodBuilding> 
 			<HalfSpecialistUnhappiness>false</HalfSpecialistUnhappiness> 
 			<HalfSpecialistFood>false</HalfSpecialistFood> 
 			<MaxConscript>0</MaxConscript> 
@@ -143732,7 +143741,7 @@
 			<NumCitiesPolicyCostDiscount>0</NumCitiesPolicyCostDiscount> 
 			<GarrisonedCityRangeStrikeModifier>0</GarrisonedCityRangeStrikeModifier> 
 			<UnitPurchaseCostModifier>0</UnitPurchaseCostModifier> 
-			<BuildingPurchaseCostModifier>-33</BuildingPurchaseCostModifier> 
+			<BuildingPurchaseCostModifier>-25</BuildingPurchaseCostModifier> 
 			<CityConnectionTradeRouteGoldModifier>0</CityConnectionTradeRouteGoldModifier> 
 			<TradeMissionGoldModifier>0</TradeMissionGoldModifier> 
 			<FaithCostModifier>0</FaithCostModifier> 
@@ -143743,7 +143752,7 @@
 			<GoldPerUnit>0</GoldPerUnit> 
 			<GoldPerMilitaryUnit>0</GoldPerMilitaryUnit> 
 			<RouteGoldMaintenanceMod>0</RouteGoldMaintenanceMod> 
-			<BuildingGoldMaintenanceMod>-33</BuildingGoldMaintenanceMod> 
+			<BuildingGoldMaintenanceMod>-25</BuildingGoldMaintenanceMod> 
 			<UnitGoldMaintenanceMod>0</UnitGoldMaintenanceMod> 
 			<UnitSupplyMod>0</UnitSupplyMod> 
 			<UnitUpgradeCostMod>0</UnitUpgradeCostMod> 
@@ -144459,7 +144468,7 @@
 			<GreatScientistRateModifier>0</GreatScientistRateModifier> 
 			<DomesticGreatGeneralRateModifier>0</DomesticGreatGeneralRateModifier> 
 			<ExtraHappiness>0</ExtraHappiness> 
-			<ExtraHappinessPerCity>0</ExtraHappinessPerCity> 
+			<ExtraHappinessPerCity>1</ExtraHappinessPerCity> 
 			<UnhappinessMod>0</UnhappinessMod> 
 			<CityCountUnhappinessMod>0</CityCountUnhappinessMod> 
 			<OccupiedPopulationUnhappinessMod>0</OccupiedPopulationUnhappinessMod> 
@@ -145033,7 +145042,7 @@
 			<CultureCost>10</CultureCost> 
 			<GridX>0</GridX> 
 			<GridY>0</GridY> 
-			<Level>2</Level> 
+			<Level>3</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
 			<CulturePerCity>0</CulturePerCity> 
 			<CulturePerWonder>0</CulturePerWonder> 
@@ -145184,7 +145193,7 @@
 			<CultureCost>10</CultureCost> 
 			<GridX>0</GridX> 
 			<GridY>0</GridY> 
-			<Level>3</Level> 
+			<Level>2</Level> 
 			<PolicyCostModifier>0</PolicyCostModifier> 
 			<CulturePerCity>0</CulturePerCity> 
 			<CulturePerWonder>0</CulturePerWonder> 
@@ -145323,7 +145332,7 @@
 			<PortraitIndex>11</PortraitIndex> 
 			<IconAtlas>POLICY_ATLAS_EXP2</IconAtlas> 
 			<IconAtlasAchieved>POLICY_A_ATLAS_EXP2</IconAtlasAchieved> 
-			<HappyTourismModifier>34</HappyTourismModifier> 
+			<HappyTourismModifier>0</HappyTourismModifier> 
 		</Row>
 		<Row> 
 			<ID>91</ID> 
@@ -146118,9 +146127,9 @@
 			<GreatPeopleRateModifier>0</GreatPeopleRateModifier> 
 			<GreatGeneralRateModifier>0</GreatGeneralRateModifier> 
 			<GreatAdmiralRateModifier>0</GreatAdmiralRateModifier> 
-			<GreatWriterRateModifier>0</GreatWriterRateModifier> 
-			<GreatArtistRateModifier>0</GreatArtistRateModifier> 
-			<GreatMusicianRateModifier>0</GreatMusicianRateModifier> 
+			<GreatWriterRateModifier>33</GreatWriterRateModifier> 
+			<GreatArtistRateModifier>33</GreatArtistRateModifier> 
+			<GreatMusicianRateModifier>33</GreatMusicianRateModifier> 
 			<GreatMerchantRateModifier>0</GreatMerchantRateModifier> 
 			<GreatScientistRateModifier>0</GreatScientistRateModifier> 
 			<DomesticGreatGeneralRateModifier>0</DomesticGreatGeneralRateModifier> 
@@ -147902,7 +147911,7 @@
 			<Type>POLICY_UNIVERSAL_HEALTHCARE_F</Type> 
 			<Description>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE</Description> 
 			<Civilopedia>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT</Civilopedia> 
-			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_HELP</Help> 
+			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP</Help> 
 			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
@@ -148053,7 +148062,7 @@
 			<Type>POLICY_UNIVERSAL_HEALTHCARE_O</Type> 
 			<Description>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE</Description> 
 			<Civilopedia>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT</Civilopedia> 
-			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_HELP</Help> 
+			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP</Help> 
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
@@ -148204,7 +148213,7 @@
 			<Type>POLICY_UNIVERSAL_HEALTHCARE_A</Type> 
 			<Description>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE</Description> 
 			<Civilopedia>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT</Civilopedia> 
-			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_HELP</Help> 
+			<Help>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP</Help> 
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType> 
 			<NumExtraBranches>0</NumExtraBranches> 
 			<CultureCost>10</CultureCost> 
@@ -148685,6 +148694,66 @@
 			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType> 
 			<CultureChange>1</CultureChange> 
 		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_CIRCUS_MAXIMUS</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_IRONWORKS</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType> 
+			<CultureChange>2</CultureChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType> 
+			<CultureChange>2</CultureChange>
+		</Row>
 	</Policy_BuildingClassCultureChanges> 
 
 	<Table name="Policy_BuildingClassHappiness">
@@ -148708,6 +148777,11 @@
 		<Row> 
 			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType> 
+			<Happiness>1</Happiness> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType> 
 			<Happiness>1</Happiness> 
 		</Row>
 		<Row> 
@@ -149185,6 +149259,21 @@
 			<BuildingClassType>BUILDINGCLASS_MILITARY_BASE</BuildingClassType> 
 			<ProductionModifier>25</ProductionModifier>  
 		</Row>
+		<Row> 
+			<PolicyType>POLICY_EXPLORATION</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType> 
+			<ProductionModifier>50</ProductionModifier> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_EXPLORATION</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType> 
+			<ProductionModifier>50</ProductionModifier> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_EXPLORATION</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType> 
+			<ProductionModifier>50</ProductionModifier> 
+		</Row>
 	</Policy_BuildingClassProductionModifiers> 
 
 	<Table name="Policy_BuildingClassTourismModifiers">
@@ -149367,6 +149456,150 @@
 			<YieldType>YIELD_SCIENCE</YieldType> 
 			<YieldChange>5</YieldChange> 
 		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_CIRCUS_MAXIMUS</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_IRONWORKS</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType> 
+			<YieldType>YIELD_FOOD</YieldType> 
+			<YieldChange>2</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_CIRCUS_MAXIMUS</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_IRONWORKS</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType> 
+			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType> 
+			<YieldType>YIELD_GOLD</YieldType> 
+			<YieldChange>4</YieldChange>  
+		</Row>
 	</Policy_BuildingClassYieldChanges> 
 
 	<Table name="Policy_BuildingClassYieldModifiers">
@@ -149403,27 +149636,27 @@
 		<Row> 
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType> 
-			<TourismChange>3</TourismChange> 
+			<TourismChange>5</TourismChange> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType> 
-			<TourismChange>3</TourismChange> 
+			<TourismChange>5</TourismChange> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType> 
-			<TourismChange>3</TourismChange> 
+			<TourismChange>5</TourismChange> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType> 
-			<TourismChange>3</TourismChange> 
+			<TourismChange>5</TourismChange> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType> 
 			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType> 
-			<TourismChange>3</TourismChange> 
+			<TourismChange>5</TourismChange> 
 		</Row>
 	</Policy_BuildingClassTourismChanges> 
 
@@ -149439,16 +149672,6 @@
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType> 
 			<YieldType>YIELD_FOOD</YieldType> 
 			<Yield>2</Yield> 
-		</Row>
-		<Row> 
-			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType> 
-			<YieldType>YIELD_FOOD</YieldType> 
-			<Yield>5</Yield> 
-		</Row>
-		<Row> 
-			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType> 
-			<YieldType>YIELD_SCIENCE</YieldType> 
-			<Yield>5</Yield> 
 		</Row>
 	</Policy_CapitalYieldChanges> 
 
@@ -149524,11 +149747,6 @@
 			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType> 
 			<YieldType>YIELD_GOLD</YieldType> 
 			<Yield>1</Yield> 
-		</Row>
-		<Row> 
-			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType> 
-			<YieldType>YIELD_PRODUCTION</YieldType> 
-			<Yield>2</Yield> 
 		</Row>
 	</Policy_CityYieldChanges> 
 
@@ -150505,6 +150723,11 @@
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType> 
 			<PromotionType>PROMOTION_MARCH</PromotionType> 
 		</Row>
+		<Row> 
+			<PolicyType>POLICY_ARSENAL_DEMOCRACY</PolicyType> 
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType> 
+			<PromotionType>PROMOTION_INTERCEPTION_1</PromotionType> 
+		</Row>
 	</Policy_FreePromotionUnitCombats> 
 
 	<Table name="Policy_FreePromotions">
@@ -150747,6 +150970,18 @@
 			<YieldType>YIELD_PRODUCTION</YieldType> 
 			<Yield>1</Yield> 
 		</Row>
+		<Row> 
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType> 
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType> 
+			<YieldType>YIELD_SCIENCE</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType> 
+			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType> 
+			<YieldType>YIELD_SCIENCE</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
 	</Policy_ImprovementYieldChanges> 
 
 	<Table name="Policy_PrereqORPolicies">
@@ -150794,10 +151029,6 @@
 			<PrereqPolicy>POLICY_WARRIOR_CODE</PrereqPolicy> 
 		</Row>
 		<Row> 
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType> 
-			<PrereqPolicy>POLICY_DISCIPLINE</PrereqPolicy> 
-		</Row>
-		<Row> 
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType> 
 			<PrereqPolicy>POLICY_WARRIOR_CODE</PrereqPolicy> 
 		</Row>
@@ -150843,11 +151074,11 @@
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_MERCANTILISM</PolicyType> 
-			<PrereqPolicy>POLICY_PROTECTIONISM</PrereqPolicy> 
+			<PrereqPolicy>POLICY_TRADE_UNIONS</PrereqPolicy> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_ENTREPRENEURSHIP</PolicyType> 
-			<PrereqPolicy>POLICY_MERCANTILISM</PrereqPolicy> 
+			<PrereqPolicy>POLICY_PROTECTIONISM</PrereqPolicy> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CARAVANS</PolicyType> 
@@ -150855,7 +151086,7 @@
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_CARAVANS</PolicyType> 
-			<PrereqPolicy>POLICY_TRADE_UNIONS</PrereqPolicy> 
+			<PrereqPolicy>POLICY_PROTECTIONISM</PrereqPolicy> 
 		</Row>
 		<Row> 
 			<PolicyType>POLICY_MERCHANT_NAVY</PolicyType> 
@@ -172465,12 +172696,12 @@
 		<Row> 
 			<PromotionType>PROMOTION_PENALTY_AGAINST_NAVAL</PromotionType> 
 			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType> 
-			<Attack>-50</Attack> 
+			<Attack>-33</Attack> 
 		</Row>
 		<Row> 
 			<PromotionType>PROMOTION_PENALTY_AGAINST_NAVAL</PromotionType> 
 			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType> 
-			<Attack>-50</Attack> 
+			<Attack>-33</Attack> 
 		</Row>
 	</UnitPromotions_UnitCombatMods> 
 
@@ -178181,6 +178412,66 @@
 			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType> 
 		</Row>
 		<Row> 
+			<UnitType>UNIT_GALLEY</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_TRIREME</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_CARTHAGINIAN_QUINQUEREME</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_CARAVEL</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_KOREAN_TURTLE_SHIP</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_PORTUGUESE_NAU</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_PRIVATEER</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_IRONCLAD</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_DUTCH_SEA_BEGGAR</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_DESTROYER</UnitType> 
+			<PromotionType>PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_ARABIAN_CAMELARCHER</UnitType> 
+			<PromotionType>PROMOTION_PENLATY_ATTACKING_OUTER_RING_33</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_MONGOLIAN_KESHIK</UnitType> 
+			<PromotionType>PROMOTION_PENLATY_ATTACKING_OUTER_RING_33</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_INDIAN_WARELEPHANT</UnitType> 
+			<PromotionType>PROMOTION_PENLATY_ATTACKING_OUTER_RING_33</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_GATLINGGUN</UnitType> 
+			<PromotionType>PROMOTION_PENLATY_ATTACKING_OUTER_RING_50</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_INCAN_SLINGER</UnitType> 
+			<PromotionType>PROMOTION_PENLATY_ATTACKING_OUTER_RING_50</PromotionType> 
+		</Row>
+		<Row> 
 			<UnitType>UNIT_ARABIAN_CAMELARCHER</UnitType> 
 			<PromotionType>PROMOTION_NO_DEFENSIVE_BONUSES</PromotionType> 
 		</Row>
@@ -178986,7 +179277,7 @@
 		</Row>
 		<Row> 
 			<UnitType>UNIT_MAYAN_ATLATLIST</UnitType> 
-			<PromotionType>PROMOTION_STRONGER_VS_DAMAGED_25</PromotionType> 
+			<PromotionType>PROMOTION_STRONGER_VS_DAMAGED_20</PromotionType> 
 		</Row>
 		<Row> 
 			<UnitType>UNIT_BYZANTINE_DROMON</UnitType> 
@@ -179478,6 +179769,10 @@
 		</Row>
 		<Row> 
 			<UnitType>UNIT_ARCHER</UnitType> 
+			<PromotionType>PROMOTION_PENALTY_AGAINST_NAVAL</PromotionType> 
+		</Row>
+		<Row> 
+			<UnitType>UNIT_BARBARIAN_ARCHER</UnitType> 
 			<PromotionType>PROMOTION_PENALTY_AGAINST_NAVAL</PromotionType> 
 		</Row>
 		<Row> 
@@ -182067,7 +182362,7 @@
 		<Column name="HealthyMod" type="integer"  default="0"/>
 		<Column name="NoAdjacentMod" type="integer"  default="0"/>
 		<Column name="RangeAttackAreaDamageMod" type="integer"  default="0"/>
-		<Column name="LowHealthDefenseModifier" type="integer"  default="0"/>
+		<Column name="LowHealthCombatModifier" type="integer"  default="0"/>
 		<Column name="FortificationModifier" type="integer"  default="0"/>
 		<Column name="IgnoreTerrainDefense" type="boolean"  default="0"/>
 	</Table> 
@@ -186879,7 +187174,7 @@
 			<PortraitIndex>40</PortraitIndex> 
 			<IconAtlas>UNIT_ATLAS_1</IconAtlas> 
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas> 
-			<LowHealthDefenseModifier>20</LowHealthDefenseModifier>
+			<LowHealthCombatModifier>20</LowHealthCombatModifier>
 		</Row>
 		<Row> 
 			<ID>55</ID> 
@@ -187421,6 +187716,7 @@
 			<PortraitIndex>28</PortraitIndex> 
 			<IconAtlas>UNIT_ATLAS_1</IconAtlas> 
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas> 
+			<OuterRingsRangeAttackMod>-33</OuterRingsRangeAttackMod> 
 		</Row>
 		<Row> 
 			<ID>61</ID> 
@@ -188604,7 +188900,7 @@
 			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_LEGION_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY</Strategy> 
 			<Help>TXT_KEY_UNIT_HELP_ROMAN_LEGION</Help> 
-			<Combat>17</Combat> 
+			<Combat>16</Combat> 
 			<RangedCombat>0</RangedCombat> 
 			<Cost>75</Cost> 
 			<FaithCost>75</FaithCost> 
@@ -188957,6 +189253,7 @@
 			<PortraitIndex>19</PortraitIndex> 
 			<IconAtlas>UNIT_ATLAS_1</IconAtlas> 
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS</UnitFlagAtlas> 
+			<OuterRingsRangeAttackMod>-33</OuterRingsRangeAttackMod> 
 		</Row>
 		<Row> 
 			<ID>78</ID> 
@@ -189145,7 +189442,7 @@
 			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_IMMORTAL_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_UNIT_PERSIAN_IMMORTAL_STRATEGY</Strategy> 
 			<Help>TXT_KEY_UNIT_HELP_IMMORTAL</Help> 
-			<Combat>11</Combat> 
+			<Combat>10</Combat> 
 			<RangedCombat>0</RangedCombat> 
 			<Cost>56</Cost> 
 			<FaithCost>56</FaithCost> 
@@ -190107,6 +190404,7 @@
 			<PortraitIndex>0</PortraitIndex> 
 			<IconAtlas>GENGHIS_UNIT_ATLAS</IconAtlas> 
 			<UnitFlagAtlas>GENGHIS_UNIT_FLAG_ATLAS</UnitFlagAtlas> 
+			<OuterRingsRangeAttackMod>-33</OuterRingsRangeAttackMod> 
 		</Row>
 		<Row> 
 			<ID>91</ID> 
@@ -194134,7 +194432,7 @@
 			<Civilopedia>TXT_KEY_CIV5_ASSYRIAN_SIEGE_TOWER_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER_STRATEGY</Strategy> 
 			<Help>TXT_KEY_UNIT_HELP_ASSYRIAN_SIEGE_TOWER</Help> 
-			<Combat>12</Combat> 
+			<Combat>11</Combat> 
 			<RangedCombat>0</RangedCombat> 
 			<Cost>75</Cost> 
 			<FaithCost>75</FaithCost> 
@@ -194315,7 +194613,7 @@
 			<Civilopedia>TXT_KEY_CIV5_PORTUGUESE_NAU_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_UNIT_PORTUGUESE_NAU_STRATEGY</Strategy> 
 			<Help>TXT_KEY_UNIT_HELP_PORTUGUESE_NAU</Help> 
-			<Combat>20</Combat> 
+			<Combat>23</Combat> 
 			<RangedCombat>0</RangedCombat> 
 			<Cost>120</Cost> 
 			<FaithCost>0</FaithCost> 

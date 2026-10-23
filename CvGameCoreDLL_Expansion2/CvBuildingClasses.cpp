@@ -83,6 +83,15 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iUnhappinessModifier(0),
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	m_iHappinessPerXPopulationInCity(0),
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	m_iCulturePerXPopulationInCity(0),
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	m_iFaithPerXPopulationInCity(0),
+#endif
 	m_iCityCountUnhappinessMod(0),
 	m_bNoOccupiedUnhappiness(false),
 	m_iGlobalPopulationChange(0),
@@ -393,6 +402,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iUnhappinessModifier = kResults.GetInt("UnhappinessModifier");
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+	m_iHappinessPerXPopulationInCity = kResults.GetInt("HappinessPerXPopulationInCity");
+#endif
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+	m_iCulturePerXPopulationInCity = kResults.GetInt("CulturePerXPopulationInCity");
+#endif
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+	m_iFaithPerXPopulationInCity = kResults.GetInt("FaithPerXPopulationInCity");
+#endif
 	m_iCityCountUnhappinessMod = kResults.GetInt("CityCountUnhappinessMod");
 	m_bNoOccupiedUnhappiness = kResults.GetBool("NoOccupiedUnhappiness");
 	m_iWorkerSpeedModifier = kResults.GetInt("WorkerSpeedModifier");
@@ -1287,6 +1305,32 @@ int CvBuildingEntry::GetHappinessPerXPolicies() const
 {
 	return m_iHappinessPerXPolicies;
 }
+
+#ifdef BUILDING_HAPPINESS_PER_X_POPULATION_IN_CITY
+/// Happiness per X number of Population in City provided by this building
+int CvBuildingEntry::GetHappinessPerXPopulationInCity() const
+{
+	return m_iHappinessPerXPopulationInCity;
+}
+#endif
+
+#ifdef BUILDING_CULTURE_PER_X_POPULATION_IN_CITY
+/// Culture per X number of Population in City provided by this building
+int CvBuildingEntry::GetCulturePerXPopulationInCity() const
+{
+	return m_iCulturePerXPopulationInCity;
+}
+#endif
+
+#ifdef BUILDING_FAITH_PER_X_POPULATION_IN_CITY
+/// Faith per X number of Population in City provided by this building
+int CvBuildingEntry::GetFaithPerXPopulationInCity() const
+{
+	return m_iFaithPerXPopulationInCity;
+}
+#endif
+
+
 
 /// CityCountUnhappinessMod provided by this building
 int CvBuildingEntry::GetCityCountUnhappinessMod() const
@@ -3050,6 +3094,45 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		{
 			pPlayer->GetTreasury()->ChangeBaseBuildingGoldMaintenance(buildingEntry->GetGoldMaintenance() * iChangeNumRealBuilding);
 		}
+
+		// Skipped case where player can have more than 1 grand temple
+#ifdef BUILDING_GRAND_TEMPLE_MAINTENANCE_DISCOUNT
+		BuildingTypes eGrandTemple = (BuildingTypes)GC.getInfoTypeForString("BUILDING_GRAND_TEMPLE");
+		BuildingTypes eTemple1 = (BuildingTypes)GC.getInfoTypeForString("BUILDING_TEMPLE");
+		BuildingTypes eTemple2 = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ASHRAM");
+		BuildingTypes eTemple3 = (BuildingTypes)GC.getInfoTypeForString("BUILDING_STAVE_CHURCH");
+
+		if (eIndex == eGrandTemple && eGrandTemple != NO_BUILDING)
+		{
+			int iLoop;
+			int iTotalTemplesCountInEmpire = 0;
+
+			for (CvCity* pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+			{
+				if (eTemple1 != NO_BUILDING) iTotalTemplesCountInEmpire += pLoopCity->GetCityBuildings()->GetNumBuilding(eTemple1);
+				if (eTemple2 != NO_BUILDING) iTotalTemplesCountInEmpire += pLoopCity->GetCityBuildings()->GetNumBuilding(eTemple2);
+				if (eTemple3 != NO_BUILDING) iTotalTemplesCountInEmpire += pLoopCity->GetCityBuildings()->GetNumBuilding(eTemple3);
+			}
+
+			if (iTotalTemplesCountInEmpire > 0)
+			{
+				pPlayer->GetTreasury()->ChangeBaseBuildingGoldMaintenance(-1 * iTotalTemplesCountInEmpire * iChangeNumRealBuilding);
+			}
+		}
+		else if (eGrandTemple != NO_BUILDING && (eIndex == eTemple1 || eIndex == eTemple2 || eIndex == eTemple3))
+		{
+			CvBuildingEntry* pkGrandTempleInfo = GC.getBuildingInfo(eGrandTemple);
+			if (pkGrandTempleInfo)
+			{
+				BuildingClassTypes eGrandTempleClass = (BuildingClassTypes)pkGrandTempleInfo->GetBuildingClassType();
+
+				if (pPlayer->getBuildingClassCount(eGrandTempleClass) > 0)
+				{
+					pPlayer->GetTreasury()->ChangeBaseBuildingGoldMaintenance(-1 * iChangeNumRealBuilding);
+				}
+			}
+		}
+#endif
 
 		//Achievement for Temples
 		const char* szBuildingTypeC = buildingEntry->GetType();

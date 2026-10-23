@@ -988,6 +988,9 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER:
 	case NOTIFICATION_SPY_EVICTED:
 	case NOTIFICATION_SPY_PROMOTION:
+#ifdef COUP_SYSTEM_REWORK
+	case NOTIFICATION_SPY_YOU_STAGE_COUP_READY:
+#endif
 	{
 		CvPopupInfo kPopup(BUTTONPOPUP_ESPIONAGE_OVERVIEW, m_ePlayer);
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -1867,6 +1870,14 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			return true;
 		}
+	}
+	break;
+#endif
+#ifdef COUP_SYSTEM_REWORK
+
+	case NOTIFICATION_SPY_YOU_STAGE_COUP_READY:
+	{
+		return false;
 	}
 	break;
 #endif

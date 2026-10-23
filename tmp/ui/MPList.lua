@@ -1,6 +1,9 @@
 -------------------------------------------------
 -- Diplomacy and Advisors Buttons that float out in the screen
 -------------------------------------------------
+-- edit:
+--     Map Pings
+-- for EUI & Vanilla UI
 include( "IconSupport" );
 include( "SupportFunctions"  );
 include( "InstanceManager" );
@@ -210,6 +213,15 @@ function UpdatePlayerData( pPlayer, controlTable )
     
     -- icon
     CivIconHookup( bMet and pPlayer:GetID() or -1, 32, controlTable.Icon, controlTable.CivIconBG, controlTable.CivIconShadow, false, true );
+    -- Map Pings START
+	if g_MapPingMute[pPlayer:GetID()] == true then
+		controlTable.CivIconBG:SetColor({ x=120/255, y=120/255, z=120/255, w=1 })
+		controlTable.Score:SetColor({ x=120/255, y=120/255, z=120/255, w=1 }, 0)
+	else
+		controlTable.CivIconBG:SetColor({ x=1, y=1, z=1, w=1 })
+		controlTable.Score:SetColor({ x=1, y=1, z=1, w=1 }, 0)
+	end
+    -- Map Pings END
 
 
     -- war color
@@ -370,6 +382,9 @@ function BuildControls()
                 ContextPtr:BuildInstanceForControl( "PlayerEntry", controlTable, Controls.MPListStack );
                 g_PlayerEntries[ pPlayer:GetID() ] = controlTable;
 								controlTable.ClickEntry:RegisterCallback( Mouse.eLClick, MPListEntryClick );
+								-- Map Pings START
+								controlTable.ClickEntry:RegisterCallback( Mouse.eRClick, function() LuaEvents.MapPingMutePlayer(controlTable, pPlayer:GetID()); end);
+								-- Map Pings END
 								controlTable.KickButton:RegisterCallback( Mouse.eLClick, OnKickPlayer );
 								controlTable.KickButton:SetVoid1(pPlayer:GetID());
 								controlTable.DiploWaiting:RegisterCallback( Mouse.eLClick, OnDiploWaiting );
@@ -425,6 +440,22 @@ function BuildControls()
     Controls.MPListScroll:ReprocessAnchoring();   
 
 end
+
+-- Map Pings START
+g_MapPingMute = {}
+function OnMapPingMutePlayer(controlTable, playerID)
+	if g_MapPingMute[playerID] == true then
+		g_MapPingMute[playerID] = false
+		controlTable.CivIconBG:SetColor({ x=1, y=1, z=1, w=1 })
+		controlTable.Score:SetColor({ x=1, y=1, z=1, w=1 }, 0)
+	else
+		g_MapPingMute[playerID] = true
+		controlTable.CivIconBG:SetColor({ x=120/255, y=120/255, z=120/255, w=1 })
+		controlTable.Score:SetColor({ x=120/255, y=120/255, z=120/255, w=1 }, 0)
+	end
+end
+LuaEvents.MapPingMutePlayer.Add( OnMapPingMutePlayer )
+-- Map Pings END
 
 
 -------------------------------------------------------------------------------

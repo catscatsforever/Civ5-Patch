@@ -2670,6 +2670,24 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		}
 	}
 #endif
+#ifdef TRAIT_FAST_FRIENDLY_ROADS
+	if (ePlayer != NO_PLAYER)
+	{
+		CivilizationTypes eRomeCiv = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_ROME");
+		if (eRomeCiv != NO_CIVILIZATION && GET_PLAYER(ePlayer).getCivilizationType() == eRomeCiv)
+		{
+			RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+			RouteTypes eNormalRoad = (RouteTypes)GC.getInfoTypeForString("ROUTE_ROAD");
+			if (eRoute != NO_ROUTE && eNormalRoad != NO_ROUTE && eRoute == eNormalRoad)
+			{
+				if (IsFriendlyTerritory(ePlayer))
+				{
+					iTime = 100;
+				}
+			}
+		}
+	}
+#endif
 
 	return iTime;
 }
@@ -8389,6 +8407,38 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 		}
 	}
+#ifdef POLICY_THIRD_ALTERNATIVE_EXTRA_YIELDS
+	if (isCity())
+	{
+		CvCity* pCity = getPlotCity();
+		if (pCity != NULL && pCity->IsOriginalCapital())
+		{
+			PlayerTypes eOriginalFounder = pCity->getOriginalOwner();
+
+			if (eOriginalFounder != NO_PLAYER && !GET_PLAYER(eOriginalFounder).isMinorCiv())
+			{
+				PlayerTypes eOwner = pCity->getOwner();
+				if (eOwner != NO_PLAYER)
+				{
+					PolicyTypes eTargetPolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_THIRD_ALTERNATIVE");
+
+					if (eTargetPolicy != NO_POLICY && GET_PLAYER(eOwner).GetPlayerPolicies()->HasPolicy(eTargetPolicy))
+					{
+						YieldTypes eFood = (YieldTypes)GC.getInfoTypeForString("YIELD_FOOD");
+						YieldTypes eProduction = (YieldTypes)GC.getInfoTypeForString("YIELD_PRODUCTION");
+						YieldTypes eScience = (YieldTypes)GC.getInfoTypeForString("YIELD_SCIENCE");
+						YieldTypes eCulture = (YieldTypes)GC.getInfoTypeForString("YIELD_CULTURE");
+
+						if (eYield == eFood || eYield == eProduction || eYield == eScience || eYield == eCulture)
+						{
+							iYield += 5;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	return std::max(0, iYield);
 }

@@ -4,6 +4,7 @@
 	- Emote Picker Menu
 	- Ingame Civ Drafter
 	- Quick delete text with Ctrl+Backspace
+	- Civilopedia Button
 for EUI and vanilla UI -->
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -609,6 +610,9 @@ for EUI and vanilla UI -->
       <ScrollBar  Style="VertSlider"      Anchor="R,T" Offset="3,18" AnchorSide="I,I" Length="300"  />
       <UpButton   Style="ScrollBarUp"     Anchor="R,T" Offset="3,0" AnchorSide="I,I" />
       <DownButton Style="ScrollBarDown"   Anchor="R,B" Offset="3,0" AnchorSide="I,I" />
+	  
+	  <!-- Civilopedia Button -->
+      <Button ID="CivilopediaButton" Anchor="L,T" Offset="4,0" Texture="HelpButton.dds" Size="28,28" ToolTip="TXT_KEY_CIVILOPEDIA_TOOLTIP"/>
 
       <Stack ID="AdvancedOptions" Anchor="L,T" Offset="10,0" Padding="6" StackGrowth="Bottom" >
 
@@ -875,5 +879,6 @@ for EUI and vanilla UI -->
   <LuaContext FileName="Assets/UI/FrontEnd/GameSetup/SetCivNames" ID="SetCivNames" Hidden="1" />
   <LuaContext FileName="Assets/DLC/Shared/UI/InGame/Popups/ConfirmKick" ID="ConfirmKick" Hidden="1" />
   <LuaContext FileName="Assets/UI/InGame/Menus/SaveMenu" ID="SaveMenu" Hidden="1" />
+  <LuaContext FileName="Assets/UI/Civilopedia/CivilopediaScreen" ID="Civilopedia" Hidden="1" DeferLoad="1" />
 
 </Context>

@@ -1901,9 +1901,9 @@ local function UpdateCityViewNow()
 				local greatWorkCount = civ5bnw_mode and building.GreatWorkCount or 0
 				local areSpecialistsAllowedByBuilding = city:GetNumSpecialistsAllowedByBuilding(buildingID) > 0
 
-				if buildingClass.MaxGlobalInstances > 0
+				if (buildingClass.MaxGlobalInstances > 0
 				or buildingClass.MaxTeamInstances > 0
-				or ( buildingClass.MaxPlayerInstances == 1 and not areSpecialistsAllowedByBuilding )
+				or buildingClass.MaxPlayerInstances == 1) and not areSpecialistsAllowedByBuilding
 				then
 					buildings = wonders
 					if areSpecialistsAllowedByBuilding then

@@ -1,7 +1,10 @@
 --------------------------------------------------
 -- Unit Panel Screen 
 --------------------------------------------------
--- edit: Ingame Hotkey Manager for vanilla UI
+-- edit:
+--     Ingame Hotkey Manager
+--     FIX promotions always visible
+-- for vanilla UI
 --------------------------------------------------
 -- Ingame Hotkey Manager START
 g_actionInstances = {};
@@ -375,6 +378,9 @@ function UpdateUnitActions( unit )
 				HookupActionIcon(action, actionIconSize, instance.UnitActionIcon);	
             end
             instance.UnitActionButton:RegisterCallback( Mouse.eLClick, OnUnitActionClicked );
+            -- Ingame Hotkey Manager START
+            instance.UnitActionButton:RegisterCallback( Mouse.eRClick, OnHotkeyEdit )
+            -- Ingame Hotkey Manager END
             instance.UnitActionButton:SetVoid1( iAction );
 			instance.UnitActionButton:SetToolTipCallback( TipHandler )
            
@@ -1813,7 +1819,14 @@ end
 Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 
 -- Ingame Hotkey Manager START
--- NEW update GameInfoActions for this context explicitly
+function OnHotkeyEdit( actionID )
+	if not UIManager:GetControl() then  -- Ctrl + RClick
+		return
+	end
+	LuaEvents.QuickHotkeyEdit(actionID)
+end
+
+-- update GameInfoActions for this context explicitly
 local function updateActions()
 	Game.UpdateActions()
 	g_iActionStyle = math.max(math.min(tonumber(HotkeyManagerData.GetValue('iActionStyle')) or 1, 4), 1)
@@ -1826,7 +1839,9 @@ Events.GameOptionsChanged.Add( updateActions )
 
 function OnEnemyPanelHide( bIsEnemyPanelHide )
     if( g_bWorkerActionPanelOpen ) then
-        Controls.WorkerActionPanel:SetHide( not bIsEnemyPanelHide );
+    	-- FIX promotions always visible START
+        Controls.WorkerActionPanel:SetHide( not UI.GetHeadSelectedUnit():IsCombatUnit() and UI.GetHeadSelectedUnit():GetDomainType() ~= DomainTypes.DOMAIN_AIR and not bIsEnemyPanelHide );
+        -- FIX promotions always visible END
     end
 end
 LuaEvents.EnemyPanelHide.Add( OnEnemyPanelHide );

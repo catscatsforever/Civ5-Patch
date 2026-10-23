@@ -4,6 +4,9 @@
 -- fix quantity erratic display & make code much more efficient
 -- add compatibility with "DLL - Various Mod Components" v63
 -------------------------------------------------
+-- edit:
+--     invisible yields bug fix
+-- for EUI
 
 -- Minor optimizations
 local pairs = pairs
@@ -131,6 +134,10 @@ function( x, y, isShown )
 				anchor = table_remove( g_AvailableAnchors )
 				if anchor then
 					anchor.Anchor:ChangeParent( Controls_YieldStore )
+-- invisible yields bug fix START
+					local a,b,c= GridToWorld( x, y )
+					anchor.Anchor:SetWorldPositionVal( a,b,c )
+-- invisible yields bug fix END
 				else
 					anchor = {}
 					ContextPtr:BuildInstanceForControl( "AnchorInstance", anchor, Controls_YieldStore )

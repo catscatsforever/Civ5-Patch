@@ -4,7 +4,9 @@
 --     alternative graph colors
 --     Replay Events
 --     Graph Tooltip
---     Fractional Values
+--     Graph Fractional Values
+--     Graph Turn Range Slider
+--     Graph Legend RClick
 -- for EUI & vanilla UI
 -------------------------------------------------------------------
 include("InstanceManager");
@@ -183,6 +185,10 @@ g_ReplayEventInstanceManager = InstanceManager:new("ReplayEventInstance", "Base"
 -- Graph Tooltip START
 g_GraphShown = {}
 -- Graph Tooltip END
+-- Graph Turn Range Slider START
+g_GraphStartTurn = Game.GetStartTurn()
+g_GraphEndTurn = Game.GetGameTurn()
+-- Graph Turn Range Slider END
 
 g_ReplayInfo = {};
 g_ReplayEventCategories = {};
@@ -418,7 +424,9 @@ Panels = {
 			-- Graph Tooltip START
 			tipControls = {};
 			TTManager:GetTypeControlTable( "GraphToolTip", tipControls );
-			local st, ft = Panels[2].PadHorizontalValues(g_ReplayInfo.InitialTurn, g_ReplayInfo.FinalTurn + 1)
+-- Graph Turn Range Slider START
+			local st, ft = Panels[2].PadHorizontalValues(g_GraphStartTurn, g_GraphEndTurn + 1)
+-- Graph Turn Range Slider END
 			local sc = {}
 			for i, player in ipairs(g_ReplayInfo.PlayerInfo) do
 				local civ = GameInfo.Civilizations[player.Civilization];
@@ -440,15 +448,16 @@ Panels = {
 						DrawCursor(xRelative, yRelative);
 						ToggleHideLines(false);
 						-- Graph Tooltip START
-						local ct = math.max(g_ReplayInfo.InitialTurn, st + math.floor(xRelative / graphDisplayWidth * (ft - st)))
+-- Graph Turn Range Slider START
+						local ct = math.max(g_GraphStartTurn, st + math.floor(xRelative / graphDisplayWidth * (ft - st)))
+-- Graph Turn Range Slider END
 						local vals = {}
-						for k,v in next,sc do
+						for _, v in next, sc do
 							local val = g_ReplayInfo.PlayerInfo[v.Id].Scores[ct][Panels[2].CurrentGraphDataSetIndex]
 							if g_GraphShown[v.Id] and val ~= nil then
 								vals[#vals+1] = {Name = v.Name, Val = val, Color = v.Color}
 							end
 						end
-						local out = {}
 						table.sort(vals, function(a,b) return a.Val > b.Val end)  -- show top 10
 						tipControls.Turn:LocalizeAndSetText('TXT_KEY_TP_TURN_COUNTER', ct)
 						for i = 1, 10 do
@@ -472,8 +481,10 @@ Panels = {
 		DrawGraph = function(panel)
 				
 			local graphWidth, graphHeight = Controls.GraphCanvas:GetSizeVal();
-			local initialTurn = g_ReplayInfo.InitialTurn;
-			local finalTurn = g_ReplayInfo.FinalTurn;
+-- Graph Turn Range Slider START
+			local initialTurn = g_GraphStartTurn;
+			local finalTurn = g_GraphEndTurn;
+-- Graph Turn Range Slider END
 			
 			local playerInfos = g_ReplayInfo.PlayerInfo;
 			local indexName = panel.CurrentGraphDataSetIndex;
@@ -585,7 +596,9 @@ Panels = {
 			for i,v in ipairs(playerInfos) do
 				for turn, score in pairs(v.Scores) do
 					local s = score[indexName];
-					if(s) then
+-- Graph Turn Range Slider START
+					if turn >= g_GraphStartTurn and turn <= g_GraphEndTurn + 1 and (s) then
+-- Graph Turn Range Slider END
 						if(s > maxScore) then
 							maxScore = s;
 						end
@@ -637,11 +650,11 @@ Panels = {
 			end
 		end,
 		
-		Refresh = function(panel) 
+		Refresh = function(panel, bKeepChecks) 
 		
 			local graphWidth, graphHeight = Controls.GraphCanvas:GetSizeVal();
-			local initialTurn = g_ReplayInfo.InitialTurn;
-			local finalTurn = g_ReplayInfo.FinalTurn;
+			local initialTurn = g_GraphStartTurn;
+			local finalTurn = g_GraphEndTurn;
 			local startYear = g_ReplayInfo.StartYear;
 			local calendarType = GameInfo.Calendars[g_ReplayInfo.Calendar].Type;
 			local gameSpeedType = GameInfo.GameSpeeds[g_ReplayInfo.GameSpeed].Type;
@@ -765,6 +778,11 @@ Panels = {
 					
 					-- Default city states to be unchecked.
 					local checked = civ.Type ~= "CIVILIZATION_MINOR";
+					-- Graph Turn Range Slider START
+					if bKeepChecks then
+						checked = g_GraphShown[i]
+					end
+					-- Graph Turn Range Slider END
 					graphLegendInstance.ShowHide:SetCheck(checked);
 					-- Graph Tooltip START
 					g_GraphShown[i] = checked
@@ -783,6 +801,30 @@ Panels = {
 					end);
 					
 					panel.GraphLegendsByPlayer[i] = graphLegendInstance;
+					-- Graph Legend RClick START
+					graphLegendInstance.ShowHide:RegisterCallback(Mouse.eRClick, function()
+						for k, _ in ipairs(panel.SegmentsByPlayer) do
+							if k ~= i then
+								local segments = panel.SegmentsByPlayer[k];
+								if(segments) then
+									for _, v in ipairs(segments) do
+										v.LineSegment:SetHide(true);
+									end
+								end
+								g_GraphShown[k] = false
+								panel.GraphLegendsByPlayer[k].ShowHide:SetCheck(false)
+							end
+						end
+						local segments = panel.SegmentsByPlayer[i];
+						if(segments) then
+							for _, v in ipairs(segments) do
+								v.LineSegment:SetHide(false);
+							end
+						end
+						g_GraphShown[i] = true
+						panel.GraphLegendsByPlayer[i].ShowHide:SetCheck(true)
+					end);
+					-- Graph Legend RClick END
 					end
 				end
 				
@@ -791,6 +833,10 @@ Panels = {
 			
 			RefreshCivilizations();
 			RefreshHorizontalScales();
+
+			-- Graph Turn Range Slider START
+			Controls.GraphTurnRangeSliderBack:LocalizeAndSetToolTip('TXT_KEY_REPLAY_VIEWER_TURN_RANGE_SLIDER_TT', g_GraphStartTurn, g_GraphEndTurn)
+			-- Graph Turn Range Slider END
 			
 			Controls.GraphLegendStack:CalculateSize();
 			Controls.GraphLegendStack:ReprocessAnchoring();
@@ -1132,14 +1178,14 @@ end
 Controls.BackButton:RegisterCallback(Mouse.eLClick, OnBack);
 
 ----------------------------------------------------------------
+local KeyDown = KeyEvents.KeyDown
 function InputHandler(uiMsg, wParam, lParam)
-    if(uiMsg == KeyEvents.KeyDown) then
+    if(uiMsg == KeyDown) then
         if(wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN) then
 			OnBack();
         end
 		return true;
     end
-   
 end
 
 if(not g_bIsEndGame) then
@@ -1590,11 +1636,11 @@ function GenerateReplayInfoFromCurrentGame()
 					end
 					
 					local turnData = scores[turn];
-					-- Fractional Values START
+					-- Graph Fractional Values START
 					if ds:sub(-9):lower() == '_times100' then
 						value = value / 100
 					end
-					-- Fractional Values END
+					-- Graph Fractional Values END
 					turnData[ds] = value;
 				end
 			end
@@ -1656,6 +1702,28 @@ function GenerateReplayInfoFromCurrentGame()
 	g_ReplayInfo.Plots = plots;
 	
 end
+
+-- Graph Turn Range Slider START
+local graphTurnRangeSliderSizeX = Controls.GraphTurnRangeSliderBack:GetSizeX() - 24
+function OnTurnRangeSlider()
+	local v1 = Controls.GraphTurnRangeSlider1:GetValue()
+	local v2 = Controls.GraphTurnRangeSlider2:GetValue()
+	local rangeStart = math.min(v1, v2)
+	local rangeEnd = math.max(v1, v2)
+	local dturns = g_ReplayInfo.FinalTurn - g_ReplayInfo.InitialTurn
+	local startTurn = g_ReplayInfo.InitialTurn + math.floor(rangeStart * dturns + 0.49999999999999994)
+	local endTurn = g_ReplayInfo.InitialTurn + math.floor(rangeEnd * dturns + 0.49999999999999994)
+	if g_GraphStartTurn ~= startTurn or g_GraphEndTurn ~= endTurn then
+		g_GraphStartTurn, g_GraphEndTurn = Panels[2].PadHorizontalValues(startTurn, endTurn)
+		Panels[2]:Refresh(true)
+		Panels[2]:DrawGraph()
+	end
+	Controls.GraphTurnRangeSliderBackHL:SetOffsetX(rangeStart * graphTurnRangeSliderSizeX)
+	Controls.GraphTurnRangeSliderBackHL:SetSizeX(math.max(0, (rangeEnd - rangeStart) * graphTurnRangeSliderSizeX))
+end
+Controls.GraphTurnRangeSlider1:RegisterSliderCallback( OnTurnRangeSlider )
+Controls.GraphTurnRangeSlider2:RegisterSliderCallback( OnTurnRangeSlider )
+-- Graph Turn Range Slider END
 
 if(g_bIsEndGame) then
 	Controls.FrontEndReplayViewer:SetHide(true);

@@ -1,6 +1,9 @@
 -- UnitFlagManager
 -------------------------------------------------
--- edit: Fix Flag Visibility bug on Unit death
+-- edit:
+--     Fix Flag Visibility bug on Unit death
+--     Enhanced Unit Flags
+-- for Vanilla UI
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
@@ -34,6 +37,9 @@ local g_CityFlagPlots = {};
 local g_SelectedContainer = ContextPtr:LookUpControl( "../SelectedUnitContainer" );
 local g_SelectedFlag = nil;
 local CityWorldPositionOffset = { x = 0, y = 0, z = 35 };
+-- Enhanced Unit Flags START
+g_bEnhancedUnitIcons = Modding.OpenUserData("Enhanced User Interface Options", 1).GetValue( "DB_bEnhancedUnitIcons" )
+-- Enhanced Unit Flags END
 
 local g_UnitFlagClass = 
 {
@@ -215,7 +221,8 @@ local g_UnitFlagClass =
             o.m_Instance.HealthBarButton:SetDisabled( false );
             o.m_Instance.HealthBarButton:SetConsumeMouseOver( true );
             
-            if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+-- Enhanced Unit Flags START
+            if g_bEnhancedUnitIcons == 1 then
                 if pUnit:CanMove() then
                     o.m_Instance.IsOutOfAttacks:SetHide(not pUnit:IsOutOfAttacks())
                 else
@@ -243,11 +250,16 @@ local g_UnitFlagClass =
                 end
                 o.m_Instance.IsHealing:SetHide(not bIsHealing)
                 o.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+                o.m_Instance.IsIdleCaravan:SetHide(not pUnit:IsTrade() or not (pUnit:GetMoves() > 0))
+                o.m_Instance.IsPromotionReady:SetHide(not pUnit:IsPromotionReady())
             else
                 o.m_Instance.IsOutOfAttacks:SetHide(true)
                 o.m_Instance.IsHealing:SetHide(true)
                 o.m_Instance.IsNoCapture:SetHide(true)
+                o.m_Instance.IsIdleCaravan:SetHide(true)
+                o.m_Instance.IsPromotionReady:SetHide(true)
             end
+-- Enhanced Unit Flags END
         else
             o.m_Instance.NormalButton:SetDisabled( true );
             o.m_Instance.NormalButton:SetConsumeMouseOver( false );
@@ -265,9 +277,13 @@ local g_UnitFlagClass =
 				end);
             o.m_Instance.HealthBarButton:SetDisabled( true );
             o.m_Instance.HealthBarButton:SetConsumeMouseOver( false );
+-- Enhanced Unit Flags START
             o.m_Instance.IsOutOfAttacks:SetHide(true)
             o.m_Instance.IsHealing:SetHide(true)
             o.m_Instance.IsNoCapture:SetHide(true)
+            o.m_Instance.IsIdleCaravan:SetHide(true)
+            o.m_Instance.IsPromotionReady:SetHide(true)
+-- Enhanced Unit Flags END
         end
 
 
@@ -443,7 +459,8 @@ local g_UnitFlagClass =
             local pPlayer = Players[Game.GetActivePlayer()];
             local active_team = pPlayer:GetTeam();
             local team = self.m_Player:GetTeam();
-            if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+-- Enhanced Unit Flags START
+            if g_bEnhancedUnitIcons == 1 then
                 local bIsHealing = false
                 if not pUnit:IsEmbarked() then
                     if pUnit:IsHurt() then
@@ -468,6 +485,7 @@ local g_UnitFlagClass =
             else
                 self.m_Instance.IsHealing:SetHide(true)
             end
+-- Enhanced Unit Flags END
             -- show the bar and the button anim
             self.m_Instance.HealthBarBG:SetHide( false );
             self.m_Instance.HealthBar:SetHide( false );
@@ -500,7 +518,9 @@ local g_UnitFlagClass =
         --------------------------------------------------------------------    
         -- going to full health
         else
+-- Enhanced Unit Flags START
             self.m_Instance.IsHealing:SetHide(true)
+-- Enhanced Unit Flags END
             self.m_Instance.HealthBar:SetFGColor( Vector4( 0, 1, 0, 1 ) );
             
             -- hide the bar and the button anim
@@ -1111,6 +1131,31 @@ Events.UnitActionChanged.Add( OnFlagTypeChange );
 Events.UnitGarrison.Add( OnFlagTypeChange );
 Events.UnitEmbark.Add( OnFlagTypeChange );
 
+-- Enhanced Unit Flags START
+function UpdateUnitPromotion( iPlayerID, iUnitID )
+    if g_bEnhancedUnitIcons == 1 then
+        local flag = g_MasterList[ iPlayerID ][ iUnitID ]
+        if flag then
+            local player = Players[iPlayerID]
+            local unit = player and player:GetUnitByID(iUnitID)
+            local team = player:GetTeam();
+            local isActiveTeam = (Game.GetActiveTeam() == team);
+            local isPromotionReady = (unit:GetExperience() >= unit:ExperienceNeeded()) and unit:CanAcquirePromotionAny()
+            if unit and g_bEnhancedUnitIcons == 1 then
+                flag.m_Instance.IsPromotionReady:SetHide(not isActiveTeam or not isPromotionReady)
+            else
+                flag.m_Instance.IsPromotionReady:SetHide(true)
+            end
+        end
+    end
+end
+Events.NotificationAdded.Add(function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID )
+    if type == NotificationTypes.NOTIFICATION_UNIT_PROMOTION then
+        UpdateUnitPromotion(playerID, iExtraGameData)
+    end
+end)
+GameEvents.UnitPromoted.Add( UpdateUnitPromotion )
+-- Enhanced Unit Flags END
 
 -------------------------------------------------
 -- nukes teleport instead of moving
@@ -1387,15 +1432,17 @@ end
 Events.SerialEventUnitSetDamage.Add( OnUnitSetDamage );
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+-- Enhanced Unit Flags START
 function OnOptionsChanged()
     local i = 0;
     local player = Players[i];
+    g_bEnhancedUnitIcons = EUI_options.GetValue( "DB_bEnhancedUnitIcons" )
     while player ~= nil 
     do
         if( player:IsAlive() ) then
             if (player:GetTeam() == Players[Game.GetActivePlayer()]:GetTeam()) then
                 for pUnit in player:Units() do
-                    if pUnit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                    if pUnit and g_bEnhancedUnitIcons == 1 then
                         local flag = g_MasterList[ i ][ pUnit:GetID() ];
                         if pUnit:CanMove() then
                             flag.m_Instance.IsOutOfAttacks:SetHide(not pUnit:IsOutOfAttacks())
@@ -1422,13 +1469,17 @@ function OnOptionsChanged()
                                 end
                             end
                         end
-                        flag.m_Instance.IsHealing:SetHide(active_team ~= team or not bIsHealing)
+                        flag.m_Instance.IsHealing:SetHide(not bIsHealing)
                         flag.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+                        flag.m_Instance.IsIdleCaravan:SetHide(not pUnit:IsTrade() or not (pUnit:GetMoves() > 0))
+                        flag.m_Instance.IsPromotionReady:SetHide(not pUnit:IsPromotionReady())
                     else
                         local flag = g_MasterList[ i ][ pUnit:GetID() ];
                         flag.m_Instance.IsOutOfAttacks:SetHide(true)
                         flag.m_Instance.IsHealing:SetHide(true)
                         flag.m_Instance.IsNoCapture:SetHide(true)
+                        flag.m_Instance.IsIdleCaravan:SetHide(true)
+                        flag.m_Instance.IsPromotionReady:SetHide(true)
                     end
                 end
             end
@@ -1439,6 +1490,7 @@ function OnOptionsChanged()
     end
 end
 Events.GameOptionsChanged.Add( OnOptionsChanged );
+-- Enhanced Unit Flags END
 
 --------------------------------------------------------------------------------
 -- A unit has changed its name, update the tool tip string
@@ -1598,6 +1650,7 @@ function OnDimEvent( playerID, unitID, bDim )
         	
         	if( active_team == team )
         	then
+-- Enhanced Unit Flags START
                 local pUnit = Players[ playerID ]:GetUnitByID( unitID )
                 if pUnit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
                     if pUnit:CanMove() then
@@ -1627,17 +1680,26 @@ function OnDimEvent( playerID, unitID, bDim )
                     end
                     flag.m_Instance.IsHealing:SetHide(active_team ~= team or not bIsHealing)
                     flag.m_Instance.IsNoCapture:SetHide(not (pUnit:GetDropRange() > 0) or pUnit:IsOutOfAttacks() or not pUnit:IsNoCapture())
+                    flag.m_Instance.IsIdleCaravan:SetHide(not pUnit:IsTrade() or not (pUnit:GetMoves() > 0))
+                    flag.m_Instance.IsPromotionReady:SetHide(not pUnit:IsPromotionReady())
                 else
                     flag.m_Instance.IsOutOfAttacks:SetHide(true)
                     flag.m_Instance.IsHealing:SetHide(true)
                     flag.m_Instance.IsNoCapture:SetHide(true)
+                    flag.m_Instance.IsIdleCaravan:SetHide(true)
+                    flag.m_Instance.IsPromotionReady:SetHide(true)
                 end
+-- Enhanced Unit Flags END
                 --print( "  Unit dim: " .. tostring( playerID ) .. " " .. tostring( unitID ) .. " " .. iDim );
                 flag:SetDim( bDim  );
             else
+-- Enhanced Unit Flags START
                 flag.m_Instance.IsOutOfAttacks:SetHide(true)
                 flag.m_Instance.IsHealing:SetHide(true)
                 flag.m_Instance.IsNoCapture:SetHide(true)
+                flag.m_Instance.IsIdleCaravan:SetHide(true)
+                flag.m_Instance.IsPromotionReady:SetHide(true)
+-- Enhanced Unit Flags END
         	end
         end
     end

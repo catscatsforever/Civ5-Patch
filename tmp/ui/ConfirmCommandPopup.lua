@@ -22,6 +22,9 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CONFIRMCOMMAND] = function(popupInfo)
 		-- Initialize 'yes' button.
 		OnYesClicked = function()
 			Matchmaking.KickPlayer( PlayerID );
+			PreGame.SetSlotStatus(PlayerID, SlotStatus.SS_CLOSED)  -- prevent hotjoins after kick
+			Network.BroadcastPlayerInfo()
+
 		end
 	else
 		local bAlt = popupInfo.Option1;

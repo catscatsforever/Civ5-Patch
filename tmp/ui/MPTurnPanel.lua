@@ -346,6 +346,14 @@ end
 GameEvents.EndTurnTimerPause.Add( OnPause );
 GameEvents.EndTurnTimerReset.Add( OnPause );
 Events.ActivePlayerTurnStart.Add( OnPause );
+
+Events.EndGameShow.Add( function()
+	Controls.EndTurnTimerMyTurnAnim:Stop();
+	Controls.EndTurnTimerMyTurnAnim:SetAlpha(0.3)
+	Controls.EndTurnTimeMeterAnim:Stop();
+	Controls.EndTurnTimeMeterAnim:SetAlpha(0.3)
+	Controls.TimerCountDown:SetAlpha(0.3)
+end);
 -- Edit: timer fading on pause END
 
 ----------------------------------------------

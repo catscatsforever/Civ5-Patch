@@ -159,7 +159,15 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	end
 	iHappinessTotal = iHappinessTotal + pActivePlayer:GetExtraBuildingHappinessFromPolicies(iBuildingID);
 	if (pCity ~= nil) then
+		local iPopulation = pCity:GetPopulation();
 		iHappinessTotal = iHappinessTotal + pCity:GetReligionBuildingClassHappiness(buildingClassID) + pActivePlayer:GetPlayerBuildingClassHappiness(buildingClassID);
+		if (pBuildingInfo.HappinessPerXPopulationInCity ~= nil and pBuildingInfo.HappinessPerXPopulationInCity > 0) then
+			local iXPop = pBuildingInfo.HappinessPerXPopulationInCity;
+			local iBonus = math.floor(iPopulation / iXPop);
+			if (iBonus > 0) then
+				iHappinessTotal = iHappinessTotal + iBonus;
+			end
+		end
 	end
 	if (iHappinessTotal ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal));
@@ -168,8 +176,16 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	-- Culture
 	local iCulture = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_CULTURE);
 	if (pCity ~= nil) then
+		local iPopulation = pCity:GetPopulation();
 		iCulture = iCulture + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
+		if (pBuildingInfo.CulturePerXPopulationInCity ~= nil and pBuildingInfo.CulturePerXPopulationInCity > 0) then
+			local iXPop = pBuildingInfo.CulturePerXPopulationInCity;
+			local iBonus = math.floor(iPopulation / iXPop);
+			if (iBonus > 0) then
+				iCulture = iCulture + iBonus;
+			end
+		end
 	end
 	if (iCulture ~= nil and iCulture ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_CULTURE", iCulture));
@@ -178,8 +194,25 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	-- Faith
 	local iFaith = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FAITH);
 	if (pCity ~= nil) then
+		local iPopulation = pCity:GetPopulation();
 		iFaith = iFaith + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
+		if (pBuildingInfo.FaithPerXPopulationInCity ~= nil and pBuildingInfo.FaithPerXPopulationInCity > 0) then
+			local iXPop = pBuildingInfo.FaithPerXPopulationInCity;
+			local iBonus = math.floor(iPopulation / iXPop);
+			if (iBonus > 0) then
+				iFaith = iFaith + iBonus;
+			end
+		end
+		-- Egypt Faith bonus in Capital
+		if (pBuildingInfo.Type == "BUILDING_PALACE") then
+			local pPlayer = Players[pCity:GetOwner()]
+			if (pPlayer and pPlayer:GetCivilizationType() == GameInfoTypes["CIVILIZATION_EGYPT"]) then
+				local iCustomBonus = math.floor(iPopulation / 3);
+				iFaith = iFaith + iCustomBonus;
+			end
+		end
+		--
 	end
 	if (iFaith ~= nil and iFaith ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FAITH", iFaith));

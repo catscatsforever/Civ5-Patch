@@ -1396,18 +1396,16 @@ function OnCityViewUpdate()
 		thisId = 1;
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
-					if (pCity:IsHasBuilding(buildingID)) then
-						numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
-					end
+			local buildingID= building.ID;
+			if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
+				if (pCity:IsHasBuilding(buildingID)) then
+					numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
+					local element = {};
+					local name = Locale.ConvertTextKey( building.Description )
+					element.name = name;
+					element.ID = building.ID;
+					sortedList[thisId] = element;
+					thisId = thisId + 1;
 				end
 			end
 		end
@@ -1448,7 +1446,7 @@ function OnCityViewUpdate()
 		local thisId = 1;
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
+			if (thisBuildingClass.MaxGlobalInstances > 0 or thisBuildingClass.MaxPlayerInstances == 1 or thisBuildingClass.MaxTeamInstances > 0) and building.SpecialistCount == 0 then
 				local buildingID= building.ID;
 				if (pCity:IsHasBuilding(buildingID)) then
 					numWondersInThisCity = numWondersInThisCity + 1;

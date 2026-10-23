@@ -1913,6 +1913,19 @@ void CvUnit::doTurn()
 			GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), GC.getFeatureInfo(eFeature)->getTurnDamage()));
 			#endif
 			changeDamage(GC.getFeatureInfo(eFeature)->getTurnDamage(), NO_PLAYER);
+#ifdef DEATH_ON_ATTRITION_NOTIFICATIONS
+			if (getDamage() >= GC.getMAX_HIT_POINTS())
+			{
+				CvString strBuffer;
+				CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+				if (pNotification)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
+					pNotification->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+				}
+			}
+#endif
 		}
 	}
 
@@ -5424,7 +5437,12 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 #ifdef BUILDING_ATTRITION_INSIDE_BORDERS
 	if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && GET_PLAYER(pPlot->getOwner()).getAttritionInsideBorders() > 0 && getDomainType() == DOMAIN_LAND)
 	{
-		return false;
+		TeamTypes ePlotOwnerTeam = GET_PLAYER(pPlot->getOwner()).getTeam();
+
+		if (GET_TEAM(getTeam()).isAtWar(ePlotOwnerTeam))
+		{
+			return false;
+		}
 	}
 #endif
 
@@ -5743,6 +5761,19 @@ void CvUnit::DoAttrition()
 				GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), getEnemyDamage()));
 				#endif
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
+#ifdef DEATH_ON_ATTRITION_NOTIFICATIONS
+				if (getDamage() >= GC.getMAX_HIT_POINTS())
+				{
+					CvString strBuffer;
+					CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+					if (pNotification)
+					{
+						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
+						pNotification->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+					}
+				}
+#endif
 			}
 		}
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
@@ -5754,6 +5785,19 @@ void CvUnit::DoAttrition()
 				GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), getNeutralDamage()));
 				#endif
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
+#ifdef DEATH_ON_ATTRITION_NOTIFICATIONS
+				if (getDamage() >= GC.getMAX_HIT_POINTS())
+				{
+					CvString strBuffer;
+					CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+					if (pNotification)
+					{
+						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ATTRITION", getNameKey());
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_LOST");
+						pNotification->Add(NOTIFICATION_UNIT_DIED, strBuffer, strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -5769,13 +5813,18 @@ void CvUnit::DoAttrition()
 	}
 #endif
 
-	// slewis - helicopters take attrition when ending their turn over mountains.
-	if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
+#ifdef PROMOTION_HOVERINT_UNIT_NO_MOUNTAIN_ATTRITION
+	PromotionTypes ePromotionHovering = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HOVERING_UNIT");
+	if (getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain() &&
+		(ePromotionHovering == NO_PROMOTION || !isHasPromotion(ePromotionHovering)))
+#else
+	if (getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
+#endif
 	{
-		strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-		#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
+		strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+#ifdef EG_REPLAYDATASET_UNITSHPATTRITION
 		GET_PLAYER(getOwner()).ChangeUnitsHPAttrition(min(GetMaxHitPoints() - getDamage(), 50));
-		#endif
+#endif
 		changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
 	}
 
@@ -10310,16 +10359,29 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	else
 	{
 #ifdef INSTA_HEAL_EVERYPROMOTION
-#ifdef PROMOTION_INSTA_HEAL_LOCKED
-		if (!isInstaHealLocked())
+		int iHealAmount = GC.getINSTA_HEAL_RATE();
+#ifdef POLICY_MILITARY_TRADITION_EXTRA_HEAL_ON_PROMOTION
+		PlayerTypes eOwner = getOwner();
+		if (eOwner != NO_PLAYER)
 		{
-			#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
-			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(min(getDamage(), GC.getINSTA_HEAL_RATE()));
-			#endif
-			changeDamage(-GC.getINSTA_HEAL_RATE());
+			CvPlayer& kPlayer = GET_PLAYER(eOwner);
+			PolicyTypes eBonusPolicy = (PolicyTypes)GC.getInfoTypeForString("POLICY_MILITARY_TRADITION");
+			if (eBonusPolicy != NO_POLICY && kPlayer.GetPlayerPolicies()->HasPolicy(eBonusPolicy))
+			{
+				iHealAmount += 10;
+			}
+		}
+#endif
+
+#ifdef PROMOTION_INSTA_HEAL_LOCKED
+		if (!isInstaHealLocked()) {
+#ifdef EG_REPLAYDATASET_UNITSRESTOREDHP
+			GET_PLAYER(getOwner()).ChangeUnitsRestoredHP(min(getDamage(), iHealAmount));
+#endif
+			changeDamage(-iHealAmount);
 		}
 #else
-		changeDamage(-GC.getINSTA_HEAL_RATE());
+		changeDamage(-iHealAmount);
 #endif
 #endif
 		setHasPromotion(ePromotion, true);
@@ -11958,6 +12020,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getBARBARIAN_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
+			if (getDamage() >= 50)
+			{
+				iModifier += getUnitInfo().GetLowHealthCombatModifier();
+			}
+#endif
 		}
 		// Some bonuses only apply when NOT attacking a city
 		else
@@ -12078,6 +12146,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		if (pDefender->getDamage() == 0)
 			iModifier += getUnitInfo().GetHealthyMod();
 #endif
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
+		if (getDamage() >= 50)
+			iModifier += getUnitInfo().GetLowHealthCombatModifier();
+#endif
 	}
 
 	// Unit can't drop below 10% strength
@@ -12137,9 +12209,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		iModifier += iTempModifier;
 	}
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 	if (getDamage() >= 50)
-		iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+		iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 	////////////////////////
@@ -12703,9 +12775,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 			if (getDamage() >= 50)
-				iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+				iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 			// Trait (player level) bonus against higher tech units
@@ -12890,9 +12962,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 		if (getDamage() >= 50)
-			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+			iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 #ifdef FIX_IS_FRIENDLY_TERRITORY_MODIFIERS_AGAINST_CITIES
@@ -13039,9 +13111,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 		if (getDamage() >= 50)
-			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+			iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 		// Trait (player level) bonus against higher tech units
@@ -13393,9 +13465,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 			if (getDamage() >= 50)
-				iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+				iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 			// Trait (player level) bonus against higher tech units
@@ -13584,9 +13656,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 		if (getDamage() >= 50)
-			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+			iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 	}
 
@@ -13688,9 +13760,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += getUnitInfo().GetNoAdjacentMod();
 #endif
 
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 		if (getDamage() >= 50)
-			iModifier += getUnitInfo().GetLowHealthDefenseModifier();
+			iModifier += getUnitInfo().GetLowHealthCombatModifier();
 #endif
 
 		// Trait (player level) bonus against higher tech units
@@ -17464,6 +17536,9 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 						CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
 						Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
 						float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+#ifdef FIX_UNIT_PROMOTION_POST_COMBAT_MESSAGE_VISIBILITY
+						if (plot()->isRevealed(GC.getGame().getActiveTeam()))
+#endif
 						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
 					}
 				}

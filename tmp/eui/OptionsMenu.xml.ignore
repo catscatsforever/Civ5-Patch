@@ -451,6 +451,7 @@
 							</EditBox>
 						</Box>
 					</Box>
+					<Label WrapWidth="200" Offset="0,0" Anchor="R,B" String="TXT_KEY_OPSCREEN_HOTKEY_EDIT_HELP" Font="TwCenMT18" />
 				</Stack>
 			</Container>
 		</Container>

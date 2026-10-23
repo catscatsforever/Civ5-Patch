@@ -2953,7 +2953,7 @@ void DraftResponseSecretHash(PlayerTypes p, const char* szHash)
 	if (s_draftPlayerSecretHashes[uiPlayerID] != "")
 	{
 		SLOG("WARN attempt to overwrite secret hash for player %d", uiPlayerID);
-		return;
+		//return;
 	}
 	s_draftPlayerSecretHashes[uiPlayerID] = CvString(szHash);
 	DLLUI->AddMessage(0, activePlayer(), true, GC.getEVENT_MESSAGE_TIME(), CvString::format("ready|%d", uiPlayerID).c_str());

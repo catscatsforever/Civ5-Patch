@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- edit:
+	- Replay Events
+	- Graph Tooltip
+	- Graph Turn Range Slider
+for EUI & vanilla UI -->
 <Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" >
 
 	<!-- GameInstance -->
@@ -99,8 +104,6 @@
 	<Box ID="MainPanel" Anchor="C,C" Color="0,0,0,0" Size="920,440">
 		<PullDown  Anchor="R,T" Style="GenericPullDown" ScrollThreshold="110" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,0" ID="ReplayInfoPulldown" />
 
-		<Image Anchor="C,T" Offset="0,30" Texture="HorizontalTrim.dds" Size="920,5" />
-
 		<Box ID="MessagesPanel" Offset="0,35" Color="0,0,0,0" Size="920,405" Hidden="1">
 			<ScrollPanel Offset="0,0" Anchor="L,T" AutoScrollBar="0" Size="920,405" Vertical="1" ID="ReplayMessageScrollPanel" >
 
@@ -123,7 +126,7 @@
 				<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="2" ID="GraphLegendStack" />
 			</ScrollPanel>
 
-			<Box ID="GraphDisplay" Offset="160,20" Color="0,0,0,0" Size="720,360">
+			<Box ID="GraphDisplay" Offset="160,10" Color="0,0,0,0" Size="720,360">
 				<Box ID="GraphCanvas" Anchor="L,T" Offset="0,0" Color="0,0,0,200" Size="720,360" ToolTipType="GraphToolTip" />
 
 				<Line Color="255,255,200,255" Start="0,360" End="720,360" Width="1" />
@@ -247,6 +250,16 @@
 				<Line Color="255,0,0,255" Start="0,360" End="0,360" Width="1" ID="HorizontalMouseGuide" />
 
 				<Label Anchor="C,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NoGraphData" String="TXT_KEY_REPLAY_NOGRAPHDATA" Hidden="1"/>
+				<Grid ID="GraphTurnRangeSliderBack" Texture="SliderBackH.dds" Size="744,32" Anchor="L,B" Offset="-12,-60" Color="127,127,127,255"
+				LSize="22,32"  LTexStart="0,0"
+				CSize="22,32"  CTexStart="22,0"
+				RSize="22,32"  RTexStart="44,0" />
+				<Grid ID="GraphTurnRangeSliderBackHL" Texture="SliderBackH.dds" Size="720,16" Anchor="L,B" Offset="0,-52"
+				LSize="0,16"  LTexStart="0,8"
+				CSize="5,16"  CTexStart="22,8"
+				RSize="0,16"  RTexStart="44,8" />
+				<Slider ID="GraphTurnRangeSlider1" Style="Slider" Texture="Blank.dds" Length="744" Size="744,32" Anchor="L,B" Offset="-12,-60" />
+				<Slider ID="GraphTurnRangeSlider2" Style="Slider" Length="744" Size="744,0" Anchor="L,B" Offset="-12,-44" Value="1" />
 			</Box>
 
 			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="330" Size="500,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="GraphDataSetPulldown" />
@@ -275,8 +288,6 @@
 			
 			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="330" Size="500,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="ReplayEventsPulldown" />
 		</Box>
-
-		<Image Anchor="C,T" Offset="0,450" Texture="HorizontalTrim.dds" Size="920,5" />
 
 	</Box>
 

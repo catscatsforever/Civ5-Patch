@@ -2370,6 +2370,32 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue = max(100, iValue);
 				}
 				break;
+#ifdef BUILDING_HARBOR_INTERNATIONAL_CARGO_CULTURE
+			case YIELD_CULTURE:
+				{
+				CvCity* pOriginCity = pTrade->GetOriginCity(kTradeConnection);
+
+					if (pOriginCity != NULL)
+					{							
+						BuildingTypes eHarbor = (BuildingTypes)GC.getInfoTypeForString("BUILDING_HARBOR");
+						BuildingTypes eCothon = (BuildingTypes)GC.getInfoTypeForString("BUILDING_COTHON");
+
+						if (kTradeConnection.m_eDomain == DOMAIN_SEA && eHarbor != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eHarbor) > 0)
+
+						{
+							iValue += 200;
+						}
+						
+						if (kTradeConnection.m_eDomain == DOMAIN_SEA && eCothon != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eCothon) > 0)
+
+						{
+							iValue += 200;
+						}
+										
+					}
+				}
+				break;
+#endif
 			case YIELD_SCIENCE:
 				int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 

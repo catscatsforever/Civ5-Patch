@@ -467,10 +467,10 @@ void CvBarbarians::DoCamps()
 													TeamTypes eTeam;
 													for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 													{
-														ePlayer = (PlayerTypes) iPlayerLoop;
-														eTeam = GET_PLAYER(ePlayer).getTeam();
-
-														if(GET_PLAYER(ePlayer).IsAlwaysSeeBarbCamps())
+														ePlayer = (PlayerTypes)iPlayerLoop;
+														CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+														eTeam = kPlayer.getTeam();
+														if (kPlayer.IsAlwaysSeeBarbCamps())
 														{
 															if(pLoopPlot->isRevealed(eTeam))
 															{
@@ -479,6 +479,18 @@ void CvBarbarians::DoCamps()
 																	bAlwaysRevealedBarbCamp = true;
 															}
 														}
+#ifdef TRAIT_CONVERTS_AND_SHOW_LAND_BARBARIANS
+														CivilizationTypes eGermany = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_GERMANY");
+														if (eGermany != NO_CIVILIZATION && kPlayer.getCivilizationType() == eGermany)
+														{
+															if (pLoopPlot->isRevealed(eTeam))
+															{
+																pLoopPlot->setRevealedImprovementType(eTeam, eCamp);
+																if (GC.getGame().getActivePlayer() == ePlayer)
+																	bAlwaysRevealedBarbCamp = true;
+															}
+														}
+#endif
 													}
 
 													// Add another Unit adjacent to the Camp to stir up some trouble (JON: Disabled for now 09/12/09)

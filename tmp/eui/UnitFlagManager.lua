@@ -5,7 +5,10 @@
 -- subs: check visibility fix
 -- flag offsets vs UI precedence
 --==========================================================
--- edit: Fix Flag Visibility bug on Unit death
+-- edit:
+--     Fix Flag Visibility bug on Unit death
+--     Enhanced Unit Flags
+-- for EUI
 --==========================================================
 
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1);
@@ -88,6 +91,10 @@ local g_colorRed = Color( 1, 0, 0, 1 )
 local g_colorWhite = Color( 1, 1, 1, 1 )
 
 local DebugPrint = print
+
+-- Enhanced Unit Flags START
+g_bEnhancedUnitIcons = EUI_options.GetValue( "DB_bEnhancedUnitIcons" )
+-- Enhanced Unit Flags END
 
 local function DebugUnit( playerID, unitID, ... )
 	local player = Players[ playerID ]
@@ -727,7 +734,8 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		---------------------------------------------------------
 		-- update all other info
 		flag.Anchor:SetHide( isHiddenByFog or isInvisibleToActiveTeam or (flag.m_IsAirCraft and Players[playerID]:GetTeam() ~= Game.GetActiveTeam()) )
-        if EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+-- Enhanced Unit Flags START
+        if g_bEnhancedUnitIcons == 1 then
 			if unit:CanMove() then
 				flag.IsOutOfAttacks:SetHide(g_activeTeamID ~= teamID or not unit:IsOutOfAttacks())
 			else
@@ -755,11 +763,16 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 	        end
             flag.IsHealing:SetHide(g_activeTeamID ~= teamID or not bIsHealing)
 			flag.IsNoCapture:SetHide(g_activeTeamID ~= teamID or not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+			flag.IsIdleCaravan:SetHide(g_activeTeamID ~= teamID or not unit:IsTrade() or not (unit:GetMoves() > 0))
+			flag.IsPromotionReady:SetHide(g_activeTeamID ~= teamID or not unit:IsPromotionReady())
 		else
 			flag.IsOutOfAttacks:SetHide(true)
 			flag.IsHealing:SetHide(true)
 			flag.IsNoCapture:SetHide(true)
+			flag.IsIdleCaravan:SetHide(true)
+			flag.IsPromotionReady:SetHide(true)
 		end
+-- Enhanced Unit Flags END
 		flag.FlagShadow:SetAlpha( unit:CanMove() and 1 or 0.5 )
 		flag.Button:SetDisabled( g_activeTeamID ~= teamID )
 		flag.Button:SetConsumeMouseOver( g_activeTeamID == teamID )
@@ -954,7 +967,8 @@ function( playerID, unitID, damage )--, previousDamage )
 	local player = Players[ playerID ]
 	local unit = player and player:GetUnitByID( unitID )
 	if flag then
-		if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+-- Enhanced Unit Flags START
+		if unit and g_bEnhancedUnitIcons == 1 then
             local bIsHealing = false
             if not unit:IsEmbarked() then
                 if unit:IsHurt() then
@@ -979,6 +993,7 @@ function( playerID, unitID, damage )--, previousDamage )
 		else
 			flag.IsHealing:SetHide(true)
 		end
+-- Enhanced Unit Flags END
 		UpdateFlagHealth( flag, damage )
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for SerialEventUnitSetDamage" ) end
@@ -986,16 +1001,18 @@ function( playerID, unitID, damage )--, previousDamage )
 end)
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+-- Enhanced Unit Flags START
 Events.GameOptionsChanged.Add(
 function ()
     local i = 0;
     local player = Players[i];
+    g_bEnhancedUnitIcons = EUI_options.GetValue( "DB_bEnhancedUnitIcons" )
     while player ~= nil 
     do
         if( player:IsAlive() ) then
             if (player:GetTeam() == Players[Game.GetActivePlayer()]:GetTeam()) then
                 for unit in player:Units() do
-                    if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+                    if unit and g_bEnhancedUnitIcons == 1 then
                         local flag = g_UnitFlags[ i ][ unit:GetID() ];
                         if unit:CanMove() then
                             flag.IsOutOfAttacks:SetHide(not unit:IsOutOfAttacks())
@@ -1024,11 +1041,15 @@ function ()
 				        end
 			            flag.IsHealing:SetHide(not bIsHealing)
                         flag.IsNoCapture:SetHide(not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+						flag.IsIdleCaravan:SetHide(not unit:IsTrade() or not (unit:GetMoves() > 0))
+						flag.IsPromotionReady:SetHide(not unit:IsPromotionReady())
                     else
                         local flag = g_UnitFlags[ i ][ unit:GetID() ];
                         flag.IsOutOfAttacks:SetHide(true)
                         flag.IsHealing:SetHide(true)
                         flag.IsNoCapture:SetHide(true)
+                        flag.IsIdleCaravan:SetHide(true)
+                        flag.IsPromotionReady:SetHide(true)
                     end
                 end
             end
@@ -1038,6 +1059,7 @@ function ()
         player = Players[i];
     end
 end)
+-- Enhanced Unit Flags END
 
 --==========================================================
 -- this goes off when a hex is seen or unseen
@@ -1113,7 +1135,8 @@ function( playerID, unitID, isDimmed )
 		local isActiveTeam = (active_team == team);
 		local player = Players[ playerID ]
 		local unit = player and player:GetUnitByID( unitID )
-		if unit and EUI_options.GetValue( "DB_bEnhancedUnitIcons" ) == 1 then
+-- Enhanced Unit Flags START
+		if unit and g_bEnhancedUnitIcons == 1 then
 			if unit:CanMove() then
 				flag.IsOutOfAttacks:SetHide(not isActiveTeam or not unit:IsOutOfAttacks())
 			else
@@ -1141,11 +1164,16 @@ function( playerID, unitID, isDimmed )
 	        end
             flag.IsHealing:SetHide(not isActiveTeam or not bIsHealing)
 			flag.IsNoCapture:SetHide(not isActiveTeam or not (unit:GetDropRange() > 0) or unit:IsOutOfAttacks() or not unit:IsNoCapture())
+			flag.IsIdleCaravan:SetHide(not isActiveTeam or not unit:IsTrade() or not (unit:GetMoves() > 0))
+			flag.IsPromotionReady:SetHide(not isActiveTeam or not unit:IsPromotionReady())
 		else
 			flag.IsOutOfAttacks:SetHide(true)
 			flag.IsHealing:SetHide(true)
 			flag.IsNoCapture:SetHide(true)
+			flag.IsIdleCaravan:SetHide(true)
+			flag.IsPromotionReady:SetHide(true)
 		end
+-- Enhanced Unit Flags END
 		flag.FlagShadow:SetAlpha( (isDimmed and isActiveTeam) and 0.5 or 1.0 )
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for UnitShouldDimFlag" ) end
@@ -1165,6 +1193,32 @@ function( playerID, unitID, isGarrisoned )
 		UpdateFlagType( flag )
 	end
 end)
+
+-- Enhanced Unit Flags START
+function UpdateUnitPromotion( iPlayerID, iUnitID )
+	if g_bEnhancedUnitIcons == 1 then
+		local flag = g_UnitFlags[ iPlayerID ][ iUnitID ]
+		if flag then
+			local player = Players[iPlayerID]
+			local unit = player and player:GetUnitByID(iUnitID)
+			local team = player:GetTeam();
+			local isActiveTeam = (Game.GetActiveTeam() == team);
+			local isPromotionReady = (unit:GetExperience() >= unit:ExperienceNeeded()) and unit:CanAcquirePromotionAny()
+			if unit and g_bEnhancedUnitIcons == 1 then
+				flag.IsPromotionReady:SetHide(not isActiveTeam or not isPromotionReady)
+			else
+				flag.IsPromotionReady:SetHide(true)
+			end
+		end
+	end
+end
+Events.NotificationAdded.Add(function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID )
+	if type == NotificationTypes.NOTIFICATION_UNIT_PROMOTION then
+		UpdateUnitPromotion(playerID, iExtraGameData)
+	end
+end)
+GameEvents.UnitPromoted.Add( UpdateUnitPromotion )
+-- Enhanced Unit Flags END
 
 --==========================================================
 -- On City Created / Destroyed / Captured

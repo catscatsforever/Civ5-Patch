@@ -49,4 +49,6 @@
 	<style name="EnemyOutline" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="255,0,0,0,200" />
 
 	<style name="CityLimits" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="0,0,0,164" />
+	
+	<style name="Ping" type="HexContour" width=".5" texture="hex_contour1.dds"/>
 </Highlights>

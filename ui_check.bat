@@ -8,6 +8,7 @@ copy /y "%patchfolder%\tmp\ui\CultureOverview.lua" "%patchfolder%\UI\CultureOver
 copy /y "%patchfolder%\tmp\ui\CultureOverview.xml" "%patchfolder%\UI\CultureOverview.xml" > nul
 copy /y "%patchfolder%\tmp\ui\EnemyUnitPanel.lua" "%patchfolder%\UI\EnemyUnitPanel.lua" > nul
 copy /y "%patchfolder%\tmp\ui\InGame.lua" "%patchfolder%\UI\InGame.lua" > nul
+copy /y "%patchfolder%\tmp\ui\InGame.xml" "%patchfolder%\UI\InGame.xml" > nul
 copy /y "%patchfolder%\tmp\ui\JoiningRoom.lua" "%patchfolder%\UI\JoiningRoom.lua" > nul
 copy /y "%patchfolder%\tmp\ui\VictoryProgress.xml" "%patchfolder%\UI\VictoryProgress.xml" > nul
 copy /y "%patchfolder%\tmp\ui\VictoryProgress.lua" "%patchfolder%\UI\VictoryProgress.lua" > nul
@@ -85,6 +86,8 @@ copy /y "%patchfolder%\tmp\ui\SelectDifficulty.xml" "%patchfolder%\UI\SelectDiff
 copy /y "%patchfolder%\tmp\ui\SelectGameSpeed.xml" "%patchfolder%\UI\SelectGameSpeed.xml" > nul
 copy /y "%patchfolder%\tmp\ui\SelectMapSize.xml" "%patchfolder%\UI\SelectMapSize.xml" > nul
 copy /y "%patchfolder%\tmp\ui\SelectMapType.xml" "%patchfolder%\UI\SelectMapType.xml" > nul
+copy /y "%patchfolder%\tmp\ui\QuickHotkeyEdit.xml" "%patchfolder%\UI\QuickHotkeyEdit.xml" > nul
+copy /y "%patchfolder%\tmp\ui\QuickHotkeyEdit.lua" "%patchfolder%\UI\QuickHotkeyEdit.lua" > nul
 
 REM -------------------------------------------------
 set text="-- destroy: check fix for need to update plot & cargo & airbase"

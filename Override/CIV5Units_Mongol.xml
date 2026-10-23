@@ -3965,7 +3965,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_CATHEDRALS"> 
 			<Text>
-				Use [ICON_PEACE] Faith to purchase Cathedrals (+1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture, +2 [ICON_HAPPINESS_1] Happiness)
+				Use [ICON_PEACE] Faith to purchase Cathedrals (+1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture. Additional +1 [ICON_HAPPINESS_1] Happiness for every 6th [ICON_CITIZEN] Citizen in a City)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_CATHEDRALS_SHORT"> 
@@ -4070,7 +4070,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_SPIRIT_ANIMALS"> 
 			<Text>
-				+1 [ICON_PEACE] Faith for each Cattle, Sheep and Deer resource
+				+1 [ICON_PEACE] Faith for each Cattle, Bison, Sheep and Deer resource
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_SPIRIT_ANIMALS_SHORT"> 
@@ -4090,7 +4090,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_DESERT_FOLKLORE"> 
 			<Text>
-				+1 [ICON_PEACE] Faith from Flood Plains tiles. +2 [ICON_PEACE] Faith and +1 [ICON_PRODUCTION] Production from Oases 
+				+1 [ICON_PEACE] Faith from Flood Plains tiles. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Oases 
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_DESERT_FOLKLORE_NWS"> 
@@ -4260,7 +4260,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA"> 
 			<Text>
-				+1 [ICON_PRODUCTION] Production from Fishing Boats, a free Work Boat appears near the [ICON_CAPITAL] Capital
+				+1 [ICON_PRODUCTION] Production from Fishing Boats
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA_SHORT"> 
@@ -4505,7 +4505,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES"> 
 			<Text>
-				Use [ICON_PEACE] Faith to purchase Mosques (+3 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture, +1 [ICON_HAPPINESS_1] Happiness)
+				Use [ICON_PEACE] Faith to purchase Mosques (+1 [ICON_CULTURE] Culture, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_PEACE] Faith for every 4th [ICON_CITIZEN] Citizen in a City)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES_SHORT"> 
@@ -4555,7 +4555,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS"> 
 			<Text>
-				Use [ICON_PEACE] Faith to purchase Pagodas (+1 [ICON_PEACE] Faith, +3 [ICON_CULTURE] Culture, +1 [ICON_HAPPINESS_1] Happiness)
+				Use [ICON_PEACE] Faith to purchase Pagodas (+1 [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_CULTURE] Culture for every 5th [ICON_CITIZEN] Citizen in a City)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS_SHORT"> 
@@ -4880,7 +4880,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_WORLD_CHURCH"> 
 			<Text>
-				+1 [ICON_CULTURE] Culture for every 7 followers of this religion
+				+1 [ICON_CULTURE] Culture for every 6 followers of this religion
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_WORLD_CHURCH_SHORT"> 
@@ -5535,7 +5535,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Cathedrals belief. Provides additional [ICON_HAPPINESS_1] Happiness for each 6th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_CEILIDH_HALL"> 
@@ -5945,7 +5945,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_GRAND_TEMPLE_HELP"> 
 			<Text>
-				Doubles religious pressure emanating from this City.[NEWLINE][NEWLINE]Must be built in a Holy City. Must have built a Temple in all Cities. The cost goes up the more cities there are in the empire.
+				Doubles religious pressure emanating from this City and reduces [ICON_GOLD] maintenance cost of all Temples in the Empire by 1.[NEWLINE][NEWLINE]Must be built in a Holy City. Must have built a Temple in all Cities. The cost goes up the more cities there are in the empire.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_GRAND_TEMPLE_STRATEGY"> 
@@ -6081,7 +6081,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_HARBOR_HELP"> 
 			<Text>
-				Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water (if they're not already [ICON_CONNECTED] connected by land). Sea trade routes originating from this city have a 50% increase in range and produce an additional 1 [ICON_GOLD] Gold when connecting to another civilization.[NEWLINE][NEWLINE]City must be built on the coast.
+				Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water (if they're not already [ICON_CONNECTED] connected by land). Sea trade routes originating from this city have a 50% increase in range and produce an additional 1 [ICON_GOLD] Gold and 2 [ICON_CULTURE] Culture when connecting to another civilization.[NEWLINE][NEWLINE]City must be built on the coast.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_HARBOR_PEDIA"> 
@@ -6660,7 +6660,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Mosques belief. Provides additional [ICON_PEACE] Faith for each 4th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC"> 
@@ -6911,7 +6911,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PAGODA_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Pagodas belief. Provides additional [ICON_CULTURE] Culture for each 5th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PALACE"> 
@@ -7187,7 +7187,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SEAPORT_HELP"> 
 			<Text>
-				+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.  +15% [ICON_PRODUCTION] Production when building Naval Units.[NEWLINE][NEWLINE]City must be built on the coast.
+				+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. +15% [ICON_PRODUCTION] Production when building Naval Units.[NEWLINE][NEWLINE]City must be built on the coast.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SEAPORT_STRATEGY"> 
@@ -24889,7 +24889,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_FEATURES_EL_DORADO_HELP"> 
 			<Text>
-				Grants 500 [ICON_GOLD] Gold to the first player to discover it.
+				Grants 100 [ICON_GOLD] Gold to the first player to discover it.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_FEATURES_EL_DORADO_TEXT"> 
@@ -28274,7 +28274,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY"> 
 			<Text>
-				The Turtle Ship is a Korean unique unit. This unit replaces the Caravel. The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy.  However it may not enter deep ocean hexes outside of the city borders.
+				The Turtle Ship is a Korean unique unit. This unit replaces the Caravel. The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy. However it is not that mobile on the deep ocean hexes.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_KOREA_TURTLESHIP_TEXT"> 
@@ -28604,7 +28604,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_MONGOLIA_KESHIK_INFO"> 
 			<Text>
-				The Keshik is a Mongolian Unique Unit, available in the Medieval Era. This replacement for the standard Knight moves at an increased rate, earns promotions at a double rate, and contributes twice the amount of points towards earning Great Generals.  The Keshik can also attack its enemies from afar, using its powerful ranged attack.
+				The Keshik is a Mongolian Unique Unit, available in the Medieval Era. This replacement for the standard Knight moves at an increased rate, earns promotions at a double rate, and contributes twice the amount of points towards earning Great Generals. The Keshik can also attack its enemies from afar, using its powerful ranged attack, but deals 33% less damage when attacking on a maximum possible range.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_MONGOLIA_KESHIK_STRATEGY"> 
@@ -41713,6 +41713,11 @@ The second sack of Ulundi is considered by historians to be the definitive end o
 		<Replace Tag="TXT_KEY_CO_CITY_TOURISM_HAPPY_BONUS"> 
 			<Text>
 				+{1_Num}% Bonus while the empire is [ICON_HAPPINESS_1] Happy:[NEWLINE]
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CO_CITY_TOURISM_HAPPY_BONUS_NEW"> 
+			<Text>
+				+{1_Num}% [ICON_TOURISM] Tourism from excess Empire [ICON_HAPPINESS_1] Happiness (Current Happiness: {2_Num})[NEWLINE]
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CO_CITY_TOURISM_NUM_CAPITALS_CONTROLLED_BONUS"> 
@@ -92859,6 +92864,16 @@ The ship has weather'd every rack; the prize we sought is won."
 				{1_CityName} Coup Success!
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY"> 
+			<Text>
+				{1_SpyRank} {2_SpyName} gathered enough intelligence in {3_CityName} to stage a coup!
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY_S"> 
+			<Text>
+				{1_CityName} Coup Ready!
+			</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_NOTIFICATION_SUMMARY_ADD_REFORMATION_BELIEF"> 
 			<Text>
 				ADD REFORMATION BELIEF
@@ -96169,9 +96184,9 @@ The ship has weather'd every rack; the prize we sought is won."
 				Damaged Enemy Bonus (33)
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_STRONGER_VS_DAMAGED_25"> 
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_STRONGER_VS_DAMAGED_20"> 
 			<Text>
-				Damaged Enemy Bonus (25)
+				Damaged Enemy Bonus (20)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_WEAK_RANGED"> 
@@ -97201,7 +97216,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_ARSENAL_DEMOCRACY_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Arsenal of Democracy[ENDCOLOR][NEWLINE]+50% [ICON_PRODUCTION] Production when building Air units and Guided and Nuclear Missiles.
+				[COLOR_POSITIVE_TEXT]Arsenal of Democracy[ENDCOLOR][NEWLINE]+50% [ICON_PRODUCTION] Production when building Air units and Guided and Nuclear Missiles. Triplans, Fighters and Jet Fighters get "Interception I" Promotion.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_ARSENAL_DEMOCRACY_TEXT"> 
@@ -97346,7 +97361,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_EXPLORATION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Exploration[ENDCOLOR] enhances your abilities to spread your empire over the seas.[NEWLINE][NEWLINE]Adopting Exploration gives +1 [ICON_MOVES] Movement for Naval units and +1 Sight for Naval combat units. Unlocks building the Venetian Arsenal.[NEWLINE][NEWLINE]Adopting all policies in the Exploration tree gives +1 Sight for Naval combat units and Lighthouses, Harbors and Seaports provide +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science. It also allows the purchase of Great Admirals with [ICON_PEACE] Faith starting in the Industrial Era.
+				[COLOR_POSITIVE_TEXT]Exploration[ENDCOLOR] enhances your abilities to spread your empire over the seas.[NEWLINE][NEWLINE]Adopting Exploration gives +1 [ICON_MOVES] Movement for Naval units and +1 Sight for Naval combat units and provides +50% [ICON_PRODUCTION] Production towards Lighthouses, Harbors and Seaports constructing. Unlocks building the Venetian Arsenal.[NEWLINE][NEWLINE]Adopting all policies in the Exploration tree gives +1 Sight for Naval combat units and Lighthouses, Harbors and Seaports provide +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science. It also allows the purchase of Great Admirals with [ICON_PEACE] Faith starting in the Industrial Era.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_FREEDOM"> 
@@ -97471,7 +97486,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_TRADITION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] is best for small empires.[NEWLINE][NEWLINE]Adopting Tradition greatly increases the rate of border expansion in cities and also grants 3 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital. Unlocks building the Hanging Gardens.[NEWLINE][NEWLINE]Adopting all Policies in the Tradition tree will grant +20% [ICON_FOOD] Growth and a free Aqueduct in your first 4 cities. It also allows the purchase of Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.
+				[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] is best for small empires.[NEWLINE][NEWLINE]Adopting Tradition greatly increases the rate of border expansion in cities and also grants 3 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital. Unlocks building the Hanging Gardens.[NEWLINE][NEWLINE]Adopting all Policies in the Tradition tree will grant +15% [ICON_FOOD] Growth in the Empire and a free Aqueduct in your first 5 cities. It also allows the purchase of Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_UNLOCK_SPEND"> 
@@ -97731,7 +97746,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR][NEWLINE]+3 Tourism [ICON_TOURISM] from [ICON_CULTURE] Culture buildings.
+				[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR][NEWLINE]+5 [ICON_TOURISM] Tourism from [ICON_CULTURE] Culture buildings.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_CULTURAL_REVOLUTION_TEXT"> 
@@ -97781,7 +97796,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR][NEWLINE]+34% Tourism [ICON_TOURISM] while your empire is [ICON_HAPPINESS_1] Happy.
+				[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR][NEWLINE]+10% [ICON_TOURISM] Tourism in Cities for every 5 excess [ICON_HAPPINESS_1] Happiness in the Empire (max 50%).
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_TEXT"> 
@@ -97966,7 +97981,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] Production in every city and +1 [ICON_PRODUCTION] Production for every Mine and Quarry.
+				[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science for every Mine and Quarry.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_TEXT"> 
@@ -98071,7 +98086,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FUTURISM_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE]+250 [ICON_TOURISM] Tourism with all known civs when a Great General, Admiral, Writer, Artist or Musician is born.
+				[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR][NEWLINE]+250 [ICON_TOURISM] Tourism with all known civs when a Great General, Admiral, Writer, Artist or Musician is born. Earn Great Writers, Artists, and Musicians 33% faster.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FUTURISM_TEXT"> 
@@ -98206,7 +98221,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_LEGALISM_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Legalism[ENDCOLOR][NEWLINE]Provides a free culture building in your first 4 cities.
+				[COLOR_POSITIVE_TEXT]Legalism[ENDCOLOR][NEWLINE]Provides a free culture building in your first 5 cities.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_LEGALISM_TEXT"> 
@@ -98251,7 +98266,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Mandate of Heaven[ENDCOLOR][NEWLINE]20% discount on all purchases of units and buildings with [ICON_PEACE] Faith.
+				[COLOR_POSITIVE_TEXT]Mandate of Heaven[ENDCOLOR][NEWLINE]20% discount on all purchases of units and buildings with [ICON_PEACE] Faith. Temples provide +1 [ICON_HAPPINESS_1] Happiness.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE"> 
@@ -98376,7 +98391,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MILITARY_CASTE_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Military Caste[ENDCOLOR][NEWLINE]Each City with a garrison increases Local City [ICON_HAPPINESS_1] Happiness by 1 and [ICON_CULTURE] Culture by 2.
+				[COLOR_POSITIVE_TEXT]Military Caste[ENDCOLOR][NEWLINE]Each City with a garrison increases Local City [ICON_HAPPINESS_1] Happiness and [ICON_CULTURE] Culture by 1.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MILITARY_TRADITION"> 
@@ -98386,7 +98401,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MILITARY_TRADITION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Military Units gain 50% more Experience from combat.
+				[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Military Units gain 50% more Experience from combat and heal 10 HP more when promouting.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MOBILIZATION"> 
@@ -98576,7 +98591,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Party Leadership[ENDCOLOR][NEWLINE]+1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_GOLD] Gold and [ICON_CULTURE] Culture per city.
+				[COLOR_POSITIVE_TEXT]Party Leadership[ENDCOLOR][NEWLINE]+1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_CULTURE] Culture and [ICON_HAPPINESS_1] Happiness per city.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_PARTY_LEADERSHIP_TEXT"> 
@@ -98826,7 +98841,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_REPUBLIC_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Republic[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] Production in every City and +5% [ICON_PRODUCTION] Production in cities when constructing Buildings.
+				[COLOR_POSITIVE_TEXT]Republic[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] Production in every City and +10% [ICON_PRODUCTION] Production in cities when constructing Buildings.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_RESETTLEMENT"> 
@@ -98911,7 +98926,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_SKYSCRAPERS_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Skyscrapers[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing and maintenance buildings reduced by 33%.
+				[COLOR_POSITIVE_TEXT]Skyscrapers[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing and maintenance buildings reduced by 25%.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_SKYSCRAPERS_TEXT"> 
@@ -99046,7 +99061,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_THIRD_ALTERNATIVE_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR][NEWLINE]Quantity of Strategic Resources produced is increased by 100%. +5 [ICON_FOOD] Food and +5 [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital.
+				[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR][NEWLINE]Quantity of Strategic Resources produced is increased by 100%. +5 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science and [ICON_CULTURE] Culture in every original [ICON_CAPITAL] Capital you control.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_THIRD_ALTERNATIVE_TEXT"> 
@@ -99172,6 +99187,21 @@ The ship has weather'd every rack; the prize we sought is won."
 		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_HELP"> 
 			<Text>
 				[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Local Happiness from every National Wonder.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Local Happiness and +2 [ICON_CULTURE] Culture from every National Wonder.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Local Happiness and +2 [ICON_FOOD] Food from every National Wonder.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Local Happiness and +4 [ICON_GOLD] Gold from every National Wonder.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT"> 
@@ -102970,7 +103000,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_HOVERING_UNIT_HELP"> 
 			<Text>
-				Unit may pass over Mountains, but takes damage if ending its turn on a Mountain.
+				Unit may pass over Mountains.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_IGNORE_TERRAIN_COST"> 
@@ -103733,14 +103763,59 @@ The ship has weather'd every rack; the prize we sought is won."
 				Combat Bonus against Damaged Enemy Units (33).
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_25"> 
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50"> 
 			<Text>
-				Damaged Enemy Bonus (25)
+				Long range penalty (50)
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_25_HELP"> 
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50_HELP"> 
 			<Text>
-				Combat Bonus against Damaged Enemy Units (25).
+				Penalty when attacking on a maximum possible range (50).
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50"> 
+			<Text>
+				Long range penalty (50)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33"> 
+			<Text>
+				Long range penalty (33)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33_HELP"> 
+			<Text>
+				Penalty when attacking on a maximum possible range (33).
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33"> 
+			<Text>
+				Long range penalty (33)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY"> 
+			<Text>
+				Movement penalty when attacking city
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY_HELP"> 
+			<Text>
+				Attacking city consumes 2 MP.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY"> 
+			<Text>
+				Movement penalty when attacking city
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_20"> 
+			<Text>
+				Damaged Enemy Bonus (20)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_20_HELP"> 
+			<Text>
+				Combat Bonus against Damaged Enemy Units (20).
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_SUPPLY"> 
@@ -104998,7 +105073,7 @@ The ship has weather'd every rack; the prize we sought is won."
 				Disbanded Units' Combat Strength
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_REPLAY_DATA_EFFECTIVEPRODUCTIONPERTURN">
+		<Replace Tag="TXT_KEY_REPLAY_DATA_EFFECTIVEPRODUCTIONPERTURN_TIMES100">
 			<Text>
 				Effective Production [ICON_PRODUCTION] Per Turn
 			</Text>
@@ -119019,7 +119094,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_AMPHIB_WARLORD"> 
 			<Text>
-				Receive triple [ICON_GOLD] Gold from Barbarian encampments and pillaging Cities. Land units gain the War Canoe and Amphibious promotions, strengthening them while embarked.
+				Receive triple [ICON_GOLD] Gold from Barbarian encampments and pillaging Cities. Receive +1 [ICON_CITIZEN] Citizen in the [ICON_CAPITAL] Capital when pillaging a City for the first time. Land units gain the War Canoe and Amphibious promotions, strengthening them while embarked.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_AMPHIB_WARLORD_SHORT"> 
@@ -119079,7 +119154,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER"> 
 			<Text>
-				+15% [ICON_PRODUCTION] Production towards buildings construction in cities with a [ICON_CONNECTED] City Connection.
+				+15% [ICON_PRODUCTION] Production towards buildings construction in cities with a [ICON_CONNECTED] City Connection. Roads constructed within friendly territory are completed instantly.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER_SHORT"> 
@@ -119139,7 +119214,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS"> 
 			<Text>
-				Upon defeating a Barbarian unit inside an encampment, you earn 60 [ICON_GOLD] Gold and they join your side. Pay 25% less for land unit maintenance.
+				Empire will get notifications when new Barbarian Encampments spawn in revealed territory. Upon defeating a Barbarian unit inside an encampment, you earn 60 [ICON_GOLD] Gold and they join your side. Pay 25% less for land unit maintenance.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT"> 
@@ -119229,7 +119304,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_EXTRA_TRADE"> 
 			<Text>
-				+1 [ICON_GOLD] Gold from Luxury resource tiles.
+				+1 [ICON_GOLD] Gold from Luxury resource tiles. Each extra copy of a luxury resource provides +1 [ICON_HAPPINESS_1] Happiness.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_EXTRA_TRADE_SHORT"> 
@@ -119744,12 +119819,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_WONDER_BUILDER"> 
 			<Text>
-				+20% [ICON_PRODUCTION] Production towards Wonder construction.
+				+20% [ICON_PRODUCTION] Production towards Wonder construction. +1 [ICON_PEACE] Faith for every 3rd [ICON_CITIZEN] Citizen in the [ICON_CAPITAL] Capital.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_WONDER_BUILDER_SHORT"> 
 			<Text>
-				Monument Builders
+				Monument Builders, Pharaoh's Power
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRO_COL_DOMAIN"> 
@@ -120581,7 +120656,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY"> 
 			<Text>
-				The Camel Archer is the Arabian unique unit, replacing the Knight. The Camel Archer is a powerful ranged attack unit, allowing it to do damage to enemies 2 hexes away. It can move after combat. The Camel Archer is less powerful than the Knight in melee combat. As a mounted unit, the Camel Archer is vulnerable to Pikemen attack.
+				The Camel Archer is the Arabian unique unit, replacing the Knight. The Camel Archer is a powerful ranged attack unit, allowing it to do damage to enemies 2 hexes away. It can move after combat but deals 33% less damage when attacking on a maximum possible range. The Camel Archer is less powerful than the Knight in melee combat. As a mounted unit, the Camel Archer is vulnerable to Pikemen attack.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_ARCHAEOLOGIST"> 
@@ -121139,7 +121214,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY"> 
 			<Text>
-				The Musketeer is the French unique unit, replacing the Musketman. The Musketeer is significantly more powerful than the Musketman, making it the most powerful foot soldier unit in the game (until the introduction of Industrial Era Infantry units). It also gets +20% [ICON_STRENGTH] Combat Strength when has less than 50 HP.
+				The Musketeer is the French unique unit, replacing the Musketman. The Musketeer is significantly more powerful than the Musketman, making it the most powerful foot soldier unit in the game (until the introduction of Industrial Era Infantry units). It also gets Combat Bonuses on low health.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_FRIGATE"> 
@@ -121357,7 +121432,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELICOPTER_GUNSHIP_STRATEGY"> 
 			<Text>
-				The Helicopter Gunship is a deadly air unit that in most respects acts like any ground unit, except that it cannot capture cities. Its movement of 6 makes it extremely quick, and it can move over all terrain types including mountains as if they were clear, but it must embark to cross water. Gunships receive a hefty combat bonus when fighting tanks.
+				The Helicopter Gunship is a deadly air unit that in most respects acts like any ground unit, except that it cannot capture cities. Its movement of 6 makes it extremely quick, and it can move over all terrain types including mountains and water as if they were clear. Gunships receive a hefty combat bonus when fighting tanks.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_ANTI_AIRCRAFT_GUN"> 
@@ -121632,7 +121707,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_HELICOPTER_GUNSHIP"> 
 			<Text>
-				Unit specialized in fighting Modern Armor and Tanks. It is capable of hovering over mountains, but takes damage if ending its turn on one.
+				Unit specialized in fighting Modern Armor and Tanks. It is capable of hovering over mountains.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_HOPLITE"> 
@@ -121662,7 +121737,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_IMMORTAL"> 
 			<Text>
-				Ancient Era Unit which specializes in defeating Mounted Units. Only the Persians may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength and heals more quickly than the Spearman, which it replaces.
+				Ancient Era Unit which specializes in defeating Mounted Units. Only the Persians may build it. This Unit has a lower [ICON_STRENGTH] Combat Strength but heals more quickly than the Spearman, which it replaces.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT"> 
@@ -122117,7 +122192,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY"> 
 			<Text>
-				The War Elephant is the Indian unique unit, replacing the Chariot Archer, that can move after attacking. It is more powerful (if slower) than the Chariot Archer and can move through any terrain without the Chariot Archer's penalty. A mounted unit, the War Elephant is quite vulnerable to the Spearman.
+				The War Elephant is the Indian unique unit, replacing the Chariot Archer, that can move after attacking. It is more powerful (if slower) than the Chariot Archer and can move through any terrain without the Chariot Archer's penalty, but deals 33% less damage when attacking on a maximum possible range. A mounted unit, the War Elephant is quite vulnerable to the Spearman.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_INDONESIAN_KRIS_SWORDSMAN"> 
@@ -122563,7 +122638,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_PERSIAN_IMMORTAL_STRATEGY"> 
 			<Text>
-				The Immortal is the Persian unique unit, replacing the Spearman. It heals twice as quickly and can do it every turn. It is quite deadly against mounted units.
+				The Immortal is the Persian unique unit, replacing the Spearman. It is weaker but heals twice as quickly and can do it every turn. It is quite deadly against mounted units.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_PIKEMAN"> 
@@ -127991,7 +128066,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_STAVE_CHURCH_STRATEGY"> 
 			<Text>
-				Stave Church is a unique Danish replacement for Temple. Stave Church doubles Pantheon belief bonus in the city.
+				Stave Church is a unique Danish replacement for Temple. Besides lower maintenance costs, it also doubles Pantheon belief bonus in the city.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_STAVE_CHURCH_TEXT"> 
@@ -128051,7 +128126,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SENNACHERIB_GARDEN_STRATEGY"> 
 			<Text>
-				Sennacherib Garden is a unique Assyrian replacement for Garden. It provides +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Unlike the Garden Sennacherib Garden does not have to be built next to a River or Lake.
+				Sennacherib Garden is a unique Assyrian replacement for Garden. It is more expencive but provides +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Unlike the Garden Sennacherib Garden does not have to be built next to a River or Lake.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_SENNACHERIB_GARDEN_TEXT"> 
@@ -128201,7 +128276,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PA_STRATEGY"> 
 			<Text>
-				Pa is a unique Polynesian replacement for Walls. It increases a city's Defense Strength by 5 and Hit Points by 50. Unlike Walls Pa can be useful in peacetime.
+				Pa is a unique Polynesian replacement for Walls. It is cheaper and increases a city's Defense Strength by 5 and Hit Points by 50. Unlike Walls Pa can be useful in peacetime.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_PA_TEXT"> 
@@ -128221,7 +128296,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_BARBICAN_STRATEGY"> 
 			<Text>
-				Barbakan is a unique Poland replacement for Castle. Barbakan deals a lot of damage to units that end their turn next to a city. The city must possess Walls before Barbakan can be constructed.
+				Barbakan is a unique Poland replacement for Castle. Barbakan is cheaper than Castle and also deals a lot of damage to units that end their turn next to a city. The city must possess Walls before Barbakan can be constructed.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_BARBICAN_TEXT"> 
@@ -128236,7 +128311,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_COTHON_HELP"> 
 			<Text>
-				Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water (if they're not already [ICON_CONNECTED] connected by land). Sea trade routes originating from this city have a 50% increase in range and produce an additional 1 [ICON_GOLD] Gold when connecting to another civilization. Provides +15% [ICON_STRENGTH] Combat Bonus to all naval units fighting in city's territory. +1 [ICON_GOLD] Gold from Coast and Ocean Tiles.[NEWLINE][NEWLINE]City must be built on the coast.
+				Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water (if they're not already [ICON_CONNECTED] connected by land). Sea trade routes originating from this city have a 50% increase in range and produce an additional 1 [ICON_GOLD] Gold and 2 [ICON_CULTURE] Culture when connecting to another civilization. Provides +15% [ICON_STRENGTH] Combat Bonus to all naval units fighting in city's territory. +1 [ICON_GOLD] Gold from Coast and Ocean Tiles.[NEWLINE][NEWLINE]City must be built on the coast.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_COTHON_STRATEGY"> 
@@ -128261,7 +128336,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_TORRE_DE_BELEM_STRATEGY"> 
 			<Text>
-				Torre de Belem is a unique Portuguese replacement for Castle. Torre de Belem increases a civilization's [ICON_HAPPINESS_1] Happiness. It cannot provide more Happiness than there are [ICON_CITIZEN] Citizens in a city. Provides +3 [ICON_PRODUCTION] Production after Gunpowder is researched. 
+				Torre de Belem is a unique Portuguese replacement for Castle. Torre de Belem is cheaper and increases a civilization's [ICON_HAPPINESS_1] Happiness. It cannot provide more Happiness than there are [ICON_CITIZEN] Citizens in a city. Provides +3 [ICON_PRODUCTION] Production after Gunpowder is researched. 
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_TORRE_DE_BELEM_TEXT"> 
@@ -128296,7 +128371,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_FLOATING_MARKET_HELP"> 
 			<Text>
-				Provides more base [ICON_GOLD] Gold and additional +2 [ICON_GOLD] Gold if city is on river. +1 [ICON_GOLD] Gold from lake tiles.
+				Provides +1 [ICON_FOOD] Food, more base [ICON_GOLD] Gold and additional +2 [ICON_GOLD] Gold if city is on river. +1 [ICON_GOLD] Gold from lake tiles.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_FLOATING_MARKET_STRATEGY"> 
@@ -128321,7 +128396,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_HIPPODROME_STRATEGY"> 
 			<Text>
-				Hippodrome is a unique Byzantine building replacing Colosseum. It is cheaper, costs no maintenance and provides +10% [ICON_STRENGTH] Combat Strength to Mounted and Ranged Mounted units and also increases a civilization's [ICON_HAPPINESS_1] Happiness. It cannot provide more Happiness than there are [ICON_CITIZEN] Citizens in a city.
+				Hippodrome is a unique Byzantine building replacing Colosseum. It is cheaper, costs no [ICON_GOLD] Gold maintenance and provides +10% [ICON_STRENGTH] Combat Strength to Mounted and Ranged Mounted units and also increases a civilization's [ICON_HAPPINESS_1] Happiness. It cannot provide more Happiness than there are [ICON_CITIZEN] Citizens in a city.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_THERMAE"> 
@@ -128962,7 +129037,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Row>
 		<Replace Tag="TXT_KEY_PROMOTION_PENALTY_AGAINST_NAVAL"> 
 			<Text>
-				Penalty when attacking Naval (50)
+				Penalty when attacking Naval (33)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_BONUS_AGAINST_ARMOR_1">
@@ -128995,9 +129070,19 @@ The ship has weather'd every rack; the prize we sought is won."
 				Defending in Friendly Lands
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_REPLAY_VIEWER_TURN_RANGE_SLIDER_TT"> 
+			<Text>
+				Show Turns {1_Num}-{2_Num}
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_OPSCREEN_HOTKEY_EDIT_HELP"> 
+			<Text>
+				Pro tip: You can change the Hotkeys for Actions and unit Promotions by pressing Ctrl + Right-Click on any action button (In-Game!)
+			</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_PATCH_VERSION"> 
 			<Text>
-				v12.2a
+				v12.3
 			</Text>
 		</Replace>
 	</Language_en_US>
@@ -129016,6 +129101,408 @@ The ship has weather'd every rack; the prize we sought is won."
 	<Language_PL_PL>
 	</Language_PL_PL>
 	<Language_RU_RU>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_AFFECTSPIESNOW">
+			<Text>Влиять на шпионов сейчас</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_AIRLIFT">
+			<Text>{TXT_KEY_MISSION_AIRLIFT}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_AIRMODIFIER">
+			<Text>Модификатор воздушных юнитов {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSFOODTRADEROUTES">
+			<Text>[ICON_FOOD]{TXT_KEY_TRADE_ROUTES_HEADING2_TITLE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSPRODUCTIONTRADEROUTES">
+			<Text>[ICON_PRODUCTION]{TXT_KEY_TRADE_ROUTES_HEADING2_TITLE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSRANGESTRIKE">
+			<Text>{TXT_KEY_PROMOTION_INDIRECT_FIRE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ALLOWSWATERROUTES">
+			<Text>Доступны водные пути</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_BORDEROBSTACLE">
+			<Text>Увеличивает стоимость передвижения для захода на клетку на вашей территории на +1[ICON_MOVES] для всех вражеских юнитов</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_BUILDINGPRODUCTIONMODIFIER">
+			<Text>Модификатор скорости строительства зданий {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CAPITAL">
+			<Text>Столица</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CAPTUREPLUNDERMODIFIER">
+			<Text>Если этот город будет захвачен, количество награбленного противником [ICON_GOLD] золота увеличивается на {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CITIESPREREQ">
+			<Text>Требования к городу {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CITYCONNECTIONTRADEROUTEMODIFIER">
+			<Text>Модификатор скорости создания торговых путей {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CITYCOUNTUNHAPPINESSMOD">
+			<Text>Модификатор недовольства от количества городов {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CITYSTATETRADEROUTEPRODUCTIONMODIFIER"> 
+			<Text>Модификатор производства торговых путей города-государства {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_CONQUESTPROB">
+			<Text>{1}% шанс захвата</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_DIPLOMATICVOTING">
+			<Text>Дипломатическое голосование</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ESPIONAGE">
+			<Text>{TXT_KEY_GAME_CONCEPT_SECTION_22}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ESPIONAGEMODIFIER">
+			<Text>Модификатор шпионажа {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_EXPERIENCE">
+			<Text>Опыт {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_EXTRALEAGUEVOTES">
+			<Text>{1} дополнительных голосов лиги</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_EXTRALUXURIES">
+			<Text>Дополнительные редкие ресурсы</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_EXTRAMISSIONARYSPREADS">
+			<Text>Дополнительное влияние миссионеров {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_EXTRASPIES">
+			<Text>{1} дополнительных шпионов</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_FOODKEPT">
+			<Text>{1}% [ICON_FOOD] еды переносится после рождения нового [ICON_CITIZEN] жителя (эффект суммируется)</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_FOUNDSRELIGION">
+			<Text>{TXT_KEY_MISSION_FOUND_RELIGION}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_FREEGREATPEOPLE">
+			<Text>{1} БЕСПЛАТНЫХ [COLOR_UNIT_TEXT]великих людей[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_FREEPOLICIES">
+			<Text>{1} БЕСПЛАТНЫХ [COLOR_MAGENTA]общественных институтов[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_FREETECHS">
+			<Text>{1} БЕСПЛАТНЫХ [COLOR_CYAN]технологий[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALCULTURERATEMODIFIER">
+			<Text>Глобальный модификатор культуры {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALDEFENSEMOD">
+			<Text>Глобальный модификатор защиты {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALESPIONAGEMODIFIER">
+			<Text>Глобальный модификатор шпионажа {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALEXPERIENCE">
+			<Text>Глобальный опыт {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALGREATPEOPLERATEMODIFIER">
+			<Text>Глобальный модификатор великих личностей {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALPLOTBUYCOSTMODIFIER">
+			<Text>[ICON_GOLD] золота требуется на получение новых клеток меньше на {1}% в каждом городе</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALPLOTCULTURECOSTMODIFIER">
+			<Text>[ICON_CULTURE] культуры требуется на получение новых клеток меньше на {1}% в каждом городе</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALPOPULATIONCHANGE">
+			<Text>Добавляет {1}[ICON_CITIZEN] жителей в каждый город империи игрока</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GLOBALSPACEPRODUCTIONMODIFIER">
+			<Text>Глобальный модификатор космического производства {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GOLD">
+			<Text>Золото {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GOLDENAGE">
+			<Text>{TXT_KEY_MISSION_START_GOLDENAGE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GOLDENAGEMODIFIER"> 
+			<Text>+{1}% {TXT_KEY_REPLAY_DATA_GOLDAGETURNS}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GREATGENERALRATEMODIFIER">
+			<Text>Модификатор великих полководцев {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GREATPEOPLERATEMODIFIER">
+			<Text>+{1}%[ICON_GREAT_PEOPLE] {TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GREATPERSONEXPENDGOLD">
+			<Text>Великий человек тратит золото {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GREATSCIENTISTBEAKERMODIFIER">
+			<Text>Модификатор науки великого учёного {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_GREATWORKSTOURISMMODIFIER">
+			<Text>+{1}% [ICON_TOURISM] туризма от шедевров</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_HAPPINESSPERCITY">
+			<Text>+{1}[ICON_HAPPINESS_1] счастья в каждом городе</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_HAPPINESSPERXPOLICIES">
+			<Text>+1[ICON_HAPPINESS_1] счастья в империи за каждые {1} политик</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_HEALRATECHANGE">
+			<Text>{1}% улучшение скорости лечения юнита</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_HOLYCITY">
+			<Text>[COLOR_WHITE]{TXT_KEY_RO_WR_HOLY_CITY}[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_INSTANTMILITARYINCREASE">
+			<Text>Мгновенное военное увеличение {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_INSTANTSPYRANKCHANGE">
+			<Text>Мгновенное изменение ранга шпионов {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_ISRELIGIOUS">
+			<Text>Религиозное</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_LANDMARKSTOURISMPERCENT">
+			<Text>{1}% [ICON_CULTURE] культуры от Чудес света, Чудес природы и Улучшений (Достопримечательности, Моаи, Шато) добавляется к [ICON_TOURISM] туризму, исходящему из города</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_LEAGUECOST">
+			<Text>Стоимость лиги {1}[ICON_PRODUCTION]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_LEVELPREREQ">
+			<Text>Требования к уровню {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_MAPCENTERING">
+			<Text>Центрирование карты</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_MEDIANTECHPERCENTCHANGE">
+			<Text>Средне-взвешенная стоимость технологий {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_MILITARYPRODUCTIONMODIFIER">
+			<Text>Модификатор военного производства {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_MINORFRIENDSHIPCHANGE">
+			<Text>Незначительные изменения дружбы {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NEVERCAPTURE">
+			<Text>Никогда не захватывать</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NOOCCUPIEDUNHAPPINESS"> 
+			<Text>{TXT_KEY_BUILDING_COURTHOUSE_HELP}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NUKEEXPLOSIONRAND">
+			<Text>{1}% шанс, что это здание создаст техногенную катастрофу, если город подвергнется ядерному удару</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NUKEIMMUNE">
+			<Text>Иммунитет к ядерному удару</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NUKEMODIFIER">
+			<Text>Модификатор ядерного оружия {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NULLIFYINFLUENCEMODIFIER">
+			<Text>Обнулить модификатор влияния</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NUMCITYCOSTMOD">
+			<Text>Стоимость увеличивается на {1}[ICON_PRODUCTION] за город</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_NUMTRADEROUTEBONUS">
+			<Text>+{1}[ICON_INTERNATIONAL_TRADE]{TXT_KEY_DECLARE_WAR_TRADE_ROUTES_HEADER}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_PLAYERBORDEROBSTACLE">
+			<Text>Увеличивает стоимость передвижения для захода на клетку на вашей территории на +1[ICON_MOVES] для всех вражеских юнитов</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_PLOTBUYCOSTMODIFIER">
+			<Text>[ICON_GOLD] золота требуется на получение новых клеток меньше на {1}% в этом городе</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_PLOTCULTURECOSTMODIFIER">
+			<Text>[ICON_CULTURE] культуры требуется на получение новых клеток меньше на {1}% в этом городе</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_POLICYCOSTMODIFIER">
+			<Text>[ICON_CULTURE] культуры требуется на получение нового социального института меньше на {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_RELIGIOUSPRESSUREMODIFIER">
+			<Text>Модификатор религиозного давления {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_SPACEPRODUCTIONMODIFIER">
+			<Text>Модификатор производства космических деталей {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_SPECIALISTEXTRACULTURE">
+			<Text>{1} дополнительной [ICON_CULTURE] культуры за специалиста</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_SPYRANKCHANGE">
+			<Text>Изменение ранга шпионов {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TEAMSHARE"> 
+			<Text>{TXT_KEY_POP_UN_TEAM}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TECHSHARE">
+			<Text>Если {1} игроков обладают технологией, то владельцы этого здания тоже получат эту технологию</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTELANDDISTANCEMODIFIER">
+			<Text>Модификатор дальности сухопутных торговых путей {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTELANDGOLDBONUS">
+			<Text>Бонус золота от сухопутных торговых путей {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTERECIPIENTBONUS">
+			<Text>[ICON_INTERNATIONAL_TRADE]{TXT_KEY_DECLARE_WAR_TRADE_ROUTES_HEADER} +{1}[ICON_GOLD][ICON_ARROW_LEFT]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTESEADISTANCEMODIFIER">
+			<Text>Модификатор дальности морских торговых путей {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTESEAGOLDBONUS">
+			<Text>Бонус золота от морских торговых путей {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTETARGETBONUS"> 
+			<Text>[ICON_INTERNATIONAL_TRADE]{TXT_KEY_DECLARE_WAR_TRADE_ROUTES_HEADER} +{1}[ICON_GOLD][ICON_ARROW_RIGHT]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_UNHAPPINESSMODIFIER">
+			<Text>Модификатор недовольства {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_UNITUPGRADECOSTMOD">
+			<Text>Модификатор стоимости улучшения юнитов {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_VICTORYPOINTS">
+			<Text>{1} очков победы</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_WONDERPRODUCTIONMODIFIER">
+			<Text>Модификатор скорости строительства чудес света {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_WORKERSPEEDMODIFIER">
+			<Text>Модификатор скорости рабочих {1}%</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILDING_XBUILTTRIGGERSIDEOLOGYCHOICE">
+			<Text>Постройте {1} для запуска выбора идеологии</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_BUILT_IN_X_CITIES">
+			<Text>Построено в {1}/{3} {3: plural 1?городе; 2?городах;}, Строительство в {2} {2: plural 1?городе; 2?городах;}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_CLOSED_BORDERS_THEIR">
+			<Text>Их границы закрыты для вас</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_CLOSED_BORDERS_YOUR">
+			<Text>Ваши границы закрыты для них</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_OPEN_BORDERS_THEIR">
+			<Text>Их границы открыты для вас</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_OPEN_BORDERS_YOUR">
+			<Text>Ваши границы открыты для них</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_AIRINTERCEPTRANGE"> 
+			<Text>{TXT_KEY_MISSION_INTERCEPT} [ICON_RANGE_STRENGTH]{1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_AIRUNITCAP">
+			<Text>Лимит воздушных юнитов {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_BASEBEAKERSTURNSTOCOUNT">
+			<Text>{TXT_KEY_MISSION_DISCOVER_TECH} ({1} {TXT_KEY_TURNS})</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_BASECULTURETURNSTOCOUNT"> 
+			<Text>{TXT_KEY_MISSION_GIVE_POLICIES} ({1} {TXT_KEY_TURNS})</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_CANBUYCITYSTATE"> 
+			<Text>{TXT_KEY_MISSION_BUY_CITY_STATE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_CAPTUREWHILEEMBARKED">
+			<Text>Может быть захвачен во время перевозки</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_CULTUREBOMBRADIUS"> 
+			<Text>{TXT_KEY_MISSION_CULTURE_BOMB} ({1})</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_EXTRAMAINTENANCECOST"> 
+			<Text>{TXT_KEY_PEDIA_MAINT_LABEL} {1}[ICON_GOLD]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_FOOD"> 
+			<Text>{TXT_KEY_CITYVIEW_STAGNATION_TEXT}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_FOUND">
+			<Text>Может основывать города для расширения вашей империи</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_FOUNDABROAD">
+			<Text>Может основывать заморские города для расширения вашей империи</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_FOUNDRELIGION"> 
+			<Text>{TXT_KEY_MISSION_FOUND_RELIGION}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_FREEPOLICIES"> 
+			<Text>{TXT_KEY_MISSION_GIVE_POLICIES} ({1}x[ICON_CULTURE])</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_GOLDENAGETURNS"> 
+			<Text>{TXT_KEY_MISSION_START_GOLDENAGE} ({1} {TXT_KEY_TURNS})</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_LEADEREXPERIENCE">
+			<Text>Опыт лидера {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_MOVEAFTERPURCHASE">
+			<Text>Может двигаться сразу после покупки</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NOBADGOODIES">
+			<Text>Без плохих древних руин</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NOMAINTENANCE"> 
+			<Text>{TXT_KEY_PEDIA_MAINT_LABEL} 0</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NUKEDAMAGELEVEL"> 
+			<Text>Уровень ядерного удара {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NUMEXOTICGOODS"> 
+			<Text>{TXT_KEY_MISSION_SELL_EXOTIC_GOODS}: {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NUMFREETECHS"> 
+			<Text>{TXT_KEY_MISSION_DISCOVER_TECH} ({1})</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_ONESHOTTOURISM"> 
+			<Text>{TXT_KEY_MISSION_ONE_SHOT_TOURISM} ({1}x[ICON_TOURISM])</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_ONESHOTTOURISMPERCENTOTHERS"> 
+			<Text>Процент единовременного улучшения показателей туризма на остальных {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_PILLAGE">
+			<Text>Может грабить улучшенные клетки</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_PROHIBITSSPREAD">
+			<Text>Запрещает распространение</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RANGEATTACKIGNORELOS"> 
+			<Text>{TXT_KEY_PROMOTION_INDIRECT_FIRE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RANGEATTACKONLYINDOMAIN">
+			<Text>Дальняя атака только в своей области</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RELIGIONSPREADS"> 
+			<Text>{TXT_KEY_UPANEL_SPREAD_RELIGION_USES}: {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RELIGIOUSSTRENGTH">
+			<Text>Религиозная сила {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_NUMEXOTICGOODS">
+			<Text>{TXT_KEY_MISSION_SELL_EXOTIC_GOODS}: {1}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_REQUIRESENHANCEDRELIGION">
+			<Text>Требует укрепленной религии</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RIVALTERRITORY">
+			<Text>Вражеская территория</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_RUSHBUILDING"> 
+			<Text>{TXT_KEY_MISSION_HURRY_PRODUCTION}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_SPREADRELIGION"> 
+			<Text>{TXT_KEY_MISSION_SPREAD_RELIGION}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_SUICIDE">
+			<Text>Юнит уничтожается во время атаки</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_TRADE"> 
+			<Text>{TXT_KEY_MISSION_ESTABLISH_TRADE_ROUTE}</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNIT_UNHAPPINESS"> 
+			<Text>{TXT_KEY_UNHAPPINESS}: {1}[ICON_HAPPINESS_3]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_UNKNOWN_CITY">
+			<Text>Неизвестный город</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_WONDER_BUILT_BY">
+			<Text>Построено цивилизацией {@1_CivName} в {@2_CityName} {@3_YearBuilt}</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_WONDER_LEANING_TOWER_HELP"> 
 			<Text>
 				Увеличивает на 25% скорость возникновения [ICON_GREAT_PEOPLE] великих людей во всех городах.
@@ -129318,7 +129805,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_WORLD_CHURCH"> 
 			<Text>
-				Дает +1 [ICON_CULTURE] к культуре за каждые 7 последователей этой религии
+				Дает +1 [ICON_CULTURE] к культуре за каждые 6 последователей этой религии
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PEACE_LOVING"> 
@@ -129528,7 +130015,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS">
 			<Text>
-				При уничтожении лагеря варваров вы получаете 60 [ICON_GOLD] золота и побежденный отряд. Содержание сухопутных юнитов стоит на 25% дешевле.
+				Получает извещение всякий раз, когда варвары ставят новый лагерь на открытой территории. При уничтожении лагеря варваров вы получаете 60 [ICON_GOLD] золота и побежденный отряд. Содержание сухопутных юнитов стоит на 25% дешевле.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_ENHANCED_GOLDEN_AGES"> 
@@ -129638,7 +130125,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Партийное руководство[ENDCOLOR][NEWLINE]+1 [ICON_FOOD] к пище, [ICON_PRODUCTION] производству, [ICON_RESEARCH] науке, [ICON_GOLD] золоту и [ICON_CULTURE] культуре каждого города.
+				[COLOR_POSITIVE_TEXT]Партийное руководство[ENDCOLOR][NEWLINE]+1 [ICON_FOOD] к пище, [ICON_PRODUCTION] производству, [ICON_RESEARCH] науке, [ICON_GOLD] золоту, [ICON_CULTURE] культуре и [ICON_HAPPINESS_1] настроению каждого города.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_SPACEFLIGHT_PIONEERS_HELP"> 
@@ -129703,7 +130190,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_CATHEDRALS"> 
 			<Text>
-				Позволяет за очки [ICON_PEACE] веры строить соборы (+1 [ICON_PEACE] к вере, +1 [ICON_CULTURE] к культуре, +2 [ICON_HAPPINESS_1] к настроению)
+				Позволяет за очки [ICON_PEACE] веры строить соборы (+1 [ICON_PEACE] к вере, +1 [ICON_CULTURE] к культуре. Дополнительно +1 [ICON_HAPPINESS_1] к настроению за каждого 6-го [ICON_CITIZEN] жителя в городе)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_BONUS_AGAINST_TECH"> 
@@ -129773,7 +130260,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_EXTRA_TRADE"> 
 			<Text>
-				+1 [ICON_GOLD] к золоту на клетках с редкими ресурсами.
+				+1 [ICON_GOLD] к золоту на клетках с редкими ресурсами. Каждая дополнительная копия редкого ресурса дает +1 [ICON_HAPPINESS_1] к настроению.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_STRATEGIC_RICHES"> 
@@ -129854,12 +130341,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS"> 
 			<Text>
-				Можно строить пагоды (+1 [ICON_PEACE] к вере, +3 [ICON_CULTURE] к культуре, +1 [ICON_HAPPINESS_1] к настроению) за [ICON_PEACE] очки веры
+				Можно строить пагоды (+1 [ICON_PEACE] к вере, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_CULTURE] к культуре за каждого 5-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES"> 
 			<Text>
-				Можно строить мечети (+3 [ICON_PEACE] к вере, +1 [ICON_CULTURE] к культуре, +1 [ICON_HAPPINESS_1] к настроению) за [ICON_PEACE] очки веры
+				Можно строить мечети (+1 [ICON_CULTURE] к культуре, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_PEACE] к вере, за каждого 4-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_RATIONALISM_HELP"> 
@@ -130009,12 +130496,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_EXPLORATION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Мореплавание[ENDCOLOR] позволяет расширить ваши владения за пределы одного континента.[NEWLINE][NEWLINE]Освоение мореплавания увеличивает на +1 [ICON_MOVES] ОП кораблей и увеличивает на +1 радиус обзора боевых кораблей. Открывает постройку Венецианского Арсенала.[NEWLINE][NEWLINE]При принятии всех общественных институтов мореплавания маяки, гавани и морские порты дают дополнительно +1 [ICON_FOOD] к пище, +1 [ICON_PRODUCTION] к производству, +1 [ICON_RESEARCH] к науке, и радиус обзора боевых кораблей увеличивается на 1. Также позволяет приобретать великих флотоводцев за счет [ICON_PEACE] веры, начиная с Новейшего времени.
+				[COLOR_POSITIVE_TEXT]Мореплавание[ENDCOLOR] позволяет расширить ваши владения за пределы одного континента.[NEWLINE][NEWLINE]Освоение мореплавания увеличивает на +1 [ICON_MOVES] ОП кораблей и увеличивает на +1 радиус обзора боевых кораблей, а также дает +50% к производству маяков, гаваней и морских портов. Открывает постройку Венецианского Арсенала.[NEWLINE][NEWLINE]При принятии всех общественных институтов мореплавания маяки, гавани и морские порты дают дополнительно +1 [ICON_FOOD] к пище, +1 [ICON_PRODUCTION] к производству, +1 [ICON_RESEARCH] к науке, и радиус обзора боевых кораблей увеличивается на 1. Также позволяет приобретать великих флотоводцев за счет [ICON_PEACE] веры, начиная с Новейшего времени.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Пятилетний план[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] к производству в каждом городе и +1 [ICON_PRODUCTION] к производству за каждую шахту или каменоломню.
+				[COLOR_POSITIVE_TEXT]Пятилетний план[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] к производству и +1 [ICON_RESEARCH] к науке за каждую шахту или каменоломню.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_TRADE_UNIONS_HELP"> 
@@ -131314,7 +131801,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER"> 
 			<Text>
-				+15% [ICON_PRODUCTION] к производству зданий в городах, [ICON_CONNECTED] соединенных со столицей.
+				+15% [ICON_PRODUCTION] к производству зданий в городах, [ICON_CONNECTED] соединенных со столицей. Дороги на дружественной территории строятся мгновенно.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT"> 
@@ -131604,7 +132091,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MILITARY_TRADITION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Воинские традиции[ENDCOLOR][NEWLINE]Подразделения получают в бою на 50% больше опыта.
+				[COLOR_POSITIVE_TEXT]Воинские традиции[ENDCOLOR][NEWLINE]Подразделения получают в бою на 50% больше опыта и восстанавливают на 10 ОЗ больше после выбора повышения.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MERCANTILISM_HELP"> 
@@ -132499,6 +132986,11 @@ The ship has weather'd every rack; the prize we sought is won."
 				Тяжелобронированный морской корабль Нового времени, который чрезвычайно трудно уничтожить. Кобуксон расплачивается за толстую броню и мощные орудия низкой скоростью. Его умеют строить только корейцы. Замещает каравеллу.
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY"> 
+			<Text>
+				Кобуксон - уникальный корейский корабль, замещающий каравеллу. "Корабль-черепаха" в бою мощнее, чем каравелла, и его чрезвычайно трудно уничтожить. Однако он очень медлителен при перемещении по клеткам открытого океана.
+			</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CARNIVAL"> 
 			<Text>
 				В течение [ICON_GOLDEN_AGE] золотого века [ICON_PRODUCTION] производство в городе увеличивается на 30%, а приток [ICON_CULTURE] культуры увеличивается на 30%. Во время золотого века великие художники, писатели и музыканты появляются на 25% быстрее.
@@ -132713,7 +133205,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Небесный мандат[ENDCOLOR][NEWLINE]Сокращает на 20% затраты на покупку юнитов и построек за счет [ICON_PEACE] веры.
+				[COLOR_POSITIVE_TEXT]Небесный мандат[ENDCOLOR][NEWLINE]Сокращает на 20% затраты на покупку юнитов и построек за счет [ICON_PEACE] веры. Храмы дают +1 [ICON_HAPPINESS_1] к настроению.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_ELITE_FORCES_HELP"> 
@@ -132994,7 +133486,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_ARSENAL_DEMOCRACY_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Арсенал демократии[ENDCOLOR][NEWLINE]+50% [ICON_PRODUCTION] к производству при создании Авиации, Управляемых и Ядерных ракет. 
+				[COLOR_POSITIVE_TEXT]Арсенал демократии[ENDCOLOR][NEWLINE]+50% [ICON_PRODUCTION] к производству при создании Авиации, Управляемых и Ядерных ракет. Трипланы, истребители и реактивные истребители получают повышение "Перехват I".
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_RELIGIOUS_FERVOR"> 
@@ -133800,7 +134292,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA"> 
 			<Text>
-				+1 [ICON_PRODUCTION] за каждую рыбацкую лодку, рядом со [ICON_CAPITAL] столицей появляется рабочая лодка
+				+1 [ICON_PRODUCTION] за каждую рыбацкую лодку
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE3"> 
@@ -134051,7 +134543,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_TRADITION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Традиция[ENDCOLOR] хорошо подходит небольшим державам.[NEWLINE][NEWLINE]Принятие традиции значительно снижает затраты  [ICON_CULTURE] культуры в [ICON_CAPITAL] столице. Открывает постройку Висячих садов.[NEWLINE][NEWLINE]Принятие всех общественных институтов традиции увеличивает на 20% [ICON_FOOD] производство пищи и дает бесплатный акведук в первых четырех городах. Также позволяет приобретать великих инженеров за счет [ICON_PEACE] веры, начиная с Новейшего времени.
+				[COLOR_POSITIVE_TEXT]Традиция[ENDCOLOR] хорошо подходит небольшим державам.[NEWLINE][NEWLINE]Принятие традиции значительно снижает затраты  [ICON_CULTURE] культуры в [ICON_CAPITAL] столице. Открывает постройку Висячих садов.[NEWLINE][NEWLINE]Принятие всех общественных институтов традиции увеличивает на 15% [ICON_FOOD] производство пищи в империи и дает бесплатный акведук в первых пяти городах. Также позволяет приобретать великих инженеров за счет [ICON_PEACE] веры, начиная с Новейшего времени.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_FAITH_PLAYER_MOD"> 
@@ -134101,7 +134593,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FUTURISM_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Футуризм[ENDCOLOR][NEWLINE]+250 к [ICON_TOURISM] туризму от всех известных держав при рождении великого полководца, флотоводца, писателя, художника или музыканта.
+				[COLOR_POSITIVE_TEXT]Футуризм[ENDCOLOR][NEWLINE]+250 к [ICON_TOURISM] туризму от всех известных держав при рождении великого полководца, флотоводца, писателя, художника или музыканта. Великие писатели, художники и музыканты появляются на 33% быстрее.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_NATIONALISM_HELP"> 
@@ -134156,17 +134648,17 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Диктатура пролетариата[ENDCOLOR][NEWLINE]+34% к показателям [ICON_TOURISM] туризма, если население государства [ICON_HAPPINESS_1] довольно.
+				[COLOR_POSITIVE_TEXT]Диктатура пролетариата[ENDCOLOR][NEWLINE]+10% к показателям [ICON_TOURISM] туризма в городах за каждые 5 [ICON_HAPPINESS_1] избыточного настроения в империи (максимум 50%).
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_SKYSCRAPERS_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Небоскребы[ENDCOLOR][NEWLINE][ICON_GOLD] Снижает на 33% стоимость покупки и содержания объектов во всех городах.
+				[COLOR_POSITIVE_TEXT]Небоскребы[ENDCOLOR][NEWLINE][ICON_GOLD] Снижает на 25% стоимость покупки и содержания объектов во всех городах.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Культурная революция[ENDCOLOR][NEWLINE]+3 [ICON_TOURISM] к туризму от [ICON_CULTURE] культурных построек.
+				[COLOR_POSITIVE_TEXT]Культурная революция[ENDCOLOR][NEWLINE]+5 [ICON_TOURISM] к туризму от [ICON_CULTURE] культурных построек.
 			</Text>
 		</Replace><Replace Tag="TXT_KEY_BUILDING_SKI_RESORT_DESC"> 
 			<Text>
@@ -134264,7 +134756,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SENNACHERIB_GARDEN_STRATEGY"> 
 			<Text>
-				Сад Сеннахериба — уникальная Ассирийская постройка, заменяющая сад. Он увеличивает прирост [ICON_FOOD] пищи и [ICON_CULTURE] культуры в городе на 1. Также не требует наличия реки или озера для постройки.
+				Сад Сеннахериба — уникальная Ассирийская постройка, заменяющая сад. Он стоит дороже, но увеличивает прирост [ICON_FOOD] пищи и [ICON_CULTURE] культуры в городе на 1. Также не требует наличия реки или озера для постройки.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_SENNACHERIB_GARDEN_TEXT"> 
@@ -134356,7 +134848,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PA_STRATEGY"> 
 			<Text>
-				Па — уникальная Полинезийская постройка, замещающая стены. Па увеличивает обороноспособность города на 5 очков и ОЗ - на 50. В отличие от стен, па может быть полезен и в мирное время. 
+				Па — уникальная Полинезийская постройка, замещающая стены. Па стоит дешевле и увеличивает обороноспособность города на 5 очков и ОЗ - на 50. В отличие от стен, па может быть полезен и в мирное время. 
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_PA_TEXT"> 
@@ -134387,7 +134879,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_BARBICAN_STRATEGY"> 
 			<Text>
-				Барбакан — это уникальная Польская постройка эпохи Средневековья, заменяющая замок. Барбакан наносит огромный урон вражеским юнитам, завершившим свой ход рядом с городом. Чтобы построить барбакан, в городе должны быть стены. 
+				Барбакан — это уникальная Польская постройка эпохи Средневековья, заменяющая замок. Барбакан немного дешевле замка, а также наносит огромный урон вражеским юнитам, завершившим свой ход рядом с городом. Чтобы построить барбакан, в городе должны быть стены. 
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_BARBICAN_TEXT"> 
@@ -134407,7 +134899,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_TORRE_DE_BELEM_STRATEGY"> 
 			<Text>
-				Торре-де-Белем — это уникальная постройка Португалии, замещающая замок. Торре-де-Белем повышает [ICON_HAPPINESS_1] настроение цивилизации. При этом он не может увеличить настроение на величину, [ICON_CITIZEN] превышающую число горожан в городе. Дает +3 [ICON_PRODUCTION] к производству после изучения Пороха.
+				Торре-де-Белем — это уникальная постройка Португалии, замещающая замок. Торре-де-Белем стоит дешевле и повышает [ICON_HAPPINESS_1] настроение цивилизации. При этом он не может увеличить настроение на величину, [ICON_CITIZEN] превышающую число горожан в городе. Дает +3 [ICON_PRODUCTION] к производству после изучения Пороха.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_TORRE_DE_BELEM_TEXT"> 
@@ -134428,7 +134920,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_FLOATING_MARKET_HELP"> 
 			<Text>
-				Дает больше базового [ICON_GOLD] золота, а также дополнительно +2 [ICON_GOLD] к золоту, если город расположен на реке. +1 [ICON_GOLD] к золоту на клетках озер.
+				Дает +1 [ICON_FOOD] к пище, больше базового [ICON_GOLD] золота, а также дополнительно +2 [ICON_GOLD] к золоту, если город расположен на реке. +1 [ICON_GOLD] к золоту на клетках озер.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_FLOATING_MARKET_STRATEGY"> 
@@ -134814,7 +135306,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_STAVE_CHURCH_STRATEGY"> 
 			<Text>
-				Ставкирка — уникальное здание Датчан, заменяющее храм. Она удваивает бонус пантеона в городе.
+				Ставкирка — уникальное здание Датчан, заменяющее храм. Помимо более дешевого содержания она также удваивает бонус пантеона в городе.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_STAVE_CHURCH_TEXT"> 
@@ -134918,7 +135410,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_COTHON_HELP"> 
 			<Text>
-				Прокладывает [ICON_CONNECTED] торговый путь в [ICON_CAPITAL] столицу по воде (если еще не существует [ICON_CONNECTED] наземный торговый путь). Морские торговые маршруты, исходящие из этого города, могут быть на 50% длиннее и производят дополнительно 1 [ICON_GOLD], если ведут в другую державу. Дает +15% [ICON_STRENGTH] к боевой мощи морским юнитам, сражающимся на территории города с котоном. Дает +1 [ICON_GOLD] к золоту на клетках побережья и океана.[NEWLINE][NEWLINE]Город должен быть построен на побережье.
+				Прокладывает [ICON_CONNECTED] торговый путь в [ICON_CAPITAL] столицу по воде (если еще не существует [ICON_CONNECTED] наземный торговый путь). Морские торговые маршруты, исходящие из этого города, могут быть на 50% длиннее и производят дополнительно 1 [ICON_GOLD] и 2 [ICON_CULTURE], если ведут в другую державу. Дает +15% [ICON_STRENGTH] к боевой мощи морским юнитам, сражающимся на территории города с котоном. Дает +1 [ICON_GOLD] к золоту на клетках побережья и океана.[NEWLINE][NEWLINE]Город должен быть построен на побережье.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_COTHON_STRATEGY"> 
@@ -135839,7 +136331,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY"> 
 			<Text>
-				Боевые слоны - уникальные индийские войска, замещающие лучников на колесницах, которые могут двигаться после атаки. Хотя они медленнее последних, зато гораздо сильнее и могут без помех перемещаться по любым типам местности. Поскольку боевые слоны относятся к кавалерийским подразделениям, они уязвимы для копейщиков.
+				Боевые слоны - уникальные индийские войска, замещающие лучников на колесницах, которые могут двигаться после атаки. Хотя они медленнее последних, зато гораздо сильнее и могут без помех перемещаться по любым типам местности, но наносят на 33% меньше урона, если атакуют на максимально возможную дальность. Поскольку боевые слоны относятся к кавалерийским подразделениям, они уязвимы для копейщиков.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_INDONESIAN_KRIS_SWORDSMAN_STRATEGY"> 
@@ -135904,7 +136396,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_PERSIAN_IMMORTAL_STRATEGY"> 
 			<Text>
-				Бессмертные - уникальные персидские войска, замещающие копейщиков. Они исцеляются быстрее и делают это каждый ход. Особенно эффективны они против конницы.
+				Бессмертные - уникальные персидские войска, замещающие копейщиков. Они слабее, но исцеляются быстрее и делают это каждый ход. Особенно эффективны они против конницы.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP"> 
@@ -135939,7 +136431,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_PENALTY_AGAINST_NAVAL"> 
 			<Text>
-				Штраф в бою при атаке морских подразделений (50)
+				Штраф в бою при атаке морских подразделений (33)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_GATLINGGUN_STRATEGY"> 
@@ -135974,7 +136466,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY"> 
 			<Text>
-				Мушкетеры являются уникальным подразделением Франции. Они сильнее, чем обычные аркебузиры, что делает их самыми мощными пехотными подразделениями до появления юнитов Новейшего времени. Также получают +20% [ICON_STRENGTH] к боевой мощи, если имеют меньше 50 ОЗ.
+				Мушкетеры являются уникальным подразделением Франции. Они сильнее, чем обычные аркебузиры, что делает их самыми мощными пехотными подразделениями до появления юнитов Новейшего времени. Также получают бонус к боевой мощи при низком запасе здоровья.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_DENMARK_BERSERKER_HELP"> 
@@ -136014,12 +136506,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_DESERT_FOLKLORE"> 
 			<Text>
-				+1 [ICON_PEACE] к вере на клетках пойм. Оазисы дают +2 [ICON_PEACE] к вере и +1 [ICON_PRODUCTION] к производству
+				+1 [ICON_PEACE] к вере на клетках пойм. Оазисы дают +2 [ICON_PEACE] к вере и +2 [ICON_PRODUCTION] к производству
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_SPIRIT_ANIMALS"> 
 			<Text>
-				+1 [ICON_PEACE] к вере от каждого источника скота, овец и оленей 
+				+1 [ICON_PEACE] к вере от каждого источника скота, бизонов, овец и оленей 
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_SPIRIT_ANIMALS_SHORT"> 
@@ -136196,19 +136688,19 @@ The ship has weather'd every rack; the prize we sought is won."
 				Бонус против поврежд. врага (33)
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_25"> 
+		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_20"> 
 			<Text>
-				Бонус против поврежд. врага (25)
+				Бонус против поврежд. врага (20)
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_25_HELP"> 
+		<Replace Tag="TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_20_HELP"> 
 			<Text>
-				Бонус в бою против поврежденного противника (25).
+				Бонус в бою против поврежденного противника (20).
 			</Text>
 		</Replace>
-		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_STRONGER_VS_DAMAGED_25"> 
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_STRONGER_VS_DAMAGED_20"> 
 			<Text>
-				Бонус против поврежд. врага (25)
+				Бонус против поврежд. врага (20)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EO_SPY_COUP_DISABLED_NO_ALLY_TT"> 
@@ -136234,6 +136726,16 @@ The ship has weather'd every rack; the prize we sought is won."
 		<Replace Tag="TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS"> 
 			<Text>
 				{1_SpyRank} {@2_SpyName} {@2: plural 1?{@2: gender masculine?устроил; feminine?устроила; neuter?устроило;}; 2?устроили; other?устроил;} успешный переворот в{@3: gender masculine? ; feminine? ; neuter? ; other? городе ;}{@3_CityName[6]}. Ваше влияние на увеличилось на 60!
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY"> 
+			<Text>
+				{1_SpyRank} {@2_SpyName} в городе {3_CityName} {@2: plural 1?{@2: gender masculine?собрал; feminine?собрала; neuter?собрало;}; 2?собрали; other?собрал;} достаточно информации, чтобы совершить переворот и увеличить ваше влияние!
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY_S"> 
+			<Text>
+				{1_CityName}: можно совершить переворот!
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EO_STAGE_COUP_QUESTION"> 
@@ -136306,6 +136808,181 @@ The ship has weather'd every rack; the prize we sought is won."
 				Оставляет 100% от [ICON_HAPPINESS_1] настроения за редкий ресурс, если последняя его единица была продана другой державе.
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_LEGALISM_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Легализм[ENDCOLOR][NEWLINE]В первых пяти городах державы бесплатно появится культурное здание.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_REPUBLIC_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Республика[ENDCOLOR][NEWLINE]Увеличивает на +1 [ICON_PRODUCTION] производство в каждом городе и на +10% [ICON_PRODUCTION] производство при строительстве зданий.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_MILITARY_CASTE_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Каста воинов[ENDCOLOR][NEWLINE]Каждый город с гарнизоном увеличивает [ICON_HAPPINESS_1] настроение в городе и [ICON_CULTURE] культуру на 1.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Бесплатная медицина[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] к настроению и +2 [ICON_CULTURE] к культуре в городе от каждого национального чуда.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Бесплатная медицина[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] к настроению и +2 [ICON_FOOD] к пище в городе от каждого национального чуда.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Бесплатная медицина[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] к настроению и +4 [ICON_GOLD] к золоту в городе от каждого национального чуда.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POLICY_THIRD_ALTERNATIVE_HELP"> 
+			<Text>
+				[COLOR_POSITIVE_TEXT]Третья альтернатива[ENDCOLOR][NEWLINE]Количество стратегических ресурсов, производимых государством, увеличивается на 100%. +5 [ICON_FOOD] единиц пищи, [ICON_PRODUCTION] производства, [ICON_RESEARCH] науки и [ICON_CULTURE] культуры в каждой изначальной [ICON_CAPITAL] столице под вашим контролем.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_REPLAY_VIEWER_TURN_RANGE_SLIDER_TT"> 
+			<Text>
+				Показать ходы {1_Num}-{2_Num}
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_OPSCREEN_HOTKEY_EDIT_HELP"> 
+			<Text>
+				Совет: вы можете поменять горячие клавиши действий и повышений юнитов нажатием Ctrl + ПКМ по кнопке действия (в игре!)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_HARBOR_HELP"> 
+			<Text>
+				Прокладывает [ICON_CONNECTED] торговый путь в [ICON_CAPITAL] столицу по воде (если еще не существует [ICON_CONNECTED] наземный торговый путь). Морские торговые маршруты, исходящие из этого города, могут быть на 50% длиннее и производят дополнительно 1 [ICON_GOLD] и 2 [ICON_CULTURE], если ведут в другую державу.[NEWLINE][NEWLINE]Город должен быть построен на побережье.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_UNIT_IRONCLAD_STRATEGY"> 
+			<Text>
+				Броненосцы - это первые боевые корабли на паровой тяге. Такие корабли предназначены для ближнего боя. Они гораздо надежнее любого парусного судна, а их дистанционная атака мощнее. При этом броненосцы медленно перемещаются по клеткам открытого океана. Используйте их, в первую очередь, для защиты побережья.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_GRAND_TEMPLE_HELP"> 
+			<Text>
+				Удваивает религиозное влияние этого города и уменьшает стоимость содержания храмов в державе на 1.[NEWLINE][NEWLINE]Должен быть построен в священном городе. Во всех других городах необходимы храмы. Чем больше городов в империи, тем выше стоимость строительства.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CO_CITY_TOURISM_HAPPY_BONUS_NEW"> 
+			<Text>
+				+{1_Num}% [ICON_TOURISM] к туризму от избыточного [ICON_HAPPINESS_1] настроения в империи (Текущее настроение: {2_Num})[NEWLINE]
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY"> 
+			<Text>
+				Лучники на верблюдах - это уникальные арабские войска, замещающие рыцарей. У них мощная дистанционная атака, позволяющая наносить урон врагу на расстоянии двух клеток. Это подразделение может двигаться после боя, но наносит на 33% меньше урона, если атакуют на максимально возможную дальность. В ближнем бою лучники на верблюдах довольно слабы. Как и всякое кавалерийское подразделение, оно уязвимо для атак пикинеров.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_MONGOLIA_KESHIK_INFO"> 
+			<Text>
+				Кешиктены - уникальное монгольское подразделение, доступное в Средневековье. Замещая обычных рыцарей, они двигаются с большей скоростью, в два раза быстрее повышают квалификацию и приносят в два раза больше очков великих полководцев. Кешиктены могут нападать издалека, так как обладают мощной дальнобойной атакой, но наносят на 33% меньше урона, если атакуют на максимально возможную дальность.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_TRAIT_WONDER_BUILDER"> 
+			<Text>
+				При строительстве чудес света [ICON_PRODUCTION] производство увеличивается на 20%. Получает +1 к [ICON_PEACE] вере за каждого третьего [ICON_CITIZEN] жителя в [ICON_CAPITAL] столице.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_TRAIT_WONDER_BUILDER_SHORT"> 
+			<Text>
+				Строители памятников, Власть фараона
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_UNIT_HELICOPTER_GUNSHIP_STRATEGY"> 
+			<Text>
+				Штурмовой вертолет - это смертоносная воздушная машина, которая в большинстве случаев ведет себя как обычные сухопутные войска, но не может захватывать города. Вертолеты очень быстрые: у них шесть очков передвижения, и они могут перемещаться по всем типам ландшафта, включая горы, моря и ледники (если те не заняты противником). Вертолеты получают серьезный бонус при сражении с танками.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_UNIT_HELP_HELICOPTER_GUNSHIP"> 
+			<Text>
+				Создан специально для борьбы с танками любого вида. Может преодолевать горы.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_TRAIT_AMPHIB_WARLORD"> 
+			<Text>
+				Дается в три раза больше [ICON_GOLD] золота от лагерей варваров и грабежа городов. Получает +1 [ICON_CITIZEN] к населению [ICON_CAPITAL] в столице за каждое первое разграбление города. Сухопутные войска получают повышения "Боевые каноэ" и "Морской десант" и могут давать более сильный отпор на воде.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_HOVERING_UNIT_HELP"> 
+			<Text>
+				Может перелетать через горы.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50"> 
+			<Text>
+				Штраф на предельной дальности (50)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50_HELP"> 
+			<Text>
+				Штраф при атаке на максимальную возможную дальность (50).
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_PENLATY_ATTACKING_OUTER_RING_50"> 
+			<Text>
+				Штраф на предельной дальности (50)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33"> 
+			<Text>
+				Штраф на предельной дальности (33)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33_HELP"> 
+			<Text>
+				Штраф при атаке на максимальную возможную дальность (33).
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_PENLATY_ATTACKING_OUTER_RING_33"> 
+			<Text>
+				Штраф на предельной дальности (33)
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY"> 
+			<Text>
+				Штраф к ОП при атаке города
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY_HELP"> 
+			<Text>
+				Юнит теряет 2 ОП при атаке города.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PEDIA_PROMOTION_MOVEMENT_PENLATY_ATTACKING_CITY"> 
+			<Text>
+				Штраф к ОП при атаке города
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_PAGODA_STRATEGY"> 
+			<Text>
+				Пагоду можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть соответствующее верование. Дает дополнительные очки [ICON_CULTURE] культуры за каждого 5-го [ICON_CITIZEN] жителя в городе.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_STRATEGY"> 
+			<Text>
+				Мечеть можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть верование "Мечети". Дает дополнительные очки [ICON_PEACE] веры за каждого 4-го [ICON_CITIZEN] жителя в городе.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_STRATEGY"> 
+			<Text>
+				Можно строить только в тех городах, где главенствует религия с верованием "Соборы". Дает дополнительное [ICON_HAPPINESS_1] настроение за каждого 6-го [ICON_CITIZEN] жителя в городе. Чтобы возвести это здание, необходимо потратить [ICON_PEACE] очки веры.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_UNIT_HELP_IMMORTAL"> 
+			<Text>
+				Подразделение Древнейшего мира, специализирующееся на уничтожении кавалерии. Его могут создавать только персы. [ICON_STRENGTH] Боевая мощь этого подразделения ниже, чем у копейщиков, которых оно замещает, но оно быстрее восстанавливает здоровье.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_CIV5_FEATURES_EL_DORADO_HELP"> 
+			<Text>
+				Первый обнаруживший это чудо получит 100 [ICON_GOLD] золота.
+			</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_MULTIPLAYER_STAGING_ROOM"> 
 			<Text>
 				[COLOR_POSITIVE_TEXT]Патч для FFA6 турнира {TXT_KEY_PATCH_VERSION}[ENDCOLOR]
@@ -136323,7 +137000,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_PATCH_VERSION"> 
 			<Text>
-				v12.2a
+				v12.3
 			</Text>
 		</Replace>
 	</Language_RU_RU>

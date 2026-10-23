@@ -939,6 +939,26 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			iCoupRate = GC.getESPIONAGE_COUP_RATE_3();
 
 		pCityEspionage->m_aiCoupAmount[ePlayer] = pCityEspionage->m_aiCoupAmount[ePlayer] + iCoupRate;
+
+		if (CanStageCoup(uiSpyIndex))
+		{
+			// send notification to player
+			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+			if (pNotifications)
+			{
+				NotificationTypes eNotification;
+				Localization::String strSummary;
+				Localization::String strNotification;
+				eNotification = static_cast<NotificationTypes>(NOTIFICATION_SPY_YOU_STAGE_COUP_READY);
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY_S");
+				strSummary << pCity->getNameKey();
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_READY");
+				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+				strNotification << pCity->getNameKey();
+				pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+			}
+		}
 		break;
 	}
 #else

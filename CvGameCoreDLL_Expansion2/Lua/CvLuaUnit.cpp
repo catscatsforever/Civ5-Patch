@@ -259,8 +259,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #ifdef UNIT_NO_ADJACENT_MOD
 	Method(GetNoAdjacentMod);
 #endif
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
-	Method(GetLowHealthDefenseModifier);
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
+	Method(GetLowHealthCombatModifier);
 #endif
 #ifdef UNIT_IGNORE_TERRAIN_DEFENSE
 	Method(IsIgnoreTerrainDefense);
@@ -2654,14 +2654,14 @@ int CvLuaUnit::lGetNoAdjacentMod(lua_State* L)
 	return 1;
 }
 #endif
-#ifdef UNIT_LOW_HEALTH_DEFENSE_MOD
+#ifdef UNIT_LOW_HEALTH_COMBAT_MOD
 //------------------------------------------------------------------------------
-//int GetLowHealthDefenseModifier();
-int CvLuaUnit::lGetLowHealthDefenseModifier(lua_State* L)
+//int GetLowHealthCombatModifier();
+int CvLuaUnit::lGetLowHealthCombatModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->getDamage() < 50 ? 0 : pkUnit->getUnitInfo().GetLowHealthDefenseModifier();
+	const int iResult = pkUnit->getDamage() < 50 ? 0 : pkUnit->getUnitInfo().GetLowHealthCombatModifier();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
