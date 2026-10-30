@@ -2676,13 +2676,19 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		CivilizationTypes eRomeCiv = (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_ROME");
 		if (eRomeCiv != NO_CIVILIZATION && GET_PLAYER(ePlayer).getCivilizationType() == eRomeCiv)
 		{
-			RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
-			RouteTypes eNormalRoad = (RouteTypes)GC.getInfoTypeForString("ROUTE_ROAD");
-			if (eRoute != NO_ROUTE && eNormalRoad != NO_ROUTE && eRoute == eNormalRoad)
+			TechTypes eIronWorking = (TechTypes)GC.getInfoTypeForString("TECH_IRON_WORKING");
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+			CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+			if (eIronWorking != NO_TECH && kTeam.GetTeamTechs()->HasTech(eIronWorking))
 			{
-				if (IsFriendlyTerritory(ePlayer))
+				RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+				RouteTypes eNormalRoad = (RouteTypes)GC.getInfoTypeForString("ROUTE_ROAD");
+				if (eRoute != NO_ROUTE && eNormalRoad != NO_ROUTE && eRoute == eNormalRoad)
 				{
-					iTime = 100;
+					if (IsFriendlyTerritory(ePlayer))
+					{
+						iTime = 100;
+					}
 				}
 			}
 		}

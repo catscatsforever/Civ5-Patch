@@ -756,7 +756,7 @@ function GetCultureTooltip(pCity)
 	local iCultureNeededTimes100 = 100 * pCity:GetJONSCultureThreshold();
 
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
-	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStoredTimes100, iCultureNeededTimes100);
+	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStoredTimes100 / 100, iCultureNeededTimes100 / 100);
 	
 	if iCulturePerTurnTimes100 > 0 then
 		local iCultureDiffTimes100 = iCultureNeededTimes100 - iCultureStoredTimes100;

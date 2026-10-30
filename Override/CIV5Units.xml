@@ -32703,16 +32703,6 @@
 			<Yield>6</Yield> 
 		</Row>
 		<Row> 
-			<BuildingType>BUILDING_ZIGGURAT</BuildingType> 
-			<YieldType>YIELD_CULTURE</YieldType> 
-			<Yield>1</Yield> 
-		</Row>
-		<Row> 
-			<BuildingType>BUILDING_ZIGGURAT</BuildingType> 
-			<YieldType>YIELD_FAITH</YieldType> 
-			<Yield>1</Yield> 
-		</Row>
-		<Row> 
 			<BuildingType>BUILDING_TORRE_DE_BELEM</BuildingType> 
 			<YieldType>YIELD_PRODUCTION</YieldType> 
 			<Yield>3</Yield> 
@@ -33823,6 +33813,11 @@
 		<Row> 
 			<BuildingType>BUILDING_ZIGGURAT</BuildingType> 
 			<YieldType>YIELD_FAITH</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
+			<BuildingType>BUILDING_ZIGGURAT</BuildingType> 
+			<YieldType>YIELD_CULTURE</YieldType> 
 			<Yield>1</Yield> 
 		</Row>
 		<Row> 
@@ -49919,6 +49914,7 @@
 			<Description>TXT_KEY_BUILDING_CATHEDRAL</Description> 
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CATHEDRAL_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_BUILDING_CATHEDRAL_STRATEGY</Strategy> 
+			<Help>TXT_KEY_BUILDING_CATHEDRAL_HELP</Help> 
 			<GoldMaintenance>0</GoldMaintenance> 
 			<MutuallyExclusiveGroup>-1</MutuallyExclusiveGroup> 
 			<TeamShare>false</TeamShare> 
@@ -50050,6 +50046,7 @@
 			<Description>TXT_KEY_BUILDING_MOSQUE</Description> 
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOSQUE_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_BUILDING_MOSQUE_STRATEGY</Strategy> 
+			<Help>TXT_KEY_BUILDING_MOSQUE_HELP</Help> 
 			<GoldMaintenance>0</GoldMaintenance> 
 			<MutuallyExclusiveGroup>-1</MutuallyExclusiveGroup> 
 			<TeamShare>false</TeamShare> 
@@ -50174,7 +50171,7 @@
 			<ArtInfoCulturalVariation>false</ArtInfoCulturalVariation> 
 			<ArtInfoEraVariation>false</ArtInfoEraVariation> 
 			<ArtInfoRandomVariation>false</ArtInfoRandomVariation> 
-			<FaithPerXPopulationInCity>4</FaithPerXPopulationInCity> 
+			<FaithPerXPopulationInCity>3</FaithPerXPopulationInCity> 
 		</Row>
 		<Row> 
 			<ID>139</ID> 
@@ -50182,6 +50179,7 @@
 			<Description>TXT_KEY_BUILDING_PAGODA</Description> 
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_PAGODA_TEXT</Civilopedia> 
 			<Strategy>TXT_KEY_BUILDING_PAGODA_STRATEGY</Strategy> 
+			<Help>TXT_KEY_BUILDING_PAGODA_HELP</Help> 
 			<GoldMaintenance>0</GoldMaintenance> 
 			<MutuallyExclusiveGroup>-1</MutuallyExclusiveGroup> 
 			<TeamShare>false</TeamShare> 
@@ -50306,7 +50304,7 @@
 			<ArtInfoCulturalVariation>false</ArtInfoCulturalVariation> 
 			<ArtInfoEraVariation>false</ArtInfoEraVariation> 
 			<ArtInfoRandomVariation>false</ArtInfoRandomVariation> 
-			<CulturePerXPopulationInCity>5</CulturePerXPopulationInCity>
+			<CulturePerXPopulationInCity>4</CulturePerXPopulationInCity>
 		</Row>
 		<Row> 
 			<ID>140</ID> 
@@ -53813,7 +53811,6 @@
 			<Help>TXT_KEY_BUILDING_ZIGGURAT_HELP</Help>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_ZIGGURAT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_ZIGGURAT_STRATEGY</Strategy>
-			<EnhancedYieldTech>TECH_MASONRY</EnhancedYieldTech> 
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConquestProb>100</ConquestProb>
 			<MinAreaSize>-1</MinAreaSize>
@@ -142482,7 +142479,7 @@
 			<GoldFromKills>0</GoldFromKills> 
 			<EmbarkedExtraMoves>0</EmbarkedExtraMoves> 
 			<AttackBonusTurns>0</AttackBonusTurns> 
-			<GoldenAgeTurns>0</GoldenAgeTurns> 
+			<GoldenAgeTurns>10</GoldenAgeTurns> 
 			<GoldenAgeMeterMod>0</GoldenAgeMeterMod> 
 			<GoldenAgeDurationMod>50</GoldenAgeDurationMod> 
 			<NumFreeTechs>0</NumFreeTechs> 
@@ -142560,7 +142557,7 @@
 			<HappinessToScience>0</HappinessToScience> 
 			<NumCitiesFreeCultureBuilding>0</NumCitiesFreeCultureBuilding> 
 			<NumCitiesFreeFoodBuilding>0</NumCitiesFreeFoodBuilding> 
-			<HalfSpecialistUnhappiness>true</HalfSpecialistUnhappiness> 
+			<HalfSpecialistUnhappiness>false</HalfSpecialistUnhappiness> 
 			<HalfSpecialistFood>false</HalfSpecialistFood> 
 			<MaxConscript>0</MaxConscript> 
 			<UnitSightRangeChange>0</UnitSightRangeChange> 
@@ -149746,6 +149743,16 @@
 		<Row> 
 			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType> 
 			<YieldType>YIELD_GOLD</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType> 
+			<YieldType>YIELD_PRODUCTION</YieldType> 
+			<Yield>1</Yield> 
+		</Row>
+		<Row> 
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType> 
+			<YieldType>YIELD_SCIENCE</YieldType> 
 			<Yield>1</Yield> 
 		</Row>
 	</Policy_CityYieldChanges> 
@@ -168495,7 +168502,7 @@
 			<RiverTradeRoad>false</RiverTradeRoad> 
 			<AngerFreeIntrusionOfCityStates>false</AngerFreeIntrusionOfCityStates> 
 			<FreeUnit>UNITCLASS_SCIENTIST</FreeUnit> 
-			<FreeUnitPrereqTech>TECH_EDUCATION</FreeUnitPrereqTech> 
+			<FreeUnitPrereqTech>TECH_PHILOSOPHY</FreeUnitPrereqTech> 
 		</Row>
 		<Row> 
 			<ID>30</ID> 

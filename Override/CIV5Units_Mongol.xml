@@ -4260,7 +4260,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA"> 
 			<Text>
-				+1 [ICON_PRODUCTION] Production from Fishing Boats
+				+1 [ICON_PRODUCTION] Production from Fishing Boats. Fishing Boats are built 25% faster.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA_SHORT"> 
@@ -4505,7 +4505,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES"> 
 			<Text>
-				Use [ICON_PEACE] Faith to purchase Mosques (+1 [ICON_CULTURE] Culture, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_PEACE] Faith for every 4th [ICON_CITIZEN] Citizen in a City)
+				Use [ICON_PEACE] Faith to purchase Mosques (+1 [ICON_CULTURE] Culture, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_PEACE] Faith for every 3rd [ICON_CITIZEN] Citizen in a City)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES_SHORT"> 
@@ -4555,7 +4555,7 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS"> 
 			<Text>
-				Use [ICON_PEACE] Faith to purchase Pagodas (+1 [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_CULTURE] Culture for every 5th [ICON_CITIZEN] Citizen in a City)
+				Use [ICON_PEACE] Faith to purchase Pagodas (+1 [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness. Additional +1 [ICON_CULTURE] Culture for every 4th [ICON_CITIZEN] Citizen in a City)
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS_SHORT"> 
@@ -5535,7 +5535,12 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Cathedrals belief. Provides additional [ICON_HAPPINESS_1] Happiness for each 6th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP"> 
+			<Text>
+				Provides +1 [ICON_HAPPINESS_1] Happiness for each 6th [ICON_CITIZEN] Citizen in a City.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_CEILIDH_HALL"> 
@@ -6660,7 +6665,12 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Mosques belief. Provides additional [ICON_PEACE] Faith for each 4th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_STRATEGY"> 
+			<Text>
+				Provides additional [ICON_PEACE] Faith for each 3rd [ICON_CITIZEN] Citizen in a City.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC"> 
@@ -6911,7 +6921,12 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PAGODA_STRATEGY"> 
 			<Text>
-				Can only be built in cities following a religion with the Pagodas belief. Provides additional [ICON_CULTURE] Culture for each 5th [ICON_CITIZEN] Citizen in a City. Construct this building by purchasing it with [ICON_PEACE] Faith.
+				Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_PAGODA_HELP"> 
+			<Text>
+				Provides +1 [ICON_CULTURE] Culture for each 4th [ICON_CITIZEN] Citizen in a City.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PALACE"> 
@@ -7728,12 +7743,12 @@
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_ZIGGURAT_HELP"> 
 			<Text>
-				Provides +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture after Masonry is researched.
+				Provides +1 [ICON_CULTURE] Culture.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_ZIGGURAT_STRATEGY"> 
 			<Text>
-				Ziggurat is a unique Babylonian replacement for Shrine. It provides +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture after Masonry is researched.
+				Ziggurat is a unique Babylonian replacement for Shrine. It provides additional [ICON_CULTURE] Culture.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILD_ACADEMY"> 
@@ -97981,7 +97996,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science for every Mine and Quarry.
+				[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science per City. +1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science for every Mine and Quarry.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_TEXT"> 
@@ -98401,7 +98416,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MILITARY_TRADITION_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Military Units gain 50% more Experience from combat and heal 10 HP more when promouting.
+				[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Military Units gain 50% more Experience from combat and heal 10 HP more when promoting.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_MOBILIZATION"> 
@@ -99216,7 +99231,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Universal Suffrage[ENDCOLOR][NEWLINE]Specialists in Cities produce half the normal amount of [ICON_HAPPINESS_4] Unhappiness. [ICON_GOLDEN_AGE] Golden Ages are 50% longer.
+				[COLOR_POSITIVE_TEXT]Universal Suffrage[ENDCOLOR][NEWLINE]Starts a [ICON_GOLDEN_AGE] Golden Age. [ICON_GOLDEN_AGE] Golden Ages are 50% longer.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_URBANIZATION"> 
@@ -101399,6 +101414,11 @@ The ship has weather'd every rack; the prize we sought is won."
 				[NEWLINE][ICON_BULLET]Modifier for Religion: {1_Num}%
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_PRODMOD_PANTHEON_BELIEF"> 
+			<Text>
+				[NEWLINE][ICON_BULLET]Modifier for Pantheon: {1_Num}%
+			</Text>
+		</Row>
 		<Replace Tag="TXT_KEY_PRODMOD_YIELD_CAPITAL"> 
 			<Text>
 				[NEWLINE][ICON_BULLET]City Modifier for [ICON_CAPITAL] Capital: {1_Num}%
@@ -115574,6 +115594,11 @@ The ship has weather'd every rack; the prize we sought is won."
 				Combined Arms
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_FAST_ROAD_BUILD"> 
+			<Text>
+				Roads are built immediately
+			</Text>
+		</Replace>
 		<Replace Tag="TXT_KEY_TECH_COMBUSTION"> 
 			<Text>
 				Combustion
@@ -119154,7 +119179,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER"> 
 			<Text>
-				+15% [ICON_PRODUCTION] Production towards buildings construction in cities with a [ICON_CONNECTED] City Connection. Roads constructed within friendly territory are completed instantly.
+				+15% [ICON_PRODUCTION] Production towards buildings construction in cities with a [ICON_CONNECTED] City Connection. Roads constructed within friendly territory are completed instantly after researching Iron Working.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER_SHORT"> 
@@ -119449,7 +119474,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_INGENIOUS"> 
 			<Text>
-				Receive free Great Scientist when you discover Education. Earn Great Scientists 33% faster.
+				Receive free Great Scientist when you discover Phylosophy. Earn Great Scientists 33% faster.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_INGENIOUS_SHORT"> 
@@ -121867,7 +121892,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_MUSKETEER"> 
 			<Text>
-				One of the first gunpowder units of the game. Only the French may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Musketman, which it replaces. It also gets +20% [ICON_STRENGTH] Combat Strength when has less than 50 HP.
+				One of the first gunpowder units of the game. Only the French may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Musketman, which it replaces. It also gets +20% [ICON_STRENGTH] Combat Strength when its HP is below 50.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_MUSKETMAN"> 
@@ -128121,7 +128146,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SENNACHERIB_GARDEN_HELP"> 
 			<Text>
-				+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Provides +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.
+				+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Provides +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Unlike the Garden Sennacherib Garden does not have to be built next to a River or Lake.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SENNACHERIB_GARDEN_STRATEGY"> 
@@ -129082,7 +129107,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_PATCH_VERSION"> 
 			<Text>
-				v12.3
+				v12.3a
 			</Text>
 		</Replace>
 	</Language_en_US>
@@ -129501,7 +129526,7 @@ The ship has weather'd every rack; the prize we sought is won."
 			<Text>Неизвестный город</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_WONDER_BUILT_BY">
-			<Text>Построено цивилизацией {@1_CivName} в {@2_CityName} {@3_YearBuilt}</Text>
+			<Text>Построено цивилизацией {@1_CivName} в {@2_CityName}</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_WONDER_LEANING_TOWER_HELP"> 
 			<Text>
@@ -129525,7 +129550,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_INGENIOUS"> 
 			<Text>
-				После открытия образования дается великий ученый, а в дальнейшем они начинают появляться на 33% быстрее.
+				После открытия философии дается великий ученый, а в дальнейшем они начинают появляться на 33% быстрее.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_OXFORD_UNIVERSITY_THEMING_BONUS_HELP"> 
@@ -130341,12 +130366,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_PAGODAS"> 
 			<Text>
-				Можно строить пагоды (+1 [ICON_PEACE] к вере, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_CULTURE] к культуре за каждого 5-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
+				Можно строить пагоды (+1 [ICON_PEACE] к вере, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_CULTURE] к культуре за каждого 4-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_MOSQUES"> 
 			<Text>
-				Можно строить мечети (+1 [ICON_CULTURE] к культуре, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_PEACE] к вере, за каждого 4-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
+				Можно строить мечети (+1 [ICON_CULTURE] к культуре, +1 [ICON_HAPPINESS_1] к настроению. Дополнительно +1 [ICON_PEACE] к вере, за каждого 3-го [ICON_CITIZEN] жителя в городе) за [ICON_PEACE] очки веры
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_BRANCH_RATIONALISM_HELP"> 
@@ -130501,7 +130526,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Пятилетний план[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] к производству и +1 [ICON_RESEARCH] к науке за каждую шахту или каменоломню.
+				[COLOR_POSITIVE_TEXT]Пятилетний план[ENDCOLOR][NEWLINE]+1 [ICON_PRODUCTION] к производству и +1 [ICON_RESEARCH] к науке каждого города. +1 [ICON_PRODUCTION] к производству и +1 [ICON_RESEARCH] к науке за каждую шахту или каменоломню.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_TRADE_UNIONS_HELP"> 
@@ -131801,7 +131826,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER"> 
 			<Text>
-				+15% [ICON_PRODUCTION] к производству зданий в городах, [ICON_CONNECTED] соединенных со столицей. Дороги на дружественной территории строятся мгновенно.
+				+15% [ICON_PRODUCTION] к производству зданий в городах, [ICON_CONNECTED] соединенных со столицей. После изучения обработки железа дороги на дружественной территории строятся мгновенно.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT"> 
@@ -133355,7 +133380,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP"> 
 			<Text>
-				[COLOR_POSITIVE_TEXT]Всеобщее избирательное право[ENDCOLOR][NEWLINE]В два раза снижает [ICON_HAPPINESS_4] недовольство специалистов в городах. [ICON_GOLDEN_AGE] Золотой век длится на 50% дольше.
+				[COLOR_POSITIVE_TEXT]Всеобщее избирательное право[ENDCOLOR][NEWLINE]Начинает в державе [ICON_GOLDEN_AGE] золотой век. [ICON_GOLDEN_AGE] Золотой век длится на 50% дольше.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_PROMOTION_FASTER_HEAL"> 
@@ -134292,7 +134317,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BELIEF_GOD_SEA"> 
 			<Text>
-				+1 [ICON_PRODUCTION] за каждую рыбацкую лодку
+				+1 [ICON_PRODUCTION] за каждую рыбацкую лодку. Рабочие лодки строятся на 25% быстрее.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE3"> 
@@ -134756,7 +134781,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_SENNACHERIB_GARDEN_STRATEGY"> 
 			<Text>
-				Сад Сеннахериба — уникальная Ассирийская постройка, заменяющая сад. Он стоит дороже, но увеличивает прирост [ICON_FOOD] пищи и [ICON_CULTURE] культуры в городе на 1. Также не требует наличия реки или озера для постройки.
+				Сад Сеннахериба — уникальная Ассирийская постройка, заменяющая сад. Он стоит дороже, но увеличивает прирост [ICON_FOOD] пищи и [ICON_CULTURE] культуры в городе на 1. Также не требует наличия реки или озера для постройки.[NEWLINE][NEWLINE]В отличие от сада, для постройки Сада Сеннахериба город не обязан находиться рядом с рекой или озером.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_SENNACHERIB_GARDEN_TEXT"> 
@@ -135150,12 +135175,12 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_ZIGGURAT_HELP"> 
 			<Text>
-				Дает +1 [ICON_PEACE] к вере и +1 [ICON_CULTURE] к культуре после изучения Каменной кладки.
+				Дает +1 [ICON_CULTURE] к культуре.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_ZIGGURAT_STRATEGY"> 
 			<Text>
-				Зиккурат — уникальная Вавилонская постройка, заменяющая святилище. Зиккурат дает больше очков [ICON_PEACE] веры и [ICON_CULTURE] культуры после изучения Каменной кладки.
+				Зиккурат — уникальная Вавилонская постройка, заменяющая святилище. Зиккурат дает дополнительные очки [ICON_CULTURE] культуры.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_BUILDINGS_ZIGGURAT_TEXT"> 
@@ -136960,17 +136985,32 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_PAGODA_STRATEGY"> 
 			<Text>
-				Пагоду можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть соответствующее верование. Дает дополнительные очки [ICON_CULTURE] культуры за каждого 5-го [ICON_CITIZEN] жителя в городе.
+				Пагоду можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть соответствующее верование.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_PAGODA_HELP"> 
+			<Text>
+				Дает +1 [ICON_CULTURE] к культуре за каждого 4-го [ICON_CITIZEN] жителя в городе.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_STRATEGY"> 
 			<Text>
-				Мечеть можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть верование "Мечети". Дает дополнительные очки [ICON_PEACE] веры за каждого 4-го [ICON_CITIZEN] жителя в городе.
+				Мечеть можно построить за очки [ICON_PEACE] веры только в городах, придерживающихся религии, в которой есть верование "Мечети".
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_MOSQUE_HELP"> 
+			<Text>
+				Дает +1 [ICON_PEACE] к вере за каждого 3-го [ICON_CITIZEN] жителя в городе.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_STRATEGY"> 
 			<Text>
-				Можно строить только в тех городах, где главенствует религия с верованием "Соборы". Дает дополнительное [ICON_HAPPINESS_1] настроение за каждого 6-го [ICON_CITIZEN] жителя в городе. Чтобы возвести это здание, необходимо потратить [ICON_PEACE] очки веры.
+				Можно строить только в тех городах, где главенствует религия с верованием "Соборы". Чтобы возвести это здание, необходимо потратить [ICON_PEACE] очки веры.
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP"> 
+			<Text>
+				Дает +1 [ICON_HAPPINESS_1] к настроению за каждого 6-го [ICON_CITIZEN] жителя в городе.
 			</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_UNIT_HELP_IMMORTAL"> 
@@ -136983,6 +137023,16 @@ The ship has weather'd every rack; the prize we sought is won."
 				Первый обнаруживший это чудо получит 100 [ICON_GOLD] золота.
 			</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_FAST_ROAD_BUILD"> 
+			<Text>
+				Дороги строятся мгновенно
+			</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_PRODMOD_PANTHEON_BELIEF"> 
+			<Text>
+				[NEWLINE][ICON_BULLET]Влияние пантеона: {1_Num}%
+			</Text>
+		</Row>
 		<Replace Tag="TXT_KEY_MULTIPLAYER_STAGING_ROOM"> 
 			<Text>
 				[COLOR_POSITIVE_TEXT]Патч для FFA6 турнира {TXT_KEY_PATCH_VERSION}[ENDCOLOR]
@@ -137000,7 +137050,7 @@ The ship has weather'd every rack; the prize we sought is won."
 		</Replace>
 		<Replace Tag="TXT_KEY_PATCH_VERSION"> 
 			<Text>
-				v12.3
+				v12.3а
 			</Text>
 		</Replace>
 	</Language_RU_RU>

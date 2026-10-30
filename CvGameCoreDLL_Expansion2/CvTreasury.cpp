@@ -488,45 +488,52 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 	}
 
 #ifdef SACRED_WATERS_FRESH_WATER
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	int iGoldPerRiverOrCoastalCity = 0;
-	int iLoop = 0;
-	CvCity* pLoopCity;
-	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+#ifdef DUEL_SACRED_WATERS_CHANGE
+	if (!GC.getGame().isOption("GAMEOPTION_DUEL_STUFF"))
 	{
-		if (pLoopCity->plot()->isFreshWater()/* || pLoopCity->plot()->isCoastalLand()*/)
+#endif
+		CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+		int iGoldPerRiverOrCoastalCity = 0;
+		int iLoop = 0;
+		CvCity* pLoopCity;
+		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			ReligionTypes eMajority = pLoopCity->GetCityReligions()->GetReligiousMajority();
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pPlayer->GetID());
-			for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+			if (pLoopCity->plot()->isFreshWater()/* || pLoopCity->plot()->isCoastalLand()*/)
 			{
-				if (eMajority != NO_RELIGION && pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
+				ReligionTypes eMajority = pLoopCity->GetCityReligions()->GetReligiousMajority();
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pPlayer->GetID());
+				for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 				{
-					if (pBeliefs->GetEntry(i)->GetRiverHappiness() > 0)
+					if (eMajority != NO_RELIGION && pReligion->m_Beliefs.HasBelief((BeliefTypes)i))
 					{
-						iGoldPerRiverOrCoastalCity += 1;
+						if (pBeliefs->GetEntry(i)->GetRiverHappiness() > 0)
+						{
+							iGoldPerRiverOrCoastalCity += 1;
+						}
 					}
 				}
-			}
-			BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-			if (eSecondaryPantheon != NO_BELIEF)
-			{
-				iGoldPerRiverOrCoastalCity += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();;
-			}
-#ifdef BUILDING_DOUBLE_PANTHEON
-			if (pReligion)
-			{
-				BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
-				if (ePantheon != NO_BELIEF && pLoopCity->getDoublePantheon() > 0)
+				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iGoldPerRiverOrCoastalCity += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetRiverHappiness();
+					iGoldPerRiverOrCoastalCity += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();;
 				}
-			}
+#ifdef BUILDING_DOUBLE_PANTHEON
+				if (pReligion)
+				{
+					BeliefTypes ePantheon = pReligion->m_Beliefs.GetBelief(0);
+					if (ePantheon != NO_BELIEF && pLoopCity->getDoublePantheon() > 0)
+					{
+						iGoldPerRiverOrCoastalCity += GC.GetGameBeliefs()->GetEntry(ePantheon)->GetRiverHappiness();
+					}
+				}
 #endif
+			}
 		}
-	}
 
-	iGoldFromReligion += iGoldPerRiverOrCoastalCity;
+		iGoldFromReligion += iGoldPerRiverOrCoastalCity;
+#endif
+#ifdef DUEL_SACRED_WATERS_CHANGE
+	}
 #endif
 
 	return iGoldFromReligion;

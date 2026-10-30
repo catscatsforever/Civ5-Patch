@@ -5814,6 +5814,51 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 	{
 		iMultiplier += iBuildingMod;
 	}
+#ifdef GOD_SEA_PRODUCTION_MODIFIER
+	int iPantheonBonus = 0;
+	UnitTypes eWorkBoat = (UnitTypes)GC.getInfoTypeForString("UNIT_WORKBOAT");
+	if (eUnit != NO_UNIT && eUnit == eWorkBoat)
+	{
+		BeliefTypes eGodSea = (BeliefTypes)GC.getInfoTypeForString("BELIEF_GOD_SEA");
+		if (eGodSea != NO_BELIEF)
+		{
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion && pReligion->m_Beliefs.HasBelief(eGodSea))
+			{
+				iPantheonBonus += 25;
+				if (pReligion->m_Beliefs.GetBelief(0) == eGodSea)
+				{
+#ifdef BUILDING_DOUBLE_PANTHEON
+					if (getDoublePantheon() > 0)
+					{
+						iPantheonBonus += 25;
+					}
+#endif
+#ifdef RELIGIOUS_TOLERANCE_DOUBLES_OWNER_PANTHEON
+					ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(getOwner());
+					if (eFoundedReligion != NO_RELIGION && eFoundedReligion == eMajority)
+					{
+						PolicyTypes eFreeReligion = (PolicyTypes)GC.getInfoTypeForString("POLICY_FREE_RELIGION");
+						if (eFreeReligion != NO_POLICY && GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy(eFreeReligion))
+						{
+							iPantheonBonus += 25;
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+	if (iPantheonBonus > 0)
+	{
+		iMultiplier += iPantheonBonus;
+		if (toolTipSink)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PANTHEON_BELIEF", iPantheonBonus);
+		}
+	}
+#endif
 
 	return iMultiplier;
 }

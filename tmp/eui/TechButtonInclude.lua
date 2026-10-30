@@ -575,6 +575,8 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		addSmallGenericButtonIf( tech.ResearchAgreementTradingAllowed and "TXT_KEY_ALLOWS_RESEARCH_AGREEMENTS" )
 
 		addSmallGenericButtonIf( tech.TradeAgreementTradingAllowed and "TXT_KEY_ALLOWS_TRADE_AGREEMENTS" )
+		-- FAST_ROAD_BUILD
+		addSmallGenericButtonIf( tech.Type == "TECH_COMBINED_ARMS" and "TXT_KEY_FAST_ROAD_BUILD" )
 
 		if tech.BridgeBuilding then
 			addSmallActionButton( GameInfo.Missions.MISSION_ROUTE_TO, "", "TXT_KEY_ALLOWS_BRIDGES" )

@@ -1985,7 +1985,7 @@ local function GetCultureTooltip( city )
 	if civ5_mode then
 		culturePerTurnTimes100 = city:GetJONSCulturePerTurnTimes100()
 		cultureStoredTimes100 = city:GetJONSCultureStoredTimes100()
-		cultureNeededTimes100 = city:GetJONSCultureThreshold()
+		cultureNeededTimes100 = city:GetJONSCultureThresholdTimes100()
 		cultureFromBuildings = city:GetJONSCulturePerTurnFromBuildings()
 		cultureFromPolicies = city:GetJONSCulturePerTurnFromPolicies()
 		cultureFromSpecialists = city:GetJONSCulturePerTurnFromSpecialists()
@@ -2074,7 +2074,7 @@ local function GetCultureTooltip( city )
 		local turnsRemaining =  math_max(math_ceil(( cultureNeededTimes100 - cultureStoredTimes100 ) / culturePerTurnTimes100), 1)
 		local overflow = (culturePerTurnTimes100 * turnsRemaining + cultureStoredTimes100 - cultureNeededTimes100) / 100
 		if turnsRemaining > 1 then
-			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurnTimes100 )
+    		tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - (culturePerTurnTimes100 / 100) )
 		end
 		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
 	end

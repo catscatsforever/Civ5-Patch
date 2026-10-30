@@ -363,7 +363,9 @@ function OnHotkeyEditMode( actionID )
     	local __cat = row.ActionSubType
     	local __id = row.ActionIndex
     	local __action = GameInfo[Categories[__cat]][__id]
-        res[#res+1] = string.format('[ICON_BULLET]%s', __action.Description and Locale.Lookup(__action.Description) or '--')
+        if __action then
+            res[#res+1] = string.format('[ICON_BULLET]%s', __action.Description and Locale.Lookup(__action.Description) or '--')
+        end
     end
     if #res > 0 then
         table.sort(res, function(a,b)

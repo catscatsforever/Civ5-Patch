@@ -284,6 +284,18 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end	
 
+	-- FAST_ROAD_BUILD
+	if tech.Type == "TECH_COMBINED_ARMS" then
+	local buttonName = "B"..tostring(buttonNum);
+	local thisButton = thisTechButtonInstance[buttonName];
+	if thisButton then
+		IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+		thisButton:SetHide( false );
+		thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_FAST_ROAD_BUILD" ) );
+		buttonNum = buttonNum + 1;
+	end
+end
+
 	if tech.EmbarkedMoveChange > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
