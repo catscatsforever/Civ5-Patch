@@ -1122,6 +1122,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	uninit();
 
 	m_fCurrentTurnTimerPauseDelta = 0.f;
+#ifdef GAME_ALLOW_ONLY_ONE_UNIT_MOVE_ON_TURN_LOADING
+	m_bMPOrderedMoveOnTurnLoading = false;
+	m_bReceivedFirstMission = false;
+#endif
 
 	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 	strUTF8DatabasePath += "Civ5SavedGameDatabase.db";
